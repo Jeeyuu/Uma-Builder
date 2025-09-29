@@ -6,19 +6,19 @@ title: Uma-Builder
 # Uma-Builder Card Picker
 
 <div id="card-picker">
-  <!-- Top slots -->
-  <div id="selected-cards" style="display: flex; gap: 10px; margin-bottom: 20px;">
-    <!-- 6 empty slots -->
-    <div class="slot" data-slot="0"></div>
-    <div class="slot" data-slot="1"></div>
-    <div class="slot" data-slot="2"></div>
-    <div class="slot" data-slot="3"></div>
-    <div class="slot" data-slot="4"></div>
-    <div class="slot" data-slot="5"></div>
+  <!-- Top slots with clear button -->
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px;">
+    <div id="selected-cards" style="display: flex; gap: 10px;">
+      <!-- 6 empty slots -->
+      <div class="slot" data-slot="0"></div>
+      <div class="slot" data-slot="1"></div>
+      <div class="slot" data-slot="2"></div>
+      <div class="slot" data-slot="3"></div>
+      <div class="slot" data-slot="4"></div>
+      <div class="slot" data-slot="5"></div>
+    </div>
+    <button id="clear-all" style="height:30px;">Clear All</button>
   </div>
-
-  <!-- Where details will show -->
-  <div id="card-details"></div>
 
   <!-- Card catalog -->
   <div id="card-catalog" style="display: flex; gap: 20px; flex-wrap: wrap;">
@@ -32,52 +32,49 @@ const cards = [
   {
     id: 1,
     name: "Speed Support",
-    image: "https://via.placeholder.com/100",
+    image: "https://gametora.com/images/umamusume/supports/support_card_s_10003.png",
     skills: ["Speed Up", "Acceleration", "Corner Boost"]
   },
   {
     id: 2,
     name: "Stamina Support",
-    image: "https://via.placeholder.com/100",
+    image: "https://gametora.com/images/umamusume/supports/support_card_s_10006.png",
     skills: ["Endurance", "Recovery", "Second Wind", "Final Stretch"]
   },
   {
     id: 3,
     name: "Power Support",
-    image: "https://via.placeholder.com/100",
+    image: "https://gametora.com/images/umamusume/supports/support_card_s_10005.png",
     skills: ["Power Boost", "Strong Kick", "Heavy Sprint", "Endline Burst", "Muscle Memory"]
   }
 ];
 
 const selectedSlots = document.querySelectorAll("#selected-cards .slot");
 const catalog = document.getElementById("card-catalog");
-const detailsArea = document.getElementById("card-details");
+const clearAllBtn = document.getElementById("clear-all");
 
 // Track selected card IDs
 let selectedCardIds = [];
 
 // Style slots
 selectedSlots.forEach(slot => {
-  slot.style.width = "100px";
-  slot.style.height = "100px";
+  slot.style.width = "120px";
+  slot.style.minHeight = "120px";
   slot.style.border = "2px dashed gray";
   slot.style.display = "flex";
+  slot.style.flexDirection = "column";
   slot.style.alignItems = "center";
-  slot.style.justifyContent = "center";
+  slot.style.justifyContent = "flex-start";
+  slot.style.padding = "5px";
   slot.style.cursor = "pointer";
 
   // Allow removing cards by clicking the slot
   slot.addEventListener("click", () => {
     if (slot.dataset.cardId) {
       const cardId = parseInt(slot.dataset.cardId);
-      // Remove from tracking
       selectedCardIds = selectedCardIds.filter(id => id !== cardId);
-      // Clear slot
       slot.innerHTML = "";
       slot.removeAttribute("data-card-id");
-      // Remove card details
-      const detailDiv = document.getElementById(`details-${cardId}`);
-      if (detailDiv) detailDiv.remove();
     }
   });
 });
@@ -99,36 +96,45 @@ cards.forEach(card => {
     </table>
   `;
 
-  // On click → add to first empty slot
+  // On click → add/remove card
   cardDiv.addEventListener("click", () => {
     if (selectedCardIds.includes(card.id)) {
-      alert(`${card.name} is already selected!`);
-      return;
-    }
-
-    for (let slot of selectedSlots) {
-      if (!slot.dataset.cardId) {
-        slot.innerHTML = `<img src="${card.image}" alt="${card.name}" style="width:100%;height:100%;">`;
-        slot.dataset.cardId = card.id;
-        selectedCardIds.push(card.id);
-
-        // Show card details below slots
-        let detailsDiv = document.createElement("div");
-        detailsDiv.id = `details-${card.id}`;
-        detailsDiv.style.margin = "10px 0";
-        detailsDiv.innerHTML = `
-          <h3>${card.name}</h3>
-          <table border="1" style="border-collapse: collapse; width: 300px;">
-            <tr><th>Skills</th></tr>
-            ${card.skills.map(skill => `<tr><td>${skill}</td></tr>`).join("")}
-          </table>
-        `;
-        detailsArea.appendChild(detailsDiv);
-        break;
+      // Remove if already selected
+      for (let slot of selectedSlots) {
+        if (parseInt(slot.dataset.cardId) === card.id) {
+          slot.innerHTML = "";
+          slot.removeAttribute("data-card-id");
+          selectedCardIds = selectedCardIds.filter(id => id !== card.id);
+          break;
+        }
+      }
+    } else {
+      // Add to first empty slot
+      for (let slot of selectedSlots) {
+        if (!slot.dataset.cardId) {
+          slot.dataset.cardId = card.id;
+          slot.innerHTML = `
+            <img src="${card.image}" alt="${card.name}" style="width:100px;height:100px;">
+            <table style="margin-top: 5px; font-size: 12px; border-collapse: collapse; width: 100%;">
+              ${card.skills.map(skill => `<tr><td style="border: 1px solid #ddd; padding: 2px;">${skill}</td></tr>`).join("")}
+            </table>
+          `;
+          selectedCardIds.push(card.id);
+          break;
+        }
       }
     }
   });
 
   catalog.appendChild(cardDiv);
+});
+
+// Clear All button
+clearAllBtn.addEventListener("click", () => {
+  selectedSlots.forEach(slot => {
+    slot.innerHTML = "";
+    slot.removeAttribute("data-card-id");
+  });
+  selectedCardIds = [];
 });
 </script>
