@@ -26,6 +26,7 @@
       justify-content: flex-start;
       padding: 5px;
       background: #f9f9f9;
+      position: relative; /* so absolute children align inside */
     }
 
     .slot img {
@@ -92,13 +93,16 @@
     }
 
     .remove-btn {
-      margin-top: 5px;
+      position: absolute;
+      top: -8px;
+      right: -8px;
       background: #ff9999;
       border: none;
       padding: 2px 6px;
       font-size: 12px;
       cursor: pointer;
-      border-radius: 4px;
+      border-radius: 50%;
+      line-height: 1;
     }
   </style>
 </head>
@@ -153,12 +157,12 @@
       if (!emptySlot) return;
 
       emptySlot.innerHTML = `
+        <button class="remove-btn" onclick="removeCard(${card.id}, ${emptySlot.dataset.slot})">&times;</button>
         <img src="${card.img}" alt="${card.name}">
         <div>${card.name}</div>
         <div class="skills">
           ${card.skills.map(skill => `<div class="skill">${skill}</div>`).join("")}
         </div>
-        <button class="remove-btn" onclick="removeCard(${card.id}, ${emptySlot.dataset.slot})">Remove</button>
       `;
 
       disableCard(card.id, true);
