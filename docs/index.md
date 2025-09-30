@@ -13,12 +13,12 @@
     margin: 20px;
     background: #fff;
     color: #111;
+        overflow-x: auto;
   }
 
   /* Container */
 .container {
     width: 100%;          /* full width of viewport */
-    max-width: 2560px;    /* optional cap */
     margin: 0 auto;
     display: flex;
     gap: 20px;
