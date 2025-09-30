@@ -70,41 +70,51 @@
     cursor: pointer;
   }
 
-  /* Slots grid */
-  .slots {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-    margin-bottom: 18px;
-  }
+/* Slots grid: allow variable width based on content */
+.slots {
+  display: grid;
+  grid-auto-flow: column;        /* create columns horizontally */
+  grid-auto-columns: max-content; /* each slot grows to fit its content */
+  gap: 10px;
+  margin-bottom: 18px;
+  overflow-x: auto;              /* scroll if wider than viewport */
+  padding-bottom: 4px;           /* small padding for scrollbar */
+}
 
-  .slot {
-    min-height: 150px;
-    border: 2px dashed #ccc;
-    background: #fafafa;
-    padding: 6px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    cursor: pointer;
-    position: relative;
-    width: 100%;
-  }
+/* Individual slot */
+.slot {
+  min-height: 150px;
+  border: 2px dashed #ccc;
+  background: #fafafa;
+  padding: 6px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  position: relative;
+
+  /* let slot expand horizontally based on content */
+  width: max-content;
+}
+
 
   .slot.has-card {
     border-color: #9aa;
     background: #fff;
   }
 
-  /* Cards grid */
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-    margin-top: 6px;
-  }
+.cards {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  gap: 10px;
+  margin-top: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
 
   .card {
     border: 1px solid #ddd;
