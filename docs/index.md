@@ -4,10 +4,9 @@
 <title>Uma Builder — Card Picker</title>
 <style>
 :root {
-  --card-w: 118px; /* fixed width for cards & slots */
-  --gap: 10px;     /* unified gap */
+  --card-w: 118px;
+  --gap: 10px;
 }
-
 body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
@@ -16,21 +15,19 @@ body {
   background: #fff;
   color: #111;
   display: flex;
-  justify-content: flex-start; /* pushes content to the left */
+  justify-content: flex-start;
 }
-
 .container {
-  position: relative; /* or absolute */
-    transform: translateX(-100px); /* move everything left by 50px, adjust as needed */
-  left: 0;            /* force to left edge */
-  top: 0;             /* optional */
-  width: 100%;        /* take full width */
-  max-width: none;    /* remove previous max-width */
+  position: relative;
+  transform: translateX(-100px);
+  left: 0;
+  top: 0;
+  width: 100%;
+  max-width: none;
   display: flex;
-  gap: 20px;          /* keep your gap */
+  gap: 20px;
   align-items: flex-start;
 }
-
 .sidebar {
   flex-shrink: 0;
   width: 180px;
@@ -38,14 +35,12 @@ body {
   flex-direction: column;
   gap: 20px;
 }
-
 /* Filters */
 .filter-group label {
   font-weight: 700;
   margin-bottom: 6px;
   display: block;
 }
-
 select {
   padding: 6px;
   border-radius: 6px;
@@ -53,21 +48,18 @@ select {
   background: #fff;
   width: 100%;
 }
-
 /* Main content */
 .main-content {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
-
 /* Slots header */
 .slots-header {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 8px;
 }
-
 .clear-all {
   padding: 5px 10px;
   font-size: 14px;
@@ -77,7 +69,6 @@ select {
   background: #444;
   color: #fff;
 }
-
 /* Slots grid */
 .slots {
   display: grid;
@@ -85,7 +76,6 @@ select {
   gap: var(--gap);
   margin-bottom: 18px;
 }
-
 .slot {
   border: 1px solid #ddd;
   padding: 8px;
@@ -98,33 +88,28 @@ select {
   cursor: pointer;
   position: relative;
   width: var(--card-w);
-  min-height: var(--card-w); /* square empty slot */
+  min-height: var(--card-w);
 }
-
 .slot:not(.has-card) {
   border: 2px dashed #ccc;
   background: #fafafa;
 }
-
 .slot img {
   width: 100%;
   height: auto;
 }
-
 .slot .name {
   margin: 8px 0 6px 0;
   font-weight: 600;
   text-align: center;
   word-break: break-word;
 }
-
 .slot .skills {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .slot .skill {
   background: #eef2ff;
   border-radius: 6px;
@@ -133,16 +118,14 @@ select {
   word-break: break-word;
   white-space: normal;
 }
-
 /* Bottom cards grid */
 .cards {
   display: grid;
-  grid-template-columns: repeat(6, 1fr); /* 6 cards per row */
-  gap: 10px;          /* same gap as slots above */
-  margin-top: 6px;    /* keep previous margin */
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-top: 6px;
   margin-bottom: 12px;
 }
-
 .card {
   border: 1px solid #ddd;
   padding: 8px;
@@ -155,26 +138,22 @@ select {
   width: var(--card-w);
   position: relative;
 }
-
 .card img {
   width: 100%;
   height: auto;
 }
-
 .card .name {
   margin: 8px 0 6px 0;
   font-weight: 600;
   text-align: center;
   word-break: break-word;
 }
-
 .card .skills {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .card .skill {
   background: #eef2ff;
   border-radius: 6px;
@@ -183,7 +162,6 @@ select {
   word-break: break-word;
   white-space: normal;
 }
-
 .card .type-icon,
 .slot .type-icon {
   position: absolute;
@@ -196,12 +174,10 @@ select {
   border-radius: 4px;
   overflow: hidden;
 }
-
 .card.disabled {
   opacity: 0.45;
   pointer-events: none;
 }
-
 /* Responsive */
 @media (max-width: 1100px) {
   :root { --card-w: 100px; }
@@ -212,7 +188,6 @@ select {
 
 <div class="container">
   <div class="sidebar">
-    <!-- Filter groups (same as previous) -->
     <div class="filter-group">
       <label for="racecourse">Racecourse</label>
       <select id="racecourse">
@@ -270,6 +245,9 @@ select {
         <option>Sunny</option><option>Cloudy</option><option>Rainy</option><option>Snowy</option>
       </select>
     </div>
+
+    <!-- Clear Filters button -->
+    <button id="clearFiltersBtn" class="clear-all" style="margin-top:auto;">Clear Filters</button>
   </div>
 
   <div class="main-content">
@@ -289,7 +267,6 @@ select {
     <div class="card-sections" id="cardSections"></div>
   </div>
 </div>
-
 
 <script>
 // Sample cards
@@ -322,6 +299,7 @@ const cardsData = Array.from({length:10}, (_, i) => {
 const cardSections = document.getElementById('cardSections');
 const slots = Array.from(document.querySelectorAll('.slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
+const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
 const categories = [
   {id:'racecourse', title:'Racecourse', prop:'racecourse'},
@@ -414,6 +392,7 @@ function removeFromSlot(slotEl, cardId){
   document.querySelectorAll(`.card[data-id="${cardId}"]`).forEach(el => el.classList.remove('disabled'));
 }
 
+// Clear All slots
 clearAllBtn.addEventListener('click', ()=>{
   selectedCardIds.clear();
   slots.forEach(slot=>{
@@ -426,6 +405,18 @@ clearAllBtn.addEventListener('click', ()=>{
     slot.innerHTML = '';
   });
   document.querySelectorAll('.card').forEach(el => el.classList.remove('disabled'));
+});
+
+// Clear Filters
+clearFiltersBtn.addEventListener('click', () => {
+  categories.forEach(cat => {
+    const sel = document.getElementById(cat.id);
+    if(sel){
+      sel.value = '';
+      localStorage.removeItem('filter_'+cat.id);
+    }
+  });
+  renderSections();
 });
 
 function setupFilterPersistence(){
