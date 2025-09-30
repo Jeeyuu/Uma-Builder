@@ -50,7 +50,7 @@
     .skill {
       background: #e0e0ff;
       padding: 2px 6px;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 12px;
       white-space: nowrap;
     }
