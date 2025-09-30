@@ -17,8 +17,8 @@
 
   /* Container */
   .container {
-      width: 1920px;
-      max-width: 1920px; /* optional, caps at 2560px */
+      width: 100%;
+      max-width: 2560px; /* optional, caps at 2560px */
       margin: 0 auto;
       display: flex;
       gap: 20px;
@@ -92,7 +92,7 @@
     justify-content: flex-start;
     cursor: pointer;
     position: relative;
-    width: 115px;
+    width: 100%;
   }
 
   .slot.has-card {
@@ -118,18 +118,18 @@
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    width: 115px;
+    width: 100%;
   }
 
   .card img {
-    width: 115px;
+    width: 100%;
     height: 100%;
     object-fit: contain;
     display: block;
   }
 
   .slot img {
-    width: 115px;
+    width: 100%;
     height: 100%;
     object-fit: contain;
     display: block;
