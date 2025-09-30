@@ -115,19 +115,19 @@
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    width: 200%;
+    width: 100%;
   }
 
   .card img {
     width: 100%;
-    height: var(--img-h);
+    height: 100%;
     object-fit: contain;
     display: block;
   }
 
   .slot img {
-    width: 200%;
-    height: var(--img-h);
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     display: block;
   }
@@ -141,7 +141,7 @@
 
   /* Skills overflow */
   .skills {
-    width: 200%;      /* allows overflow */
+    width: 500px;      /* allows overflow */
     max-width: 1000px; /* optional to limit extreme overflow */
     display: flex;
     flex-direction: column;
