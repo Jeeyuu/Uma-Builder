@@ -129,7 +129,7 @@ select {
   background: #eef2ff;
   border-radius: 6px;
   padding: 4px 6px;
-  font-size: 10px;
+  font-size: 12px;
   word-break: break-word;
   white-space: normal;
 }
@@ -179,7 +179,7 @@ select {
   background: #eef2ff;
   border-radius: 6px;
   padding: 4px 6px;
-  font-size: 10px;
+  font-size: 12px;
   word-break: break-word;
   white-space: normal;
 }
