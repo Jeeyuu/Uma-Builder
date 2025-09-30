@@ -83,6 +83,7 @@
 /* Individual slot */
 .slot {
     width: 120px;       /* fixed width */
+    min-height: 120px;
     height: 100%;      /* fixed height */
     border: 2px dashed #ccc;
     background: #fafafa;
