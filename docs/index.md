@@ -30,7 +30,7 @@
     margin-left: -175px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 20px;
   }
 
   .filter-group {
@@ -69,6 +69,7 @@
     padding: 6px 10px;
     border-radius: 6px;
     cursor: pointer;
+    margin-right: -10px;
   }
 
   /* Slots grid */
