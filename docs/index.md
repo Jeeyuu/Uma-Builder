@@ -1,366 +1,469 @@
-<html>
+<html lang="en">
 <head>
-  <style>
-    :root {
-      --card-w: 118px; /* unified width */
-    }
+<meta charset="utf-8" />
+<title>Uma Builder — Card Picker</title>
+<style>
+  :root {
+    --card-w: 115px; /* card image width */
+  }
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8f8f8;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-    }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 20px;
+    background: #fff;
+    color: #111;
+  }
 
-    /* Container */
-    .container {
-      width: 1280px;
-      margin: 20px auto;
+  /* Container */
+  .container {
+      width: 100%;
+      max-width: 2560px;
+      margin: 0 auto;
       display: flex;
       gap: 20px;
       align-items: flex-start;
-    }
+  }
 
-    /* Sidebar filters */
-    .sidebar {
-      width: 175px;
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-    .filter-group {
-      margin-bottom: 15px;
-    }
-    .filter-group label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
-    }
-    .filter-group select {
-      width: 100%;
-    }
+  /* Sidebar */
+  .sidebar {
+    flex: 0 0 175px;
+    margin-left: -175px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
 
-    /* Main content */
-    .main {
-      flex: 1;
-    }
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+  }
 
-    /* Slots area */
-    .slots-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .slots {
-      display: grid;
-      grid-template-columns: repeat(6, var(--card-w));
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .slot {
-      width: var(--card-w);
-      min-height: var(--card-w);
-      border: 1px dashed #bbb;
-      background: #fafafa;
-      display: flex;
+  .filter-group label {
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  select {
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #fff;
+  }
+
+  /* Main content */
+  .main-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .slots-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 8px;
+  }
+
+  .clear-all {
+    background: #444;
+    color: #fff;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: -10px;
+  }
+
+/* Slots grid */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(6, var(--card-w)); /* fixed width per slot */
+  justify-content: start; /* prevent stretching across */
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+/* Slot styled like a card */
+.slot {
+  border: 1px solid #ddd;
+  padding: 8px;
+  box-sizing: border-box;
+  background: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  min-height: var(--card-w); /* square minimum */
+  width: var(--card-w);      /* fixed width like cards */
+  transition: all 0.2s;
+}
+
+
+  /* Empty slot style */
+  .slot:not(.has-card) {
+    border: 2px dashed #ccc;
+    background: #fafafa;
+  }
+
+  /* Slot content (same as card) */
+  .slot img {
+    width: var(--card-w);
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  .slot .name {
+    margin: 8px 0 6px 0;
+    font-weight: 600;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  .slot .skills {
+    width: var(--card-w);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .slot .skill {
+    background: #eef2ff;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 12px;
+    box-sizing: border-box;
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  /* Cards grid */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .card {
+    border: 1px solid #ddd;
+    padding: 8px;
+    box-sizing: border-box;
+    background: #fff;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  .card img {
+    width: var(--card-w);
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  .name {
+    margin: 8px 0 6px 0;
+    font-weight: 600;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  .skills {
+    width: var(--card-w);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .skill {
+    background: #eef2ff;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 12px;
+    box-sizing: border-box;
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  .card .type-icon,
+  .slot .type-icon {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .card.disabled {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    :root { --card-w: 100px; }
+  }
+
+  @media (max-width: 640px) {
+    .container {
       flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      box-sizing: border-box;
-      cursor: pointer;
     }
-
-    /* Cards */
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(var(--card-w), 1fr));
-      gap: 15px;
-      justify-items: center;
-    }
-    .card {
-      width: var(--card-w);
-      border: 1px solid #ccc;
-      padding: 5px;
-      text-align: center;
-      cursor: pointer;
-      background: #fff;
-      position: relative;
-      box-sizing: border-box;
-    }
-    .card img {
+    .sidebar {
       width: 100%;
-      height: auto;
-      display: block;
-    }
-    .card.disabled {
-      opacity: 0.4;
-      pointer-events: none;
-    }
-    .name {
-      margin-top: 4px;
-      font-size: 12px;
-      font-weight: bold;
-      word-wrap: break-word;
-    }
-    .skills {
-      display: flex;
+      flex-direction: row;
       flex-wrap: wrap;
-      gap: 2px;
-      margin-top: 4px;
-      justify-content: center;
     }
-    .skill {
-      background: #eee;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      padding: 2px 4px;
-      font-size: 10px;
-      word-break: break-word;
-      max-width: 100%;
+    .sidebar .filter-group {
+      flex: 1;
+      min-width: 150px;
     }
-
-    /* Type icon */
-    .type-icon {
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      width: 20px;
-      height: 20px;
-    }
-    .type-icon img {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Clear button */
-    .clear-btn {
-      background: #f44336;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      cursor: pointer;
-      font-size: 12px;
-      border-radius: 3px;
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
-  <div class="container">
-    <!-- Sidebar filters -->
-    <div class="sidebar">
-      <div class="filter-group">
-        <label for="racecourse">Racecourse</label>
-        <select id="racecourse">
-          <option value="">--</option>
-          <option>Sapporo</option>
-          <option>Hakodate</option>
-          <option>Niigata</option>
-          <option>Fukushima</option>
-          <option>Nakayama</option>
-          <option>Tokyo</option>
-          <option>Chukyo</option>
-          <option>Kyoto</option>
-          <option>Hanshin</option>
-          <option>Kokura</option>
-          <option>Oi</option>
-          <option>Kawasaki</option>
-          <option>Funabashi</option>
-          <option>Morioka</option>
-          <option>Longchamp</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="length">Length</label>
-        <select id="length">
-          <option value="">--</option>
-          <option>1000m</option>
-          <option>1150m</option>
-          <option>1200m</option>
-          <option>1300m</option>
-          <option>1400m</option>
-          <option>1500m</option>
-          <option>1600m</option>
-          <option>1700m</option>
-          <option>1800m</option>
-          <option>1900m</option>
-          <option>2000m</option>
-          <option>2100m</option>
-          <option>2200m</option>
-          <option>2300m</option>
-          <option>2400m</option>
-          <option>2500m</option>
-          <option>2600m</option>
-          <option>3000m</option>
-          <option>3200m</option>
-          <option>3400m</option>
-          <option>3600m</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="lengthType">Length Type</label>
-        <select id="lengthType">
-          <option value="">--</option>
-          <option>Sprint</option>
-          <option>Mile</option>
-          <option>Medium</option>
-          <option>Long</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="direction">Direction</label>
-        <select id="direction">
-          <option value="">--</option>
-          <option>Clockwise</option>
-          <option>Counterclockwise</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="condition">Track Conditions</label>
-        <select id="condition">
-          <option value="">--</option>
-          <option>Firm</option>
-          <option>Good</option>
-          <option>Soft</option>
-          <option>Heavy</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="season">Season</label>
-        <select id="season">
-          <option value="">--</option>
-          <option>Spring</option>
-          <option>Summer</option>
-          <option>Fall</option>
-          <option>Winter</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="weather">Weather</label>
-        <select id="weather">
-          <option value="">--</option>
-          <option>Sunny</option>
-          <option>Cloudy</option>
-          <option>Rainy</option>
-          <option>Snowy</option>
-        </select>
-      </div>
-    </div>
+<h1>Uma Builder</h1>
 
-    <!-- Main content -->
-    <div class="main">
-      <div class="slots-header">
-        <h3>Selected Cards</h3>
-        <button class="clear-btn" id="clearAll">Clear All</button>
-      </div>
-      <div class="slots" id="slots"></div>
-      <h3>Available Cards</h3>
-      <div class="cards" id="cards"></div>
+<div class="container">
+  <div class="sidebar">
+    <div class="filter-group">
+      <label for="racecourse">Racecourse</label>
+      <select id="racecourse">
+        <option value="">-- Select --</option>
+        <option>Sapporo</option><option>Hakodate</option><option>Niigata</option><option>Fukushima</option>
+        <option>Nakayama</option><option>Tokyo</option><option>Chukyo</option><option>Kyoto</option>
+        <option>Hanshin</option><option>Kokura</option><option>Oi</option><option>Kawasaki</option>
+        <option>Funabashi</option><option>Morioka</option><option>Longchamp</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="length">Length</label>
+      <select id="length">
+        <option value="">-- Select --</option>
+        <option>1000m</option><option>1150m</option><option>1200m</option><option>1300m</option>
+        <option>1400m</option><option>1500m</option><option>1600m</option><option>1700m</option>
+        <option>1800m</option><option>1900m</option><option>2000m</option><option>2100m</option>
+        <option>2200m</option><option>2300m</option><option>2400m</option><option>2500m</option>
+        <option>2600m</option><option>3000m</option><option>3200m</option><option>3400m</option>
+        <option>3600m</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="lengthType">Length Type</label>
+      <select id="lengthType">
+        <option value="">-- Select --</option>
+        <option>Sprint</option><option>Mile</option><option>Medium</option><option>Long</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="direction">Direction</label>
+      <select id="direction">
+        <option value="">-- Select --</option>
+        <option>Clockwise</option><option>Counterclockwise</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="track">Track Conditions</label>
+      <select id="track">
+        <option value="">-- Select --</option>
+        <option>Firm</option><option>Good</option><option>Soft</option><option>Heavy</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="season">Season</label>
+      <select id="season">
+        <option value="">-- Select --</option>
+        <option>Spring</option><option>Summer</option><option>Fall</option><option>Winter</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="weather">Weather</label>
+      <select id="weather">
+        <option value="">-- Select --</option>
+        <option>Sunny</option><option>Cloudy</option><option>Rainy</option><option>Snowy</option>
+      </select>
     </div>
   </div>
 
-  <script>
-    const slotsContainer = document.getElementById("slots");
-    const cardsContainer = document.getElementById("cards");
-    const clearAllBtn = document.getElementById("clearAll");
+  <div class="main-content">
+    <div class="slots-header">
+      <button class="clear-all" id="clearAllBtn">Clear All</button>
+    </div>
 
-    // Placeholder cards
-    const cardsData = [];
-    for (let i = 10001; i <= 10010; i++) {
-      cardsData.push({
-        id: i,
-        name: "Card " + i,
-        type: ("0" + (i % 6)).slice(-2), // placeholder type
-        skills: [
-          "Sapporo","1000m","Sprint","Clockwise","Firm","Spring","Sunny"
-        ]
-      });
+    <div class="slots" id="slots">
+      <div class="slot" data-slot="0"></div>
+      <div class="slot" data-slot="1"></div>
+      <div class="slot" data-slot="2"></div>
+      <div class="slot" data-slot="3"></div>
+      <div class="slot" data-slot="4"></div>
+      <div class="slot" data-slot="5"></div>
+    </div>
+
+    <div class="card-sections" id="cardSections"></div>
+  </div>
+</div>
+
+<script>
+const cardsData = Array.from({length:10}, (_, i) => {
+  const id = 10001 + i;
+  const raceArr = ["Sapporo","Hakodate","Niigata","Fukushima","Nakayama","Tokyo","Chukyo","Kyoto","Hanshin","Kokura"];
+  const lenArr = ["1000m","1150m","1200m","1300m","1400m","1500m","1600m","1700m","1800m","1900m","2000m","2100m","2200m","2300m","2400m","2500m","2600m","3000m","3200m","3400m","3600m"];
+  const lengthTypeArr = ["Sprint","Mile","Medium","Long"];
+  const dirArr = ["Clockwise","Counterclockwise"];
+  const trackArr = ["Firm","Good","Soft","Heavy"];
+  const seasonArr = ["Spring","Summer","Fall","Winter"];
+  const weatherArr = ["Sunny","Cloudy","Rainy","Snowy"];
+  const race = raceArr[i % raceArr.length];
+  const length = lenArr[i % lenArr.length];
+  const lengthType = lengthTypeArr[i % lengthTypeArr.length];
+  const direction = dirArr[i % dirArr.length];
+  const track = trackArr[i % trackArr.length];
+  const season = seasonArr[i % seasonArr.length];
+  const weather = weatherArr[i % weatherArr.length];
+  return {
+    id, name: `Card ${id}`,
+    image: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
+    racecourse: race, length, lengthType, direction, track, season, weather,
+    skills: [race,length,lengthType,direction,track,season,weather],
+    typeNum: String(Math.floor(Math.random()*6)).padStart(2,"0"),
+    typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${String(Math.floor(Math.random()*6)).padStart(2,"0")}.png`
+  };
+});
+
+const cardSections = document.getElementById('cardSections');
+const slots = Array.from(document.querySelectorAll('.slot'));
+const clearAllBtn = document.getElementById('clearAllBtn');
+const selectedCardIds = new Set();
+const categories = [
+  {id:'racecourse', title:'Racecourse', prop:'racecourse'},
+  {id:'length', title:'Length', prop:'length'},
+  {id:'lengthType', title:'Length Type', prop:'lengthType'},
+  {id:'direction', title:'Direction', prop:'direction'},
+  {id:'track', title:'Track Conditions', prop:'track'},
+  {id:'season', title:'Season', prop:'season'},
+  {id:'weather', title:'Weather', prop:'weather'}
+];
+const slotListeners = new Map();
+
+function createCardElement(card){
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.dataset.id = card.id;
+  el.innerHTML = `
+    <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
+    <img src="${card.image}" alt="${card.name}">
+    <div class="name">${escapeHtml(card.name)}</div>
+    <div class="skills">${card.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>
+  `;
+  el.addEventListener('click', ()=> addToSlot(card));
+  if(selectedCardIds.has(card.id)) el.classList.add('disabled');
+  return el;
+}
+
+function renderSections(){
+  cardSections.innerHTML = '';
+  let any = false;
+  categories.forEach(cat=>{
+    const val = (document.getElementById(cat.id) || {value: ''}).value;
+    if(!val) return;
+    any = true;
+    const section = document.createElement('div');
+    section.className = 'card-section';
+    const header = document.createElement('h2');
+    header.textContent = `${cat.title}: ${val}`;
+    section.appendChild(header);
+    const grid = document.createElement('div');
+    grid.className = 'cards';
+    const matches = cardsData.filter(c => String(c[cat.prop]) === String(val));
+    matches.forEach(card => grid.appendChild(createCardElement(card)));
+    section.appendChild(grid);
+    cardSections.appendChild(section);
+  });
+  if(!any){
+    const msg = document.createElement('div');
+    msg.style.opacity = '0.7';
+    msg.style.marginTop = '8px';
+    msg.textContent = 'Select options from the left to show matching card sections.';
+    cardSections.appendChild(msg);
+  }
+}
+
+function addToSlot(card){
+  const freeSlot = slots.find(s => !s.dataset.cardId);
+  if(!freeSlot) return;
+  if(slotListeners.has(freeSlot)){
+    freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
+    slotListeners.delete(freeSlot);
+  }
+
+  freeSlot.dataset.cardId = card.id;
+  freeSlot.classList.add('has-card');
+  freeSlot.innerHTML = `
+    <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
+    <img src="${card.image}" alt="${card.name}">
+    <div class="name">${escapeHtml(card.name)}</div>
+    <div class="skills">${card.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>
+  `;
+
+  function slotClickHandler(){ removeFromSlot(freeSlot, card.id); }
+  freeSlot.addEventListener('click', slotClickHandler);
+  slotListeners.set(freeSlot, slotClickHandler);
+
+  selectedCardIds.add(card.id);
+  document.querySelectorAll(`.card[data-id="${card.id}"]`).forEach(el => el.classList.add('disabled'));
+}
+
+function removeFromSlot(slotEl, cardId){
+  if(slotListeners.has(slotEl)){
+    slotEl.removeEventListener('click', slotListeners.get(slotEl));
+    slotListeners.delete(slotEl);
+  }
+  slotEl.classList.remove('has-card');
+  delete slotEl.dataset.cardId;
+  slotEl.innerHTML = '';
+  selectedCardIds.delete(Number(cardId));
+  document.querySelectorAll(`.card[data-id="${cardId}"]`).forEach(el => el.classList.remove('disabled'));
+}
+
+clearAllBtn.addEventListener('click', ()=>{
+  selectedCardIds.clear();
+  slots.forEach(slot=>{
+    if(slotListeners.has(slot)){
+      slot.removeEventListener('click', slotListeners.get(slot));
+      slotListeners.delete(slot);
     }
+    slot.classList.remove('has-card');
+    delete slot.dataset.cardId;
+    slot.innerHTML = '';
+  });
+  document.querySelectorAll('.card').forEach(el => el.classList.remove('disabled'));
+});
 
-    // Create 6 empty slots
-    for (let i = 0; i < 6; i++) {
-      const slot = document.createElement("div");
-      slot.className = "slot";
-      slot.dataset.slot = i;
-      slotsContainer.appendChild(slot);
-
-      // click to remove card
-      slot.addEventListener("click", () => {
-        if (slot.firstChild) {
-          const cardId = slot.firstChild.dataset.id;
-          slot.innerHTML = "";
-          const cardEl = cardsContainer.querySelector(`[data-id="${cardId}"]`);
-          if (cardEl) cardEl.classList.remove("disabled");
-        }
-      });
-    }
-
-    // Render cards
-    cardsData.forEach(card => {
-      const cardEl = document.createElement("div");
-      cardEl.className = "card";
-      cardEl.dataset.id = card.id;
-      cardEl.innerHTML = `
-        <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${card.type}.png"></div>
-        <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.id}.png" alt="${card.name}">
-        <div class="name">${card.name}</div>
-        <div class="skills">${card.skills.map(s => `<div class="skill">${s}</div>`).join("")}</div>
-      `;
-      cardsContainer.appendChild(cardEl);
-
-      cardEl.addEventListener("click", () => {
-        if (cardEl.classList.contains("disabled")) return;
-        const emptySlot = [...slotsContainer.children].find(s => !s.firstChild);
-        if (!emptySlot) return;
-
-        const clone = cardEl.cloneNode(true);
-        clone.classList.remove("disabled");
-        emptySlot.appendChild(clone);
-        cardEl.classList.add("disabled");
-      });
+function setupFilterPersistence(){
+  categories.forEach(cat=>{
+    const sel = document.getElementById(cat.id);
+    if(!sel) return;
+    const saved = localStorage.getItem('filter_'+cat.id);
+    if(saved) sel.value = saved;
+    sel.addEventListener('change', ()=>{
+      localStorage.setItem('filter_'+cat.id, sel.value);
+      renderSections();
     });
+  });
+}
 
-    // Clear all
-    clearAllBtn.addEventListener("click", () => {
-      [...slotsContainer.children].forEach(slot => {
-        if (slot.firstChild) {
-          const cardId = slot.firstChild.dataset.id;
-          slot.innerHTML = "";
-          const cardEl = cardsContainer.querySelector(`[data-id="${cardId}"]`);
-          if (cardEl) cardEl.classList.remove("disabled");
-        }
-      });
-    });
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-    // Filter logic
-    const filters = ["racecourse", "length", "lengthType", "direction", "condition", "season", "weather"];
-    filters.forEach(f => {
-      document.getElementById(f).addEventListener("change", applyFilters);
-    });
-
-    function applyFilters() {
-      const selections = {};
-      filters.forEach(f => {
-        selections[f] = document.getElementById(f).value;
-      });
-
-      cardsData.forEach(card => {
-        const el = cardsContainer.querySelector(`[data-id="${card.id}"]`);
-        if (!el) return;
-
-        let visible = true;
-        for (let key in selections) {
-          if (selections[key] && !card.skills.includes(selections[key])) {
-            visible = false;
-            break;
-          }
-        }
-        el.style.display = visible ? "block" : "none";
-      });
-    }
-  </script>
+setupFilterPersistence();
+renderSections();
+window.addEventListener('load', ()=> renderSections());
+</script>
 </body>
 </html>
