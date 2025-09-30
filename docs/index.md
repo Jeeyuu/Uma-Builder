@@ -3,9 +3,9 @@
 <meta charset="utf-8" />
 <title>Uma Builder — Card Picker</title>
 <style>
-  :root{--card-width:100%;--img-h:140px}
+  :root{--card-width:150%;--img-h:140px}
   body{font-family:Arial,Helvetica,sans-serif;margin:20px;background:#fff;color:#111}
-  .container{max-width:1280px;margin:0 auto;display:flex;gap:20px;align-items:flex-start}
+  .container{max-width:2560px;margin:0 auto;display:flex;gap:20px;align-items:flex-start}
   /* Sidebar */
   .sidebar{flex:0 0 175px;display:flex;flex-direction:column;gap:12px}
   .filter-group{display:flex;flex-direction:column}
