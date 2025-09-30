@@ -72,30 +72,32 @@
     margin-right: -10px;
   }
 
-  /* Slots grid */
-  .slots {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-    margin-bottom: 18px;
-  }
+/* Slots grid */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(6, var(--card-w)); /* fixed width per slot */
+  justify-content: start; /* prevent stretching across */
+  gap: 10px;
+  margin-bottom: 18px;
+}
 
-  /* Slot styled like a card */
-  .slot {
-    border: 1px solid #ddd;
-    padding: 8px;
-    box-sizing: border-box;
-    background: #fff;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    cursor: pointer;
-    width: 100%;
-    min-height: 133px; /* ensures same min height as card */
-    transition: all 0.2s;
-  }
+/* Slot styled like a card */
+.slot {
+  border: 1px solid #ddd;
+  padding: 8px;
+  box-sizing: border-box;
+  background: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  min-height: var(--card-w); /* square minimum */
+  width: var(--card-w);      /* fixed width like cards */
+  transition: all 0.2s;
+}
+
 
   /* Empty slot style */
   .slot:not(.has-card) {
