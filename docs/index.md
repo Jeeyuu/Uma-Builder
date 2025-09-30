@@ -13,17 +13,17 @@
     margin: 20px;
     background: #fff;
     color: #111;
-        overflow-x: auto;
   }
 
   /* Container */
-.container {
-    width: 100%;          /* full width of viewport */
-    margin: 0 auto;
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-}
+  .container {
+      width: 4000px;
+      max-width: 4000px; /* optional, caps at 2560px */
+      margin: 0 auto;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+  }
 
   /* Sidebar */
   .sidebar {
