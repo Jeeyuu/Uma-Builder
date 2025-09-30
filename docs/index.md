@@ -20,8 +20,8 @@
     }
 
     .slot {
-      width: 120px;
-      min-height: 120px;
+      width: 100px;
+      min-height: 100px;
       border: 2px dashed #aaa;
       display: flex;
       flex-direction: column;
@@ -62,8 +62,8 @@
 
     .card {
       border: 1px solid #ccc;
-      width: 120px;
-      min-height: 120px;
+      width: 100px;
+      min-height: 100px;
       padding: 5px;
       cursor: pointer;
       text-align: center;
@@ -105,7 +105,7 @@
       right: -8px;
       background: #ff9999;
       border: none;
-      padding: 2px 6px;
+      padding: 2px 2px;
       font-size: 12px;
       cursor: pointer;
       border-radius: 50%;
