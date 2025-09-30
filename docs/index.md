@@ -118,9 +118,15 @@
     width: 100%;
   }
 
-  .card img,
-  .slot img {
+  .card img {
     width: 100%;
+    height: var(--img-h);
+    object-fit: contain;
+    display: block;
+  }
+
+  .slot img {
+    width: 200%;
     height: var(--img-h);
     object-fit: contain;
     display: block;
