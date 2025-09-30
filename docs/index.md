@@ -61,7 +61,7 @@
     }
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(6, 1fr); /* always 6 cards per row */
       gap: 10px;
       justify-items: center;
     }
