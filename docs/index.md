@@ -20,11 +20,13 @@ body {
 }
 
 .container {
-  width: 100%;
-  margin: 0; /* remove auto centering */
-  max-width: none; /* optionally remove max-width constraints */
+  position: relative; /* or absolute */
+  left: 0;            /* force to left edge */
+  top: 0;             /* optional */
+  width: 100%;        /* take full width */
+  max-width: none;    /* remove previous max-width */
   display: flex;
-  gap: 20px;
+  gap: 20px;          /* keep your gap */
   align-items: flex-start;
 }
 
