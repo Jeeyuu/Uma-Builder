@@ -75,14 +75,14 @@
 /* Slots grid */
 .slots {
     display: grid;
-    grid-template-columns: repeat(6, 115px); /* fixed width for each slot */
+    grid-template-columns: repeat(6, 120px); /* fixed width for each slot */
     gap: 10px;
     margin-bottom: 18px;
 }
 
 /* Individual slot */
 .slot {
-    width: 115px;       /* fixed width */
+    width: 120px;       /* fixed width */
     height: 100%;      /* fixed height */
     border: 2px dashed #ccc;
     background: #fafafa;
