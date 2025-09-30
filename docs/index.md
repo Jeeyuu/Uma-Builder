@@ -11,17 +11,18 @@
 body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
-  padding: 20px;
+  padding: 0;
+  width: 100%;
   background: #fff;
   color: #111;
   display: flex;
-  justify-content: center; /* centralize container */
+  justify-content: flex-start; /* pushes content to the left */
 }
 
 .container {
   width: 100%;
-  max-width: 2560px;
   margin: 0; /* remove auto centering */
+  max-width: none; /* optionally remove max-width constraints */
   display: flex;
   gap: 20px;
   align-items: flex-start;
@@ -30,7 +31,6 @@ body {
 .sidebar {
   flex-shrink: 0;
   width: 175px;
-  margin-right: -175px;
   display: flex;
   flex-direction: column;
   gap: 20px;
