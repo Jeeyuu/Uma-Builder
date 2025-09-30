@@ -72,16 +72,18 @@
     cursor: pointer;
   }
 
-  /* Slots grid */
-  .slots {
+/* Slots grid */
+.slots {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, 115px); /* fixed width for each slot */
     gap: 10px;
     margin-bottom: 18px;
-  }
+}
 
-  .slot {
-    min-height: 150px;
+/* Individual slot */
+.slot {
+    width: 115px;       /* fixed width */
+    height: 115px;      /* fixed height */
     border: 2px dashed #ccc;
     background: #fafafa;
     padding: 6px;
@@ -92,13 +94,12 @@
     justify-content: flex-start;
     cursor: pointer;
     position: relative;
-    width: 100%;
-  }
+}
 
-  .slot.has-card {
+.slot.has-card {
     border-color: #9aa;
     background: #fff;
-  }
+}
 
   /* Cards grid */
   .cards {
@@ -122,13 +123,6 @@
   }
 
   .card img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-
-  .slot img {
     width: 100%;
     height: 100%;
     object-fit: contain;
