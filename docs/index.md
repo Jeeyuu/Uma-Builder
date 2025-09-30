@@ -16,13 +16,14 @@
   }
 
   /* Container */
-  .container {
-    max-width: 2560px; /* full width */
+.container {
+    width: 100%;          /* full width of viewport */
+    max-width: 2560px;    /* optional cap */
     margin: 0 auto;
     display: flex;
     gap: 20px;
     align-items: flex-start;
-  }
+}
 
   /* Sidebar */
   .sidebar {
