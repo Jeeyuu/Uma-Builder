@@ -2,7 +2,7 @@
 <head>
   <style>
     :root {
-      --card-w: 118px;
+      --card-w: 118px; /* unified width */
     }
 
     body {
@@ -14,6 +14,7 @@
       justify-content: center;
     }
 
+    /* Container */
     .container {
       width: 1280px;
       margin: 20px auto;
@@ -22,16 +23,16 @@
       align-items: flex-start;
     }
 
-    /* Sidebar - single column */
+    /* Sidebar filters */
     .sidebar {
-      width: 220px;
+      width: 300px; /* restored to larger filter block */
       background: #fff;
       border: 1px solid #ccc;
       padding: 10px;
       box-sizing: border-box;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr; /* two columns of labels */
+      gap: 10px;
     }
     .filter-group {
       display: flex;
@@ -49,6 +50,8 @@
     .main {
       flex: 1;
     }
+
+    /* Slots area */
     .slots-header {
       display: flex;
       justify-content: space-between;
@@ -104,6 +107,7 @@
       margin-top: 4px;
       font-size: 12px;
       font-weight: bold;
+      word-wrap: break-word;
     }
     .skills {
       display: flex;
@@ -122,6 +126,7 @@
       max-width: 100%;
     }
 
+    /* Type icon */
     .type-icon {
       position: absolute;
       top: 2px;
@@ -134,6 +139,7 @@
       height: 100%;
     }
 
+    /* Clear button */
     .clear-btn {
       background: #f44336;
       color: white;
@@ -156,6 +162,18 @@
           <option>Sapporo</option>
           <option>Hakodate</option>
           <option>Niigata</option>
+          <option>Fukushima</option>
+          <option>Nakayama</option>
+          <option>Tokyo</option>
+          <option>Chukyo</option>
+          <option>Kyoto</option>
+          <option>Hanshin</option>
+          <option>Kokura</option>
+          <option>Oi</option>
+          <option>Kawasaki</option>
+          <option>Funabashi</option>
+          <option>Morioka</option>
+          <option>Longchamp</option>
         </select>
       </div>
       <div class="filter-group">
@@ -163,8 +181,26 @@
         <select id="length">
           <option value="">--</option>
           <option>1000m</option>
+          <option>1150m</option>
           <option>1200m</option>
+          <option>1300m</option>
+          <option>1400m</option>
+          <option>1500m</option>
           <option>1600m</option>
+          <option>1700m</option>
+          <option>1800m</option>
+          <option>1900m</option>
+          <option>2000m</option>
+          <option>2100m</option>
+          <option>2200m</option>
+          <option>2300m</option>
+          <option>2400m</option>
+          <option>2500m</option>
+          <option>2600m</option>
+          <option>3000m</option>
+          <option>3200m</option>
+          <option>3400m</option>
+          <option>3600m</option>
         </select>
       </div>
       <div class="filter-group">
@@ -173,6 +209,8 @@
           <option value="">--</option>
           <option>Sprint</option>
           <option>Mile</option>
+          <option>Medium</option>
+          <option>Long</option>
         </select>
       </div>
       <div class="filter-group">
@@ -181,6 +219,36 @@
           <option value="">--</option>
           <option>Clockwise</option>
           <option>Counterclockwise</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="condition">Track Conditions</label>
+        <select id="condition">
+          <option value="">--</option>
+          <option>Firm</option>
+          <option>Good</option>
+          <option>Soft</option>
+          <option>Heavy</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="season">Season</label>
+        <select id="season">
+          <option value="">--</option>
+          <option>Spring</option>
+          <option>Summer</option>
+          <option>Fall</option>
+          <option>Winter</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="weather">Weather</label>
+        <select id="weather">
+          <option value="">--</option>
+          <option>Sunny</option>
+          <option>Cloudy</option>
+          <option>Rainy</option>
+          <option>Snowy</option>
         </select>
       </div>
     </div>
@@ -202,18 +270,16 @@
     const cardsContainer = document.getElementById("cards");
     const clearAllBtn = document.getElementById("clearAll");
 
-    // Mock data
     const cardsData = [];
     for (let i = 10001; i <= 10010; i++) {
       cardsData.push({
         id: i,
         name: "Card " + i,
         type: ("0" + (i % 6)).slice(-2),
-        skills: ["Sapporo","1000m","Sprint","Clockwise"]
+        skills: ["Sapporo","1000m","Sprint","Clockwise","Firm","Spring","Sunny"]
       });
     }
 
-    // Slots
     for (let i = 0; i < 6; i++) {
       const slot = document.createElement("div");
       slot.className = "slot";
@@ -230,7 +296,6 @@
       });
     }
 
-    // Cards
     cardsData.forEach(card => {
       const cardEl = document.createElement("div");
       cardEl.className = "card";
@@ -255,7 +320,6 @@
       });
     });
 
-    // Clear all
     clearAllBtn.addEventListener("click", () => {
       [...slotsContainer.children].forEach(slot => {
         if (slot.firstChild) {
@@ -267,30 +331,28 @@
       });
     });
 
-    // Filters
-    const filters = ["racecourse", "length", "lengthType", "direction"];
+    const filters = ["racecourse", "length", "lengthType", "direction", "condition", "season", "weather"];
     filters.forEach(f => {
       document.getElementById(f).addEventListener("change", applyFilters);
     });
 
     function applyFilters() {
-      // Collect all non-empty selections
-      let activeSelections = [];
+      const selections = {};
       filters.forEach(f => {
-        const val = document.getElementById(f).value;
-        if (val) activeSelections.push(val);
+        selections[f] = document.getElementById(f).value;
       });
 
       cardsData.forEach(card => {
         const el = cardsContainer.querySelector(`[data-id="${card.id}"]`);
         if (!el) return;
-        if (activeSelections.length === 0) {
-          el.style.display = "block"; // nothing picked → show all
-        } else {
-          // OR match: if card has at least one selected skill, show
-          const match = activeSelections.some(sel => card.skills.includes(sel));
-          el.style.display = match ? "block" : "none";
+        let visible = true;
+        for (let key in selections) {
+          if (selections[key] && !card.skills.includes(selections[key])) {
+            visible = false;
+            break;
+          }
         }
+        el.style.display = visible ? "block" : "none";
       });
     }
   </script>
