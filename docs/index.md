@@ -11,7 +11,8 @@
 
     .slots-wrapper {
       position: relative;
-      margin-bottom: 30px; /* add space for Clear All */
+      margin-bottom: 40px; /* add space for Clear All */
+      margin-right: 10px;
     }
 
     .slots-container {
@@ -57,7 +58,7 @@
     .card-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 10px;
     }
 
     .card {
