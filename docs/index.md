@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -8,199 +7,180 @@
       font-family: Arial, sans-serif;
       margin: 20px;
     }
-
-    .slots-wrapper {
-      position: relative;
-      margin-bottom: 30px; /* add space for Clear All */
-    }
-
-    .slots-container {
+    .slots {
       display: flex;
+      justify-content: center;
       gap: 10px;
+      margin-bottom: 50px;
+      position: relative;
     }
-
     .slot {
-      width: 120px;
-      min-height: 120px;
-      border: 2px dashed #aaa;
+      width: 150px;
+      min-height: 150px;
+      border: 2px dashed #ccc;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
       padding: 5px;
+      position: relative;
       background: #f9f9f9;
-      position: relative; /* so remove button aligns inside */
     }
-
     .slot img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      margin-bottom: 5px;
-    }
-
-    .skills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      justify-content: center;
-    }
-
-    .skill {
-      background: #e0e0ff;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .card-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .card {
-      border: 1px solid #ccc;
-      width: 120px;
-      min-height: 120px;
-      padding: 5px;
+      width: 100%;
       cursor: pointer;
-      text-align: center;
-      background: #fff;
-      transition: opacity 0.3s ease;
+    }
+    .skills {
+      margin-top: 5px;
+      width: 100%;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: flex-start;
     }
-
-    .card img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      margin-bottom: 5px;
+    .skill {
+      background: #e0e0e0;
+      border-radius: 4px;
+      padding: 2px 5px;
+      margin: 2px 0;
+      width: 100%;
+      box-sizing: border-box;
     }
-
-    .card.disabled {
-      opacity: 0.4;
-      pointer-events: none;
-    }
-
-    .clear-btn {
-      position: absolute;
-      top: -35px;   /* move it above slots */
-      right: 0;
-      background: #ff6666;
-      border: none;
-      color: white;
-      font-size: 12px;
-      padding: 4px 8px;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-
     .remove-btn {
       position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #ff9999;
+      top: -20px;
+      right: 0;
+      background: red;
+      color: white;
       border: none;
-      padding: 2px 6px;
-      font-size: 12px;
+      padding: 2px 5px;
       cursor: pointer;
-      border-radius: 50%;
-      line-height: 1;
+      display: none;
+    }
+    .slot.has-card .remove-btn {
+      display: block;
+    }
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .card {
+      width: 150px;
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: center;
+      cursor: pointer;
+      background: #fff;
+    }
+    .card img {
+      width: 100%;
+    }
+    .card.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .clear-all {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      background: #555;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <h1>Uma Builder</h1>
-
-  <div class="slots-wrapper">
-    <button class="clear-btn" onclick="clearAllSlots()">Clear All</button>
-    <div class="slots-container">
-      <div class="slot" data-slot="0"></div>
-      <div class="slot" data-slot="1"></div>
-      <div class="slot" data-slot="2"></div>
-      <div class="slot" data-slot="3"></div>
-      <div class="slot" data-slot="4"></div>
-      <div class="slot" data-slot="5"></div>
-    </div>
+  <div class="slots">
+    <button class="clear-all">Clear All</button>
+    <div class="slot"><button class="remove-btn">X</button></div>
+    <div class="slot"><button class="remove-btn">X</button></div>
+    <div class="slot"><button class="remove-btn">X</button></div>
+    <div class="slot"><button class="remove-btn">X</button></div>
+    <div class="slot"><button class="remove-btn">X</button></div>
+    <div class="slot"><button class="remove-btn">X</button></div>
   </div>
 
-  <h2>Available Cards</h2>
-  <div class="card-list" id="cardList"></div>
+  <div class="cards" id="cards-container"></div>
 
   <script>
-    // Generate 10 placeholder cards with IDs 10001–10010
-    const cards = Array.from({ length: 10 }, (_, i) => {
+    const cardsData = Array.from({length: 10}, (_, i) => {
       const id = 10001 + i;
       return {
-        id,
+        id: id,
         name: `Card ${id}`,
-        img: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
-        skills: [`Skill ${id}-1`, `Skill ${id}-2`], // placeholder skills
+        image: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
+        skills: Array.from({length: Math.floor(Math.random() * 5) + 1}, (_, j) => `Skill ${j + 1}`)
       };
     });
 
-    const cardList = document.getElementById("cardList");
-    const slots = document.querySelectorAll(".slot");
+    const slots = document.querySelectorAll('.slot');
+    const cardsContainer = document.getElementById('cards-container');
+    const clearAllBtn = document.querySelector('.clear-all');
 
-    // Render card list
-    cards.forEach(card => {
-      const cardDiv = document.createElement("div");
-      cardDiv.className = "card";
-      cardDiv.dataset.id = card.id;
+    function renderCards() {
+      cardsContainer.innerHTML = '';
+      cardsData.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        cardDiv.dataset.id = card.id;
+        cardDiv.innerHTML = `
+          <img src="${card.image}" alt="${card.name}">
+          <div>${card.name}</div>
+          <div class="skills">
+            ${card.skills.map(skill => `<div class="skill">${skill}</div>`).join('')}
+          </div>
+        `;
+        cardDiv.addEventListener('click', () => addToSlot(card));
+        cardsContainer.appendChild(cardDiv);
+      });
+    }
 
-      cardDiv.innerHTML = `
-        <img src="${card.img}" alt="${card.name}">
-        <div>${card.name}</div>
+    function addToSlot(card) {
+      const availableSlot = Array.from(slots).find(slot => !slot.classList.contains('has-card'));
+      if (!availableSlot) return;
+
+      availableSlot.classList.add('has-card');
+      availableSlot.innerHTML = `
+        <button class="remove-btn">X</button>
+        <img src="${card.image}" alt="${card.name}">
         <div class="skills">
-          ${card.skills.map(skill => `<div class="skill">${skill}</div>`).join("")}
+          ${card.skills.map(skill => `<div class="skill">${skill}</div>`).join('')}
         </div>
       `;
 
-      cardDiv.addEventListener("click", () => selectCard(card));
-      cardList.appendChild(cardDiv);
+      // Remove on button click
+      availableSlot.querySelector('.remove-btn').addEventListener('click', () => removeFromSlot(availableSlot, card.id));
+      // Remove on image click
+      availableSlot.querySelector('img').addEventListener('click', () => removeFromSlot(availableSlot, card.id));
+
+      document.querySelector(`.card[data-id="${card.id}"]`).classList.add('disabled');
+    }
+
+    function removeFromSlot(slot, cardId) {
+      slot.classList.remove('has-card');
+      slot.innerHTML = `<button class="remove-btn">X</button>`;
+      document.querySelector(`.card[data-id="${cardId}"]`).classList.remove('disabled');
+    }
+
+    clearAllBtn.addEventListener('click', () => {
+      slots.forEach(slot => {
+        if (slot.classList.contains('has-card')) {
+          const img = slot.querySelector('img');
+          if (img) {
+            const cardId = parseInt(img.src.match(/(\d+)\.png$/)[1]);
+            document.querySelector(`.card[data-id="${cardId}"]`).classList.remove('disabled');
+          }
+          slot.classList.remove('has-card');
+          slot.innerHTML = `<button class="remove-btn">X</button>`;
+        }
+      });
     });
 
-    function selectCard(card) {
-      const emptySlot = [...slots].find(slot => slot.children.length === 0);
-      if (!emptySlot) return;
-
-      emptySlot.innerHTML = `
-        <button class="remove-btn" onclick="removeCard(${card.id}, ${emptySlot.dataset.slot})">&times;</button>
-        <img src="${card.img}" alt="${card.name}">
-        <div>${card.name}</div>
-        <div class="skills">
-          ${card.skills.map(skill => `<div class="skill">${skill}</div>`).join("")}
-        </div>
-      `;
-
-      disableCard(card.id, true);
-    }
-
-    function removeCard(cardId, slotIndex) {
-      const slot = document.querySelector(`.slot[data-slot="${slotIndex}"]`);
-      slot.innerHTML = "";
-      disableCard(cardId, false);
-    }
-
-    function clearAllSlots() {
-      slots.forEach(slot => slot.innerHTML = "");
-      cards.forEach(c => disableCard(c.id, false));
-    }
-
-    function disableCard(cardId, disable) {
-      const cardEl = document.querySelector(`.card[data-id="${cardId}"]`);
-      if (cardEl) {
-        if (disable) {
-          cardEl.classList.add("disabled");
-        } else {
-          cardEl.classList.remove("disabled");
-        }
-      }
-    }
+    renderCards();
   </script>
 </body>
 </html>
