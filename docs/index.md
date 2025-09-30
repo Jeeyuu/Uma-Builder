@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -16,7 +15,6 @@ body {
   background: #fff;
   color: #111;
   display: flex;
-  justify-content: center; /* centralize container */
 }
 
 .container {
@@ -30,6 +28,7 @@ body {
 .sidebar {
   flex-shrink: 0;
   width: 175px;
+  margin-right: -175px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -89,7 +88,6 @@ select {
   background: #fff;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: flex-start;
   cursor: pointer;
   position: relative;
@@ -135,7 +133,6 @@ select {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--card-w), 1fr));
   gap: var(--gap); /* same as slots */
-  justify-items: center;
   margin-top: 10px;
 }
 
