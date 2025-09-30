@@ -15,23 +15,68 @@
   .main-content{flex:1;min-width:0} /* min-width:0 to allow flex children to shrink properly */
   .slots-header{display:flex;justify-content:flex-end;margin-bottom:8px}
   .clear-all{background:#444;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer}
-  /* Slots grid */
-  .slots{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
-  .slot{width:150%;min-height:150px;border:2px dashed #ccc;background:#fafafa;padding:6px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;cursor:pointer;position:relative}
-  .slot.has-card{border-color:#9aa; background:#fff}
-  .slot .type-icon{position:absolute;top:6px;right:6px;width:30px;height:30px;border:1px solid #ccc;background:#fff;border-radius:4px;overflow:hidden}
-  /* Card sections & grid */
-  .card-sections{display:flex;flex-direction:column;gap:18px}
-  .card-section h2{margin:0 0 8px 0;font-size:16px}
-  .cards{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:6px}
-  .card{width:150%;border:1px solid #ddd;padding:8px;box-sizing:border-box;background:#fff;position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer}
-  .card .type-icon{position:absolute;top:6px;right:6px;width:30px;height:30px;border:1px solid #ccc;background:#fff;border-radius:4px;overflow:hidden}
-  /* Images: fixed height so text doesn't resize them */
-  .card img, .slot img{width:100%;height:var(--img-h);object-fit:contain;display:block}
-  /* Name and skills keep consistent widths and wrap */
-  .name{margin:8px 0 6px 0;font-weight:600;text-align:center;word-break:break-word;white-space:normal}
-  .skills{width:150%;display:flex;flex-direction:column;gap:4px}
-  .skill{background:#eef2ff;border-radius:6px;padding:4px 6px;font-size:12px;box-sizing:border-box;word-break:break-word;white-space:normal}
+/* Slots grid: 6 per row, each expands evenly */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.slot {
+  min-height: 150px;
+  border: 2px dashed #ccc;
+  background: #fafafa;
+  padding: 6px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  position: relative;
+}
+.slot.has-card {
+  border-color: #9aa;
+  background: #fff;
+}
+
+/* Card sections */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr); /* adjust 6 to change cards per row */
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.card {
+  border: 1px solid #ddd;
+  padding: 8px;
+  box-sizing: border-box;
+  background: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Keep skill boxes wide inside their card */
+.skills {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.skill {
+  background: #eef2ff;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 12px;
+  box-sizing: border-box;
+  word-break: break-word;
+  white-space: normal;
+}
+
   /* Disabled card style */
   .card.disabled{opacity:0.45;pointer-events:none}
   /* small responsiveness: reduce image height on narrow screens */
