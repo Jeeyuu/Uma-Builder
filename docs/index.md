@@ -9,11 +9,14 @@
       margin: 20px;
     }
 
+    .slots-wrapper {
+      position: relative;
+      margin-bottom: 30px; /* add space for Clear All */
+    }
+
     .slots-container {
       display: flex;
       gap: 10px;
-      margin-bottom: 20px;
-      position: relative;
     }
 
     .slot {
@@ -26,7 +29,7 @@
       justify-content: flex-start;
       padding: 5px;
       background: #f9f9f9;
-      position: relative; /* so absolute children align inside */
+      position: relative; /* so remove button aligns inside */
     }
 
     .slot img {
@@ -59,12 +62,16 @@
 
     .card {
       border: 1px solid #ccc;
-      padding: 10px;
       width: 120px;
+      min-height: 120px;
+      padding: 5px;
       cursor: pointer;
       text-align: center;
       background: #fff;
       transition: opacity 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .card img {
@@ -81,8 +88,8 @@
 
     .clear-btn {
       position: absolute;
-      top: -10px;
-      right: -10px;
+      top: -25px;   /* move it above slots */
+      right: 0;
       background: #ff6666;
       border: none;
       color: white;
@@ -109,14 +116,16 @@
 <body>
   <h1>Uma Builder</h1>
 
-  <div class="slots-container">
+  <div class="slots-wrapper">
     <button class="clear-btn" onclick="clearAllSlots()">Clear All</button>
-    <div class="slot" data-slot="0"></div>
-    <div class="slot" data-slot="1"></div>
-    <div class="slot" data-slot="2"></div>
-    <div class="slot" data-slot="3"></div>
-    <div class="slot" data-slot="4"></div>
-    <div class="slot" data-slot="5"></div>
+    <div class="slots-container">
+      <div class="slot" data-slot="0"></div>
+      <div class="slot" data-slot="1"></div>
+      <div class="slot" data-slot="2"></div>
+      <div class="slot" data-slot="3"></div>
+      <div class="slot" data-slot="4"></div>
+      <div class="slot" data-slot="5"></div>
+    </div>
   </div>
 
   <h2>Available Cards</h2>
