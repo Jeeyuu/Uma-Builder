@@ -132,13 +132,16 @@
   <div class="card-list" id="cardList"></div>
 
   <script>
-    const cards = [
-      { id: 1, name: "Card A", img: "https://via.placeholder.com/100", skills: ["Skill 1", "Skill 2", "Skill 3"] },
-      { id: 2, name: "Card B", img: "https://via.placeholder.com/100", skills: ["Skill X", "Skill Y"] },
-      { id: 3, name: "Card C", img: "https://via.placeholder.com/100", skills: ["Skill Alpha", "Skill Beta", "Skill Gamma", "Skill Delta"] },
-      { id: 4, name: "Card D", img: "https://via.placeholder.com/100", skills: ["Skill Red", "Skill Blue"] },
-      { id: 5, name: "Card E", img: "https://via.placeholder.com/100", skills: ["Skill Zeta"] },
-    ];
+    // Generate 10 placeholder cards with IDs 10001–10010
+    const cards = Array.from({ length: 10 }, (_, i) => {
+      const id = 10001 + i;
+      return {
+        id,
+        name: `Card ${id}`,
+        img: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
+        skills: [`Skill ${id}-1`, `Skill ${id}-2`], // placeholder skills
+      };
+    });
 
     const cardList = document.getElementById("cardList");
     const slots = document.querySelectorAll(".slot");
