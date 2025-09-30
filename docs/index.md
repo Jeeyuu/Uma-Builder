@@ -1,376 +1,248 @@
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Uma Builder</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-
-    .container {
-      display: flex;
-      gap: 20px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .sidebar {
-      flex: 0 0 200px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .filter-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .filter-group label {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    select {
-      padding: 5px;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-    }
-
-    .main-content {
-      flex: 1;
-    }
-
-    .slots {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 10px;
-      margin-bottom: 30px;
-      position: relative;
-    }
-
-    .slot {
-      width: 100%;
-      min-height: 150px;
-      border: 2px dashed #ccc;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 5px;
-      position: relative;
-      background: #f9f9f9;
-      cursor: pointer;
-    }
-
-    .slot img {
-      width: 100%;
-    }
-
-    .skills {
-      margin-top: 5px;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .skill {
-      background: #e0e0e0;
-      border-radius: 4px;
-      padding: 2px 5px;
-      margin: 2px 0;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .card-section {
-      margin-bottom: 30px;
-    }
-
-    .card-section h2 {
-      margin-bottom: 10px;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 10px;
-    }
-
-    .card {
-      width: 100%;
-      border: 1px solid #ccc;
-      padding: 5px;
-      text-align: center;
-      cursor: pointer;
-      background: #fff;
-      position: relative;
-    }
-
-    .card img {
-      width: 100%;
-    }
-
-    .card.disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .clear-all {
-      position: absolute;
-      top: -40px;
-      right: 0;
-      background: #555;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
-
-    .type-icon {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 30px;
-      height: 30px;
-      border-radius: 4px;
-      overflow: hidden;
-      background: white;
-      border: 1px solid #ccc;
-    }
-
-    .type-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .slot .type-icon {
-      top: 5px;
-      right: 5px;
-    }
-  </style>
+<meta charset="utf-8" />
+<title>Uma Builder — Card Picker</title>
+<style>
+  :root{--card-width:100%;--img-h:110px}
+  body{font-family:Arial,Helvetica,sans-serif;margin:20px;background:#fff;color:#111}
+  .container{max-width:1200px;margin:0 auto;display:flex;gap:20px;align-items:flex-start}
+  /* Sidebar */
+  .sidebar{flex:0 0 220px;display:flex;flex-direction:column;gap:12px}
+  .filter-group{display:flex;flex-direction:column}
+  .filter-group label{font-weight:700;margin-bottom:6px}
+  select{padding:6px;border-radius:6px;border:1px solid #ccc;background:#fff}
+  /* Main area */
+  .main-content{flex:1;min-width:0} /* min-width:0 to allow flex children to shrink properly */
+  .slots-header{display:flex;justify-content:flex-end;margin-bottom:8px}
+  .clear-all{background:#444;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer}
+  /* Slots grid */
+  .slots{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px}
+  .slot{width:100%;min-height:150px;border:2px dashed #ccc;background:#fafafa;padding:6px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;cursor:pointer;position:relative}
+  .slot.has-card{border-color:#9aa; background:#fff}
+  .slot .type-icon{position:absolute;top:6px;right:6px;width:30px;height:30px;border:1px solid #ccc;background:#fff;border-radius:4px;overflow:hidden}
+  /* Card grid */
+  .cards{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:6px}
+  .card{width:100%;border:1px solid #ddd;padding:8px;box-sizing:border-box;background:#fff;position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer}
+  .card .type-icon{position:absolute;top:6px;right:6px;width:30px;height:30px;border:1px solid #ccc;background:#fff;border-radius:4px;overflow:hidden}
+  /* Images: fixed height so text doesn't resize them */
+  .card img, .slot img{width:100%;height:var(--img-h);object-fit:contain;display:block}
+  /* Name and skills keep consistent widths and wrap */
+  .name{margin:8px 0 6px 0;font-weight:600;text-align:center;word-break:break-word;white-space:normal}
+  .skills{width:100%;display:flex;flex-direction:column;gap:4px}
+  .skill{background:#eef2ff;border-radius:6px;padding:4px 6px;font-size:12px;box-sizing:border-box;word-break:break-word;white-space:normal}
+  /* Disabled card style */
+  .card.disabled{opacity:0.45;pointer-events:none}
+  /* small responsiveness: reduce image height on narrow screens */
+  @media (max-width:900px){:root{--img-h:90px}}
+  @media (max-width:640px){.container{flex-direction:column}.sidebar{width:100%;flex-direction:row;flex-wrap:wrap}.sidebar .filter-group{flex:1;min-width:150px}}
+</style>
 </head>
 <body>
   <h1>Uma Builder</h1>
 
   <div class="container">
-    <!-- Sidebar filters -->
+    <!-- Sidebar filters (labels/options from your table; Aptitude ignored) -->
     <div class="sidebar">
       <div class="filter-group">
         <label for="racecourse">Racecourse</label>
         <select id="racecourse">
           <option value="">-- Select --</option>
-          <option value="Tokyo">Tokyo</option>
-          <option value="Kyoto">Kyoto</option>
-          <option value="Osaka">Osaka</option>
-          <option value="Sapporo">Sapporo</option>
-          <option value="Hakodate">Hakodate</option>
+          <option>Sapporo</option><option>Hakodate</option><option>Niigata</option><option>Fukushima</option>
+          <option>Nakayama</option><option>Tokyo</option><option>Chukyo</option><option>Kyoto</option>
+          <option>Hanshin</option><option>Kokura</option><option>Oi</option><option>Kawasaki</option>
+          <option>Funabashi</option><option>Morioka</option><option>Longchamp</option>
         </select>
       </div>
+
       <div class="filter-group">
         <label for="length">Length</label>
         <select id="length">
           <option value="">-- Select --</option>
-          <option value="Short">Short</option>
-          <option value="Medium">Medium</option>
-          <option value="Long">Long</option>
+          <option>1000m</option><option>1150m</option><option>1200m</option><option>1300m</option>
+          <option>1400m</option><option>1500m</option><option>1600m</option><option>1700m</option>
+          <option>1800m</option><option>1900m</option><option>2000m</option><option>2100m</option>
+          <option>2200m</option><option>2300m</option><option>2400m</option><option>2500m</option>
+          <option>2600m</option><option>3000m</option><option>3200m</option><option>3400m</option>
+          <option>3600m</option>
         </select>
       </div>
+
+      <div class="filter-group">
+        <label for="lengthType">Length Type</label>
+        <select id="lengthType">
+          <option value="">-- Select --</option>
+          <option>Sprint</option><option>Mile</option><option>Medium</option><option>Long</option>
+        </select>
+      </div>
+
       <div class="filter-group">
         <label for="direction">Direction</label>
         <select id="direction">
           <option value="">-- Select --</option>
-          <option value="Left">Left</option>
-          <option value="Right">Right</option>
+          <option>Clockwise</option><option>Counterclockwise</option>
         </select>
       </div>
+
       <div class="filter-group">
         <label for="track">Track Conditions</label>
         <select id="track">
           <option value="">-- Select --</option>
-          <option value="Dry">Dry</option>
-          <option value="Wet">Wet</option>
-          <option value="Soft">Soft</option>
+          <option>Firm</option><option>Good</option><option>Soft</option><option>Heavy</option>
         </select>
       </div>
+
       <div class="filter-group">
         <label for="season">Season</label>
         <select id="season">
           <option value="">-- Select --</option>
-          <option value="Spring">Spring</option>
-          <option value="Summer">Summer</option>
-          <option value="Autumn">Autumn</option>
-          <option value="Winter">Winter</option>
+          <option>Spring</option><option>Summer</option><option>Fall</option><option>Winter</option>
         </select>
       </div>
+
       <div class="filter-group">
         <label for="weather">Weather</label>
         <select id="weather">
           <option value="">-- Select --</option>
-          <option value="Sunny">Sunny</option>
-          <option value="Rainy">Rainy</option>
-          <option value="Cloudy">Cloudy</option>
-          <option value="Snowy">Snowy</option>
+          <option>Sunny</option><option>Cloudy</option><option>Rainy</option><option>Snowy</option>
         </select>
       </div>
     </div>
 
     <!-- Main content -->
     <div class="main-content">
-      <div class="slots">
-        <button class="clear-all">Clear All</button>
-        <div class="slot"></div>
-        <div class="slot"></div>
-        <div class="slot"></div>
-        <div class="slot"></div>
-        <div class="slot"></div>
-        <div class="slot"></div>
+      <div class="slots-header">
+        <!-- placed as normal element above the slots, aligned to the right -->
+        <button class="clear-all" id="clearAllBtn">Clear All</button>
       </div>
 
-      <!-- Sections for filtered cards -->
-      <div id="card-sections"></div>
+      <div class="slots" id="slots">
+        <div class="slot" data-slot="0"></div>
+        <div class="slot" data-slot="1"></div>
+        <div class="slot" data-slot="2"></div>
+        <div class="slot" data-slot="3"></div>
+        <div class="slot" data-slot="4"></div>
+        <div class="slot" data-slot="5"></div>
+      </div>
+
+      <div class="cards" id="cardsContainer"></div>
     </div>
   </div>
 
-  <script>
-    // placeholder cards with skills matching filter categories
-    const cardsData = Array.from({length: 20}, (_, i) => {
-      const id = 10001 + i;
-      const racecourseOptions = ["Tokyo","Kyoto","Osaka","Sapporo","Hakodate"];
-      const lengthOptions = ["Short","Medium","Long"];
-      const directionOptions = ["Left","Right"];
-      const trackOptions = ["Dry","Wet","Soft"];
-      const seasonOptions = ["Spring","Summer","Autumn","Winter"];
-      const weatherOptions = ["Sunny","Rainy","Cloudy","Snowy"];
+<script>
+/* --- Data: 10 placeholder cards (IDs 10001..10010) --- */
+const cardsData = Array.from({length:10}, (_, i) => {
+  const id = 10001 + i;
+  const typeNum = String(Math.floor(Math.random()*6)).padStart(2,"0"); // 00..05
+  return {
+    id,
+    name: `Card ${id}`,
+    image: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
+    // sample skills/attributes; replace with real data later
+    skills: [
+      /* these are placeholder attributes so filters can be wired later */
+      i % 5 === 0 ? "Sapporo" : (i % 5 === 1 ? "Hakodate" : (i % 5 === 2 ? "Niigata" : (i % 5 === 3 ? "Fukushima" : "Tokyo"))),
+      (i%3===0?"1000m": (i%3===1?"1200m":"1500m")),
+      (i%4===0?"Sprint":"Medium"),
+      (i%2===0?"Clockwise":"Counterclockwise"),
+      (i%3===0?"Firm":"Soft"),
+      (i%4===0?"Spring":"Summer")
+    ],
+    typeNum,
+    typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeNum}.png`
+  };
+});
 
-      return {
-        id: id,
-        name: `Card ${id}`,
-        image: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
-        skills: [
-          racecourseOptions[i%5],
-          lengthOptions[i%3],
-          directionOptions[i%2],
-          trackOptions[i%3],
-          seasonOptions[i%4],
-          weatherOptions[i%4]
-        ],
-        typeNum: String(Math.floor(Math.random() * 6)).padStart(2,"0"),
-        typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${String(Math.floor(Math.random() * 6)).padStart(2,"0")}.png`
-      };
-    });
+/* DOM references */
+const slots = Array.from(document.querySelectorAll('.slot'));
+const cardsContainer = document.getElementById('cardsContainer');
+const clearAllBtn = document.getElementById('clearAllBtn');
 
-    const slots = document.querySelectorAll('.slot');
-    const cardSections = document.getElementById('card-sections');
-    const clearAllBtn = document.querySelector('.clear-all');
+/* Maintain slot -> listener map so we can remove listeners reliably */
+const slotListeners = new Map();
 
-    // function to render cards filtered by category and selection
-    function renderFilteredCards() {
-      cardSections.innerHTML = '';
-      const filters = {
-        racecourse: document.getElementById('racecourse').value,
-        length: document.getElementById('length').value,
-        direction: document.getElementById('direction').value,
-        track: document.getElementById('track').value,
-        season: document.getElementById('season').value,
-        weather: document.getElementById('weather').value
-      };
+/* Render the bottom cards (single grid) */
+function renderCards(){
+  cardsContainer.innerHTML = '';
+  cardsData.forEach(card=>{
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.dataset.id = card.id;
+    el.innerHTML = `
+      <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
+      <img src="${card.image}" alt="${card.name}">
+      <div class="name">${escapeHtml(card.name)}</div>
+      <div class="skills">${card.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>
+    `;
+    el.addEventListener('click', ()=> addToSlot(card));
+    cardsContainer.appendChild(el);
+  });
+}
 
-      for (let category in filters) {
-        if (!filters[category]) continue; // skip blank selection
+/* Utility to escape text into HTML for safety */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
 
-        const section = document.createElement('div');
-        section.className = 'card-section';
-        section.innerHTML = `<h2>${category.charAt(0).toUpperCase() + category.slice(1)}</h2>`;
-        const cardsDiv = document.createElement('div');
-        cardsDiv.className = 'cards';
+/* Add a card to first empty slot */
+function addToSlot(card){
+  const freeSlot = slots.find(s=>!s.classList.contains('has-card'));
+  if(!freeSlot) return;
+  // If this slot had a previous listener, remove it (safety)
+  if(slotListeners.has(freeSlot)){
+    freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
+    slotListeners.delete(freeSlot);
+  }
 
-        cardsData.forEach(card => {
-          if (card.skills.includes(filters[category])) {
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'card';
-            cardDiv.dataset.id = card.id;
-            cardDiv.innerHTML = `
-              <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
-              <img src="${card.image}" alt="${card.name}">
-              <div>${card.name}</div>
-              <div class="skills">
-                ${card.skills.map(skill => `<div class="skill">${skill}</div>`).join('')}
-              </div>
-            `;
-            cardDiv.addEventListener('click', () => addToSlot(card));
-            cardsDiv.appendChild(cardDiv);
-          }
-        });
+  freeSlot.classList.add('has-card');
+  freeSlot.innerHTML = `
+    <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
+    <img src="${card.image}" alt="${card.name}">
+    <div class="name">${escapeHtml(card.name)}</div>
+    <div class="skills">${card.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>
+  `;
 
-        section.appendChild(cardsDiv);
-        cardSections.appendChild(section);
-      }
+  /* create a named handler so we can remove it later */
+  function removeSlotHandler(){
+    removeFromSlot(freeSlot, card.id);
+  }
+  freeSlot.addEventListener('click', removeSlotHandler);
+  slotListeners.set(freeSlot, removeSlotHandler);
+
+  /* disable all bottom elements for this card id (safe if multiple exist) */
+  document.querySelectorAll(`.card[data-id="${card.id}"]`).forEach(c=>c.classList.add('disabled'));
+}
+
+/* Remove card from slot and re-enable bottom card(s) */
+function removeFromSlot(slotEl, cardId){
+  // remove attached listener if exists
+  if(slotListeners.has(slotEl)){
+    slotEl.removeEventListener('click', slotListeners.get(slotEl));
+    slotListeners.delete(slotEl);
+  }
+  slotEl.classList.remove('has-card');
+  slotEl.innerHTML = ''; // empty
+  // re-enable any bottom cards with that id
+  document.querySelectorAll(`.card[data-id="${cardId}"]`).forEach(c=>c.classList.remove('disabled'));
+}
+
+/* Clear all slots: remove cards and re-enable bottom cards */
+clearAllBtn.addEventListener('click', ()=>{
+  // Re-enable all bottom cards first (safe approach)
+  document.querySelectorAll('.card.disabled').forEach(c=>c.classList.remove('disabled'));
+
+  // Remove listeners and clear each slot
+  slots.forEach(slot=>{
+    if(slotListeners.has(slot)){
+      slot.removeEventListener('click', slotListeners.get(slot));
+      slotListeners.delete(slot);
     }
+    slot.classList.remove('has-card');
+    slot.innerHTML = '';
+  });
+});
 
-    // store selections in localStorage
-    function setupDropdownPersistence() {
-      ["racecourse","length","direction","track","season","weather"].forEach(id => {
-        const dropdown = document.getElementById(id);
-        const saved = localStorage.getItem(id);
-        if (saved) dropdown.value = saved;
-        dropdown.addEventListener('change', () => {
-          localStorage.setItem(id, dropdown.value);
-          renderFilteredCards();
-        });
-      });
-    }
-
-    function addToSlot(card) {
-      const availableSlot = Array.from(slots).find(slot => !slot.classList.contains('has-card'));
-      if (!availableSlot) return;
-
-      availableSlot.classList.add('has-card');
-      availableSlot.innerHTML = `
-        <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
-        <img src="${card.image}" alt="${card.name}">
-        <div class="skills">
-          ${card.skills.map(skill => `<div class="skill">${skill}</div>`).join('')}
-        </div>
-      `;
-
-      availableSlot.addEventListener('click', function removeSlot() {
-        removeFromSlot(availableSlot, card.id);
-        availableSlot.removeEventListener('click', removeSlot);
-      });
-
-      document.querySelectorAll(`.card[data-id="${card.id}"]`).forEach(cardEl => {
-        cardEl.classList.add('disabled');
-      });
-    }
-
-    function removeFromSlot(slot, cardId) {
-      slot.classList.remove('has-card');
-      slot.innerHTML = '';
-      document.querySelectorAll(`.card[data-id="${cardId}"]`).forEach(cardEl => {
-        cardEl.classList.remove('disabled');
-      });
-    }
-
-    clearAllBtn.addEventListener('click', () => {
-      slots.forEach(slot => {
-        if (slot.classList.contains('has-card')) {
-          const img = slot.querySelector('img');
-          if (img) {
-            const cardId = parseInt(img.src.match(/(\d+)\.png$/)[1]);
-            document.querySelectorAll(`.card[data-id="${cardId}"]`).forEach(cardEl => cardEl.classList.remove('disabled'));
-          }
-          slot.classList.remove('has-card');
-          slot.innerHTML = '';
-        }
-      });
-    });
-
-    setupDropdownPersistence();
-    renderFilteredCards();
-  </script>
+/* initial render */
+renderCards();
+</script>
 </body>
 </html>
