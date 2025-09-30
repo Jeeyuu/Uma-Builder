@@ -21,7 +21,7 @@ body {
 
 .container {
   position: relative; /* or absolute */
-    transform: translateX(-195px); /* move everything left by 50px, adjust as needed */
+    transform: translateX(-100px); /* move everything left by 50px, adjust as needed */
   left: 0;            /* force to left edge */
   top: 0;             /* optional */
   width: 100%;        /* take full width */
@@ -33,7 +33,7 @@ body {
 
 .sidebar {
   flex-shrink: 0;
-  width: 175px;
+  width: 180px;
   display: flex;
   flex-direction: column;
   gap: 20px;
