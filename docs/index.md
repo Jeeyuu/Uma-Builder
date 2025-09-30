@@ -90,7 +90,7 @@
     justify-content: flex-start;
     cursor: pointer;
     position: relative;
-    width: 200%;
+    width: 100%;
   }
 
   .slot.has-card {
