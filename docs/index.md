@@ -43,7 +43,7 @@
     .skills {
       display: flex;
       flex-wrap: wrap;
-      gap: 4px;
+      gap: 5px;
       justify-content: center;
     }
 
