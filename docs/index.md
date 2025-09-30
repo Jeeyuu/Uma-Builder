@@ -9,8 +9,8 @@
     }
 
     .container {
-      max-width: 1000px; /* adjust to your desired width */
-      margin: 0 auto;     /* center horizontally */
+      max-width: 1000px; /* adjust to your page width */
+      margin: 0 auto;     
     }
 
     .slots {
@@ -32,11 +32,11 @@
       padding: 5px;
       position: relative;
       background: #f9f9f9;
+      cursor: pointer; /* clickable slot */
     }
 
     .slot img {
       width: 100%;
-      cursor: pointer;
     }
 
     .skills {
@@ -54,22 +54,6 @@
       margin: 2px 0;
       width: 100%;
       box-sizing: border-box;
-    }
-
-    .remove-btn {
-      position: absolute;
-      top: -20px;
-      right: 0;
-      background: red;
-      color: white;
-      border: none;
-      padding: 2px 5px;
-      cursor: pointer;
-      display: none;
-    }
-
-    .slot.has-card .remove-btn {
-      display: block;
     }
 
     .cards {
@@ -100,7 +84,7 @@
     .clear-all {
       position: absolute;
       top: -40px;
-      right: 0;
+      right: 0; /* aligned with last column */
       background: #555;
       color: white;
       border: none;
@@ -139,12 +123,12 @@
   <div class="container">
     <div class="slots">
       <button class="clear-all">Clear All</button>
-      <div class="slot"><button class="remove-btn">X</button></div>
-      <div class="slot"><button class="remove-btn">X</button></div>
-      <div class="slot"><button class="remove-btn">X</button></div>
-      <div class="slot"><button class="remove-btn">X</button></div>
-      <div class="slot"><button class="remove-btn">X</button></div>
-      <div class="slot"><button class="remove-btn">X</button></div>
+      <div class="slot"></div>
+      <div class="slot"></div>
+      <div class="slot"></div>
+      <div class="slot"></div>
+      <div class="slot"></div>
+      <div class="slot"></div>
     </div>
 
     <div class="cards" id="cards-container"></div>
@@ -193,7 +177,6 @@
 
       availableSlot.classList.add('has-card');
       availableSlot.innerHTML = `
-        <button class="remove-btn">X</button>
         <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
         <img src="${card.image}" alt="${card.name}">
         <div class="skills">
@@ -201,15 +184,18 @@
         </div>
       `;
 
-      availableSlot.querySelector('.remove-btn').addEventListener('click', () => removeFromSlot(availableSlot, card.id));
-      availableSlot.querySelector('img').addEventListener('click', () => removeFromSlot(availableSlot, card.id));
+      // clicking the slot removes the card
+      availableSlot.addEventListener('click', function removeSlot() {
+        removeFromSlot(availableSlot, card.id);
+        availableSlot.removeEventListener('click', removeSlot); // clean listener
+      });
 
       document.querySelector(`.card[data-id="${card.id}"]`).classList.add('disabled');
     }
 
     function removeFromSlot(slot, cardId) {
       slot.classList.remove('has-card');
-      slot.innerHTML = `<button class="remove-btn">X</button>`;
+      slot.innerHTML = ''; // empty slot
       document.querySelector(`.card[data-id="${cardId}"]`).classList.remove('disabled');
     }
 
@@ -222,7 +208,7 @@
             document.querySelector(`.card[data-id="${cardId}"]`).classList.remove('disabled');
           }
           slot.classList.remove('has-card');
-          slot.innerHTML = `<button class="remove-btn">X</button>`;
+          slot.innerHTML = '';
         }
       });
     });
