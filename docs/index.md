@@ -5,6 +5,7 @@
 <style>
   :root {
     --img-h: 140px; /* height of card images */
+    /*solid version apart from width issue*/
   }
 
   body {
