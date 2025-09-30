@@ -330,9 +330,44 @@ function createCardElement(card){
 function renderSections(){
   cardSections.innerHTML = '';
   let any = false;
+
   categories.forEach(cat=>{
-    const val = (document.getElementById(cat.id) || {value: ''}).value;
+    let val = (document.getElementById(cat.id) || {value: ''}).value;
     if(!val) return;
+
+    // Transform the value based on your rules
+    let searchTerms = [];
+
+    switch(cat.id){
+      case 'racecourse':
+        searchTerms.push(val + ' Racecourse');
+        break;
+      case 'length':
+        const dist = parseInt(val.replace('m',''));
+        if(dist <= 1400) searchTerms.push('Sprint Corners','Sprint Straightaways');
+        else if(dist <= 1800) searchTerms.push('Mile Corners','Mile Straightaways');
+        else if(dist <= 2400) searchTerms.push('Medium Corners','Medium Straightaways');
+        else searchTerms.push('Long Corners','Long Straightaways');
+
+        if(dist % 400 === 0) searchTerms.push('Standard Distance');
+        else searchTerms.push('Non-Standard Distance');
+        break;
+      case 'direction':
+        searchTerms.push(val === 'Clockwise' ? 'Right-Handed' : 'Left-Handed');
+        break;
+      case 'track':
+        searchTerms.push(val === 'Firm' ? 'Firm Conditions' : 'Wet Conditions');
+        break;
+      case 'season':
+        searchTerms.push(val + ' Runner');
+        break;
+      case 'weather':
+        searchTerms.push(val + ' Days');
+        break;
+      default:
+        searchTerms.push(val);
+    }
+
     any = true;
     const section = document.createElement('div');
     section.className = 'card-section';
@@ -341,11 +376,17 @@ function renderSections(){
     section.appendChild(header);
     const grid = document.createElement('div');
     grid.className = 'cards';
-    const matches = cardsData.filter(c => String(c[cat.prop]) === String(val));
+
+    // Filter cards based on all search terms
+    const matches = cardsData.filter(card => 
+      searchTerms.some(term => card.skills.includes(term))
+    );
+
     matches.forEach(card => grid.appendChild(createCardElement(card)));
     section.appendChild(grid);
     cardSections.appendChild(section);
   });
+
   if(!any){
     const msg = document.createElement('div');
     msg.style.opacity = '0.7';
@@ -354,6 +395,7 @@ function renderSections(){
     cardSections.appendChild(msg);
   }
 }
+
 
 function addToSlot(card){
   const freeSlot = slots.find(s => !s.dataset.cardId);
