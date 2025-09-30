@@ -4,8 +4,7 @@
 <title>Uma Builder — Card Picker</title>
 <style>
   :root {
-    --img-h: 150px; /* height of card images */
-    --img-w: 150px;
+    --card-w: 115px; /* card width */
   }
 
   body {
@@ -18,7 +17,7 @@
   /* Container */
   .container {
       width: 100%;
-      max-width: 2560px; /* optional, caps at 2560px */
+      max-width: 2560px;
       margin: 0 auto;
       display: flex;
       gap: 20px;
@@ -28,7 +27,7 @@
   /* Sidebar */
   .sidebar {
     flex: 0 0 175px;
-    margin-left: -175px; /* shifts it left */
+    margin-left: -175px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -54,7 +53,7 @@
   /* Main content */
   .main-content {
     flex: 1;
-    min-width: 0; /* allow flex children to shrink */
+    min-width: 0;
   }
 
   .slots-header {
@@ -72,22 +71,21 @@
     cursor: pointer;
   }
 
-/* Slots grid */
-.slots {
+  /* Slots grid */
+  .slots {
     display: grid;
-    grid-template-columns: repeat(6, 120px); /* fixed width for each slot */
+    grid-template-columns: repeat(6, var(--card-w));
     gap: 10px;
     margin-bottom: 18px;
-}
+  }
 
-/* Individual slot */
-.slot {
-    width: 120px;       /* fixed width */
-    min-height: 120px;
-    height: 100%;      /* fixed height */
+  /* Individual slot */
+  .slot {
+    width: var(--card-w);
+    height: var(--card-w); /* square when empty */
     border: 2px dashed #ccc;
     background: #fafafa;
-    padding: 6px;
+    padding: 8px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -95,19 +93,59 @@
     justify-content: flex-start;
     cursor: pointer;
     position: relative;
-}
+    transition: all 0.2s;
+  }
 
-.slot.has-card {
+  .slot.has-card {
     border-color: #9aa;
     background: #fff;
-}
+    height: auto; /* expand for skills */
+  }
 
-/* Optional: scale slot images proportionally */
-.slot img {
-    width: 100%;
-    height: 100%;
+  /* Type icon placeholder */
+  .slot::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 4px;
+  }
+
+  /* Slot content */
+  .slot img {
+    width: var(--card-w);
+    height: auto;
     object-fit: contain;
-}
+    display: block;
+  }
+
+  .slot .name {
+    margin: 8px 0 6px 0;
+    font-weight: 600;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  .slot .skills {
+    width: var(--card-w);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .slot .skill {
+    background: #eef2ff;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 12px;
+    box-sizing: border-box;
+    word-break: break-word;
+    white-space: normal;
+  }
 
   /* Cards grid */
   .cards {
@@ -131,8 +169,8 @@
   }
 
   .card img {
-    width: 115px;
-    height: 100%;
+    width: var(--card-w);
+    height: auto;
     object-fit: contain;
     display: block;
   }
@@ -144,10 +182,8 @@
     word-break: break-word;
   }
 
-  /* Skills overflow */
   .skills {
-    width: 115px;      /* allows overflow */
-    max-width: 115px; /* optional to limit extreme overflow */
+    width: var(--card-w);
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -181,13 +217,9 @@
     pointer-events: none;
   }
 
-  /* Responsive adjustments */
+  /* Responsive */
   @media (max-width: 1100px) {
-    :root { --img-h: 120px; }
-  }
-
-  @media (max-width: 900px) {
-    :root { --img-h: 100px; }
+    :root { --card-w: 100px; }
   }
 
   @media (max-width: 640px) {
@@ -205,108 +237,92 @@
     }
   }
 </style>
-
 </head>
 <body>
-  <h1>Uma Builder</h1>
+<h1>Uma Builder</h1>
 
-  <div class="container">
-    <!-- Sidebar filters (labels/options from your table; Aptitude ignored) -->
-    <div class="sidebar">
-      <div class="filter-group">
-        <label for="racecourse">Racecourse</label>
-        <select id="racecourse">
-          <option value="">-- Select --</option>
-          <option>Sapporo</option><option>Hakodate</option><option>Niigata</option><option>Fukushima</option>
-          <option>Nakayama</option><option>Tokyo</option><option>Chukyo</option><option>Kyoto</option>
-          <option>Hanshin</option><option>Kokura</option><option>Oi</option><option>Kawasaki</option>
-          <option>Funabashi</option><option>Morioka</option><option>Longchamp</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="length">Length</label>
-        <select id="length">
-          <option value="">-- Select --</option>
-          <option>1000m</option><option>1150m</option><option>1200m</option><option>1300m</option>
-          <option>1400m</option><option>1500m</option><option>1600m</option><option>1700m</option>
-          <option>1800m</option><option>1900m</option><option>2000m</option><option>2100m</option>
-          <option>2200m</option><option>2300m</option><option>2400m</option><option>2500m</option>
-          <option>2600m</option><option>3000m</option><option>3200m</option><option>3400m</option>
-          <option>3600m</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="lengthType">Length Type</label>
-        <select id="lengthType">
-          <option value="">-- Select --</option>
-          <option>Sprint</option><option>Mile</option><option>Medium</option><option>Long</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="direction">Direction</label>
-        <select id="direction">
-          <option value="">-- Select --</option>
-          <option>Clockwise</option><option>Counterclockwise</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="track">Track Conditions</label>
-        <select id="track">
-          <option value="">-- Select --</option>
-          <option>Firm</option><option>Good</option><option>Soft</option><option>Heavy</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="season">Season</label>
-        <select id="season">
-          <option value="">-- Select --</option>
-          <option>Spring</option><option>Summer</option><option>Fall</option><option>Winter</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="weather">Weather</label>
-        <select id="weather">
-          <option value="">-- Select --</option>
-          <option>Sunny</option><option>Cloudy</option><option>Rainy</option><option>Snowy</option>
-        </select>
-      </div>
+<div class="container">
+  <div class="sidebar">
+    <div class="filter-group">
+      <label for="racecourse">Racecourse</label>
+      <select id="racecourse">
+        <option value="">-- Select --</option>
+        <option>Sapporo</option><option>Hakodate</option><option>Niigata</option><option>Fukushima</option>
+        <option>Nakayama</option><option>Tokyo</option><option>Chukyo</option><option>Kyoto</option>
+        <option>Hanshin</option><option>Kokura</option><option>Oi</option><option>Kawasaki</option>
+        <option>Funabashi</option><option>Morioka</option><option>Longchamp</option>
+      </select>
     </div>
-
-    <!-- Main content -->
-    <div class="main-content">
-      <div class="slots-header">
-        <!-- placed as normal element above the slots, aligned to the right -->
-        <button class="clear-all" id="clearAllBtn">Clear All</button>
-      </div>
-
-      <div class="slots" id="slots">
-        <div class="slot" data-slot="0"></div>
-        <div class="slot" data-slot="1"></div>
-        <div class="slot" data-slot="2"></div>
-        <div class="slot" data-slot="3"></div>
-        <div class="slot" data-slot="4"></div>
-        <div class="slot" data-slot="5"></div>
-      </div>
-
-      <div class="card-sections" id="cardSections">
-        <!-- sections will be rendered here based on dropdowns -->
-      </div>
+    <div class="filter-group">
+      <label for="length">Length</label>
+      <select id="length">
+        <option value="">-- Select --</option>
+        <option>1000m</option><option>1150m</option><option>1200m</option><option>1300m</option>
+        <option>1400m</option><option>1500m</option><option>1600m</option><option>1700m</option>
+        <option>1800m</option><option>1900m</option><option>2000m</option><option>2100m</option>
+        <option>2200m</option><option>2300m</option><option>2400m</option><option>2500m</option>
+        <option>2600m</option><option>3000m</option><option>3200m</option><option>3400m</option>
+        <option>3600m</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="lengthType">Length Type</label>
+      <select id="lengthType">
+        <option value="">-- Select --</option>
+        <option>Sprint</option><option>Mile</option><option>Medium</option><option>Long</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="direction">Direction</label>
+      <select id="direction">
+        <option value="">-- Select --</option>
+        <option>Clockwise</option><option>Counterclockwise</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="track">Track Conditions</label>
+      <select id="track">
+        <option value="">-- Select --</option>
+        <option>Firm</option><option>Good</option><option>Soft</option><option>Heavy</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="season">Season</label>
+      <select id="season">
+        <option value="">-- Select --</option>
+        <option>Spring</option><option>Summer</option><option>Fall</option><option>Winter</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="weather">Weather</label>
+      <select id="weather">
+        <option value="">-- Select --</option>
+        <option>Sunny</option><option>Cloudy</option><option>Rainy</option><option>Snowy</option>
+      </select>
     </div>
   </div>
 
+  <div class="main-content">
+    <div class="slots-header">
+      <button class="clear-all" id="clearAllBtn">Clear All</button>
+    </div>
+
+    <div class="slots" id="slots">
+      <div class="slot" data-slot="0"></div>
+      <div class="slot" data-slot="1"></div>
+      <div class="slot" data-slot="2"></div>
+      <div class="slot" data-slot="3"></div>
+      <div class="slot" data-slot="4"></div>
+      <div class="slot" data-slot="5"></div>
+    </div>
+
+    <div class="card-sections" id="cardSections"></div>
+  </div>
+</div>
+
 <script>
-/* -------------------------
-   Data (explicit attributes)
-   ------------------------- */
 const cardsData = Array.from({length:10}, (_, i) => {
   const id = 10001 + i;
-  // Choose example attribute values so filters can be tested
   const raceArr = ["Sapporo","Hakodate","Niigata","Fukushima","Nakayama","Tokyo","Chukyo","Kyoto","Hanshin","Kokura"];
   const lenArr = ["1000m","1150m","1200m","1300m","1400m","1500m","1600m","1700m","1800m","1900m","2000m","2100m","2200m","2300m","2400m","2500m","2600m","3000m","3200m","3400m","3600m"];
   const lengthTypeArr = ["Sprint","Mile","Medium","Long"];
@@ -314,7 +330,6 @@ const cardsData = Array.from({length:10}, (_, i) => {
   const trackArr = ["Firm","Good","Soft","Heavy"];
   const seasonArr = ["Spring","Summer","Fall","Winter"];
   const weatherArr = ["Sunny","Cloudy","Rainy","Snowy"];
-
   const race = raceArr[i % raceArr.length];
   const length = lenArr[i % lenArr.length];
   const lengthType = lengthTypeArr[i % lengthTypeArr.length];
@@ -322,34 +337,20 @@ const cardsData = Array.from({length:10}, (_, i) => {
   const track = trackArr[i % trackArr.length];
   const season = seasonArr[i % seasonArr.length];
   const weather = weatherArr[i % weatherArr.length];
-
   return {
-    id,
-    name: `Card ${id}`,
+    id, name: `Card ${id}`,
     image: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
-    racecourse: race,
-    length: length,
-    lengthType: lengthType,
-    direction: direction,
-    track: track,
-    season: season,
-    weather: weather,
-    // for display in the card's skill box
-    skills: [race, length, lengthType, direction, track, season, weather],
+    racecourse: race, length, lengthType, direction, track, season, weather,
+    skills: [race,length,lengthType,direction,track,season,weather],
     typeNum: String(Math.floor(Math.random()*6)).padStart(2,"0"),
     typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${String(Math.floor(Math.random()*6)).padStart(2,"0")}.png`
   };
 });
 
-/* DOM references */
 const cardSections = document.getElementById('cardSections');
 const slots = Array.from(document.querySelectorAll('.slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
-
-/* Track selected card IDs so we can disable them consistently */
 const selectedCardIds = new Set();
-
-/* Categories mapping */
 const categories = [
   {id:'racecourse', title:'Racecourse', prop:'racecourse'},
   {id:'length', title:'Length', prop:'length'},
@@ -359,12 +360,9 @@ const categories = [
   {id:'season', title:'Season', prop:'season'},
   {id:'weather', title:'Weather', prop:'weather'}
 ];
-
-/* Keep slot listeners so we can remove reliably */
 const slotListeners = new Map();
 
-/* ---------- Helper: create card element for bottom lists ---------- */
-function createCardElement(card) {
+function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
   el.dataset.id = card.id;
@@ -374,20 +372,17 @@ function createCardElement(card) {
     <div class="name">${escapeHtml(card.name)}</div>
     <div class="skills">${card.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>
   `;
-  // click to add to first free slot
   el.addEventListener('click', ()=> addToSlot(card));
-  // if card is currently selected, mark disabled
   if(selectedCardIds.has(card.id)) el.classList.add('disabled');
   return el;
 }
 
-/* ---------- Render sections based on dropdown selections ---------- */
 function renderSections(){
   cardSections.innerHTML = '';
   let any = false;
   categories.forEach(cat=>{
     const val = (document.getElementById(cat.id) || {value: ''}).value;
-    if(!val) return; // skip if blank
+    if(!val) return;
     any = true;
     const section = document.createElement('div');
     section.className = 'card-section';
@@ -396,18 +391,12 @@ function renderSections(){
     section.appendChild(header);
     const grid = document.createElement('div');
     grid.className = 'cards';
-    // find matching cards
     const matches = cardsData.filter(c => String(c[cat.prop]) === String(val));
-    matches.forEach(card => {
-      const cardEl = createCardElement(card);
-      grid.appendChild(cardEl);
-    });
+    matches.forEach(card => grid.appendChild(createCardElement(card)));
     section.appendChild(grid);
     cardSections.appendChild(section);
   });
-
   if(!any){
-    // helpful message when no filters selected
     const msg = document.createElement('div');
     msg.style.opacity = '0.7';
     msg.style.marginTop = '8px';
@@ -416,11 +405,9 @@ function renderSections(){
   }
 }
 
-/* ---------- Add to slot (fills first empty slot) ---------- */
 function addToSlot(card){
   const freeSlot = slots.find(s => !s.dataset.cardId);
   if(!freeSlot) return;
-  // safety: remove any previous listener on this slot
   if(slotListeners.has(freeSlot)){
     freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
     slotListeners.delete(freeSlot);
@@ -435,22 +422,15 @@ function addToSlot(card){
     <div class="skills">${card.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>
   `;
 
-  // attach click-to-remove
-  function slotClickHandler(){
-    removeFromSlot(freeSlot, card.id);
-  }
+  function slotClickHandler(){ removeFromSlot(freeSlot, card.id); }
   freeSlot.addEventListener('click', slotClickHandler);
   slotListeners.set(freeSlot, slotClickHandler);
 
-  // mark selected
   selectedCardIds.add(card.id);
-  // disable all bottom card elements with that id
   document.querySelectorAll(`.card[data-id="${card.id}"]`).forEach(el => el.classList.add('disabled'));
 }
 
-/* ---------- Remove from slot ---------- */
 function removeFromSlot(slotEl, cardId){
-  // remove listener if stored
   if(slotListeners.has(slotEl)){
     slotEl.removeEventListener('click', slotListeners.get(slotEl));
     slotListeners.delete(slotEl);
@@ -458,17 +438,12 @@ function removeFromSlot(slotEl, cardId){
   slotEl.classList.remove('has-card');
   delete slotEl.dataset.cardId;
   slotEl.innerHTML = '';
-  // unmark selected
   selectedCardIds.delete(Number(cardId));
-  // re-enable bottom cards with that id
   document.querySelectorAll(`.card[data-id="${cardId}"]`).forEach(el => el.classList.remove('disabled'));
 }
 
-/* ---------- Clear All ---------- */
 clearAllBtn.addEventListener('click', ()=>{
-  // unselect all
   selectedCardIds.clear();
-  // remove slot listeners and clear slots
   slots.forEach(slot=>{
     if(slotListeners.has(slot)){
       slot.removeEventListener('click', slotListeners.get(slot));
@@ -478,11 +453,9 @@ clearAllBtn.addEventListener('click', ()=>{
     delete slot.dataset.cardId;
     slot.innerHTML = '';
   });
-  // update bottom elements (remove disabled)
   document.querySelectorAll('.card').forEach(el => el.classList.remove('disabled'));
 });
 
-/* ---------- Persist/restore filter selections (localStorage) ---------- */
 function setupFilterPersistence(){
   categories.forEach(cat=>{
     const sel = document.getElementById(cat.id);
@@ -496,16 +469,10 @@ function setupFilterPersistence(){
   });
 }
 
-/* ---------- Utility: escape HTML ---------- */
-function escapeHtml(s){
-  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-}
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-/* ---------- Init ---------- */
 setupFilterPersistence();
 renderSections();
-
-/* Re-render sections on page load to reflect restored selections */
 window.addEventListener('load', ()=> renderSections());
 </script>
 </body>
