@@ -7,15 +7,22 @@
       font-family: Arial, sans-serif;
       margin: 20px;
     }
+
+    .container {
+      max-width: 1000px; /* adjust to your desired width */
+      margin: 0 auto;     /* center horizontally */
+    }
+
     .slots {
-      display: flex;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); /* 6 slots per row */
       gap: 10px;
-      margin-bottom: 60px;
+      margin-bottom: 30px;
       position: relative;
     }
+
     .slot {
-      width: 150px;
+      width: 100%;
       min-height: 150px;
       border: 2px dashed #ccc;
       display: flex;
@@ -26,10 +33,12 @@
       position: relative;
       background: #f9f9f9;
     }
+
     .slot img {
       width: 100%;
       cursor: pointer;
     }
+
     .skills {
       margin-top: 5px;
       width: 100%;
@@ -37,6 +46,7 @@
       flex-direction: column;
       align-items: flex-start;
     }
+
     .skill {
       background: #e0e0e0;
       border-radius: 4px;
@@ -45,6 +55,7 @@
       width: 100%;
       box-sizing: border-box;
     }
+
     .remove-btn {
       position: absolute;
       top: -20px;
@@ -56,14 +67,17 @@
       cursor: pointer;
       display: none;
     }
+
     .slot.has-card .remove-btn {
       display: block;
     }
+
     .cards {
       display: grid;
-      grid-template-columns: repeat(6, 1fr); /* 6 columns, equal width */
+      grid-template-columns: repeat(6, 1fr); /* 6 cards per row */
       gap: 10px;
     }
+
     .card {
       width: 100%; /* fill the grid column */
       border: 1px solid #ccc;
@@ -73,13 +87,16 @@
       background: #fff;
       position: relative;
     }
+
     .card img {
       width: 100%;
     }
+
     .card.disabled {
       opacity: 0.5;
       pointer-events: none;
     }
+
     .clear-all {
       position: absolute;
       top: -40px;
@@ -90,6 +107,7 @@
       padding: 5px 10px;
       cursor: pointer;
     }
+
     /* type icon overlay */
     .type-icon {
       position: absolute;
@@ -102,11 +120,13 @@
       background: white;
       border: 1px solid #ccc;
     }
+
     .type-icon img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .slot .type-icon {
       top: 5px;
       right: 5px;
@@ -115,17 +135,20 @@
 </head>
 <body>
   <h1>Uma Builder</h1>
-  <div class="slots">
-    <button class="clear-all">Clear All</button>
-    <div class="slot"><button class="remove-btn">X</button></div>
-    <div class="slot"><button class="remove-btn">X</button></div>
-    <div class="slot"><button class="remove-btn">X</button></div>
-    <div class="slot"><button class="remove-btn">X</button></div>
-    <div class="slot"><button class="remove-btn">X</button></div>
-    <div class="slot"><button class="remove-btn">X</button></div>
-  </div>
 
-  <div class="cards" id="cards-container"></div>
+  <div class="container">
+    <div class="slots">
+      <button class="clear-all">Clear All</button>
+      <div class="slot"><button class="remove-btn">X</button></div>
+      <div class="slot"><button class="remove-btn">X</button></div>
+      <div class="slot"><button class="remove-btn">X</button></div>
+      <div class="slot"><button class="remove-btn">X</button></div>
+      <div class="slot"><button class="remove-btn">X</button></div>
+      <div class="slot"><button class="remove-btn">X</button></div>
+    </div>
+
+    <div class="cards" id="cards-container"></div>
+  </div>
 
   <script>
     const cardsData = Array.from({length: 10}, (_, i) => {
