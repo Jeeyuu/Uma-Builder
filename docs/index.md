@@ -4,7 +4,8 @@
 <title>Uma Builder — Card Picker</title>
 <style>
   :root {
-    --img-h: 140px; /* height of card images */
+    --img-h: 150px; /* height of card images */
+    --img-w: 150px;
   }
 
   body {
@@ -141,8 +142,8 @@
 
   /* Skills overflow */
   .skills {
-    width: 100px;      /* allows overflow */
-    max-width: 100px; /* optional to limit extreme overflow */
+    width: 150px;      /* allows overflow */
+    max-width: 150px; /* optional to limit extreme overflow */
     display: flex;
     flex-direction: column;
     gap: 4px;
