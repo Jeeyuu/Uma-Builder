@@ -60,7 +60,6 @@
       background: #fff;
       word-wrap: break-word;
       overflow-wrap: break-word;
-      position: relative;
     }
     .card img {
       width: 100%;
@@ -83,15 +82,10 @@
       background: #f9f9f9;
       cursor: pointer;
     }
-    .slot img {
-      width: 100%;
-      height: auto;
-    }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- FILTERS -->
     <div class="filters">
       <div class="filter-group">
         <label for="racecourse">Racecourse</label>
@@ -191,12 +185,12 @@
       </div>
     </div>
 
-    <!-- SLOTS + CARDS -->
     <div class="slots-container">
       <div class="slots-header">
         <button id="clearAll">Clear All</button>
       </div>
       <div class="cards" id="cardPool">
+        <!-- Example cards -->
         <div class="card" data-racecourse="Tokyo" data-length="1600m" data-lengthtype="Mile" data-direction="Clockwise" data-track="Firm" data-season="Spring" data-weather="Sunny">
           <img src="https://via.placeholder.com/100x150?text=Tokyo1600" alt="Tokyo 1600">
           <div>Tokyo 1600m</div>
@@ -207,9 +201,9 @@
         </div>
       </div>
       <div class="slots" id="slotsArea">
-        <div class="slot"></div>
-        <div class="slot"></div>
-        <div class="slot"></div>
+        <div class="slot">Drop Here</div>
+        <div class="slot">Drop Here</div>
+        <div class="slot">Drop Here</div>
       </div>
     </div>
   </div>
@@ -220,7 +214,6 @@
     const slots = document.querySelectorAll('.slot');
     const clearAllBtn = document.getElementById('clearAll');
 
-    // Filtering
     function filterCards() {
       const filters = {
         racecourse: document.getElementById('racecourse').value,
@@ -243,13 +236,16 @@
         card.style.display = visible ? 'block' : 'none';
       });
     }
-    dropdowns.forEach(dropdown => dropdown.addEventListener('change', filterCards));
 
-    // Slot logic
+    dropdowns.forEach(dropdown => {
+      dropdown.addEventListener('change', filterCards);
+    });
+
     cards.forEach(card => {
       card.addEventListener('click', () => {
-        const emptySlot = Array.from(slots).find(slot => slot.children.length === 0);
+        const emptySlot = document.querySelector('.slot:empty');
         if (emptySlot) {
+          emptySlot.textContent = '';
           const clone = card.cloneNode(true);
           clone.addEventListener('click', () => {
             clone.remove();
@@ -261,9 +257,13 @@
       });
     });
 
-    // Clear all
     clearAllBtn.addEventListener('click', () => {
-      slots.forEach(slot => slot.innerHTML = '');
+      document.querySelectorAll('.slot').forEach(slot => {
+        if (slot.firstChild) {
+          const original = document.querySelector(`.card[alt='${slot.firstChild.alt}']`);
+          slot.innerHTML = 'Drop Here';
+        }
+      });
       cards.forEach(card => card.style.display = 'block');
     });
   </script>
