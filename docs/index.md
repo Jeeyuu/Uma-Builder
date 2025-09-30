@@ -4,7 +4,7 @@
 <title>Uma Builder — Card Picker</title>
 <style>
   :root {
-    --card-w: 115px; /* card width */
+    --card-w: 115px; /* card image width */
   }
 
   body {
@@ -75,48 +75,35 @@
   /* Slots grid */
   .slots {
     display: grid;
-    grid-template-columns: repeat(6, var(--card-w));
+    grid-template-columns: repeat(6, 1fr);
     gap: 10px;
     margin-bottom: 18px;
   }
 
-  /* Individual slot */
+  /* Slot styled like a card */
   .slot {
-    width: var(--card-w);
-    height: var(--card-w); /* square when empty */
-    border: 2px dashed #ccc;
-    background: #fafafa;
+    border: 1px solid #ddd;
     padding: 8px;
     box-sizing: border-box;
+    background: #fff;
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     cursor: pointer;
-    position: relative;
+    width: 100%;
+    min-height: 133px; /* ensures same min height as card */
     transition: all 0.2s;
   }
 
-  .slot.has-card {
-    border-color: #9aa;
-    background: #fff;
-    height: auto; /* expand for skills */
+  /* Empty slot style */
+  .slot:not(.has-card) {
+    border: 2px dashed #ccc;
+    background: #fafafa;
   }
 
-  /* Type icon placeholder */
-  .slot::before {
-    content: "";
-    position: absolute;
-    top: 6px;
-    right: 6px;
-    width: 30px;
-    height: 30px;
-    border: 1px solid #ccc;
-    background: #fff;
-    border-radius: 4px;
-  }
-
-  /* Slot content */
+  /* Slot content (same as card) */
   .slot img {
     width: var(--card-w);
     height: auto;
