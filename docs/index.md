@@ -101,6 +101,13 @@
     background: #fff;
 }
 
+/* Optional: scale slot images proportionally */
+.slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
   /* Cards grid */
   .cards {
     display: grid;
