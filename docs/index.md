@@ -140,7 +140,7 @@ select {
   grid-template-columns: repeat(6, 1fr); /* 6 cards per row */
   gap: 10px;          /* same gap as slots above */
   margin-top: 6px;    /* keep previous margin */
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
 
 .card {
