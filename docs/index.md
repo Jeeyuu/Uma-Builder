@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -130,12 +129,12 @@ select {
   white-space: normal;
 }
 
-/* Cards grid */
+/* Cards grid (bottom list) aligned left */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--card-w), 1fr));
   gap: var(--gap); /* same as slots */
-  justify-items: center;
+  justify-items: start; /* align left */
   margin-top: 10px;
 }
 
@@ -208,6 +207,7 @@ select {
 
 <div class="container">
   <div class="sidebar">
+    <!-- Filter groups (same as previous) -->
     <div class="filter-group">
       <label for="racecourse">Racecourse</label>
       <select id="racecourse">
@@ -284,6 +284,7 @@ select {
     <div class="card-sections" id="cardSections"></div>
   </div>
 </div>
+
 
 <script>
 // Sample cards
