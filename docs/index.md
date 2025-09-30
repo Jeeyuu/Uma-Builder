@@ -61,12 +61,11 @@
     }
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      grid-template-columns: repeat(6, 1fr); /* 6 columns, equal width */
       gap: 10px;
-      justify-items: center;
     }
     .card {
-      width: 150px;
+      width: 100%; /* fill the grid column */
       border: 1px solid #ccc;
       padding: 5px;
       text-align: center;
