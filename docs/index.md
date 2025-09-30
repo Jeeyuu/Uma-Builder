@@ -11,7 +11,7 @@
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 50px;
+      margin-bottom: 60px;
       position: relative;
     }
     .slot {
@@ -60,10 +60,10 @@
       display: block;
     }
     .cards {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 10px;
+      justify-items: center;
     }
     .card {
       width: 150px;
@@ -72,6 +72,7 @@
       text-align: center;
       cursor: pointer;
       background: #fff;
+      position: relative;
     }
     .card img {
       width: 100%;
@@ -89,6 +90,27 @@
       border: none;
       padding: 5px 10px;
       cursor: pointer;
+    }
+    /* type icon overlay */
+    .type-icon {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      overflow: hidden;
+      background: white;
+      border: 1px solid #ccc;
+    }
+    .type-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .slot .type-icon {
+      top: 5px;
+      right: 5px;
     }
   </style>
 </head>
@@ -109,11 +131,14 @@
   <script>
     const cardsData = Array.from({length: 10}, (_, i) => {
       const id = 10001 + i;
+      const typeNum = String(Math.floor(Math.random() * 6)).padStart(2, "0"); // 00–05
       return {
         id: id,
         name: `Card ${id}`,
         image: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
-        skills: Array.from({length: Math.floor(Math.random() * 5) + 1}, (_, j) => `Skill ${j + 1}`)
+        skills: Array.from({length: Math.floor(Math.random() * 5) + 1}, (_, j) => `Skill ${j + 1}`),
+        typeNum: typeNum,
+        typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeNum}.png`
       };
     });
 
@@ -128,6 +153,7 @@
         cardDiv.className = 'card';
         cardDiv.dataset.id = card.id;
         cardDiv.innerHTML = `
+          <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
           <img src="${card.image}" alt="${card.name}">
           <div>${card.name}</div>
           <div class="skills">
@@ -146,15 +172,14 @@
       availableSlot.classList.add('has-card');
       availableSlot.innerHTML = `
         <button class="remove-btn">X</button>
+        <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
         <img src="${card.image}" alt="${card.name}">
         <div class="skills">
           ${card.skills.map(skill => `<div class="skill">${skill}</div>`).join('')}
         </div>
       `;
 
-      // Remove on button click
       availableSlot.querySelector('.remove-btn').addEventListener('click', () => removeFromSlot(availableSlot, card.id));
-      // Remove on image click
       availableSlot.querySelector('img').addEventListener('click', () => removeFromSlot(availableSlot, card.id));
 
       document.querySelector(`.card[data-id="${card.id}"]`).classList.add('disabled');
