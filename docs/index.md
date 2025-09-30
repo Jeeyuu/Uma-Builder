@@ -1,187 +1,34 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <title>Uma Builder — Card Picker</title>
 <style>
-:root {
-  --card-w: 118px;
-  --gap: 10px;
-}
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  background: #fff;
-  color: #111;
-  display: flex;
-  justify-content: flex-start;
-}
-.container {
-  position: relative;
-  transform: translateX(-100px);
-  left: 0;
-  top: 0;
-  width: 100%;
-  max-width: none;
-  display: flex;
-  gap: 20px;
-  align-items: flex-start;
-}
-.sidebar {
-  flex-shrink: 0;
-  width: 180px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-/* Filters */
-.filter-group label {
-  font-weight: 700;
-  margin-bottom: 6px;
-  display: block;
-}
-select {
-  padding: 6px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #fff;
-  width: 100%;
-}
-/* Main content */
-.main-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-/* Slots header */
-.slots-header {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 8px;
-}
-.clear-all {
-  padding: 5px 10px;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-  background: #444;
-  color: #fff;
-}
-/* Slots grid */
-.slots {
-  display: grid;
-  grid-template-columns: repeat(6, var(--card-w));
-  gap: var(--gap);
-  margin-bottom: 18px;
-}
-.slot {
-  border: 1px solid #ddd;
-  padding: 8px;
-  box-sizing: border-box;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  cursor: pointer;
-  position: relative;
-  width: var(--card-w);
-  min-height: var(--card-w);
-}
-.slot:not(.has-card) {
-  border: 2px dashed #ccc;
-  background: #fafafa;
-}
-.slot img {
-  width: 100%;
-  height: auto;
-}
-.slot .name {
-  margin: 8px 0 6px 0;
-  font-weight: 600;
-  text-align: center;
-  word-break: break-word;
-}
-.slot .skills {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.slot .skill {
-  background: #eef2ff;
-  border-radius: 6px;
-  padding: 4px 6px;
-  font-size: 12px;
-  word-break: break-word;
-  white-space: normal;
-}
-/* Bottom cards grid */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-  margin-top: 6px;
-  margin-bottom: 12px;
-}
-.card {
-  border: 1px solid #ddd;
-  padding: 8px;
-  box-sizing: border-box;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  width: var(--card-w);
-  position: relative;
-}
-.card img {
-  width: 100%;
-  height: auto;
-}
-.card .name {
-  margin: 8px 0 6px 0;
-  font-weight: 600;
-  text-align: center;
-  word-break: break-word;
-}
-.card .skills {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.card .skill {
-  background: #eef2ff;
-  border-radius: 6px;
-  padding: 4px 6px;
-  font-size: 12px;
-  word-break: break-word;
-  white-space: normal;
-}
-.card .type-icon,
-.slot .type-icon {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 30px;
-  height: 30px;
-  border: 1px solid #ccc;
-  background: #fff;
-  border-radius: 4px;
-  overflow: hidden;
-}
-.card.disabled {
-  opacity: 0.45;
-  pointer-events: none;
-}
-/* Responsive */
-@media (max-width: 1100px) {
-  :root { --card-w: 100px; }
-}
+:root { --card-w: 118px; --gap: 10px; }
+body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 0; width: 100%; background: #fff; color: #111; display: flex; justify-content: flex-start; }
+.container { position: relative; transform: translateX(-100px); left: 0; top: 0; width: 100%; max-width: none; display: flex; gap: 20px; align-items: flex-start; }
+.sidebar { flex-shrink: 0; width: 180px; display: flex; flex-direction: column; gap: 20px; }
+.filter-group label { font-weight: 700; margin-bottom: 6px; display: block; }
+select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #fff; width: 100%; }
+.main-content { flex-grow: 1; display: flex; flex-direction: column; }
+.slots-header { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.clear-all { padding: 5px 10px; font-size: 14px; cursor: pointer; border: none; border-radius: 6px; background: #444; color: #fff; }
+.slots { display: grid; grid-template-columns: repeat(6, var(--card-w)); gap: var(--gap); margin-bottom: 18px; }
+.slot { border: 1px solid #ddd; padding: 8px; box-sizing: border-box; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; cursor: pointer; position: relative; width: var(--card-w); min-height: var(--card-w); }
+.slot:not(.has-card) { border: 2px dashed #ccc; background: #fafafa; }
+.slot img { width: 100%; height: auto; }
+.slot .name { margin: 8px 0 6px 0; font-weight: 600; text-align: center; word-break: break-word; }
+.slot .skills { width: 100%; display: flex; flex-direction: column; gap: 4px; }
+.slot .skill { background: #eef2ff; border-radius: 6px; padding: 4px 6px; font-size: 12px; word-break: break-word; white-space: normal; }
+.cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 6px; margin-bottom: 12px; }
+.card { border: 1px solid #ddd; padding: 8px; box-sizing: border-box; background: #fff; display: flex; flex-direction: column; align-items: center; cursor: pointer; width: var(--card-w); position: relative; }
+.card img { width: 100%; height: auto; }
+.card .name { margin: 8px 0 6px 0; font-weight: 600; text-align: center; word-break: break-word; }
+.card .skills { width: 100%; display: flex; flex-direction: column; gap: 4px; }
+.card .skill { background: #eef2ff; border-radius: 6px; padding: 4px 6px; font-size: 12px; word-break: break-word; white-space: normal; }
+.card .type-icon, .slot .type-icon { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; }
+.card.disabled { opacity: 0.45; pointer-events: none; }
+@media (max-width: 1100px) { :root { --card-w: 100px; } }
 </style>
 </head>
 <body>
@@ -198,25 +45,18 @@ select {
         <option>Funabashi</option><option>Morioka</option><option>Longchamp</option>
       </select>
     </div>
+
     <div class="filter-group">
       <label for="length">Length</label>
       <select id="length">
         <option value="">-- Select --</option>
-        <option>1000m</option><option>1150m</option><option>1200m</option><option>1300m</option>
-        <option>1400m</option><option>1500m</option><option>1600m</option><option>1700m</option>
-        <option>1800m</option><option>1900m</option><option>2000m</option><option>2100m</option>
-        <option>2200m</option><option>2300m</option><option>2400m</option><option>2500m</option>
-        <option>2600m</option><option>3000m</option><option>3200m</option><option>3400m</option>
-        <option>3600m</option>
+        <option value="Sprint">1000-1400m</option>
+        <option value="Mile">1401-1800m</option>
+        <option value="Medium">1801-2400m</option>
+        <option value="Long">2401-3600m</option>
       </select>
     </div>
-    <div class="filter-group">
-      <label for="lengthType">Length Type</label>
-      <select id="lengthType">
-        <option value="">-- Select --</option>
-        <option>Sprint</option><option>Mile</option><option>Medium</option><option>Long</option>
-      </select>
-    </div>
+
     <div class="filter-group">
       <label for="direction">Direction</label>
       <select id="direction">
@@ -246,7 +86,6 @@ select {
       </select>
     </div>
 
-    <!-- Clear Filters button -->
     <button id="clearFiltersBtn" class="clear-all" style="margin-top:auto;">Clear Filters</button>
   </div>
 
@@ -274,14 +113,12 @@ const cardsData = Array.from({length:10}, (_, i) => {
   const id = 10001 + i;
   const raceArr = ["Sapporo","Hakodate","Niigata","Fukushima","Nakayama","Tokyo","Chukyo","Kyoto","Hanshin","Kokura"];
   const lenArr = ["1000m","1150m","1200m","1300m","1400m","1500m","1600m","1700m","1800m","1900m","2000m","2100m","2200m","2300m","2400m","2500m","2600m","3000m","3200m","3400m","3600m"];
-  const lengthTypeArr = ["Sprint","Mile","Medium","Long"];
   const dirArr = ["Clockwise","Counterclockwise"];
   const trackArr = ["Firm","Good","Soft","Heavy"];
   const seasonArr = ["Spring","Summer","Fall","Winter"];
   const weatherArr = ["Sunny","Cloudy","Rainy","Snowy"];
   const race = raceArr[i % raceArr.length];
   const length = lenArr[i % lenArr.length];
-  const lengthType = lengthTypeArr[i % lengthTypeArr.length];
   const direction = dirArr[i % dirArr.length];
   const track = trackArr[i % trackArr.length];
   const season = seasonArr[i % seasonArr.length];
@@ -289,8 +126,8 @@ const cardsData = Array.from({length:10}, (_, i) => {
   return {
     id, name: `Card ${id}`,
     image: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
-    racecourse: race, length, lengthType, direction, track, season, weather,
-    skills: [race,length,lengthType,direction,track,season,weather],
+    racecourse: race, length, direction, track, season, weather,
+    skills: [race,length,direction,track,season,weather],
     typeNum: String(Math.floor(Math.random()*6)).padStart(2,"0"),
     typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${String(Math.floor(Math.random()*6)).padStart(2,"0")}.png`
   };
@@ -301,15 +138,16 @@ const slots = Array.from(document.querySelectorAll('.slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
+
 const categories = [
   {id:'racecourse', title:'Racecourse', prop:'racecourse'},
   {id:'length', title:'Length', prop:'length'},
-  {id:'lengthType', title:'Length Type', prop:'lengthType'},
   {id:'direction', title:'Direction', prop:'direction'},
   {id:'track', title:'Track Conditions', prop:'track'},
   {id:'season', title:'Season', prop:'season'},
   {id:'weather', title:'Weather', prop:'weather'}
 ];
+
 const slotListeners = new Map();
 
 function createCardElement(card){
@@ -335,7 +173,6 @@ function renderSections(){
     let val = (document.getElementById(cat.id) || {value: ''}).value;
     if(!val) return;
 
-    // Transform the value based on your rules
     let searchTerms = [];
 
     switch(cat.id){
@@ -343,14 +180,24 @@ function renderSections(){
         searchTerms.push(val + ' Racecourse');
         break;
       case 'length':
-        const dist = parseInt(val.replace('m',''));
-        if(dist <= 1400) searchTerms.push('Sprint Corners','Sprint Straightaways');
-        else if(dist <= 1800) searchTerms.push('Mile Corners','Mile Straightaways');
-        else if(dist <= 2400) searchTerms.push('Medium Corners','Medium Straightaways');
-        else searchTerms.push('Long Corners','Long Straightaways');
-
-        if(dist % 400 === 0) searchTerms.push('Standard Distance');
-        else searchTerms.push('Non-Standard Distance');
+        switch(val){
+          case 'Sprint':
+            searchTerms.push('Sprint Corners','Sprint Straightaways');
+            searchTerms.push(1000 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
+            break;
+          case 'Mile':
+            searchTerms.push('Mile Corners','Mile Straightaways');
+            searchTerms.push(1600 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
+            break;
+          case 'Medium':
+            searchTerms.push('Medium Corners','Medium Straightaways');
+            searchTerms.push(2000 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
+            break;
+          case 'Long':
+            searchTerms.push('Long Corners','Long Straightaways');
+            searchTerms.push(2600 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
+            break;
+        }
         break;
       case 'direction':
         searchTerms.push(val === 'Clockwise' ? 'Right-Handed' : 'Left-Handed');
@@ -364,8 +211,6 @@ function renderSections(){
       case 'weather':
         searchTerms.push(val + ' Days');
         break;
-      default:
-        searchTerms.push(val);
     }
 
     any = true;
@@ -377,8 +222,7 @@ function renderSections(){
     const grid = document.createElement('div');
     grid.className = 'cards';
 
-    // Filter cards based on all search terms
-    const matches = cardsData.filter(card => 
+    const matches = cardsData.filter(card =>
       searchTerms.some(term => card.skills.includes(term))
     );
 
@@ -396,10 +240,10 @@ function renderSections(){
   }
 }
 
-
 function addToSlot(card){
   const freeSlot = slots.find(s => !s.dataset.cardId);
   if(!freeSlot) return;
+
   if(slotListeners.has(freeSlot)){
     freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
     slotListeners.delete(freeSlot);
@@ -434,7 +278,6 @@ function removeFromSlot(slotEl, cardId){
   document.querySelectorAll(`.card[data-id="${cardId}"]`).forEach(el => el.classList.remove('disabled'));
 }
 
-// Clear All slots
 clearAllBtn.addEventListener('click', ()=>{
   selectedCardIds.clear();
   slots.forEach(slot=>{
@@ -449,7 +292,6 @@ clearAllBtn.addEventListener('click', ()=>{
   document.querySelectorAll('.card').forEach(el => el.classList.remove('disabled'));
 });
 
-// Clear Filters
 clearFiltersBtn.addEventListener('click', () => {
   categories.forEach(cat => {
     const sel = document.getElementById(cat.id);
