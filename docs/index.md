@@ -91,7 +91,7 @@
     justify-content: flex-start;
     cursor: pointer;
     position: relative;
-    width: 100%;
+    width: 115px;
   }
 
   .slot.has-card {
@@ -117,18 +117,18 @@
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    width: 100%;
+    width: 115px;
   }
 
   .card img {
-    width: 100%;
+    width: 115px;
     height: 100%;
     object-fit: contain;
     display: block;
   }
 
   .slot img {
-    width: 100%;
+    width: 115px;
     height: 100%;
     object-fit: contain;
     display: block;
