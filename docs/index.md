@@ -19,10 +19,11 @@ body {
 }
 
 .container {
+  width: 100%;
+  max-width: 2560px;
+  margin: 0; /* remove auto centering */
   display: flex;
   gap: 20px;
-  max-width: 1280px;
-  width: 100%;
   align-items: flex-start;
 }
 
