@@ -21,6 +21,7 @@ body {
 
 .container {
   position: relative; /* or absolute */
+    transform: translateX(-50px); /* move everything left by 50px, adjust as needed */
   left: 0;            /* force to left edge */
   top: 0;             /* optional */
   width: 100%;        /* take full width */
