@@ -112,9 +112,7 @@ select {
 }
 
 .clear-all {
-  position: absolute;
-  top: -40px;
-  right: 0;
+  margin-bottom: 10px; /* above slots */
   background: #555;
   color: white;
   border: none;
@@ -259,8 +257,8 @@ select {
 
   <!-- Main content -->
   <div class="main-content">
+    <button class="clear-all">Clear All</button>
     <div class="slots">
-      <button class="clear-all">Clear All</button>
       <div class="slot"></div>
       <div class="slot"></div>
       <div class="slot"></div>
@@ -323,6 +321,7 @@ function addToSlot(card) {
     </div>
   `;
 
+  // click slot to remove card
   availableSlot.addEventListener('click', function removeSlot() {
     removeFromSlot(availableSlot, card.id);
     availableSlot.removeEventListener('click', removeSlot);
