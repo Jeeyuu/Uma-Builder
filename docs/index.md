@@ -3,7 +3,7 @@
 <meta charset="utf-8" />
 <title>Uma Builder — Card Picker</title>
 <style>
-  :root{--card-width:100%;--img-h:140px}
+  :root{--card-width:200%;--img-h:140px}
   body{font-family:Arial,Helvetica,sans-serif;margin:20px;background:#fff;color:#111}
   .container{max-width:1280px;margin:0 auto;display:flex;gap:20px;align-items:flex-start}
   /* Sidebar */
@@ -30,16 +30,8 @@
   .card img, .slot img{width:100%;height:var(--img-h);object-fit:contain;display:block}
   /* Name and skills keep consistent widths and wrap */
   .name{margin:8px 0 6px 0;font-weight:600;text-align:center;word-break:break-word;white-space:normal}
-/* Make skills area wider inside cards */
-.skills {
-  width: 200%;           /* twice as wide as before */
-  max-width: 200%;       /* prevent shrinking back */
-}
-/* Keep text wrapping properly */
-.skill {
-  white-space: normal;
-  word-break: break-word;
-}
+  .skills{width:100%;display:flex;flex-direction:column;gap:4px}
+  .skill{background:#eef2ff;border-radius:6px;padding:4px 6px;font-size:12px;box-sizing:border-box;word-break:break-word;white-space:normal}
   /* Disabled card style */
   .card.disabled{opacity:0.45;pointer-events:none}
   /* small responsiveness: reduce image height on narrow screens */
