@@ -11,7 +11,7 @@
 
     .slots-wrapper {
       position: relative;
-      margin-bottom: 60px; /* add space for Clear All */
+      margin-bottom: 20px; /* add space for Clear All */
       margin-right: 10px;
     }
 
@@ -89,7 +89,7 @@
 
     .clear-btn {
       position: absolute;
-      top: -25px;   /* move it above slots */
+      top: -35px;   /* move it above slots */
       right: 0;
       background: #ff6666;
       border: none;
