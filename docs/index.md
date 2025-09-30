@@ -129,13 +129,12 @@ select {
   white-space: normal;
 }
 
-/* Cards grid (bottom list) aligned left */
+/* Bottom cards grid */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--card-w), 1fr));
-  gap: var(--gap); /* same as slots */
-  justify-items: start; /* align left */
-  margin-top: 10px;
+  grid-template-columns: repeat(6, 1fr); /* 6 cards per row */
+  gap: 10px;          /* same gap as slots above */
+  margin-top: 6px;    /* keep previous margin */
 }
 
 .card {
