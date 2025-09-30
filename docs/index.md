@@ -11,8 +11,7 @@
 
     .slots-wrapper {
       position: relative;
-      margin-bottom: 20px; /* add space for Clear All */
-      margin-right: 10px;
+      margin-bottom: 30px; /* add space for Clear All */
     }
 
     .slots-container {
@@ -21,8 +20,8 @@
     }
 
     .slot {
-      width: 100px;
-      min-height: 100px;
+      width: 120px;
+      min-height: 120px;
       border: 2px dashed #aaa;
       display: flex;
       flex-direction: column;
@@ -43,14 +42,14 @@
     .skills {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
+      gap: 4px;
       justify-content: center;
     }
 
     .skill {
       background: #e0e0ff;
       padding: 2px 6px;
-      border-radius: 6px;
+      border-radius: 4px;
       font-size: 12px;
       white-space: nowrap;
     }
@@ -58,13 +57,13 @@
     .card-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 15px;
     }
 
     .card {
       border: 1px solid #ccc;
-      width: 100px;
-      min-height: 100px;
+      width: 120px;
+      min-height: 120px;
       padding: 5px;
       cursor: pointer;
       text-align: center;
@@ -106,7 +105,7 @@
       right: -8px;
       background: #ff9999;
       border: none;
-      padding: 2px 2px;
+      padding: 2px 6px;
       font-size: 12px;
       cursor: pointer;
       border-radius: 50%;
