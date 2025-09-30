@@ -131,7 +131,7 @@
   }
 
   .card img {
-    width: 100%;
+    width: 115px;
     height: 100%;
     object-fit: contain;
     display: block;
