@@ -155,64 +155,106 @@
       <div class="filter-group">
         <label for="racecourse">Racecourse</label>
         <select id="racecourse">
-          <option>Racecourse 1</option>
-          <option>Racecourse 2</option>
-          <option>Racecourse 3</option>
-          <option>Racecourse 4</option>
-          <option>Racecourse 5</option>
+          <option value="">-- Select --</option>
+          <option value="Sapporo">Sapporo</option>
+          <option value="Hakodate">Hakodate</option>
+          <option value="Niigata">Niigata</option>
+          <option value="Fukushima">Fukushima</option>
+          <option value="Nakayama">Nakayama</option>
+          <option value="Tokyo">Tokyo</option>
+          <option value="Chukyo">Chukyo</option>
+          <option value="Kyoto">Kyoto</option>
+          <option value="Hanshin">Hanshin</option>
+          <option value="Kokura">Kokura</option>
+          <option value="Oi">Oi</option>
+          <option value="Kawasaki">Kawasaki</option>
+          <option value="Funabashi">Funabashi</option>
+          <option value="Morioka">Morioka</option>
+          <option value="Longchamp">Longchamp</option>
         </select>
       </div>
+
       <div class="filter-group">
         <label for="length">Length</label>
         <select id="length">
-          <option>Length 1</option>
-          <option>Length 2</option>
-          <option>Length 3</option>
-          <option>Length 4</option>
-          <option>Length 5</option>
+          <option value="">-- Select --</option>
+          <option value="1000m">1000m</option>
+          <option value="1150m">1150m</option>
+          <option value="1200m">1200m</option>
+          <option value="1300m">1300m</option>
+          <option value="1400m">1400m</option>
+          <option value="1500m">1500m</option>
+          <option value="1600m">1600m</option>
+          <option value="1700m">1700m</option>
+          <option value="1800m">1800m</option>
+          <option value="1900m">1900m</option>
+          <option value="2000m">2000m</option>
+          <option value="2100m">2100m</option>
+          <option value="2200m">2200m</option>
+          <option value="2300m">2300m</option>
+          <option value="2400m">2400m</option>
+          <option value="2500m">2500m</option>
+          <option value="2600m">2600m</option>
+          <option value="3000m">3000m</option>
+          <option value="3200m">3200m</option>
+          <option value="3400m">3400m</option>
+          <option value="3600m">3600m</option>
         </select>
       </div>
+
+      <div class="filter-group">
+        <label for="lengthType">Length Type</label>
+        <select id="lengthType">
+          <option value="">-- Select --</option>
+          <option value="Sprint">Sprint</option>
+          <option value="Mile">Mile</option>
+          <option value="Medium">Medium</option>
+          <option value="Long">Long</option>
+        </select>
+      </div>
+
       <div class="filter-group">
         <label for="direction">Direction</label>
         <select id="direction">
-          <option>Direction 1</option>
-          <option>Direction 2</option>
-          <option>Direction 3</option>
-          <option>Direction 4</option>
-          <option>Direction 5</option>
+          <option value="">-- Select --</option>
+          <option value="Clockwise">Clockwise</option>
+          <option value="Counterclockwise">Counterclockwise</option>
         </select>
       </div>
+
       <div class="filter-group">
         <label for="track">Track Conditions</label>
         <select id="track">
-          <option>Track 1</option>
-          <option>Track 2</option>
-          <option>Track 3</option>
-          <option>Track 4</option>
-          <option>Track 5</option>
+          <option value="">-- Select --</option>
+          <option value="Firm">Firm</option>
+          <option value="Good">Good</option>
+          <option value="Soft">Soft</option>
+          <option value="Heavy">Heavy</option>
         </select>
       </div>
+
       <div class="filter-group">
         <label for="season">Season</label>
         <select id="season">
-          <option>Season 1</option>
-          <option>Season 2</option>
-          <option>Season 3</option>
-          <option>Season 4</option>
-          <option>Season 5</option>
+          <option value="">-- Select --</option>
+          <option value="Spring">Spring</option>
+          <option value="Summer">Summer</option>
+          <option value="Fall">Fall</option>
+          <option value="Winter">Winter</option>
         </select>
       </div>
+
       <div class="filter-group">
         <label for="weather">Weather</label>
         <select id="weather">
-          <option>Weather 1</option>
-          <option>Weather 2</option>
-          <option>Weather 3</option>
-          <option>Weather 4</option>
-          <option>Weather 5</option>
+          <option value="">-- Select --</option>
+          <option value="Sunny">Sunny</option>
+          <option value="Cloudy">Cloudy</option>
+          <option value="Rainy">Rainy</option>
+          <option value="Snowy">Snowy</option>
         </select>
       </div>
-    </div>
+
 
     <!-- Main content -->
     <div class="main-content">
