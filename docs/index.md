@@ -5,7 +5,7 @@
 <style>
   :root{--card-width:100%;--img-h:140px}
   body{font-family:Arial,Helvetica,sans-serif;margin:20px;background:#fff;color:#111}
-  .container{max-width:2560px;margin:0 auto;display:flex;gap:20px;align-items:flex-start}
+  .container{max-width:1280px;margin:0 auto;display:flex;gap:20px;align-items:flex-start}
   /* Sidebar */
   .sidebar{flex:0 0 175px;display:flex;flex-direction:column;gap:12px}
   .filter-group{display:flex;flex-direction:column}
@@ -30,12 +30,20 @@
   .card img, .slot img{width:100%;height:var(--img-h);object-fit:contain;display:block}
   /* Name and skills keep consistent widths and wrap */
   .name{margin:8px 0 6px 0;font-weight:600;text-align:center;word-break:break-word;white-space:normal}
-  .skills{width:100%;display:flex;flex-direction:column;gap:4px}
-  .skill{background:#eef2ff;border-radius:6px;padding:4px 6px;font-size:12px;box-sizing:border-box;word-break:break-word;white-space:normal}
+/* Make skills area wider inside cards */
+.skills {
+  width: 200%;           /* twice as wide as before */
+  max-width: 200%;       /* prevent shrinking back */
+}
+/* Keep text wrapping properly */
+.skill {
+  white-space: normal;
+  word-break: break-word;
+}
   /* Disabled card style */
   .card.disabled{opacity:0.45;pointer-events:none}
   /* small responsiveness: reduce image height on narrow screens */
-  @media (max-width:1600px){:root{--img-h:120px}}
+  @media (max-width:1100px){:root{--img-h:120px}}
   @media (max-width:900px){:root{--img-h:100px}}
   @media (max-width:640px){.container{flex-direction:column}.sidebar{width:100%;flex-direction:row;flex-wrap:wrap}.sidebar .filter-group{flex:1;min-width:150px}}
 </style>
