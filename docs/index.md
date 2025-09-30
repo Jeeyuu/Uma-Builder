@@ -30,6 +30,7 @@ body {
 .sidebar {
   flex-shrink: 0;
   width: 175px;
+  margin-right: -175px;
   display: flex;
   flex-direction: column;
   gap: 20px;
