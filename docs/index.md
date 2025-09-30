@@ -35,7 +35,7 @@
   /* Disabled card style */
   .card.disabled{opacity:0.45;pointer-events:none}
   /* small responsiveness: reduce image height on narrow screens */
-  @media (max-width:1100px){:root{--img-h:120px}}
+  @media (max-width:1600px){:root{--img-h:120px}}
   @media (max-width:900px){:root{--img-h:100px}}
   @media (max-width:640px){.container{flex-direction:column}.sidebar{width:100%;flex-direction:row;flex-wrap:wrap}.sidebar .filter-group{flex:1;min-width:150px}}
 </style>
