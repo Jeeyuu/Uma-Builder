@@ -11,7 +11,7 @@
 
     .slots-wrapper {
       position: relative;
-      margin-bottom: 40px; /* add space for Clear All */
+      margin-bottom: 60px; /* add space for Clear All */
       margin-right: 10px;
     }
 
