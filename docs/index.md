@@ -25,21 +25,18 @@
 
     /* Sidebar filters */
     .sidebar {
-      width: 300px; /* restored to larger filter block */
+      width: 175px;
       background: #fff;
       border: 1px solid #ccc;
       padding: 10px;
       box-sizing: border-box;
-      display: grid;
-      grid-template-columns: 1fr 1fr; /* two columns of labels */
-      gap: 10px;
     }
     .filter-group {
-      display: flex;
-      flex-direction: column;
+      margin-bottom: 15px;
     }
     .filter-group label {
       font-weight: bold;
+      display: block;
       margin-bottom: 5px;
     }
     .filter-group select {
@@ -270,22 +267,27 @@
     const cardsContainer = document.getElementById("cards");
     const clearAllBtn = document.getElementById("clearAll");
 
+    // Placeholder cards
     const cardsData = [];
     for (let i = 10001; i <= 10010; i++) {
       cardsData.push({
         id: i,
         name: "Card " + i,
-        type: ("0" + (i % 6)).slice(-2),
-        skills: ["Sapporo","1000m","Sprint","Clockwise","Firm","Spring","Sunny"]
+        type: ("0" + (i % 6)).slice(-2), // placeholder type
+        skills: [
+          "Sapporo","1000m","Sprint","Clockwise","Firm","Spring","Sunny"
+        ]
       });
     }
 
+    // Create 6 empty slots
     for (let i = 0; i < 6; i++) {
       const slot = document.createElement("div");
       slot.className = "slot";
       slot.dataset.slot = i;
       slotsContainer.appendChild(slot);
 
+      // click to remove card
       slot.addEventListener("click", () => {
         if (slot.firstChild) {
           const cardId = slot.firstChild.dataset.id;
@@ -296,6 +298,7 @@
       });
     }
 
+    // Render cards
     cardsData.forEach(card => {
       const cardEl = document.createElement("div");
       cardEl.className = "card";
@@ -320,6 +323,7 @@
       });
     });
 
+    // Clear all
     clearAllBtn.addEventListener("click", () => {
       [...slotsContainer.children].forEach(slot => {
         if (slot.firstChild) {
@@ -331,6 +335,7 @@
       });
     });
 
+    // Filter logic
     const filters = ["racecourse", "length", "lengthType", "direction", "condition", "season", "weather"];
     filters.forEach(f => {
       document.getElementById(f).addEventListener("change", applyFilters);
@@ -345,6 +350,7 @@
       cardsData.forEach(card => {
         const el = cardsContainer.querySelector(`[data-id="${card.id}"]`);
         if (!el) return;
+
         let visible = true;
         for (let key in selections) {
           if (selections[key] && !card.skills.includes(selections[key])) {
