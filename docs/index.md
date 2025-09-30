@@ -28,6 +28,7 @@
   /* Sidebar */
   .sidebar {
     flex: 0 0 175px;
+    margin-left: -175px; /* shifts it left */
     display: flex;
     flex-direction: column;
     gap: 12px;
