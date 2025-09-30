@@ -142,8 +142,8 @@
 
   /* Skills overflow */
   .skills {
-    width: 150px;      /* allows overflow */
-    max-width: 150px; /* optional to limit extreme overflow */
+    width: 125px;      /* allows overflow */
+    max-width: 125px; /* optional to limit extreme overflow */
     display: flex;
     flex-direction: column;
     gap: 4px;
