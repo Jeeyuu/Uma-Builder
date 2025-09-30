@@ -9,13 +9,42 @@
     }
 
     .container {
-      max-width: 1000px; /* adjust to your page width */
-      margin: 0 auto;     
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      gap: 20px;
+    }
+
+    .sidebar {
+      flex: 0 0 200px; /* fixed width for filters */
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .filter-group label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    select {
+      padding: 5px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .main-content {
+      flex: 1; /* remaining space for slots and cards */
     }
 
     .slots {
       display: grid;
-      grid-template-columns: repeat(6, 1fr); /* 6 slots per row */
+      grid-template-columns: repeat(6, 1fr);
       gap: 10px;
       margin-bottom: 30px;
       position: relative;
@@ -32,7 +61,7 @@
       padding: 5px;
       position: relative;
       background: #f9f9f9;
-      cursor: pointer; /* clickable slot */
+      cursor: pointer;
     }
 
     .slot img {
@@ -58,12 +87,12 @@
 
     .cards {
       display: grid;
-      grid-template-columns: repeat(6, 1fr); /* 6 cards per row */
+      grid-template-columns: repeat(6, 1fr);
       gap: 10px;
     }
 
     .card {
-      width: 100%; /* fill the grid column */
+      width: 100%;
       border: 1px solid #ccc;
       padding: 5px;
       text-align: center;
@@ -84,7 +113,7 @@
     .clear-all {
       position: absolute;
       top: -40px;
-      right: 0; /* aligned with last column */
+      right: 0;
       background: #555;
       color: white;
       border: none;
@@ -121,17 +150,84 @@
   <h1>Uma Builder</h1>
 
   <div class="container">
-    <div class="slots">
-      <button class="clear-all">Clear All</button>
-      <div class="slot"></div>
-      <div class="slot"></div>
-      <div class="slot"></div>
-      <div class="slot"></div>
-      <div class="slot"></div>
-      <div class="slot"></div>
+    <!-- Sidebar filters -->
+    <div class="sidebar">
+      <div class="filter-group">
+        <label for="racecourse">Racecourse</label>
+        <select id="racecourse">
+          <option>Racecourse 1</option>
+          <option>Racecourse 2</option>
+          <option>Racecourse 3</option>
+          <option>Racecourse 4</option>
+          <option>Racecourse 5</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="length">Length</label>
+        <select id="length">
+          <option>Length 1</option>
+          <option>Length 2</option>
+          <option>Length 3</option>
+          <option>Length 4</option>
+          <option>Length 5</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="direction">Direction</label>
+        <select id="direction">
+          <option>Direction 1</option>
+          <option>Direction 2</option>
+          <option>Direction 3</option>
+          <option>Direction 4</option>
+          <option>Direction 5</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="track">Track Conditions</label>
+        <select id="track">
+          <option>Track 1</option>
+          <option>Track 2</option>
+          <option>Track 3</option>
+          <option>Track 4</option>
+          <option>Track 5</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="season">Season</label>
+        <select id="season">
+          <option>Season 1</option>
+          <option>Season 2</option>
+          <option>Season 3</option>
+          <option>Season 4</option>
+          <option>Season 5</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="weather">Weather</label>
+        <select id="weather">
+          <option>Weather 1</option>
+          <option>Weather 2</option>
+          <option>Weather 3</option>
+          <option>Weather 4</option>
+          <option>Weather 5</option>
+        </select>
+      </div>
     </div>
 
-    <div class="cards" id="cards-container"></div>
+    <!-- Main content -->
+    <div class="main-content">
+      <div class="slots">
+        <button class="clear-all">Clear All</button>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+        <div class="slot"></div>
+      </div>
+
+      <div class="cards" id="cards-container"></div>
+    </div>
   </div>
 
   <script>
@@ -184,10 +280,9 @@
         </div>
       `;
 
-      // clicking the slot removes the card
       availableSlot.addEventListener('click', function removeSlot() {
         removeFromSlot(availableSlot, card.id);
-        availableSlot.removeEventListener('click', removeSlot); // clean listener
+        availableSlot.removeEventListener('click', removeSlot);
       });
 
       document.querySelector(`.card[data-id="${card.id}"]`).classList.add('disabled');
@@ -195,7 +290,7 @@
 
     function removeFromSlot(slot, cardId) {
       slot.classList.remove('has-card');
-      slot.innerHTML = ''; // empty slot
+      slot.innerHTML = '';
       document.querySelector(`.card[data-id="${cardId}"]`).classList.remove('disabled');
     }
 
