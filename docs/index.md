@@ -89,7 +89,7 @@
     justify-content: flex-start;
     cursor: pointer;
     position: relative;
-    width: 100%;
+    width: 200%;
   }
 
   .slot.has-card {
@@ -115,7 +115,7 @@
     flex-direction: column;
     align-items: center;
     cursor: pointer;
-    width: 100%;
+    width: 200%;
   }
 
   .card img {
