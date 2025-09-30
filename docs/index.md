@@ -17,8 +17,8 @@
 
   /* Container */
   .container {
-      width: 4000px;
-      max-width: 4000px; /* optional, caps at 2560px */
+      width: 1920px;
+      max-width: 1920px; /* optional, caps at 2560px */
       margin: 0 auto;
       display: flex;
       gap: 20px;
