@@ -105,13 +105,16 @@
     background: #fff;
   }
 
-  /* Cards grid */
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 10px;
-    margin-top: 6px;
-  }
+.cards {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  gap: 10px;
+  margin-top: 6px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
 
   .card {
     border: 1px solid #ddd;
