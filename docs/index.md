@@ -294,8 +294,25 @@ categories.forEach(cat=>{
     rowContainer.style.position='relative';
     rowContainer.style.marginBottom='30px';
 
-    const rowHeader = document.createElement('div');
-    rowHeader.textContent = row.title;
+const rowHeader = document.createElement('div');
+rowHeader.style.fontWeight = 'bold';
+rowHeader.style.marginBottom = '6px';
+
+// Use selected value for presentation if available
+if(cat.id === 'racecourse' && val) {
+    rowHeader.textContent = `${val} Racecourse`;
+} else if(cat.id === 'direction' && val) {
+    rowHeader.textContent = `${val} Direction`;
+} else if(cat.id === 'track' && val) {
+    rowHeader.textContent = `${val} Track Conditions`;
+} else if(cat.id === 'season' && val) {
+    rowHeader.textContent = `${val} Season`;
+} else if(cat.id === 'weather' && val) {
+    rowHeader.textContent = `${val} Weather`;
+} else {
+    rowHeader.textContent = row.title; // fallback for other rows (e.g., Length)
+}
+
     rowHeader.style.fontWeight = 'bold';
     rowHeader.style.marginBottom = '6px';
     rowContainer.appendChild(rowHeader);
