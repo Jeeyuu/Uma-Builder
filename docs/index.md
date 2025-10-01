@@ -335,7 +335,7 @@ function renderSections(){
 
       const btnContainer = document.createElement('div');
       btnContainer.style.position='absolute';
-      btnContainer.style.top='-20px';
+      btnContainer.style.top='2px';
       btnContainer.style.right='0';
       btnContainer.style.display='flex';
       btnContainer.style.gap='5px';
