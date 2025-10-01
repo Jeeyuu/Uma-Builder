@@ -272,12 +272,11 @@ categories.forEach(cat=>{
     else catLabel='Long';
 
     rows.push(
-      {title: '', term: `${catLabel} Corners`}, 
-      {title: '', term: `${catLabel} Straightaways`}, 
+      {title: 'Corners', term: `${catLabel} Corners`},
+      {title: 'Straightaways', term: `${catLabel} Straightaways`},
       {title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
-      term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'}
+       term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'}
     );
-
   } else {
     let searchTerms = [];
     switch(cat.id){
