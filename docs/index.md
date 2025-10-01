@@ -174,7 +174,7 @@ const typeMap = {
   "Stamina":"01",
   "Power":"02",
   "Guts":"03",
-  "Wit":"04",
+  "Intelligence":"04",
   "Support":"05",
   "Group":"06"
 };
