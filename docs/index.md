@@ -229,24 +229,16 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  el.addEventListener('click', ()=>{
+el.addEventListener('click', ()=>{
+  if(el.classList.contains('disabled')) return; // prevent clicking blocked duplicates
+
   const slot = slots.find(s => Number(s.dataset.cardId) === card.id);
   if(slot){
-    // if card is in a slot, remove it
     removeFromSlot(slot, card);
   } else {
-    // otherwise add to first free slot
     addToSlot(card);
   }
 });
-
-// visually dim other cards with the same name, but allow this card if already selected
-if(isNameBlocked(card.name) && !selectedCardIds.has(Number(card.id))) {
-  el.classList.add('disabled');
-}
-
-return el;
-
 
 // --- Direction mapping for filters ---
 function mapDirection(val){
@@ -262,6 +254,19 @@ function isNameBlocked(name){
   }
   return false;
 }
+
+function updateCardDimStates(){
+  document.querySelectorAll('.card').forEach(el=>{
+    const id = Number(el.dataset.id);
+    const name = el.dataset.name;
+    if(isNameBlocked(name) && !selectedCardIds.has(id)){
+      el.classList.add('disabled');
+    } else {
+      el.classList.remove('disabled');
+    }
+  });
+}
+
 
 // Render card sections with unified pagination
 function renderSections(){
@@ -489,6 +494,7 @@ function addToSlot(card){
 
   selectedCardIds.add(card.id);
   renderSections();
+   updateCardDimStates();
 }
 
 function removeFromSlot(slotEl, card){
@@ -501,6 +507,7 @@ function removeFromSlot(slotEl, card){
   slotEl.innerHTML = '';
   selectedCardIds.delete(Number(card.id));
   renderSections();
+   updateCardDimStates();
 }
 
 // --- Clear buttons ---
