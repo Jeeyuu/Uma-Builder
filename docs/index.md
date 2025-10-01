@@ -18,26 +18,50 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .slot:not(.has-card) { border: 2px dashed #ccc; background: #fafafa; }
 .slot img { width: 100%; height: auto; }
 .slot .name { margin: 8px 0 6px 0; font-weight: 600; text-align: center; word-break: break-word; }
-.slot .skills { width: 100%; display: flex; flex-direction: column; gap: 8px; }
-.slot .skill { background: #eef2ff; border-radius: 6px; padding: 4px 6px; font-size: 10px; word-break: break-word; white-space: normal; }
+
+.slot .skills, .card .skills {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;  /* gap between each skill */
+}
+
+.slot .skills-group, .card .skills-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers skill boxes */
+  gap: 6px;
+}
+
+.slot .skill, .card .skill {
+  width: 100%;      /* full width skill box */
+  background: #eef2ff;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 10px;
+  word-break: break-word;
+  white-space: normal;
+  text-align: center; /* center text inside skill box */
+}
+
 .cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 6px; margin-bottom: 12px; }
 .card { border: 1px solid #ddd; padding: 8px; box-sizing: border-box; background: #fff; display: flex; flex-direction: column; align-items: center; cursor: pointer; width: var(--card-w); position: relative; }
 .card img { width: 100%; height: auto; }
 .card .name { margin: 8px 0 6px 0; font-weight: 600; text-align: center; word-break: break-word; }
-.card .skills { width: 100%; display: flex; flex-direction: column; gap: 8px; }
-.card .skill { background: #eef2ff; border-radius: 6px; padding: 4px 6px; font-size: 10px; word-break: break-word; white-space: normal; }
+
 .card .type-icon, .slot .type-icon { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; text-align:center; font-size:10px; line-height:28px; font-weight:bold;}
 .card.disabled { opacity: 0.45; pointer-events: none; }
-.skills-group { margin-bottom: 6px; }
 .skills-header {
   font-weight: bold;
   font-size: 11px;
   color: #444;
   margin-bottom: 2px;
-  text-align: center;   /* add this */
+  text-align: center; /* center Support Hints / Event Skills text */
 }
+
 @media (max-width: 1100px) { :root { --card-w: 100px; } }
 </style>
+
 </head>
 <body>
 
