@@ -240,8 +240,8 @@ function createCardElement(card){
     }
   });
 
-// visually dim if any card with the same name is already selected
-if(isNameBlocked(card.name)) el.classList.add('disabled');
+  // visually dim if in slot, but still clickable
+  if(selectedCardIds.has(card.id)) el.classList.add('disabled');
 
   return el;
 }
@@ -256,8 +256,8 @@ function mapDirection(val){
 
 function isNameBlocked(name){
   for(const id of selectedCardIds){
-    const chosen = cardsData.find(c => c.id === Number(id));
-    if(chosen && chosen.name === name) return true;
+    const chosen = cardsData.find(c=>c.id===id);
+    if(chosen && chosen.name===name) return true;
   }
   return false;
 }
