@@ -28,6 +28,8 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .card .skill { background: #eef2ff; border-radius: 6px; padding: 4px 6px; font-size: 12px; word-break: break-word; white-space: normal; }
 .card .type-icon, .slot .type-icon { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; }
 .card.disabled { opacity: 0.45; pointer-events: none; }
+.skills-group { margin-bottom: 4px; }
+.skills-header { font-weight: bold; font-size: 11px; color: #555; margin-bottom: 2px; }
 @media (max-width: 1100px) { :root { --card-w: 100px; } }
 </style>
 </head>
@@ -108,36 +110,13 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 </div>
 
 <script>
-// Sample cards
-const cardsData = Array.from({length:10}, (_, i) => {
-  const id = 10001 + i;
-  const raceArr = ["Sapporo","Hakodate","Niigata","Fukushima","Nakayama","Tokyo","Chukyo","Kyoto","Hanshin","Kokura"];
-  const lenArr = ["1000m","1150m","1200m","1300m","1400m","1500m","1600m","1700m","1800m","1900m","2000m","2100m","2200m","2300m","2400m","2500m","2600m","3000m","3200m","3400m","3600m"];
-  const dirArr = ["Clockwise","Counterclockwise"];
-  const trackArr = ["Firm","Good","Soft","Heavy"];
-  const seasonArr = ["Spring","Summer","Fall","Winter"];
-  const weatherArr = ["Sunny","Cloudy","Rainy","Snowy"];
-  const race = raceArr[i % raceArr.length];
-  const length = lenArr[i % lenArr.length];
-  const direction = dirArr[i % dirArr.length];
-  const track = trackArr[i % trackArr.length];
-  const season = seasonArr[i % seasonArr.length];
-  const weather = weatherArr[i % weatherArr.length];
-  return {
-    id, name: `Card ${id}`,
-    image: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
-    racecourse: race, length, direction, track, season, weather,
-    skills: [race,length,direction,track,season,weather],
-    typeNum: String(Math.floor(Math.random()*6)).padStart(2,"0"),
-    typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${String(Math.floor(Math.random()*6)).padStart(2,"0")}.png`
-  };
-});
-
+let cardsData = [];
 const cardSections = document.getElementById('cardSections');
 const slots = Array.from(document.querySelectorAll('.slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
+const slotListeners = new Map();
 
 const categories = [
   {id:'racecourse', title:'Racecourse', prop:'racecourse'},
@@ -148,7 +127,19 @@ const categories = [
   {id:'weather', title:'Weather', prop:'weather'}
 ];
 
-const slotListeners = new Map();
+function createSkillsHTML(card){
+  return `
+    <div class="skills">
+      <div class="skills-group">
+        <div class="skills-header">Support Hints</div>
+        ${card.supportHints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+      </div>
+      <div class="skills-group">
+        <div class="skills-header">Event Skills</div>
+        ${card.eventSkills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+      </div>
+    </div>`;
+}
 
 function createCardElement(card){
   const el = document.createElement('div');
@@ -158,7 +149,7 @@ function createCardElement(card){
     <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
     <img src="${card.image}" alt="${card.name}">
     <div class="name">${escapeHtml(card.name)}</div>
-    <div class="skills">${card.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>
+    ${createSkillsHTML(card)}
   `;
   el.addEventListener('click', ()=> addToSlot(card));
   if(selectedCardIds.has(card.id)) el.classList.add('disabled');
@@ -176,28 +167,11 @@ function renderSections(){
     let searchTerms = [];
 
     switch(cat.id){
-      case 'racecourse':
-        searchTerms.push(val + ' Racecourse');
-        break;
       case 'length':
-        switch(val){
-          case 'Sprint':
-            searchTerms.push('Sprint Corners','Sprint Straightaways');
-            searchTerms.push(1000 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
-            break;
-          case 'Mile':
-            searchTerms.push('Mile Corners','Mile Straightaways');
-            searchTerms.push(1600 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
-            break;
-          case 'Medium':
-            searchTerms.push('Medium Corners','Medium Straightaways');
-            searchTerms.push(2000 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
-            break;
-          case 'Long':
-            searchTerms.push('Long Corners','Long Straightaways');
-            searchTerms.push(2600 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
-            break;
-        }
+        if(val === 'Sprint') searchTerms.push('1000m','1100m','1200m','1300m','1400m');
+        if(val === 'Mile') searchTerms.push('1500m','1600m','1700m','1800m');
+        if(val === 'Medium') searchTerms.push('1900m','2000m','2100m','2200m','2300m','2400m');
+        if(val === 'Long') searchTerms.push('2500m','2600m','2800m','3000m','3200m','3400m','3600m');
         break;
       case 'direction':
         searchTerms.push(val === 'Clockwise' ? 'Right-Handed' : 'Left-Handed');
@@ -211,6 +185,8 @@ function renderSections(){
       case 'weather':
         searchTerms.push(val + ' Days');
         break;
+      default:
+        searchTerms.push(val);
     }
 
     any = true;
@@ -223,7 +199,9 @@ function renderSections(){
     grid.className = 'cards';
 
     const matches = cardsData.filter(card =>
-      searchTerms.some(term => card.skills.includes(term))
+      searchTerms.some(term =>
+        card.supportHints.includes(term) || card.eventSkills.includes(term)
+      )
     );
 
     matches.forEach(card => grid.appendChild(createCardElement(card)));
@@ -255,7 +233,7 @@ function addToSlot(card){
     <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
     <img src="${card.image}" alt="${card.name}">
     <div class="name">${escapeHtml(card.name)}</div>
-    <div class="skills">${card.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>
+    ${createSkillsHTML(card)}
   `;
 
   function slotClickHandler(){ removeFromSlot(freeSlot, card.id); }
@@ -318,9 +296,20 @@ function setupFilterPersistence(){
 
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-setupFilterPersistence();
-renderSections();
-window.addEventListener('load', ()=> renderSections());
+// Load JSONs and build cardsData
+Promise.all([
+  fetch("cards.json").then(r=>r.json()),
+  fetch("supportHints.json").then(r=>r.json()),
+  fetch("eventSkills.json").then(r=>r.json())
+]).then(([cards, hints, events])=>{
+  cardsData = cards.map(card => ({
+    ...card,
+    supportHints: hints[card.id] || [],
+    eventSkills: events[card.id] || []
+  }));
+  setupFilterPersistence();
+  renderSections();
+});
 </script>
 
 </body>
