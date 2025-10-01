@@ -318,7 +318,7 @@ function renderSections(){
         // --- ARROWS ---
         const btnContainer = document.createElement('div');
         btnContainer.style.position='absolute';
-        btnContainer.style.top='10px';
+        btnContainer.style.top='-20px';
         btnContainer.style.right='0';
         btnContainer.style.display='flex';
         btnContainer.style.gap='5px';
@@ -333,10 +333,23 @@ function renderSections(){
         btnContainer.appendChild(leftBtn);
         btnContainer.appendChild(rightBtn);
 
-        function updateButtons(page){
-          leftBtn.style.display = page > 0 ? 'inline-block' : 'none';
-          rightBtn.style.display = page < totalPages - 1 ? 'inline-block' : 'none';
-        }
+function updateButtons(page){
+  if(page > 0){
+    leftBtn.style.opacity = '1';
+    leftBtn.style.pointerEvents = 'auto';
+  } else {
+    leftBtn.style.opacity = '0.4';
+    leftBtn.style.pointerEvents = 'none';
+  }
+
+  if(page < totalPages - 1){
+    rightBtn.style.opacity = '1';
+    rightBtn.style.pointerEvents = 'auto';
+  } else {
+    rightBtn.style.opacity = '0.4';
+    rightBtn.style.pointerEvents = 'none';
+  }
+}
 
         leftBtn.addEventListener('click', ()=>{
           let page = sectionPages.get(pageKey);
