@@ -90,13 +90,31 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 
     <div class="filter-group">
       <label for="length">Length</label>
-      <select id="length">
-        <option value="">-- Select --</option>
-        <option value="Sprint">1000-1400m</option>
-        <option value="Mile">1401-1800m</option>
-        <option value="Medium">1801-2400m</option>
-        <option value="Long">2401-3600m</option>
-      </select>
+<select id="length">
+  <option value="">-- Select --</option>
+  <option value="1000">1000m</option>
+  <option value="1150">1150m</option>
+  <option value="1200">1200m</option>
+  <option value="1300">1300m</option>
+  <option value="1400">1400m</option>
+  <option value="1500">1500m</option>
+  <option value="1600">1600m</option>
+  <option value="1700">1700m</option>
+  <option value="1800">1800m</option>
+  <option value="1900">1900m</option>
+  <option value="2000">2000m</option>
+  <option value="2100">2100m</option>
+  <option value="2200">2200m</option>
+  <option value="2300">2300m</option>
+  <option value="2400">2400m</option>
+  <option value="2500">2500m</option>
+  <option value="2600">2600m</option>
+  <option value="3000">3000m</option>
+  <option value="3200">3200m</option>
+  <option value="3400">3400m</option>
+  <option value="3600">3600m</option>
+</select>
+
     </div>
 
     <div class="filter-group">
@@ -232,21 +250,6 @@ function renderSections(){
     let val = (document.getElementById(cat.id) || {value:''}).value;
     if(!val) return;
 
-    let searchTerms = [];
-    switch(cat.id){
-      case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
-      case 'length':
-        if(val==='Sprint') searchTerms.push('Sprint Corners','Sprint Straightaways');
-        if(val==='Mile') searchTerms.push('Mile Corners','Mile Straightaways');
-        if(val==='Medium') searchTerms.push('Medium Corners','Medium Straightaways');
-        if(val==='Long') searchTerms.push('Long Corners','Long Straightaways');
-        break;
-      case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
-      case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
-      case 'season': searchTerms.push(val+' Runner'); break;
-      case 'weather': searchTerms.push(val+' Days'); break;
-    }
-
     any = true;
     const section = document.createElement('div');
     section.className = 'card-section';
@@ -254,8 +257,103 @@ function renderSections(){
     header.textContent = `${cat.title}: ${val}`;
     section.appendChild(header);
 
+    // --------- Length filter special handling ---------
+    if(cat.id === 'length'){
+      const dist = parseInt(val);
+      let catLabel = '';
+      if(dist <= 1400) catLabel='Sprint';
+      else if(dist <= 1800) catLabel='Mile';
+      else if(dist <= 2400) catLabel='Medium';
+      else catLabel='Long';
+
+      const rows = [
+        {title: 'Corners', term: `${catLabel} Corners`},
+        {title: 'Straightaways', term: `${catLabel} Straightaways`},
+        {title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
+         term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'}
+      ];
+
+      rows.forEach((row,rowIndex)=>{
+        const rowHeader = document.createElement('div');
+        rowHeader.textContent = row.title;
+        rowHeader.style.fontWeight = 'bold';
+        rowHeader.style.marginBottom = '6px';
+        section.appendChild(rowHeader);
+
+        const grid = document.createElement('div');
+        grid.className = 'cards';
+        section.appendChild(grid);
+
+        const matches = cardsData.filter(card =>
+          (card.support_hints || []).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
+          (card.event_skills || []).some(e=>e.toLowerCase().includes(row.term.toLowerCase()))
+        );
+
+        if(matches.length === 0){
+          const noMsg = document.createElement('div');
+          noMsg.style.opacity='0.6';
+          noMsg.textContent='(No matching cards)';
+          grid.appendChild(noMsg);
+          return;
+        }
+
+        // Pagination
+        sectionPages.set(cat.id + '-' + rowIndex, 0);
+        function renderPage(page){
+          grid.innerHTML = '';
+          const start = page*6;
+          const end = start+6;
+          matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
+        }
+        renderPage(0);
+
+        if(matches.length > 6){
+          const btnContainer = document.createElement('div');
+          btnContainer.style.display='flex';
+          btnContainer.style.justifyContent='center';
+          btnContainer.style.gap='10px';
+          btnContainer.style.marginBottom='10px';
+
+          const leftBtn = document.createElement('button');
+          leftBtn.textContent='◀';
+          leftBtn.className='clear-all';
+          leftBtn.addEventListener('click', ()=>{
+            let page = sectionPages.get(cat.id + '-' + rowIndex);
+            if(page > 0){ page--; sectionPages.set(cat.id + '-' + rowIndex, page); renderPage(page);}
+          });
+
+          const rightBtn = document.createElement('button');
+          rightBtn.textContent='▶';
+          rightBtn.className='clear-all';
+          rightBtn.addEventListener('click', ()=>{
+            let page = sectionPages.get(cat.id + '-' + rowIndex);
+            if((page+1)*6 < matches.length){ page++; sectionPages.set(cat.id + '-' + rowIndex, page); renderPage(page);}
+          });
+
+          btnContainer.appendChild(leftBtn);
+          btnContainer.appendChild(rightBtn);
+          section.appendChild(btnContainer);
+        }
+      });
+
+      cardSections.appendChild(section);
+      return;
+    }
+    // --------- End of Length special handling ---------
+
+    // --------- Other categories ---------
+    let searchTerms = [];
+    switch(cat.id){
+      case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
+      case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
+      case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
+      case 'season': searchTerms.push(val+' Runner'); break;
+      case 'weather': searchTerms.push(val+' Days'); break;
+    }
+
     const grid = document.createElement('div');
     grid.className = 'cards';
+    section.appendChild(grid);
 
     const matches = cardsData.filter(card =>
       searchTerms.some(term =>
@@ -269,25 +367,19 @@ function renderSections(){
       noMsg.style.opacity='0.6';
       noMsg.textContent='(No matching cards)';
       grid.appendChild(noMsg);
-      section.appendChild(grid);
       cardSections.appendChild(section);
       return;
     }
 
-    // Pagination logic
-    sectionPages.set(cat.id, 0); // start at page 0
-
+    sectionPages.set(cat.id, 0);
     function renderPage(page){
       grid.innerHTML='';
       const start = page*6;
       const end = start+6;
-      const pageCards = matches.slice(start,end);
-      pageCards.forEach(card=>grid.appendChild(createCardElement(card)));
+      matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
     }
-
     renderPage(0);
 
-    // Add buttons if more than 6
     if(matches.length > 6){
       const btnContainer = document.createElement('div');
       btnContainer.style.display='flex';
@@ -300,7 +392,7 @@ function renderSections(){
       leftBtn.className='clear-all';
       leftBtn.addEventListener('click', ()=>{
         let page = sectionPages.get(cat.id);
-        if(page > 0){ page--; sectionPages.set(cat.id,page); renderPage(page);}
+        if(page>0){ page--; sectionPages.set(cat.id,page); renderPage(page);}
       });
 
       const rightBtn = document.createElement('button');
@@ -316,7 +408,6 @@ function renderSections(){
       section.appendChild(btnContainer);
     }
 
-    section.appendChild(grid);
     cardSections.appendChild(section);
   });
 
@@ -328,6 +419,7 @@ function renderSections(){
     cardSections.appendChild(msg);
   }
 }
+
 
 // Keep addToSlot / removeFromSlot / filters unchanged
 function addToSlot(card){
