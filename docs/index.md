@@ -392,10 +392,11 @@ function renderSections(){
     }
     renderPage(0);
 
+    // Inside renderSections(), where we create the btnContainer and buttons
     if(matches.length > 6){
       const btnContainer = document.createElement('div');
       btnContainer.style.position='absolute';
-      btnContainer.style.top='0';
+      btnContainer.style.top='-10px'; // move arrows up by 10px
       btnContainer.style.right='0';
       btnContainer.style.display='flex';
       btnContainer.style.gap='5px';
@@ -403,22 +404,42 @@ function renderSections(){
       const leftBtn = document.createElement('button');
       leftBtn.textContent='◀';
       leftBtn.className='clear-all';
-      leftBtn.addEventListener('click', ()=>{
-        let page = sectionPages.get(cat.id);
-        if(page>0){ page--; sectionPages.set(cat.id,page); renderPage(page);}
-      });
 
       const rightBtn = document.createElement('button');
       rightBtn.textContent='▶';
       rightBtn.className='clear-all';
+
+      function updateButtons(page, totalPages){
+        leftBtn.style.display = page > 0 ? 'inline-block' : 'none';
+        rightBtn.style.display = page < totalPages - 1 ? 'inline-block' : 'none';
+      }
+
+      leftBtn.addEventListener('click', ()=>{
+        let page = sectionPages.get(cat.id + (rowIndex!==undefined ? '-' + rowIndex : ''));
+        if(page > 0){
+          page--; 
+          sectionPages.set(cat.id + (rowIndex!==undefined ? '-' + rowIndex : ''), page); 
+          renderPage(page);
+          updateButtons(page, Math.ceil(matches.length/6));
+        }
+      });
+
       rightBtn.addEventListener('click', ()=>{
-        let page = sectionPages.get(cat.id);
-        if((page+1)*6 < matches.length){ page++; sectionPages.set(cat.id,page); renderPage(page);}
+        let page = sectionPages.get(cat.id + (rowIndex!==undefined ? '-' + rowIndex : ''));
+        if((page+1)*6 < matches.length){
+          page++; 
+          sectionPages.set(cat.id + (rowIndex!==undefined ? '-' + rowIndex : ''), page); 
+          renderPage(page);
+          updateButtons(page, Math.ceil(matches.length/6));
+        }
       });
 
       btnContainer.appendChild(leftBtn);
       btnContainer.appendChild(rightBtn);
       rowContainer.appendChild(btnContainer);
+
+      // Initialize button visibility
+      updateButtons(0, Math.ceil(matches.length/6));
     }
 
     section.appendChild(rowContainer);
