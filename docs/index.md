@@ -21,15 +21,14 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 /* Name styling: smaller and clamp 2 lines */
 .slot .name, .card .name {
   margin: 8px 0 6px 0;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
   font-size: 12px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
+  white-space: nowrap;       /* single line */
+  overflow: hidden;          /* hide overflow */
+  text-overflow: ellipsis;   /* add ... if too long */
 }
+
 
 .slot .skills, .card .skills {
   width: 100%;
