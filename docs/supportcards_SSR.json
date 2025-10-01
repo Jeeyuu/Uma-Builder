@@ -1,0 +1,5889 @@
+[
+  {
+    "id": 30001,
+    "name": "Special Week",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Wet Conditions ○",
+      "Rainy Days ○",
+      "Late Surger Savvy ○",
+      "Hydrate",
+      "Homestretch Haste",
+      "Outer Swell",
+      "Steadfast"
+    ],
+    "event_skills": [
+      "Soft Step",
+      "Straight Descent",
+      "Homestretch Haste",
+      "In Body and Mind",
+      "Extra Tank"
+    ]
+  },
+  {
+    "id": 30002,
+    "name": "Silence Suzuka",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Front Runner Savvy ○",
+      "Rosy Outlook",
+      "Fast-Paced",
+      "Front Runner Straightaways ○",
+      "Front Runner Corners ○",
+      "Leader's Pride",
+      "Early Lead",
+      "Final Push",
+      "Focus"
+    ],
+    "event_skills": [
+      "Restart",
+      "Focus",
+      "Unrestrained",
+      "Left-Handed ○"
+    ]
+  },
+  {
+    "id": 30003,
+    "name": "Tokai Teio",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Soft Step",
+      "Nimble Navigator",
+      "Shrewd Step",
+      "Prudent Positioning",
+      "Go with the Flow",
+      "Thunderbolt Step"
+    ],
+    "event_skills": [
+      "Rushing Gale!",
+      "Pace Chaser Straightaways ○"
+    ]
+  },
+  {
+    "id": 30004,
+    "name": "Gold Ship",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Sympathy",
+      "End Closer Savvy ○",
+      "Standing By",
+      "After-School Stroll",
+      "Inside Scoop",
+      "Pressure",
+      "Uma Stan",
+      "Straightaway Spurt",
+      "Highlander",
+      "Groundwork",
+      "I Can See Right Through You",
+      "Strategist",
+      "Intense Gaze",
+      "Smoke Screen"
+    ],
+    "event_skills": [
+      "Early Gambit",
+      "End Closer Savvy ○",
+      "Corner Connoisseur",
+      "Questionable Strategy",
+      "Hanshin Racecourse ○"
+    ]
+  },
+  {
+    "id": 30005,
+    "name": "Vodka",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Tokyo Racecourse ○",
+      "Straightaway Recovery",
+      "Straightaway Adept",
+      "Homestretch Haste",
+      "Mile Straightaways ○",
+      "Medium Straightaways ○",
+      "Straightaway Acceleration",
+      "Slick Surge",
+      "Updrafters"
+    ],
+    "event_skills": [
+      "Updrafters",
+      "Breath of Fresh Air",
+      "Nimble Navigator"
+    ]
+  },
+  {
+    "id": 30006,
+    "name": "Grass Wonder",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Nakayama Racecourse ○",
+      "Competitive Spirit ○",
+      "Homestretch Haste",
+      "Position Pilfer",
+      "Slick Surge",
+      "Updrafters",
+      "Tether",
+      "Flustered Pace Chasers"
+    ],
+    "event_skills": [
+      "Tether",
+      "Late Surger Savvy ○",
+      "Furious Feat",
+      "Frenzied Pace Chasers",
+      "Target in Sight ○"
+    ]
+  },
+  {
+    "id": 30007,
+    "name": "El Condor Pasa",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Standard Distance ○",
+      "Sunny Days ○",
+      "Prepared to Pass",
+      "Up-Tempo",
+      "Medium Straightaways ○",
+      "Pace Chaser Straightaways ○",
+      "Hawkeye"
+    ],
+    "event_skills": [
+      "Stamina to Spare",
+      "Killer Tunes",
+      "Sunny Days ○"
+    ]
+  },
+  {
+    "id": 30008,
+    "name": "Seiun Sky",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Long Shot ○",
+      "Inner Post Proficiency ○",
+      "Tail Held High",
+      "Hesitant Pace Chasers",
+      "Frenzied Late Surgers",
+      "Trick (Front)"
+    ],
+    "event_skills": [
+      "Dodging Danger",
+      "Second Wind",
+      "Fast-Paced",
+      "Escape Artist",
+      "Keeping the Lead"
+    ]
+  },
+  {
+    "id": 30009,
+    "name": "Tamamo Cross",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Rosy Outlook",
+      "Soft Step",
+      "Medium Corners ○",
+      "1,500,000 CC",
+      "Thunderbolt Step",
+      "Frenzied Late Surgers",
+      "Flustered Late Surgers"
+    ],
+    "event_skills": [
+      "Tail Held High",
+      "Fast & Furious",
+      "Calm in a Crowd"
+    ]
+  },
+  {
+    "id": 30010,
+    "name": "Fine Motion",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Right-Handed ○",
+      "Fall Runner ○",
+      "Outer Post Proficiency ○",
+      "Straightaway Acceleration",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "Speed Star",
+      "Prepared to Pass",
+      "Corner Adept ○"
+    ]
+  },
+  {
+    "id": 30011,
+    "name": "Ines Fujin",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Moxie",
+      "Steadfast",
+      "Slipstream",
+      "Playtime's Over!",
+      "Speed Eater"
+    ],
+    "event_skills": [
+      "Restless",
+      "Moxie",
+      "Fast-Paced"
+    ]
+  },
+  {
+    "id": 30012,
+    "name": "Winning Ticket",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Firm Conditions ○",
+      "Cloudy Days ○",
+      "Position Pilfer",
+      "Outer Swell",
+      "Slick Surge"
+    ],
+    "event_skills": [
+      "Fighter",
+      "On Your Left!",
+      "Late Surger Corners ○"
+    ]
+  },
+  {
+    "id": 30013,
+    "name": "Air Shakur",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Levelheaded",
+      "Pressure",
+      "Strategist"
+    ],
+    "event_skills": [
+      "Intense Gaze",
+      "Straightaway Spurt",
+      "Unyielding",
+      "Pace Strategy"
+    ]
+  },
+  {
+    "id": 30014,
+    "name": "Gold City",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Sapporo Racecourse ○",
+      "Watchful Eye",
+      "Acceleration"
+    ],
+    "event_skills": [
+      "Go with the Flow",
+      "Keen Eye",
+      "A Small Breather"
+    ]
+  },
+  {
+    "id": 30015,
+    "name": "Sakura Bakushin O",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Sprint Straightaways ○",
+      "Sprint Corners ○",
+      "Huge Lead",
+      "Sprinting Gear",
+      "Countermeasure",
+      "Intimidate",
+      "Frenzied Front Runners",
+      "Flustered Front Runners"
+    ],
+    "event_skills": [
+      "Turbo Sprint",
+      "Gap Closer"
+    ]
+  },
+  {
+    "id": 30016,
+    "name": "Super Creek",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Firm Conditions ○",
+      "Corner Recovery ○",
+      "Ramp Up",
+      "Homestretch Haste",
+      "Hesitant Pace Chasers"
+    ],
+    "event_skills": [
+      "Swinging Maestro",
+      "Deep Breaths"
+    ]
+  },
+  {
+    "id": 30017,
+    "name": "Smart Falcon",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Outer Post Proficiency ○",
+      "Oi Racecourse ○",
+      "Wet Conditions ○",
+      "Cloudy Days ○",
+      "Front Runner Savvy ○",
+      "Corner Recovery ○",
+      "Second Wind",
+      "Restart"
+    ],
+    "event_skills": [
+      "Groundwork",
+      "Focus",
+      "Top Pick",
+      "Prudent Positioning",
+      "Center Stage",
+      "Final Push"
+    ]
+  },
+  {
+    "id": 30018,
+    "name": "Nishino Flower",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Hanshin Racecourse ○",
+      "Standard Distance ○",
+      "Firm Conditions ○",
+      "Pace Chaser Corners ○",
+      "Updrafters"
+    ],
+    "event_skills": [
+      "Countermeasure",
+      "Beeline Burst",
+      "Straightaway Adept"
+    ]
+  },
+  {
+    "id": 30019,
+    "name": "Haru Urara",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [],
+    "event_skills": [
+      "Unruffled",
+      "Long Shot ○"
+    ]
+  },
+  {
+    "id": 30020,
+    "name": "Biko Pegasus",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Outer Post Proficiency ○",
+      "Wait-and-See",
+      "Gap Closer",
+      "Productive Plan",
+      "Updrafters",
+      "Meticulous Measures",
+      "Stop Right There!"
+    ],
+    "event_skills": [
+      "Plan X",
+      "Sprint Straightaways ○"
+    ]
+  },
+  {
+    "id": 30021,
+    "name": "Tazuna Hayakawa",
+    "rarity": "SSR",
+    "type": "Friend",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [],
+    "event_skills": [
+      "Focus",
+      "Concentration",
+      "Watchful Eye",
+      "Tail Held High"
+    ]
+  },
+  {
+    "id": 30022,
+    "name": "Mejiro McQueen",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Kyoto Racecourse ○",
+      "Wet Conditions ○",
+      "Rainy Days ○",
+      "Stamina to Spare",
+      "Deep Breaths",
+      "Extra Tank",
+      "Corner Adept ○",
+      "Straightaway Adept",
+      "Prepared to Pass",
+      "Inside Scoop"
+    ],
+    "event_skills": [
+      "Cooldown",
+      "Deep Breaths",
+      "Early Lead"
+    ]
+  },
+  {
+    "id": 30023,
+    "name": "Rice Shower",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-02-24",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Maverick ○",
+      "Kyoto Racecourse ○",
+      "Deep Breaths",
+      "Straight Descent",
+      "Highlander",
+      "Frenzied Pace Chasers",
+      "Subdued Pace Chasers",
+      "Flustered Pace Chasers",
+      "Disorient"
+    ],
+    "event_skills": [
+      "Extra Tank",
+      "Adrenaline Rush",
+      "Firm Conditions ○"
+    ]
+  },
+  {
+    "id": 30024,
+    "name": "Oguri Cap",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-03-02",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Cloudy Days ○",
+      "Hydrate",
+      "Corner Adept ○",
+      "Homestretch Haste",
+      "Up-Tempo",
+      "Corner Acceleration ○",
+      "Nimble Navigator",
+      "Acceleration",
+      "Groundwork",
+      "Focus"
+    ],
+    "event_skills": [
+      "Stamina to Spare",
+      "Outer Swell",
+      "Furious Feat",
+      "Nakayama Racecourse ○"
+    ]
+  },
+  {
+    "id": 30025,
+    "name": "Special Week",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-03-02",
+    "end_date": "2025-06-26",
+    "support_hints": [
+      "Wet Conditions ○",
+      "Rainy Days ○",
+      "Late Surger Savvy ○",
+      "Hydrate",
+      "Homestretch Haste",
+      "Outer Swell",
+      "Steadfast"
+    ],
+    "event_skills": [
+      "Shake It Out",
+      "Hydrate",
+      "Gourmand",
+      "Extra Tank"
+    ]
+  },
+  {
+    "id": 30026,
+    "name": "Twin Turbo",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-03-09",
+    "end_date": "2025-07-02",
+    "support_hints": [
+      "Competitive Spirit ○",
+      "Target in Sight ○",
+      "Moxie",
+      "Fast-Paced",
+      "Leader's Pride",
+      "Early Lead"
+    ],
+    "event_skills": [
+      "Leader's Pride",
+      "Early Lead",
+      "Taking the Lead",
+      "Watchful Eye"
+    ]
+  },
+  {
+    "id": 30027,
+    "name": "Mejiro Palmer",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-03-18",
+    "end_date": "2025-07-10",
+    "support_hints": [
+      "Sympathy",
+      "Nakayama Racecourse ○",
+      "Hanshin Racecourse ○",
+      "Moxie",
+      "Fast-Paced",
+      "Early Lead",
+      "Flustered Pace Chasers"
+    ],
+    "event_skills": [
+      "Front Runner Straightaways ○",
+      "Pace Strategy",
+      "Front Runner Savvy ○",
+      "Keeping the Lead",
+      "Vanguard Spirit",
+      "Lone Wolf",
+      "Wet Conditions ○"
+    ]
+  },
+  {
+    "id": 30028,
+    "name": "Kitasan Black",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-03-30",
+    "end_date": "2025-07-16",
+    "support_hints": [
+      "Corner Recovery ○",
+      "Straightaway Recovery",
+      "Extra Tank",
+      "Corner Adept ○",
+      "Long Corners ○",
+      "Front Runner Straightaways ○",
+      "Dodging Danger",
+      "Focus"
+    ],
+    "event_skills": [
+      "Straightaway Adept",
+      "Professor of Curvature"
+    ]
+  },
+  {
+    "id": 30029,
+    "name": "Satono Diamond",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-03-30",
+    "end_date": "2025-07-16",
+    "support_hints": [
+      "Firm Conditions ○",
+      "Sunny Days ○",
+      "A Small Breather",
+      "Medium Corners ○",
+      "Studious",
+      "Tether",
+      "Flustered Front Runners"
+    ],
+    "event_skills": [
+      "All That There Is",
+      "Iron Will",
+      "Hesitant Front Runners"
+    ]
+  },
+  {
+    "id": 30030,
+    "name": "Matikanetannhauser",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-03-30",
+    "end_date": "2025-07-16",
+    "support_hints": [
+      "Lay Low",
+      "Pace Strategy",
+      "Deep Breaths",
+      "Steadfast",
+      "Fighter"
+    ],
+    "event_skills": [
+      "Unruffled",
+      "Calm in a Crowd",
+      "Subdued Front Runners"
+    ]
+  },
+  {
+    "id": 30031,
+    "name": "Yukino Bijin",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2021-04-15",
+    "end_date": "2025-07-27",
+    "support_hints": [
+      "Winter Runner ○",
+      "Nakayama Racecourse ○",
+      "Steadfast",
+      "Medium Corners ○"
+    ],
+    "event_skills": [
+      "Inner Post Proficiency ○",
+      "Hydrate",
+      "No Stopping Me!",
+      "Corner Acceleration ○"
+    ]
+  },
+  {
+    "id": 30032,
+    "name": "Yaeno Muteki",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-04-26",
+    "end_date": "2025-08-03",
+    "support_hints": [
+      "Ramp Up",
+      "Homestretch Haste",
+      "Prepared to Pass",
+      "Up-Tempo",
+      "Tail Held High"
+    ],
+    "event_skills": [
+      "Subdued Late Surgers",
+      "Hesitant Late Surgers",
+      "Playtime's Over!",
+      "It's On!",
+      "Medium Corners ○"
+    ]
+  },
+  {
+    "id": 30033,
+    "name": "Winning Ticket",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-04-26",
+    "end_date": "2025-08-03",
+    "support_hints": [
+      "Firm Conditions ○",
+      "Cloudy Days ○",
+      "Position Pilfer",
+      "Outer Swell",
+      "Slick Surge"
+    ],
+    "event_skills": [
+      "In Body and Mind",
+      "Late Surger Corners ○"
+    ]
+  },
+  {
+    "id": 30034,
+    "name": "Rice Shower",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-08-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Maverick ○",
+      "Kyoto Racecourse ○",
+      "Deep Breaths",
+      "Straight Descent",
+      "Highlander",
+      "Frenzied Pace Chasers",
+      "Subdued Pace Chasers",
+      "Flustered Pace Chasers",
+      "Disorient"
+    ],
+    "event_skills": [
+      "Passing Pro",
+      "Swinging Maestro",
+      "Firm Conditions ○"
+    ]
+  },
+  {
+    "id": 30036,
+    "name": "Riko Kashimoto",
+    "rarity": "SSR",
+    "type": "Friend",
+    "start_date": "2021-08-30",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Rushing Gale!",
+      "Ramp Up",
+      "Maverick ○",
+      "Lone Wolf",
+      "Sympathy"
+    ]
+  },
+  {
+    "id": 30037,
+    "name": "Symboli Rudolf",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2023-04-19",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Nakayama Racecourse ○",
+      "Corner Recovery ○",
+      "Rosy Outlook",
+      "Medium Corners ○",
+      "Fighting Spirit",
+      "Tumbling Forward",
+      "Ambitions",
+      "Firm Step",
+      "Tooth and Tail",
+      "Mold Breaker",
+      "Tether"
+    ],
+    "event_skills": [
+      "Corner Acceleration ○",
+      "Corner Adept ○",
+      "Swinging Maestro",
+      "Rainy Days ○"
+    ]
+  },
+  {
+    "id": 30038,
+    "name": "Sakura Chiyono O",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-05-17",
+    "end_date": "2025-08-20",
+    "support_hints": [
+      "Pace Chaser Savvy ○",
+      "Steadfast",
+      "Shifting Gears",
+      "Medium Corners ○"
+    ],
+    "event_skills": [
+      "Stamina to Spare",
+      "Medium Straightaways ○",
+      "Speed Star",
+      "Spring Runner ○"
+    ]
+  },
+  {
+    "id": 30039,
+    "name": "Kawakami Princess",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-05-28",
+    "end_date": "2025-08-28",
+    "support_hints": [
+      "Standard Distance ○",
+      "Preferred Position",
+      "Soft Step",
+      "Tactical Tweak"
+    ],
+    "event_skills": [
+      "Tether",
+      "Center Stage",
+      "Steadfast"
+    ]
+  },
+  {
+    "id": 30040,
+    "name": "Hishi Akebono",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-05-28",
+    "end_date": "2025-08-28",
+    "support_hints": [
+      "Sunny Days ○",
+      "Hydrate",
+      "Sprint Corners ○",
+      "Final Push",
+      "Countermeasure",
+      "Meticulous Measures"
+    ],
+    "event_skills": [
+      "Sunny Days ○",
+      "Hydrate",
+      "Gap Closer",
+      "Sixth Sense",
+      "Dodging Danger",
+      "Sprinting Gear"
+    ]
+  },
+  {
+    "id": 30041,
+    "name": "Mejiro Dober",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2021-05-28",
+    "end_date": "2025-08-28",
+    "support_hints": [
+      "Kyoto Racecourse ○",
+      "Sunny Days ○",
+      "Late Surger Savvy ○",
+      "Up-Tempo",
+      "Steadfast"
+    ],
+    "event_skills": [
+      "The Bigger Picture",
+      "Unyielding Spirit"
+    ]
+  },
+  {
+    "id": 30042,
+    "name": "Bamboo Memory",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-06-21",
+    "end_date": "2025-09-17",
+    "support_hints": [
+      "Target in Sight ○",
+      "Straightaway Adept",
+      "Gap Closer",
+      "Mile Straightaways ○",
+      "Late Surger Straightaways ○",
+      "Acceleration"
+    ],
+    "event_skills": [
+      "Competitive Spirit ○",
+      "Homestretch Haste",
+      "Running Idle",
+      "Hesitant Late Surgers",
+      "Rising Dragon",
+      "Outer Swell",
+      "Standard Distance ○"
+    ]
+  },
+  {
+    "id": 30043,
+    "name": "Nakayama Festa",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-10-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Long Shot ○",
+      "Wet Conditions ○",
+      "Lucky Seven",
+      "Outer Swell",
+      "Steadfast",
+      "Late Surger Straightaways ○",
+      "All That There Is",
+      "Slick Surge",
+      "Sharp Gaze"
+    ],
+    "event_skills": [
+      "Uma Stan",
+      "Prepared to Die",
+      "All That There Is",
+      "Nakayama Racecourse ○",
+      "Hanshin Racecourse ○"
+    ]
+  },
+  {
+    "id": 30044,
+    "name": "Narita Brian",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-07-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Preferred Position",
+      "Hydrate",
+      "Outer Swell",
+      "Inside Scoop",
+      "Medium Straightaways ○",
+      "Medium Corners ○",
+      "Long Straightaways ○"
+    ],
+    "event_skills": [
+      "Shatterproof",
+      "Lone Wolf"
+    ]
+  },
+  {
+    "id": 30045,
+    "name": "Sweep Tosho",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-07-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "After-School Stroll",
+      "Slipstream",
+      "Prudent Positioning",
+      "I Can See Right Through You",
+      "Trick (Front)",
+      "Trick (Rear)",
+      "Murmur"
+    ],
+    "event_skills": [
+      "Straightaway Spurt",
+      "Crusader"
+    ]
+  },
+  {
+    "id": 30046,
+    "name": "Winning Ticket",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-07-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Firm Conditions ○",
+      "Cloudy Days ○",
+      "Position Pilfer",
+      "Outer Swell",
+      "Slick Surge"
+    ],
+    "event_skills": [
+      "Triple 7s",
+      "1,500,000 CC",
+      "Medium Straightaways ○",
+      "Maverick ○",
+      "Hard Worker",
+      "Late Surger Corners ○"
+    ]
+  },
+  {
+    "id": 30047,
+    "name": "Daiwa Scarlet",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-07-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Competitive Spirit ○",
+      "Preferred Position",
+      "Rosy Outlook",
+      "Prepared to Pass",
+      "Up-Tempo",
+      "Shifting Gears"
+    ],
+    "event_skills": [
+      "Race Planner",
+      "Preferred Position",
+      "Stamina to Spare"
+    ]
+  },
+  {
+    "id": 30048,
+    "name": "Mejiro Ryan",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-07-12",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Wet Conditions ○",
+      "Rainy Days ○",
+      "Up-Tempo",
+      "Medium Straightaways ○"
+    ],
+    "event_skills": [
+      "Pace Chaser Savvy ○",
+      "Unyielding",
+      "Pace Strategy"
+    ]
+  },
+  {
+    "id": 30052,
+    "name": "Light Hello",
+    "rarity": "SSR",
+    "type": "Friend",
+    "start_date": "2022-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Sorry, Gotta Go!",
+      "Maverick ○",
+      "Front Runner Savvy ○",
+      "Pace Chaser Savvy ○"
+    ]
+  },
+  {
+    "id": 30053,
+    "name": "Taiki Shuttle",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-06-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Wet Conditions ○",
+      "Productive Plan",
+      "Mile Straightaways ○",
+      "Shifting Gears",
+      "Acceleration",
+      "Speed Eater"
+    ],
+    "event_skills": [
+      "Mile Corners ○",
+      "Mile Maven",
+      "Straight Course ○",
+      "Prepared to Pass"
+    ]
+  },
+  {
+    "id": 30054,
+    "name": "Nice Nature",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2021-08-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Kokura Racecourse ○",
+      "Lay Low",
+      "A Small Breather",
+      "Corner Acceleration ○",
+      "Go with the Flow",
+      "Hesitant Late Surgers",
+      "Murmur",
+      "Sharp Gaze"
+    ],
+    "event_skills": [
+      "On Your Left!",
+      "Ramp Up"
+    ]
+  },
+  {
+    "id": 30055,
+    "name": "Seiun Sky",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2021-06-29",
+    "end_date": "2025-09-21",
+    "support_hints": [
+      "Long Shot ○",
+      "Inner Post Proficiency ○",
+      "Tail Held High",
+      "Hesitant Pace Chasers",
+      "Frenzied Late Surgers",
+      "Trick (Front)"
+    ],
+    "event_skills": [
+      "Frenzied Pace Chasers",
+      "Vanguard Spirit",
+      "Keeping the Lead"
+    ]
+  },
+  {
+    "id": 30056,
+    "name": "King Halo",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-06-29",
+    "end_date": "2025-09-21",
+    "support_hints": [
+      "Outer Post Proficiency ○",
+      "Firm Conditions ○",
+      "Cloudy Days ○",
+      "Corner Recovery ○",
+      "Wait-and-See",
+      "Gap Closer"
+    ],
+    "event_skills": [
+      "Stop Right There!",
+      "Uma Stan",
+      "Gap Closer",
+      "Blinding Flash",
+      "Homestretch Haste"
+    ]
+  },
+  {
+    "id": 30057,
+    "name": "Gold Ship",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-06-29",
+    "end_date": "2025-09-21",
+    "support_hints": [
+      "Sympathy",
+      "End Closer Savvy ○",
+      "Standing By",
+      "After-School Stroll",
+      "Inside Scoop",
+      "Pressure",
+      "Uma Stan",
+      "Straightaway Spurt",
+      "Highlander",
+      "Groundwork",
+      "I Can See Right Through You",
+      "Strategist",
+      "Intense Gaze",
+      "Smoke Screen"
+    ],
+    "event_skills": [
+      "Long Straightaways ○",
+      "Inside Scoop",
+      "Innate Experience",
+      "Maverick ○",
+      "Hanshin Racecourse ○"
+    ]
+  },
+  {
+    "id": 30058,
+    "name": "Tokai Teio",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-05-26",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Soft Step",
+      "Nimble Navigator",
+      "Shrewd Step",
+      "Prudent Positioning",
+      "Go with the Flow",
+      "Thunderbolt Step"
+    ],
+    "event_skills": [
+      "Adrenaline Rush",
+      "Pace Chaser Straightaways ○"
+    ]
+  },
+  {
+    "id": 30059,
+    "name": "Mihono Bourbon",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-06-23",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Snowy Days ○",
+      "Front Runner Straightaways ○",
+      "Front Runner Corners ○",
+      "Early Lead"
+    ],
+    "event_skills": [
+      "Unrestrained",
+      "Final Push",
+      "Focus"
+    ]
+  },
+  {
+    "id": 30060,
+    "name": "Twin Turbo",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-07-21",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Competitive Spirit ○",
+      "Target in Sight ○",
+      "Moxie",
+      "Fast-Paced",
+      "Leader's Pride",
+      "Early Lead"
+    ],
+    "event_skills": [
+      "Killer Tunes",
+      "Up-Tempo",
+      "Early Lead"
+    ]
+  },
+  {
+    "id": 30061,
+    "name": "Biwa Hayahide",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2021-08-18",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Outer Post Proficiency ○",
+      "Hanshin Racecourse ○",
+      "Wet Conditions ○",
+      "Cloudy Days ○",
+      "Frenzied End Closers"
+    ],
+    "event_skills": [
+      "Corner Recovery ○",
+      "Cooldown",
+      "Inside Scoop"
+    ]
+  },
+  {
+    "id": 30062,
+    "name": "Silence Suzuka",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Front Runner Savvy ○",
+      "Rosy Outlook",
+      "Fast-Paced",
+      "Front Runner Straightaways ○",
+      "Front Runner Corners ○",
+      "Leader's Pride",
+      "Early Lead",
+      "Final Push",
+      "Focus"
+    ],
+    "event_skills": [
+      "Hydrate",
+      "Soft Step",
+      "Concentration",
+      "Left-Handed ○"
+    ]
+  },
+  {
+    "id": 30063,
+    "name": "Ikuno Dictus",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-09-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Lay Low",
+      "Calm in a Crowd",
+      "Hawkeye",
+      "Studious",
+      "Sharp Gaze"
+    ],
+    "event_skills": [
+      "Go with the Flow",
+      "The Bigger Picture",
+      "Trick (Rear)"
+    ]
+  },
+  {
+    "id": 30064,
+    "name": "Tamamo Cross",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-09-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Rosy Outlook",
+      "Soft Step",
+      "Medium Corners ○",
+      "1,500,000 CC",
+      "Thunderbolt Step",
+      "Frenzied Late Surgers",
+      "Flustered Late Surgers"
+    ],
+    "event_skills": [
+      "Wet Conditions ○",
+      "15,000,000 CC",
+      "Calm in a Crowd"
+    ]
+  },
+  {
+    "id": 30065,
+    "name": "Zenno Rob Roy",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-09-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Chaser Savvy ○",
+      "Late Surger Savvy ○",
+      "Straightaway Adept",
+      "Nimble Navigator",
+      "Shrewd Step",
+      "Prudent Positioning",
+      "Go with the Flow",
+      "Studious"
+    ],
+    "event_skills": [
+      "Right-Handed ○",
+      "Left-Handed ○",
+      "Concealed Readiness",
+      "Medium Straightaways ○"
+    ]
+  },
+  {
+    "id": 30066,
+    "name": "Mihono Bourbon",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2021-09-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Snowy Days ○",
+      "Front Runner Straightaways ○",
+      "Front Runner Corners ○",
+      "Early Lead"
+    ],
+    "event_skills": [
+      "Moxie",
+      "Taking the Lead",
+      "Focus"
+    ]
+  },
+  {
+    "id": 30067,
+    "name": "The Throne's Assemblage",
+    "rarity": "SSR",
+    "type": "Group",
+    "start_date": "2022-07-20",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Pace Chaser Straightaways ○",
+      "Rainy Days ○",
+      "Fighter",
+      "Fighting Spirit",
+      "Prudent Positioning",
+      "Full Throttle",
+      "Nakayama Racecourse ○",
+      "Photon Slash",
+      "Medium Corners ○"
+    ]
+  },
+  {
+    "id": 30068,
+    "name": "Curren Chan",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2021-10-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Sprint Straightaways ○",
+      "Sprinting Gear",
+      "Meticulous Measures",
+      "Hesitant Late Surgers",
+      "Disorient"
+    ],
+    "event_skills": [
+      "Stop Right There!",
+      "Playtime's Over!",
+      "Perfect Prep!",
+      "Meticulous Measures",
+      "Intimidate"
+    ]
+  },
+  {
+    "id": 30069,
+    "name": "Narita Brian",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-10-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Preferred Position",
+      "Hydrate",
+      "Outer Swell",
+      "Inside Scoop",
+      "Medium Straightaways ○",
+      "Medium Corners ○",
+      "Long Straightaways ○"
+    ],
+    "event_skills": [
+      "Up-Tempo",
+      "Beeline Burst",
+      "Lone Wolf"
+    ]
+  },
+  {
+    "id": 30070,
+    "name": "Yukino Bijin",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2021-10-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Winter Runner ○",
+      "Nakayama Racecourse ○",
+      "Steadfast",
+      "Medium Corners ○"
+    ],
+    "event_skills": [
+      "Snowy Days ○",
+      "Playtime's Over!",
+      "Corner Connoisseur",
+      "Corner Acceleration ○"
+    ]
+  },
+  {
+    "id": 30071,
+    "name": "Daitaku Helios",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-11-19",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Sympathy",
+      "Stamina to Spare",
+      "Ramp Up",
+      "Mile Corners ○",
+      "Shifting Gears",
+      "Slipstream",
+      "Speed Eater"
+    ],
+    "event_skills": [
+      "Early Lead",
+      "Pace Chaser Corners ○",
+      "Escape Artist",
+      "Fast-Paced",
+      "Long Shot ○"
+    ]
+  },
+  {
+    "id": 30072,
+    "name": "Mayano Top Gun",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-11-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Non-Standard Distance ○",
+      "Straightaway Recovery",
+      "Corner Adept ○",
+      "Straightaway Adept",
+      "Nimble Navigator",
+      "Go with the Flow"
+    ],
+    "event_skills": [
+      "Head-To-Head",
+      "Competitive Spirit ○",
+      "Restless",
+      "Straightaway Adept"
+    ]
+  },
+  {
+    "id": 30073,
+    "name": "Narita Taishin",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2021-11-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Lone Wolf",
+      "Lay Low",
+      "Calm in a Crowd",
+      "Standing By",
+      "Masterful Gambit",
+      "End Closer Corners ○",
+      "Intense Gaze"
+    ],
+    "event_skills": [
+      "Soft Step",
+      "Passing Pro",
+      "Sleeping Lion",
+      "Standing By",
+      "Pressure"
+    ]
+  },
+  {
+    "id": 30074,
+    "name": "Marvelous Sunday",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-11-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Straightaway Adept",
+      "Ramp Up",
+      "Tail Held High",
+      "Hesitant Front Runners",
+      "Hesitant Pace Chasers"
+    ],
+    "event_skills": [
+      "Cloudy Days ○",
+      "Fast & Furious",
+      "Position Pilfer",
+      "Hanshin Racecourse ○"
+    ]
+  },
+  {
+    "id": 30075,
+    "name": "Manhattan Cafe",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-12-14",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Wet Conditions ○",
+      "Rainy Days ○",
+      "Passing Pro",
+      "Long Straightaways ○",
+      "Highlander",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "Long Corners ○",
+      "Stamina Siphon",
+      "Non-Standard Distance ○"
+    ]
+  },
+  {
+    "id": 30076,
+    "name": "Silence Suzuka",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-12-22",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Front Runner Savvy ○",
+      "Rosy Outlook",
+      "Fast-Paced",
+      "Front Runner Straightaways ○",
+      "Front Runner Corners ○",
+      "Leader's Pride",
+      "Early Lead",
+      "Final Push",
+      "Focus"
+    ],
+    "event_skills": [
+      "Trackblazer",
+      "Left-Handed ○"
+    ]
+  },
+  {
+    "id": 30077,
+    "name": "Admire Vega",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2021-12-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Levelheaded",
+      "Masterful Gambit",
+      "End Closer Straightaways ○",
+      "Strategist",
+      "Tether"
+    ],
+    "event_skills": [
+      "Flustered Pace Chasers",
+      "Daring Attack",
+      "Subdued Pace Chasers"
+    ]
+  },
+  {
+    "id": 30078,
+    "name": "Matikanefukukitaru",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2021-12-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Hakodate Racecourse ○",
+      "Lucky Seven",
+      "Calm in a Crowd",
+      "A Small Breather",
+      "Triple 7s",
+      "Late Surger Corners ○",
+      "Trick (Rear)"
+    ],
+    "event_skills": [
+      "Super Lucky Seven",
+      "Lucky Seven"
+    ]
+  },
+  {
+    "id": 30079,
+    "name": "Meisho Doto",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2021-12-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Long Shot ○",
+      "Non-Standard Distance ○",
+      "Firm Conditions ○",
+      "Inner Post Proficiency ○",
+      "Shake It Out",
+      "Late Surger Straightaways ○",
+      "Hawkeye"
+    ],
+    "event_skills": [
+      "Medium Corners ○",
+      "Killer Tunes",
+      "Pace Chaser Corners ○"
+    ]
+  },
+  {
+    "id": 30080,
+    "name": "Sasami Anshinzawa",
+    "rarity": "SSR",
+    "type": "Friend",
+    "start_date": "2022-01-11",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Wallflower",
+      "Gamester",
+      "Questionable Strategy",
+      "Corner Recovery ×",
+      "Running Idle",
+      "Uma Stan"
+    ]
+  },
+  {
+    "id": 30081,
+    "name": "Team Sirius",
+    "rarity": "SSR",
+    "type": "Group",
+    "start_date": "2022-03-18",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Extra Tank",
+      "Left-Handed ○",
+      "Early Lead",
+      "Firm Conditions ○",
+      "Late Surger Corners ○",
+      "Lone Wolf",
+      "Questionable Strategy",
+      "Target in Sight ○",
+      "#1 Horsegirl in Japan",
+      "Corner Recovery ○"
+    ]
+  },
+  {
+    "id": 30082,
+    "name": "Nishino Flower",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-01-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Hanshin Racecourse ○",
+      "Standard Distance ○",
+      "Firm Conditions ○",
+      "Pace Chaser Corners ○",
+      "Updrafters"
+    ],
+    "event_skills": [
+      "Shifting Gears",
+      "Determined Descent"
+    ]
+  },
+  {
+    "id": 30083,
+    "name": "Sakura Bakushin O",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2022-01-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Sprint Straightaways ○",
+      "Sprint Corners ○",
+      "Huge Lead",
+      "Sprinting Gear",
+      "Countermeasure",
+      "Intimidate",
+      "Frenzied Front Runners",
+      "Flustered Front Runners"
+    ],
+    "event_skills": [
+      "Groundwork",
+      "In High Spirits",
+      "Nimble Step",
+      "Gap Closer"
+    ]
+  },
+  {
+    "id": 30084,
+    "name": "Tosen Jordan",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-01-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Long Shot ○",
+      "Stamina to Spare",
+      "Position Pilfer",
+      "Medium Straightaways ○",
+      "Medium Corners ○",
+      "Pace Chaser Straightaways ○"
+    ],
+    "event_skills": [
+      "Breath of Fresh Air",
+      "Straightaway Recovery",
+      "Lucky Seven"
+    ]
+  },
+  {
+    "id": 30085,
+    "name": "Agnes Digital",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2022-02-08",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Left-Handed ○",
+      "Mile Straightaways ○",
+      "Late Surger Straightaways ○",
+      "Uma Stan",
+      "All That There Is",
+      "Front Row Aim"
+    ],
+    "event_skills": [
+      "Hydrate",
+      "Focus",
+      "Aim for the Front Row!",
+      "Uma Stan",
+      "Rainy Days ○",
+      "Wet Conditions ○"
+    ]
+  },
+  {
+    "id": 30086,
+    "name": "Narita Top Road",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Non-Standard Distance ○",
+      "Firm Conditions ○",
+      "Inner Post Proficiency ○",
+      "Preferred Position",
+      "Prepared to Pass",
+      "Long Straightaways ○",
+      "All That There Is"
+    ],
+    "event_skills": [
+      "Pace Chaser Savvy ○",
+      "Pressure",
+      "Good Track Demon",
+      "Up-Tempo"
+    ]
+  },
+  {
+    "id": 30087,
+    "name": "Mejiro Bright",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2022-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Extra Tank",
+      "Passing Pro",
+      "Pressure",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "Early Gambit",
+      "Overwhelming Pressure",
+      "Deep Breaths"
+    ]
+  },
+  {
+    "id": 30088,
+    "name": "Satono Diamond",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Late Surger Savvy ○",
+      "Quiet Breathing",
+      "Position Pilfer",
+      "Pressure",
+      "Late Surger Straightaways ○",
+      "Late Surger Corners ○"
+    ],
+    "event_skills": [
+      "Sympathy",
+      "Quiet Breathing",
+      "Concealed Readiness",
+      "Hesitant Front Runners"
+    ]
+  },
+  {
+    "id": 30089,
+    "name": "Marvelous Sunday",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2022-03-07",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Straightaway Adept",
+      "Ramp Up",
+      "Tail Held High",
+      "Hesitant Front Runners",
+      "Hesitant Pace Chasers"
+    ],
+    "event_skills": [
+      "Adrenaline Rush",
+      "Hanshin Racecourse ○"
+    ]
+  },
+  {
+    "id": 30090,
+    "name": "Symboli Rudolf",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2022-03-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Medium Straightaways ○",
+      "Medium Corners ○",
+      "All That There Is",
+      "Tether",
+      "Subdued Front Runners",
+      "Subdued Pace Chasers",
+      "Subdued Late Surgers",
+      "Subdued End Closers"
+    ],
+    "event_skills": [
+      "Soft Step",
+      "Burning Spirit",
+      "Rainy Days ○"
+    ]
+  },
+  {
+    "id": 30091,
+    "name": "Sirius Symboli",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-03-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Lone Wolf",
+      "Wet Conditions ○",
+      "Quiet Breathing",
+      "Medium Corners ○",
+      "Late Surger Straightaways ○"
+    ],
+    "event_skills": [
+      "Playtime's Over!",
+      "Late Surger Savvy ○",
+      "One Chance",
+      "Rise From the Ashes",
+      "Disorient"
+    ]
+  },
+  {
+    "id": 30092,
+    "name": "Air Shakur",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-03-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Standing By",
+      "Levelheaded",
+      "Up-Tempo",
+      "End Closer Corners ○",
+      "Straightaway Spurt"
+    ],
+    "event_skills": [
+      "Tumbling Forward",
+      "End Closer Straightaways ○",
+      "Serenity",
+      "Pace Strategy"
+    ]
+  },
+  {
+    "id": 30093,
+    "name": "Daiwa Scarlet",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2022-04-11",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Competitive Spirit ○",
+      "Preferred Position",
+      "Prepared to Pass",
+      "Pace Chaser Corners ○",
+      "Straight Descent"
+    ],
+    "event_skills": [
+      "Kageuchi",
+      "Up-Tempo",
+      "Fierce Competition",
+      "Stamina to Spare"
+    ]
+  },
+  {
+    "id": 30094,
+    "name": "Bamboo Memory",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2022-04-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Target in Sight ○",
+      "Homestretch Haste",
+      "Outer Swell",
+      "Gap Closer",
+      "Mile Straightaways ○",
+      "Updrafters"
+    ],
+    "event_skills": [
+      "Position Pilfer",
+      "Unstoppable Force",
+      "Sufficient Spirit",
+      "Standard Distance ○"
+    ]
+  },
+  {
+    "id": 30095,
+    "name": "Seeking the Pearl",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-04-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Firm Conditions ○",
+      "Pace Chaser Savvy ○",
+      "Late Surger Savvy ○",
+      "Watchful Eye",
+      "Prepared to Pass",
+      "Slick Surge",
+      "Sprinting Gear",
+      "Head-To-Head",
+      "Sharp Gaze"
+    ],
+    "event_skills": [
+      "Updrafters",
+      "Nimble Step",
+      "Daredevil",
+      "Straight Course ○",
+      "Uma Stan"
+    ]
+  },
+  {
+    "id": 30096,
+    "name": "Kawakami Princess",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2022-04-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Standard Distance ○",
+      "Preferred Position",
+      "Soft Step",
+      "Tactical Tweak"
+    ],
+    "event_skills": [
+      "Unyielding",
+      "Steadfast"
+    ]
+  },
+  {
+    "id": 30097,
+    "name": "Mr. C.B.",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-05-10",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Rainy Days ○",
+      "Homestretch Haste",
+      "Medium Corners ○",
+      "Tail Held High",
+      "Corner Acceleration ○",
+      "Straightaway Spurt",
+      "Strategist"
+    ],
+    "event_skills": [
+      "Corner Recovery ○",
+      "Intense Gaze",
+      "Daring Attack",
+      "Early Gambit"
+    ]
+  },
+  {
+    "id": 30098,
+    "name": "Haru Urara",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2022-05-30",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Hard Worker",
+      "Long Shot ○"
+    ]
+  },
+  {
+    "id": 30099,
+    "name": "Ikuno Dictus",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2022-05-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Late Surger Savvy ○",
+      "Calm in a Crowd",
+      "Quiet Breathing",
+      "Position Pilfer",
+      "Late Surger Corners ○",
+      "Studious",
+      "Sharp Gaze"
+    ],
+    "event_skills": [
+      "Pushing Forward",
+      "Full Throttle",
+      "Trick (Rear)"
+    ]
+  },
+  {
+    "id": 30100,
+    "name": "Rice Shower",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-05-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Chaser Savvy ○",
+      "Deep Breaths",
+      "Pace Chaser Corners ○",
+      "Kageuchi",
+      "Straight Descent",
+      "Disorient"
+    ],
+    "event_skills": [
+      "Kyoto Racecourse ○",
+      "Shatterproof",
+      "Firm Conditions ○"
+    ]
+  },
+  {
+    "id": 30101,
+    "name": "Agnes Tachyon",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Chaser Savvy ○",
+      "Up-Tempo",
+      "Medium Straightaways ○",
+      "Medium Corners ○",
+      "Pace Chaser Corners ○",
+      "Attack Stance",
+      "Head-To-Head",
+      "Tether"
+    ],
+    "event_skills": [
+      "Pace Chaser Straightaways ○",
+      "Murmur",
+      "Unstoppable",
+      "Late Surger Savvy ○"
+    ]
+  },
+  {
+    "id": 30102,
+    "name": "El Condor Pasa",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2022-06-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Standard Distance ○",
+      "Pace Chaser Savvy ○",
+      "Preferred Position",
+      "Prepared to Pass",
+      "Pace Chaser Straightaways ○",
+      "Head-To-Head",
+      "Hawkeye"
+    ],
+    "event_skills": [
+      "Speed Star",
+      "Sunny Days ○"
+    ]
+  },
+  {
+    "id": 30103,
+    "name": "Matikanetannhauser",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-06-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Corner Recovery ○",
+      "Lay Low",
+      "Pace Strategy",
+      "Shake It Out",
+      "Homestretch Haste",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "Ramp Up",
+      "Flustered Late Surgers",
+      "It's On!",
+      "Subdued Front Runners"
+    ]
+  },
+  {
+    "id": 30104,
+    "name": "Zenno Rob Roy",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2022-06-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Tokyo Racecourse ○",
+      "Pace Chaser Savvy ○",
+      "Late Surger Savvy ○",
+      "Up-Tempo",
+      "Medium Corners ○",
+      "Tether"
+    ],
+    "event_skills": [
+      "Studious",
+      "Tactical Tweak",
+      "Clairvoyance",
+      "Medium Straightaways ○"
+    ]
+  },
+  {
+    "id": 30105,
+    "name": "Special Week",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2022-07-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Winter Runner ○",
+      "Nakayama Racecourse ○",
+      "Non-Standard Distance ○",
+      "Long Straightaways ○",
+      "Pressure"
+    ],
+    "event_skills": [
+      "Kageuchi",
+      "Straightaway Recovery",
+      "Overwhelming Pressure",
+      "Extra Tank"
+    ]
+  },
+  {
+    "id": 30106,
+    "name": "Air Groove",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2022-07-11",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Quiet Breathing",
+      "Late Surger Straightaways ○",
+      "Fearless Heart",
+      "Hesitant End Closers",
+      "Flustered End Closers",
+      "Sharp Gaze"
+    ],
+    "event_skills": [
+      "Fearless Heart",
+      "One Chance",
+      "Updrafters",
+      "Concealed Readiness",
+      "Go with the Flow"
+    ]
+  },
+  {
+    "id": 30107,
+    "name": "Maruzensky",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-07-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Summer Runner ○",
+      "Triple 7s",
+      "Front Runner Straightaways ○",
+      "Front Runner Corners ○",
+      "Leader's Pride",
+      "Slipstream",
+      "Playtime's Over!",
+      "Early Lead",
+      "Groundwork",
+      "Focus"
+    ],
+    "event_skills": [
+      "Focus",
+      "Top Runner",
+      "Early Lead"
+    ]
+  },
+  {
+    "id": 30108,
+    "name": "Nakayama Festa",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-07-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Summer Runner ○",
+      "Long Shot ○",
+      "Wet Conditions ○",
+      "Lucky Seven",
+      "Triple 7s",
+      "Steadfast",
+      "Late Surger Straightaways ○",
+      "Uma Stan",
+      "All That There Is",
+      "Questionable Strategy",
+      "Nimble Navigator",
+      "Slick Surge"
+    ],
+    "event_skills": [
+      "Gamester",
+      "Questionable Strategy",
+      "Nakayama Racecourse ○",
+      "Hanshin Racecourse ○"
+    ]
+  },
+  {
+    "id": 30109,
+    "name": "Sakura Chiyono O",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2022-07-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Summer Runner ○",
+      "Pace Chaser Savvy ○",
+      "Mile Straightaways ○",
+      "Shifting Gears",
+      "Pace Chaser Straightaways ○",
+      "Pace Chaser Corners ○",
+      "Head-To-Head"
+    ],
+    "event_skills": [
+      "Step on the Gas!",
+      "Acceleration",
+      "Spring Runner ○"
+    ]
+  },
+  {
+    "id": 30110,
+    "name": "Manhattan Cafe",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2022-08-19",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Deep Breaths",
+      "Passing Pro",
+      "Long Straightaways ○",
+      "Long Corners ○",
+      "Pressure",
+      "Highlander",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "Self-Possessed",
+      "Non-Standard Distance ○"
+    ]
+  },
+  {
+    "id": 30111,
+    "name": "Tokai Teio",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-08-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Competitive Spirit ○",
+      "Soft Step",
+      "Corner Adept ○",
+      "Pace Chaser Corners ○",
+      "With Verve",
+      "Nimble Navigator",
+      "Prudent Positioning",
+      "Go with the Flow"
+    ],
+    "event_skills": [
+      "Preferred Position",
+      "Professor of Curvature",
+      "Pace Chaser Straightaways ○"
+    ]
+  },
+  {
+    "id": 30112,
+    "name": "Twin Turbo",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2022-08-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Competitive Spirit ○",
+      "Target in Sight ○",
+      "Moxie",
+      "Fast-Paced",
+      "Leader's Pride",
+      "Frantic State",
+      "Early Lead"
+    ],
+    "event_skills": [
+      "Playtime's Over!",
+      "1000% Output!",
+      "Early Lead"
+    ]
+  },
+  {
+    "id": 30113,
+    "name": "Biwa Hayahide",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2022-08-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Outer Post Proficiency ○",
+      "Hanshin Racecourse ○",
+      "Wet Conditions ○",
+      "Cloudy Days ○",
+      "Pace Chaser Savvy ○",
+      "Stamina to Spare",
+      "Passing Pro",
+      "Faultless",
+      "Pace Chaser Straightaways ○",
+      "Tail Held High",
+      "Head-To-Head"
+    ],
+    "event_skills": [
+      "Prepared to Pass",
+      "VIP Pass",
+      "Inside Scoop"
+    ]
+  },
+  {
+    "id": 30114,
+    "name": "Daiichi Ruby",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2022-09-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Lone Wolf",
+      "Gap Closer",
+      "Late Surger Straightaways ○",
+      "Fearless Heart",
+      "Slick Surge",
+      "Hesitant Front Runners",
+      "Tether",
+      "Opening Gambit",
+      "Subdued Front Runners",
+      "Flustered Front Runners",
+      "Stop Right There!"
+    ],
+    "event_skills": [
+      "Late Surger Corners ○",
+      "Sprinting Gear",
+      "Lightning Speed",
+      "Gap Closer"
+    ]
+  },
+  {
+    "id": 30115,
+    "name": "Mejiro Palmer",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2022-09-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Sympathy",
+      "Front Runner Savvy ○",
+      "Moxie",
+      "Keeping the Lead",
+      "Playtime's Over!",
+      "Early Lead",
+      "Final Push",
+      "Groundwork"
+    ],
+    "event_skills": [
+      "Passing Pro",
+      "Front Runner Corners ○",
+      "Taking the Lead",
+      "Wet Conditions ○"
+    ]
+  },
+  {
+    "id": 30116,
+    "name": "Daitaku Helios",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-09-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Fall Runner ○",
+      "Sympathy",
+      "Firm Conditions ○",
+      "Sunny Days ○",
+      "Mile Corners ○",
+      "Shifting Gears",
+      "Slipstream",
+      "Frantic State",
+      "Speed Eater"
+    ],
+    "event_skills": [
+      "Front Runner Straightaways ○",
+      "Tail Held High",
+      "In the Right Place!",
+      "Long Shot ○"
+    ]
+  },
+  {
+    "id": 30117,
+    "name": "Shinko Windy",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2022-09-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Mud Play ○",
+      "Competitive Spirit ○",
+      "Wet Conditions ○",
+      "Prepared to Pass",
+      "At Full Speed",
+      "Dust Bath ○",
+      "Full of Zeal",
+      "Hesitant Front Runners",
+      "Pressing Feeling"
+    ],
+    "event_skills": [
+      "At Full Speed",
+      "Mud Master",
+      "Unyielding Spirit"
+    ]
+  },
+  {
+    "id": 30118,
+    "name": "Symboli Kris S",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2022-10-19",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Corner Recovery ○",
+      "Passing Pro",
+      "Long Straightaways ○",
+      "Late Surger Corners ○",
+      "1,500,000 CC",
+      "Fearless Heart",
+      "Slick Surge",
+      "Devil-May-Care"
+    ],
+    "event_skills": [
+      "Competitive Spirit ○",
+      "Lose Yourself",
+      "Cloudy Days ○"
+    ]
+  },
+  {
+    "id": 30119,
+    "name": "Mejiro Ardan",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-10-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Left-Handed ○",
+      "Pace Chaser Savvy ○",
+      "Preferred Position",
+      "Soft Step",
+      "Pace Chaser Corners ○"
+    ],
+    "event_skills": [
+      "Race Planner",
+      "Hesitant Pace Chasers"
+    ]
+  },
+  {
+    "id": 30120,
+    "name": "Yaeno Muteki",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2022-10-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Ramp Up",
+      "Homestretch Haste",
+      "Prepared to Pass",
+      "Up-Tempo",
+      "Medium Straightaways ○",
+      "Medium Corners ○",
+      "Tail Held High"
+    ],
+    "event_skills": [
+      "Hydrate",
+      "Left-Handed ○",
+      "Killer Tunes",
+      "Medium Corners ○"
+    ]
+  },
+  {
+    "id": 30121,
+    "name": "Mihono Bourbon",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Leader's Pride",
+      "Front Runner Straightaways ○",
+      "Front Runner Corners ○",
+      "Early Lead",
+      "Prudent Positioning",
+      "Focus"
+    ],
+    "event_skills": [
+      "Fast-Paced",
+      "Trackblazer",
+      "Focus"
+    ]
+  },
+  {
+    "id": 30122,
+    "name": "Eishin Flash",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2022-11-17",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Standard Distance ○",
+      "Late Surger Savvy ○",
+      "Soft Step",
+      "Late Surger Straightaways ○",
+      "Late Surger Corners ○",
+      "Fighter",
+      "One Chance"
+    ],
+    "event_skills": [
+      "Position Pilfer",
+      "Incisive Flash",
+      "Target in Sight ○"
+    ]
+  },
+  {
+    "id": 30123,
+    "name": "Narita Brian",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2022-11-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Winter Runner ○",
+      "Firm Conditions ○",
+      "Preferred Position",
+      "Faultless",
+      "Outer Swell",
+      "Long Straightaways ○",
+      "Firm Step",
+      "Tooth and Tail",
+      "True Worth"
+    ],
+    "event_skills": [
+      "True Worth",
+      "Hot Pursuit",
+      "Lone Wolf"
+    ]
+  },
+  {
+    "id": 30124,
+    "name": "Air Groove",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-11-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Winter Runner ○",
+      "Standard Distance ○",
+      "Late Surger Savvy ○",
+      "Quiet Breathing",
+      "Position Pilfer",
+      "Late Surger Straightaways ○",
+      "Fearless Heart",
+      "Updrafters"
+    ],
+    "event_skills": [
+      "Studious",
+      "Pace Strategy",
+      "Fast & Furious",
+      "Go with the Flow"
+    ]
+  },
+  {
+    "id": 30125,
+    "name": "Sakura Laurel",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2022-11-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Spring Runner ○",
+      "Winter Runner ○",
+      "Sunny Days ○",
+      "Deep Breaths",
+      "A Small Breather",
+      "My Own Pace",
+      "Long Corners ○",
+      "Devil-May-Care",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "Quiet Breathing",
+      "Daredevil",
+      "Subdued Pace Chasers"
+    ]
+  },
+  {
+    "id": 30126,
+    "name": "Yamanin Zephyr",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2022-12-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Fall Runner ○",
+      "Long Shot ○",
+      "Pace Chaser Savvy ○",
+      "Mile Corners ○",
+      "Shifting Gears",
+      "Unyielding Spirit",
+      "Medium Corners ○",
+      "Ambitions",
+      "Corner Acceleration ○"
+    ],
+    "event_skills": [
+      "Slipstream",
+      "Winds of Change",
+      "Ambitions"
+    ]
+  },
+  {
+    "id": 30127,
+    "name": "Special Week",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2022-12-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Left-Handed ○",
+      "Standard Distance ○",
+      "Extra Tank",
+      "Soft Step",
+      "Homestretch Haste",
+      "Up-Tempo",
+      "All That There Is",
+      "Kageuchi",
+      "Fighting Spirit",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "My Own Pace",
+      "No Stopping Me!",
+      "Extra Tank"
+    ]
+  },
+  {
+    "id": 30128,
+    "name": "Sweep Tosho",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-12-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "After-School Stroll",
+      "End Closer Straightaways ○",
+      "Slipstream",
+      "Breakthrough Plan",
+      "Witful",
+      "I Can See Right Through You",
+      "Trick (Rear)",
+      "Murmur"
+    ],
+    "event_skills": [
+      "Intense Gaze",
+      "Self-Control",
+      "Unrivaled Wits"
+    ]
+  },
+  {
+    "id": 30129,
+    "name": "Grass Wonder",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2022-12-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Winter Runner ○",
+      "Cloudy Days ○",
+      "Faultless",
+      "Long Corners ○",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "Pressure",
+      "Cooldown",
+      "Frenzied Pace Chasers",
+      "Target in Sight ○"
+    ]
+  },
+  {
+    "id": 30130,
+    "name": "K.S.Miracle",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2023-01-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Chaser Savvy ○",
+      "Sprint Corners ○",
+      "Pace Chaser Straightaways ○",
+      "Attack Stance",
+      "Updrafters",
+      "Countermeasure"
+    ],
+    "event_skills": [
+      "Corner Acceleration ○",
+      "Fierce Competition",
+      "Nimble Step"
+    ]
+  },
+  {
+    "id": 30131,
+    "name": "Marvelous Sunday",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-01-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Strategy",
+      "Long Straightaways ○",
+      "Tail Held High",
+      "All That There Is",
+      "Tumbling Forward",
+      "One Chance",
+      "Devil-May-Care",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "Straightaway Recovery",
+      "Indomitable",
+      "Hanshin Racecourse ○"
+    ]
+  },
+  {
+    "id": 30132,
+    "name": "Biko Pegasus",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2023-01-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Rainy Days ○",
+      "Position Pilfer",
+      "Late Surger Corners ○",
+      "Fearless Heart",
+      "Nimble Navigator",
+      "Sprinting Gear",
+      "Mighty Leap"
+    ],
+    "event_skills": [
+      "Frenzied Late Surgers",
+      "Slick Surge",
+      "Incisive Slash",
+      "Sprint Straightaways ○"
+    ]
+  },
+  {
+    "id": 30133,
+    "name": "Hishi Akebono",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2023-01-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Sunny Days ○",
+      "Hydrate",
+      "Sprint Corners ○",
+      "Final Push",
+      "Countermeasure",
+      "Meticulous Measures"
+    ],
+    "event_skills": [
+      "Sunny Days ○",
+      "Plan X",
+      "Sprinting Gear"
+    ]
+  },
+  {
+    "id": 30134,
+    "name": "Mejiro Ramonu",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2023-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Straightaway Adept",
+      "Mile Straightaways ○",
+      "Mile Corners ○",
+      "Shifting Gears",
+      "Medium Straightaways ○",
+      "All That There Is",
+      "Firm Step",
+      "Graceful Step",
+      "Focus"
+    ],
+    "event_skills": [
+      "Unyielding Spirit",
+      "Fighting Spirit",
+      "Ascendance",
+      "Medium Corners ○"
+    ]
+  },
+  {
+    "id": 30135,
+    "name": "Katsuragi Ace",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Tokyo Racecourse ○",
+      "Fast-Paced",
+      "Steadfast",
+      "Medium Straightaways ○",
+      "Front Runner Corners ○",
+      "Leader's Pride",
+      "Ambitions",
+      "Firm Step",
+      "Steadfast"
+    ],
+    "event_skills": [
+      "Final Push",
+      "Unyielding",
+      "Groundwork"
+    ]
+  },
+  {
+    "id": 30136,
+    "name": "Symboli Kris S",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2023-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Medium Corners ○",
+      "Late Surger Corners ○",
+      "1,500,000 CC",
+      "All That There Is",
+      "Fighting Spirit",
+      "Fearless Heart"
+    ],
+    "event_skills": [
+      "Hawkeye",
+      "Burning Spirit",
+      "Cloudy Days ○"
+    ]
+  },
+  {
+    "id": 30137,
+    "name": "Ancestors & Guides",
+    "rarity": "SSR",
+    "type": "Group",
+    "start_date": "2023-03-20",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Ramp Up",
+      "Sprint Corners ○",
+      "Long Straightaways ○",
+      "Corner Adept ○",
+      "Mile Corners ○",
+      "Medium Corners ○",
+      "Straightaway Adept",
+      "Uma Stan",
+      "Productive Plan",
+      "Countermeasure",
+      "Deep Breaths",
+      "All That There Is",
+      "Divine Speed",
+      "Triple 7s",
+      "Rapid"
+    ]
+  },
+  {
+    "id": 30138,
+    "name": "Nice Nature",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2023-03-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Kokura Racecourse ○",
+      "Lay Low",
+      "Corner Adept ○",
+      "Straightaway Adept",
+      "Homestretch Haste",
+      "Uma Stan",
+      "Slipstream",
+      "Slick Surge"
+    ],
+    "event_skills": [
+      "Tail Held High",
+      "Nimble Navigator",
+      "In the Right Place!",
+      "Ramp Up"
+    ]
+  },
+  {
+    "id": 30139,
+    "name": "Mejiro McQueen",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2023-03-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Kyoto Racecourse ○",
+      "Wet Conditions ○",
+      "Corner Recovery ○",
+      "Straightaway Recovery",
+      "Extra Tank",
+      "Stay the Course",
+      "Long Straightaways ○",
+      "Long Corners ○",
+      "Kageuchi"
+    ],
+    "event_skills": [
+      "Faultless",
+      "True Worth",
+      "Ahead of the Game",
+      "Early Lead"
+    ]
+  },
+  {
+    "id": 30140,
+    "name": "Tokai Teio",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-03-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Soft Step",
+      "Firm Step",
+      "Nimble Navigator",
+      "Shrewd Step",
+      "Prudent Positioning",
+      "Go with the Flow",
+      "Thunderbolt Step"
+    ],
+    "event_skills": [
+      "Pace Chaser Corners ○",
+      "Lightning Step",
+      "Pace Chaser Straightaways ○"
+    ]
+  },
+  {
+    "id": 30141,
+    "name": "Mihono Bourbon",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2023-04-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Left-Handed ○",
+      "Firm Conditions ○",
+      "Wet Conditions ○",
+      "Fast-Paced",
+      "Early Lead",
+      "Final Push",
+      "Second Wind",
+      "Highlander",
+      "Groundwork"
+    ],
+    "event_skills": [
+      "Front Runner Savvy ○",
+      "Unshakable Stance",
+      "Focus"
+    ]
+  },
+  {
+    "id": 30142,
+    "name": "Sakura Laurel",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2023-04-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Spring Runner ○",
+      "Corner Recovery ○",
+      "Straightaway Recovery",
+      "My Own Pace",
+      "Great Haste",
+      "Overflowing Passion",
+      "On the Move",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "Overflowing Passion",
+      "On Your Left!",
+      "Subdued Pace Chasers"
+    ]
+  },
+  {
+    "id": 30143,
+    "name": "Ikuno Dictus",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2023-04-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Late Surger Savvy ○",
+      "Calm in a Crowd",
+      "Position Pilfer",
+      "Late Surger Straightaways ○",
+      "Sharp Gaze"
+    ],
+    "event_skills": [
+      "Studious",
+      "Hard Worker",
+      "Trick (Rear)"
+    ]
+  },
+  {
+    "id": 30145,
+    "name": "Tanino Gimlet",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2022-10-17",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Firm Conditions ○",
+      "Tumbling Forward",
+      "Straightaway Spurt",
+      "Updrafters",
+      "One Chance",
+      "Hawkeye"
+    ],
+    "event_skills": [
+      "Sturm und Drang",
+      "End Closer Savvy ○"
+    ]
+  },
+  {
+    "id": 30146,
+    "name": "Oguri Cap",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2022-10-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Cloudy Days ○",
+      "Preferred Position",
+      "Hydrate",
+      "Corner Adept ○",
+      "Up-Tempo",
+      "Pace Chaser Straightaways ○",
+      "Pace Chaser Corners ○",
+      "All That There Is",
+      "Firm Step",
+      "Nimble Navigator",
+      "Straight Descent",
+      "Head-To-Head"
+    ],
+    "event_skills": [
+      "Triple 7s",
+      "Steady Advance",
+      "Nakayama Racecourse ○"
+    ]
+  },
+  {
+    "id": 30147,
+    "name": "Jungle Pocket",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-05-19",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Corner Adept ○",
+      "Medium Straightaways ○",
+      "Medium Corners ○",
+      "Rising Passion",
+      "Slick Surge",
+      "One Chance",
+      "Witful"
+    ],
+    "event_skills": [
+      "All That There Is",
+      "Surging Beat",
+      "Devil-May-Care"
+    ]
+  },
+  {
+    "id": 30148,
+    "name": "Daiwa Scarlet",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2023-05-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Front Runner Savvy ○",
+      "Rosy Outlook",
+      "Up-Tempo",
+      "Steadfast",
+      "Medium Straightaways ○",
+      "Leader's Pride",
+      "With Verve",
+      "Steadfast",
+      "Dodging Danger",
+      "Focus"
+    ],
+    "event_skills": [
+      "Fast-Paced",
+      "Untouchable Shadow",
+      "Stamina to Spare"
+    ]
+  },
+  {
+    "id": 30149,
+    "name": "Aston Machan",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2023-05-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Front Runner Savvy ○",
+      "Sprint Straightaways ○",
+      "Sprint Corners ○",
+      "Early Lead",
+      "Sprinting Gear",
+      "Meticulous Measures",
+      "Focus"
+    ],
+    "event_skills": [
+      "Intimidate",
+      "Dodging Danger",
+      "Concentration",
+      "Nimble Step"
+    ]
+  },
+  {
+    "id": 30150,
+    "name": "Vodka",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2023-05-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Tokyo Racecourse ○",
+      "Straightaway Recovery",
+      "Position Pilfer",
+      "Full Throttle",
+      "Acceleration",
+      "One Chance"
+    ],
+    "event_skills": [
+      "Sharp Gaze",
+      "15,000,000 CC",
+      "Nimble Navigator"
+    ]
+  },
+  {
+    "id": 30151,
+    "name": "Mayano Top Gun",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2023-06-19",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Preferred Position",
+      "Soft Step",
+      "Ramp Up",
+      "Pace Chaser Straightaways ○",
+      "Firm Step",
+      "Nimble Navigator",
+      "Head-To-Head"
+    ],
+    "event_skills": [
+      "No Stopping Me!",
+      "Straightaway Adept"
+    ]
+  },
+  {
+    "id": 30152,
+    "name": "TM Opera O",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2023-06-09",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Nakayama Racecourse ○",
+      "Straightaway Recovery",
+      "Straightaway Adept",
+      "Inside Scoop",
+      "Long Straightaways ○",
+      "Long Corners ○",
+      "Kageuchi",
+      "Lock On",
+      "True Worth"
+    ],
+    "event_skills": [
+      "Deep Breaths",
+      "Corner Adept ○",
+      "Monster",
+      "Beeline Burst",
+      "Non-Standard Distance ○"
+    ]
+  },
+  {
+    "id": 30153,
+    "name": "Gold City",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2023-06-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Mile Corners ○",
+      "Unyielding Spirit",
+      "Tail Held High",
+      "Rushing in Blind",
+      "Mighty Leap",
+      "High Hopes",
+      "Opening Gambit"
+    ],
+    "event_skills": [
+      "Shifting Gears",
+      "Summer Gale",
+      "High Voltage",
+      "A Small Breather"
+    ]
+  },
+  {
+    "id": 30154,
+    "name": "Mejiro Palmer",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-06-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Deep Breaths",
+      "Moxie",
+      "Corner Adept ○",
+      "Long Straightaways ○",
+      "Long Corners ○",
+      "Front Runner Straightaways ○",
+      "Playtime's Over!",
+      "Frantic State",
+      "Up the Vibes",
+      "Groundwork"
+    ],
+    "event_skills": [
+      "Seriously☆Good↑Vibes",
+      "Wet Conditions ○"
+    ]
+  },
+  {
+    "id": 30155,
+    "name": "Daitaku Helios",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2023-06-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Summer Runner ○",
+      "Firm Conditions ○",
+      "Sunny Days ○",
+      "Sprint Corners ○",
+      "Mile Corners ○",
+      "Slipstream",
+      "Nimble Step",
+      "Disorient"
+    ],
+    "event_skills": [
+      "Sympathy",
+      "Staggering Lead",
+      "Long Shot ○"
+    ]
+  },
+  {
+    "id": 30156,
+    "name": "Wonder Acute",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2023-07-21",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Mud Play ○",
+      "Funabashi Racetrack ○",
+      "Nocturnal ○",
+      "Unyielding Spirit",
+      "Top Pick",
+      "At Full Speed",
+      "Dust Bath ○",
+      "Front Row Aim",
+      "Pressing Feeling"
+    ],
+    "event_skills": [
+      "Tail Held High",
+      "Leisurely Dust Bath",
+      "Skillful Step"
+    ]
+  },
+  {
+    "id": 30157,
+    "name": "Manhattan Cafe",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2023-07-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Deep Breaths",
+      "My Own Pace",
+      "Long Straightaways ○",
+      "Mold Breaker",
+      "Lock On",
+      "Great Haste",
+      "Devil-May-Care"
+    ],
+    "event_skills": [
+      "Tail Held High",
+      "Late Surger Corners ○",
+      "Lose Yourself",
+      "Cooldown",
+      "Non-Standard Distance ○"
+    ]
+  },
+  {
+    "id": 30158,
+    "name": "Jungle Pocket",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2023-07-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Late Surger Savvy ○",
+      "Position Pilfer",
+      "Medium Straightaways ○",
+      "Late Surger Corners ○",
+      "1,500,000 CC",
+      "Overflowing Passion",
+      "On the Move",
+      "Slick Surge",
+      "One Chance"
+    ],
+    "event_skills": [
+      "Blitzing Spirit",
+      "Devil-May-Care"
+    ]
+  },
+  {
+    "id": 30159,
+    "name": "Air Groove",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-07-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Chaser Savvy ○",
+      "Stamina to Spare",
+      "Pace Chaser Corners ○",
+      "Attack Stance",
+      "Straight Descent",
+      "Head-To-Head",
+      "Disorient"
+    ],
+    "event_skills": [
+      "Straightaway Acceleration",
+      "Speed Star",
+      "Go with the Flow"
+    ]
+  },
+  {
+    "id": 30160,
+    "name": "Mei Satake",
+    "rarity": "SSR",
+    "type": "Friend",
+    "start_date": "2023-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Never Give Up",
+      "Lone Wolf",
+      "Straightaway Adept"
+    ]
+  },
+  {
+    "id": 30161,
+    "name": "El Condor Pasa",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Corner Recovery ○",
+      "Corner Adept ○",
+      "Medium Corners ○",
+      "Pace Chaser Corners ○",
+      "With Verve",
+      "Downhill Adept",
+      "Attack Stance",
+      "Satisfying Pace"
+    ],
+    "event_skills": [
+      "Up-Tempo",
+      "Steadfast",
+      "Check",
+      "Professor of Curvature",
+      "Sunny Days ○"
+    ]
+  },
+  {
+    "id": 30162,
+    "name": "Admire Vega",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2023-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Standing By",
+      "Masterful Gambit",
+      "End Closer Corners ○",
+      "Early Gambit",
+      "Strategist"
+    ],
+    "event_skills": [
+      "Medium Corners ○",
+      "Serenity",
+      "Subdued Pace Chasers"
+    ]
+  },
+  {
+    "id": 30163,
+    "name": "Nakayama Festa",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2023-08-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Lone Wolf",
+      "Gambling Spirit",
+      "Self-Assured",
+      "Longchamp Racecourse ○",
+      "Ramp Up",
+      "Homestretch Haste"
+    ],
+    "event_skills": [
+      "Fighting Spirit",
+      "Clockwise Demon",
+      "Right-Handed ○",
+      "Nakayama Racecourse ○",
+      "Hanshin Racecourse ○"
+    ]
+  },
+  {
+    "id": 30164,
+    "name": "Hishi Amazon",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2023-09-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Standing By",
+      "Corner Adept ○",
+      "Homestretch Haste",
+      "Masterful Gambit",
+      "End Closer Straightaways ○",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "End Closer Corners ○",
+      "Straightaway Spurt",
+      "Moonlight Slash",
+      "Encroaching Shadow",
+      "Hesitant End Closers"
+    ]
+  },
+  {
+    "id": 30165,
+    "name": "Tanino Gimlet",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2023-09-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Tokyo Racecourse ○",
+      "Straightaway Adept",
+      "Steadfast",
+      "Medium Straightaways ○",
+      "End Closer Straightaways ○",
+      "Tumbling Forward",
+      "Nimble Navigator",
+      "Straightaway Spurt"
+    ],
+    "event_skills": [
+      "Lone Wolf",
+      "Elation",
+      "End Closer Savvy ○"
+    ]
+  },
+  {
+    "id": 30166,
+    "name": "Tap Dance City",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2023-09-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Inner Post Proficiency ○",
+      "Fast-Paced",
+      "Front Runner Corners ○",
+      "Early Lead",
+      "Final Push"
+    ],
+    "event_skills": [
+      "Moxie",
+      "Unrestrained",
+      "Escape Artist",
+      "Leader's Pride"
+    ]
+  },
+  {
+    "id": 30167,
+    "name": "Fine Motion",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-09-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Stamina to Spare",
+      "Productive Plan",
+      "Up-Tempo",
+      "Attack Stance",
+      "Prudent Positioning"
+    ],
+    "event_skills": [
+      "Calm and Collected",
+      "Corner Adept ○"
+    ]
+  },
+  {
+    "id": 30168,
+    "name": "Gold Ship",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-10-19",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "End Closer Savvy ○",
+      "Standing By",
+      "Ramp Up",
+      "Homestretch Haste",
+      "End Closer Straightaways ○",
+      "End Closer Corners ○",
+      "Uma Stan",
+      "Straightaway Spurt"
+    ],
+    "event_skills": [
+      "Questionable Strategy",
+      "End Closer Corners ○",
+      "End Closer Straightaways ○",
+      "Uma Mania",
+      "Hanshin Racecourse ○"
+    ]
+  },
+  {
+    "id": 30169,
+    "name": "Tsurumaru Tsuyoshi",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2023-10-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Homestretch Haste",
+      "Prepared to Pass",
+      "Steadfast",
+      "Medium Straightaways ○",
+      "Attack Stance",
+      "Tooth and Tail"
+    ],
+    "event_skills": [
+      "Pace Strategy",
+      "Full Throttle",
+      "Photon Flash",
+      "Fighter"
+    ]
+  },
+  {
+    "id": 30170,
+    "name": "King Halo",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2023-10-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Outer Swell",
+      "Sprint Straightaways ○",
+      "Fearless Heart",
+      "Pressure",
+      "Single-Minded Advance",
+      "Sprinting Gear",
+      "Meticulous Measures"
+    ],
+    "event_skills": [
+      "Dignified",
+      "Unyielding Tenacity",
+      "Homestretch Haste"
+    ]
+  },
+  {
+    "id": 30171,
+    "name": "Haru Urara",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2023-10-30",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Iron Will",
+      "Long Shot ○"
+    ]
+  },
+  {
+    "id": 30172,
+    "name": "Mejiro McQueen",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2023-11-09",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Hydrate",
+      "Prepared to Pass",
+      "Pace Chaser Straightaways ○",
+      "Tail Held High",
+      "Attack Stance",
+      "Toward Victory",
+      "Head-To-Head",
+      "Honing In"
+    ],
+    "event_skills": [
+      "Hanshin Racecourse ○",
+      "Toward Victory",
+      "Send It Flying!",
+      "Early Lead"
+    ]
+  },
+  {
+    "id": 30173,
+    "name": "Sounds of Earth",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2023-11-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Straightaway Recovery",
+      "Homestretch Haste",
+      "Slipstream",
+      "Playtime's Over!",
+      "Middle Leg Adept",
+      "Opening Leg Adept",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "Straightaway Adept",
+      "Straightaway Recovery",
+      "Beeline Burst",
+      "Breath of Fresh Air",
+      "Lock On"
+    ]
+  },
+  {
+    "id": 30174,
+    "name": "Mejiro Dober",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-11-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Ramp Up",
+      "Outer Swell",
+      "Mile Corners ○",
+      "Sufficient Spirit",
+      "Overflowing Passion",
+      "Updrafters",
+      "Mighty Leap"
+    ],
+    "event_skills": [
+      "Self-Control",
+      "Unstoppable Force",
+      "Unyielding Spirit"
+    ]
+  },
+  {
+    "id": 30175,
+    "name": "Mejiro Ramonu",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2023-11-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Up-Tempo",
+      "Medium Straightaways ○",
+      "Playtime's Over!",
+      "All That There Is",
+      "Firm Step",
+      "Graceful Step",
+      "Refined Conduct",
+      "Highlander",
+      "One Chance",
+      "Satisfying Pace"
+    ],
+    "event_skills": [
+      "Winter Runner ○",
+      "Chilling Wind",
+      "Medium Corners ○"
+    ]
+  },
+  {
+    "id": 30176,
+    "name": "Mejiro Ryan",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2023-11-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Winter Runner ○",
+      "Non-Standard Distance ○",
+      "Pressure",
+      "Late Surger Straightaways ○",
+      "Fighting Spirit",
+      "Fighter"
+    ],
+    "event_skills": [
+      "Hard Worker",
+      "Pace Strategy"
+    ]
+  },
+  {
+    "id": 30177,
+    "name": "Vivlos",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2023-12-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Self-Assured",
+      "Quiet Breathing",
+      "Position Pilfer",
+      "Medium Straightaways ○",
+      "1,500,000 CC",
+      "Tumbling Forward",
+      "Slick Surge"
+    ],
+    "event_skills": [
+      "On the Move",
+      "Fast & Furious",
+      "Concealed Readiness",
+      "Late Surger Straightaways ○"
+    ]
+  },
+  {
+    "id": 30178,
+    "name": "Duramente",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2023-12-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Straightaway Recovery",
+      "Medium Straightaways ○",
+      "End Closer Straightaways ○",
+      "Slipstream",
+      "Rapid",
+      "Rising Passion",
+      "Unbreakable Mind"
+    ],
+    "event_skills": [
+      "Never Give Up",
+      "Ignition"
+    ]
+  },
+  {
+    "id": 30179,
+    "name": "Satono Diamond",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2023-12-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Fighting Spirit",
+      "Late Surger Corners ○",
+      "Full Throttle",
+      "Overflowing Passion",
+      "On the Move",
+      "Corner Acceleration ○",
+      "Slick Surge",
+      "Prudent Positioning"
+    ],
+    "event_skills": [
+      "Rising Passion",
+      "Pushing Forward",
+      "Burning Spirit",
+      "Hesitant Front Runners"
+    ]
+  },
+  {
+    "id": 30180,
+    "name": "Carvers of History",
+    "rarity": "SSR",
+    "type": "Group",
+    "start_date": "2023-12-28",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Extra Tank",
+      "Pace Chaser Straightaways ○",
+      "Long Straightaways ○",
+      "Thunderbolt Step",
+      "Homestretch Haste",
+      "Tokyo Racecourse ○",
+      "In Body and Mind"
+    ]
+  },
+  {
+    "id": 30181,
+    "name": "Twin Turbo",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2023-12-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Self-Assured",
+      "Competitive Spirit ○",
+      "Moxie",
+      "Ramp Up",
+      "Steadfast",
+      "Keeping the Lead",
+      "Questionable Strategy",
+      "Frantic State",
+      "Early Lead",
+      "Final Push"
+    ],
+    "event_skills": [
+      "Leader's Pride",
+      "Top Runner",
+      "Early Lead"
+    ]
+  },
+  {
+    "id": 30182,
+    "name": "Hokko Tarumae",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2024-01-19",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Dust Off",
+      "Promising Omen",
+      "At Full Speed",
+      "Backup Planning",
+      "Full of Zeal",
+      "Front Row Aim"
+    ],
+    "event_skills": [
+      "Head-To-Head",
+      "Call & Response",
+      "Top Pick"
+    ]
+  },
+  {
+    "id": 30183,
+    "name": "Winning Ticket",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-01-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Left-Handed ○",
+      "Position Pilfer",
+      "Overflowing Passion",
+      "On the Move",
+      "Nimble Navigator",
+      "Slick Surge"
+    ],
+    "event_skills": [
+      "Razor-Sharp Stride",
+      "Top Gear",
+      "Late Surger Corners ○"
+    ]
+  },
+  {
+    "id": 30184,
+    "name": "Sakura Bakushin O",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-01-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Sprint Corners ○",
+      "Nimble Step",
+      "Single-Minded Advance",
+      "Opening Leg Adept",
+      "Countermeasure",
+      "Groundwork",
+      "Swift Takeoff"
+    ],
+    "event_skills": [
+      "Sprinting Gear",
+      "Rocket Start",
+      "Lightning Slash",
+      "Gap Closer"
+    ]
+  },
+  {
+    "id": 30185,
+    "name": "North Flight",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2024-01-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Standard Distance ○",
+      "Prepared to Pass",
+      "Productive Plan",
+      "Mile Corners ○",
+      "Updrafters",
+      "Acceleration",
+      "Go with the Flow",
+      "Focus"
+    ],
+    "event_skills": [
+      "Changing Gears",
+      "High Hopes"
+    ]
+  },
+  {
+    "id": 30186,
+    "name": "Gentildonna",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Firm Conditions ○",
+      "Stamina to Spare",
+      "Straightaway Adept",
+      "Homestretch Haste",
+      "Uma Stan",
+      "Graceful Step",
+      "Fighter"
+    ],
+    "event_skills": [
+      "Mile Straightaways ○",
+      "Medium Straightaways ○",
+      "It's On!",
+      "Downhill Adept"
+    ]
+  },
+  {
+    "id": 30187,
+    "name": "Orfevre",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Corner Adept ○",
+      "Tail Held High",
+      "Playtime's Over!",
+      "Rapid",
+      "Rising Passion",
+      "Nimble Navigator",
+      "Mighty Step"
+    ],
+    "event_skills": [
+      "Rapid",
+      "Divine Speed",
+      "Mold Breaker"
+    ]
+  },
+  {
+    "id": 30188,
+    "name": "Ryoka Tsurugi",
+    "rarity": "SSR",
+    "type": "Friend",
+    "start_date": "2024-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Battle for Initiative",
+      "Competitive Spirit ○",
+      "Homestretch Haste"
+    ]
+  },
+  {
+    "id": 30189,
+    "name": "Kitasan Black",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-01-19",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Kyoto Racecourse ○",
+      "Front Runner Savvy ○",
+      "Extra Tank",
+      "Moxie",
+      "Up-Tempo",
+      "Focus"
+    ],
+    "event_skills": [
+      "Trackblazer"
+    ]
+  },
+  {
+    "id": 30190,
+    "name": "Duramente",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2024-02-14",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Strategy",
+      "Homestretch Haste",
+      "Medium Straightaways ○",
+      "Tumbling Forward"
+    ],
+    "event_skills": [
+      "Rushing Gale!",
+      "Ignition"
+    ]
+  },
+  {
+    "id": 30191,
+    "name": "Sounds of Earth",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-03-12",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Sympathy",
+      "Ramp Up",
+      "Homestretch Haste",
+      "Up-Tempo",
+      "Middle Leg Adept",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "Unruffled",
+      "Lock On"
+    ]
+  },
+  {
+    "id": 30192,
+    "name": "Vivlos",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-04-09",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Self-Assured",
+      "Watchful Eye",
+      "Outer Swell",
+      "Unyielding Spirit",
+      "Fighter",
+      "Murmur"
+    ],
+    "event_skills": [
+      "Relax",
+      "Late Surger Straightaways ○"
+    ]
+  },
+  {
+    "id": 30193,
+    "name": "Cheval Grand",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2024-03-21",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Stamina to Spare",
+      "Prepared to Pass",
+      "Inside Scoop",
+      "Long Straightaways ○",
+      "Long Corners ○",
+      "Pace Chaser Straightaways ○",
+      "Attack Stance",
+      "True Worth"
+    ],
+    "event_skills": [
+      "Shinuchi",
+      "Kageuchi",
+      "Toward Victory"
+    ]
+  },
+  {
+    "id": 30194,
+    "name": "Rhein Kraft",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-03-21",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Hanshin Racecourse ○",
+      "Prepared to Pass",
+      "Productive Plan",
+      "Mile Straightaways ○",
+      "Unyielding Spirit",
+      "Acceleration",
+      "Speed Eater"
+    ],
+    "event_skills": [
+      "Unstoppable",
+      "Mile Corners ○"
+    ]
+  },
+  {
+    "id": 30195,
+    "name": "K.S.Miracle",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-03-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Summer Runner ○",
+      "Sprint Straightaways ○",
+      "Downhill Adept",
+      "Opening Leg Adept",
+      "Sprinting Gear",
+      "Countermeasure",
+      "Swift Takeoff"
+    ],
+    "event_skills": [
+      "Straightaway Adept",
+      "Turbo Sprint",
+      "Nimble Step"
+    ]
+  },
+  {
+    "id": 30196,
+    "name": "Yamanin Zephyr",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-03-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Prepared to Pass",
+      "Productive Plan",
+      "Pace Chaser Straightaways ○",
+      "Slipstream",
+      "Rushing in Blind",
+      "Graceful Step",
+      "Head-To-Head"
+    ],
+    "event_skills": [
+      "Rushing in Blind",
+      "Reckless",
+      "Ambitions"
+    ]
+  },
+  {
+    "id": 30197,
+    "name": "Bamboo Memory",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-03-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Tokyo Racecourse ○",
+      "Masterful Gambit",
+      "Gap Closer",
+      "Unyielding Spirit",
+      "Breakthrough Plan",
+      "Updrafters",
+      "Meticulous Measures"
+    ],
+    "event_skills": [
+      "Moonlight Flash",
+      "Standard Distance ○"
+    ]
+  },
+  {
+    "id": 30198,
+    "name": "Neo Universe",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2024-04-09",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Standard Distance ○",
+      "Self-Control",
+      "Medium Corners ○",
+      "Uma Stan",
+      "All That There Is",
+      "Tumbling Forward",
+      "Mold Breaker",
+      "Ignition"
+    ],
+    "event_skills": [
+      "One Chance",
+      "Rise From the Ashes",
+      "On the Move"
+    ]
+  },
+  {
+    "id": 30199,
+    "name": "Hishi Miracle",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2024-04-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Deep Breaths",
+      "A Small Breather",
+      "Lock On",
+      "Great Haste",
+      "On the Move",
+      "Slick Surge",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "Lock On",
+      "One-shot",
+      "My Own Pace"
+    ]
+  },
+  {
+    "id": 30200,
+    "name": "No Reason",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-04-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Long Shot ○",
+      "Self-Assured",
+      "A Small Breather",
+      "Fighting Spirit",
+      "Tooth and Tail",
+      "Straightaway Acceleration",
+      "Fighter"
+    ],
+    "event_skills": [
+      "Daredevil",
+      "All That There Is"
+    ]
+  },
+  {
+    "id": 30201,
+    "name": "Narita Taishin",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2024-04-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "End Closer Straightaways ○",
+      "Breakthrough Plan",
+      "Boiling Blood",
+      "Sufficient Thrust",
+      "No Reluctance",
+      "Shadowstepper",
+      "Straightaway Spurt",
+      "Seize the Chance"
+    ],
+    "event_skills": [
+      "Sufficient Thrust",
+      "Straightaway Spurt",
+      "Soaring Stride",
+      "Encroaching Shadow",
+      "Pressure"
+    ]
+  },
+  {
+    "id": 30202,
+    "name": "Vodka",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-05-10",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Left-Handed ○",
+      "Self-Assured",
+      "Corner Adept ○",
+      "Outer Swell",
+      "Unyielding Spirit",
+      "Full Throttle",
+      "Mighty Leap"
+    ],
+    "event_skills": [
+      "Mighty Leap",
+      "Lightning Speed",
+      "Nimble Navigator"
+    ]
+  },
+  {
+    "id": 30203,
+    "name": "Jungle Pocket",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-05-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Self-Assured",
+      "Tokyo Racecourse ○",
+      "Calm in a Crowd",
+      "Homestretch Haste",
+      "Medium Straightaways ○",
+      "Tumbling Forward",
+      "Mold Breaker"
+    ],
+    "event_skills": [
+      "Elation",
+      "Devil-May-Care"
+    ]
+  },
+  {
+    "id": 30204,
+    "name": "Seiun Sky",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-05-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Medium Corners ○",
+      "Front Runner Straightaways ○",
+      "Leader's Pride",
+      "With Verve",
+      "Steadfast",
+      "Dodging Danger"
+    ],
+    "event_skills": [
+      "Early Bird",
+      "Further Than Anyone",
+      "Keeping the Lead"
+    ]
+  },
+  {
+    "id": 30205,
+    "name": "Verxina",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-05-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Ramp Up",
+      "Shifting Gears",
+      "Graceful Step",
+      "Corner Acceleration ○",
+      "Second Wind",
+      "Go with the Flow",
+      "Focus"
+    ],
+    "event_skills": [
+      "Cyclone Flash",
+      "Productive Plan"
+    ]
+  },
+  {
+    "id": 30206,
+    "name": "Vivlos",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-05-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Straightaway Adept",
+      "Mile Straightaways ○",
+      "Uma Stan",
+      "On the Move",
+      "Opening Leg Adept",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "Tail Held High",
+      "Tail of Victory",
+      "Late Surger Straightaways ○"
+    ]
+  },
+  {
+    "id": 30207,
+    "name": "Yayoi Akikawa",
+    "rarity": "SSR",
+    "type": "Friend",
+    "start_date": "2024-06-26",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Uma Mania",
+      "Straightaway Adept",
+      "Middle Leg Adept"
+    ]
+  },
+  {
+    "id": 30208,
+    "name": "Nishino Flower",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-06-26",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Straightaway Adept",
+      "Slipstream",
+      "Opening Leg Adept",
+      "An Honest Step",
+      "Pounding Chest",
+      "Groundwork"
+    ],
+    "event_skills": [
+      "An Honest Step",
+      "Pounding Chest",
+      "Fluttering Heart",
+      "Frontal Attack"
+    ]
+  },
+  {
+    "id": 30209,
+    "name": "Dantsu Flame",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2024-07-09",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Stamina to Spare",
+      "Preferred Position",
+      "Medium Straightaways ○",
+      "Medium Corners ○",
+      "Pace Chaser Straightaways ○",
+      "Playtime's Over!",
+      "All That There Is",
+      "Unshakeable Faith",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "Unshakeable Faith",
+      "Unwavering Ambition",
+      "Tooth and Tail"
+    ]
+  },
+  {
+    "id": 30210,
+    "name": "Smart Falcon",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-07-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Front Runner Savvy ○",
+      "Fast-Paced",
+      "Front Runner Straightaways ○",
+      "Front Runner Corners ○",
+      "Leader's Pride",
+      "Steadfast",
+      "Early Lead",
+      "Groundwork",
+      "Prudent Positioning"
+    ],
+    "event_skills": [
+      "Taking the Lead",
+      "Early Lead",
+      "Final Push"
+    ]
+  },
+  {
+    "id": 30211,
+    "name": "Copano Rickey",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2024-07-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Left-Handed ○",
+      "Exchange Races ○",
+      "Skillful Step",
+      "Self-Assured",
+      "Promising Omen",
+      "Dust Bath ○",
+      "Dirt Straights ○",
+      "Dirt Corners ○",
+      "Groundwork"
+    ],
+    "event_skills": [
+      "Pioneer",
+      "Dust Off",
+      "Pioneer of the Sands",
+      "Sand Virtuoso",
+      "Promising Omen"
+    ]
+  },
+  {
+    "id": 30212,
+    "name": "Wonder Acute",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2024-07-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Exchange Races ○",
+      "Pace Strategy",
+      "Dust Off",
+      "Attack Stance",
+      "Front Row Aim"
+    ],
+    "event_skills": [
+      "Full Speed Ahead!",
+      "Skillful Step"
+    ]
+  },
+  {
+    "id": 30213,
+    "name": "Tokai Teio",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Nakayama Racecourse ○",
+      "Corner Adept ○",
+      "Up-Tempo",
+      "Tail Held High",
+      "Go with the Flow"
+    ],
+    "event_skills": [
+      "Miraculous Step",
+      "Pace Chaser Straightaways ○"
+    ]
+  },
+  {
+    "id": 30214,
+    "name": "Fine Motion",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-08-14",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Summer Runner ○",
+      "Inquisitive Mind",
+      "Straightaway Recovery",
+      "Medium Corners ○",
+      "Graceful Step",
+      "Leap Premonition",
+      "Unshakeable Faith",
+      "Frontal Breakthrough"
+    ],
+    "event_skills": [
+      "Sapporo Racecourse ○",
+      "Frontal Breakthrough",
+      "Just Rule",
+      "Corner Adept ○"
+    ]
+  },
+  {
+    "id": 30215,
+    "name": "Still in Love",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Corner Adept ○",
+      "Straightaway Adept",
+      "Medium Corners ○",
+      "Tail Held High",
+      "Playtime's Over!",
+      "Refined Conduct",
+      "Boiling Emotions",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "Bare Passion",
+      "Self-Restraint",
+      "Pure Instincts",
+      "Sharp-Witted Composure",
+      "Graceful Step"
+    ]
+  },
+  {
+    "id": 30216,
+    "name": "Buena Vista",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Self-Assured",
+      "Ramp Up",
+      "Unyielding Spirit",
+      "Sufficient Spirit",
+      "Corner Acceleration ○",
+      "Straightaway Acceleration",
+      "Updrafters"
+    ],
+    "event_skills": [
+      "Corner Connoisseur",
+      "Overflowing Passion"
+    ]
+  },
+  {
+    "id": 30217,
+    "name": "Cesario",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2024-09-20",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Standard Distance ○",
+      "Ramp Up",
+      "Homestretch Haste",
+      "All That There Is",
+      "Fighting Spirit",
+      "Tooth and Tail"
+    ],
+    "event_skills": [
+      "Photon Slash",
+      "Satisfying Pace"
+    ]
+  },
+  {
+    "id": 30218,
+    "name": "Taiki Shuttle",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2024-08-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Productive Plan",
+      "Mile Corners ○",
+      "Unyielding Spirit",
+      "Rushing in Blind",
+      "Wind Vane",
+      "Fearless Advance",
+      "Groundwork",
+      "High Hopes"
+    ],
+    "event_skills": [
+      "Fearless Advance",
+      "Peerless Boldness",
+      "Straight Course ○",
+      "Prepared to Pass"
+    ]
+  },
+  {
+    "id": 30219,
+    "name": "Fuji Kiseki",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-08-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Chaser Corners ○",
+      "Playtime's Over!",
+      "Attack Stance",
+      "Tooth and Tail",
+      "Leap Premonition",
+      "Pounding Chest",
+      "Head-To-Head"
+    ],
+    "event_skills": [
+      "Leap Premonition",
+      "Gamma Ray Burst",
+      "Prepared to Pass"
+    ]
+  },
+  {
+    "id": 30220,
+    "name": "Symboli Kris S",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2024-08-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Strategy",
+      "Deep Breaths",
+      "Extra Tank",
+      "Ramp Up",
+      "Long Corners ○",
+      "Middle Leg Adept",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "Innate Experience",
+      "Cloudy Days ○"
+    ]
+  },
+  {
+    "id": 30221,
+    "name": "Satono Diamond",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2024-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Deep Breaths",
+      "Extra Tank",
+      "Passing Pro",
+      "Faultless",
+      "Homestretch Haste",
+      "Inside Scoop",
+      "Tooth and Tail"
+    ],
+    "event_skills": [
+      "Hesitant Front Runners"
+    ]
+  },
+  {
+    "id": 30222,
+    "name": "Espoir City",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-09-10",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Exchange Races ○",
+      "Skillful Step",
+      "Unyielding Spirit",
+      "Playtime's Over!",
+      "Promising Omen",
+      "Dust Bath ○",
+      "Pioneer",
+      "Dirt Corners ○",
+      "Contradicting Emotions"
+    ],
+    "event_skills": [
+      "Outstanding Step",
+      "Embracing Virtue and Vice",
+      "Dust Off"
+    ]
+  },
+  {
+    "id": 30223,
+    "name": "Hishi Amazon",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-09-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Masterful Gambit",
+      "End Closer Corners ○",
+      "Uma Stan",
+      "Slipstream",
+      "Boiling Blood",
+      "Cleave",
+      "Straightaway Spurt",
+      "Mighty Step"
+    ],
+    "event_skills": [
+      "Early Gambit",
+      "Daring Attack",
+      "Hesitant End Closers"
+    ]
+  },
+  {
+    "id": 30224,
+    "name": "Narita Brian",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-09-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Chaser Straightaways ○",
+      "Pace Chaser Corners ○",
+      "Tooth and Tail",
+      "Aggressive",
+      "Restless Step",
+      "Head-To-Head",
+      "True Worth"
+    ],
+    "event_skills": [
+      "Monster",
+      "Breaking Free",
+      "Lone Wolf"
+    ]
+  },
+  {
+    "id": 30225,
+    "name": "Matikanefukukitaru",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-09-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Lucky Seven",
+      "A Small Breather",
+      "Triple 7s",
+      "1,500,000 CC",
+      "Pressure",
+      "From the First Step"
+    ],
+    "event_skills": [
+      "Incisive Slash"
+    ]
+  },
+  {
+    "id": 30226,
+    "name": "Air Shakur",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2024-10-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Non-Standard Distance ○",
+      "Fuse",
+      "Corner Adept ○",
+      "Homestretch Haste",
+      "Long Corners ○",
+      "Mold Breaker",
+      "Surprise Attack"
+    ],
+    "event_skills": [
+      "Fuse",
+      "Surprise Attack",
+      "Chain Reaction",
+      "Like a Blaze",
+      "Pace Strategy"
+    ]
+  },
+  {
+    "id": 30227,
+    "name": "Daiwa Scarlet",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2024-10-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Straightaway Adept",
+      "Front Runner Corners ○",
+      "Leader's Pride",
+      "Playtime's Over!",
+      "Opening Leg Adept",
+      "Finale",
+      "Spearhead",
+      "No Hesitation",
+      "Firm Resolve",
+      "Dodging Danger"
+    ],
+    "event_skills": [
+      "Front Runner Straightaways ○",
+      "Kageuchi",
+      "Fast-Paced",
+      "One Sky, One Goal",
+      "Top Runner",
+      "Stamina to Spare"
+    ]
+  },
+  {
+    "id": 30228,
+    "name": "Symboli Kris S",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-11-08",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Position Pilfer",
+      "Late Surger Corners ○",
+      "Slipstream",
+      "Razor-Sharp Stride",
+      "Pressure",
+      "Great Haste",
+      "Overflowing Passion",
+      "On the Move"
+    ],
+    "event_skills": [
+      "Devil-May-Care",
+      "From the First Step",
+      "Lose Yourself",
+      "Thousand-Mile Journey",
+      "Cloudy Days ○"
+    ]
+  },
+  {
+    "id": 30229,
+    "name": "Agnes Digital",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2024-11-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Mile Straightaways ○",
+      "Mile Corners ○",
+      "Unyielding Spirit",
+      "Slipstream",
+      "Sufficient Spirit",
+      "Boiling Emotions",
+      "Wind Vane",
+      "Mighty Leap"
+    ],
+    "event_skills": [
+      "High Pitch",
+      "Brave and Bold",
+      "Rainy Days ○",
+      "Wet Conditions ○"
+    ]
+  },
+  {
+    "id": 30230,
+    "name": "Meisho Doto",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-11-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Late Surger Straightaways ○",
+      "1,500,000 CC",
+      "Uma Stan",
+      "Full Throttle",
+      "Tooth and Tail",
+      "Forward Step by Step",
+      "Slick Surge"
+    ],
+    "event_skills": [
+      "Quiet Breathing",
+      "On the Move",
+      "Blitzing Spirit",
+      "Pace Chaser Corners ○"
+    ]
+  },
+  {
+    "id": 30231,
+    "name": "TM Opera O",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-11-28",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Corner Recovery ○",
+      "Preferred Position",
+      "Ramp Up",
+      "Pace Chaser Straightaways ○",
+      "Toward Victory",
+      "Shrewd Step"
+    ],
+    "event_skills": [
+      "Speed Star",
+      "Non-Standard Distance ○"
+    ]
+  },
+  {
+    "id": 30232,
+    "name": "Blast Onepiece",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2024-12-10",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Stamina to Spare",
+      "Corner Adept ○",
+      "Pace Chaser Straightaways ○",
+      "Uma Stan",
+      "Attack Stance",
+      "Decisive Blow",
+      "Steady Effort",
+      "Believe in Yourself",
+      "Honing In"
+    ],
+    "event_skills": [
+      "Believe in Yourself",
+      "Steady Effort",
+      "Fruits of Labor",
+      "Forthright",
+      "Long Straightaways ○"
+    ]
+  },
+  {
+    "id": 30233,
+    "name": "Symboli Rudolf",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2024-12-27",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Medium Straightaways ○",
+      "Uma Stan",
+      "Tail Held High",
+      "Slipstream",
+      "Downhill Adept",
+      "Rapid",
+      "Opening Leg Adept",
+      "Dynamic Motion",
+      "Satisfying Pace"
+    ],
+    "event_skills": [
+      "Satisfying Pace",
+      "Slipstream",
+      "Check",
+      "In the Right Place!",
+      "Rainy Days ○"
+    ]
+  },
+  {
+    "id": 30234,
+    "name": "Mejiro Ardan",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2024-12-27",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Left-Handed ○",
+      "Pace Chaser Corners ○",
+      "Attack Stance",
+      "Graceful Step",
+      "Refined Conduct",
+      "Leap Premonition",
+      "An Honest Step",
+      "Decisive Blow",
+      "Restless Step",
+      "Surpassing Ambitions"
+    ],
+    "event_skills": [
+      "Pure Perfection",
+      "Curtain Closer",
+      "Hesitant Pace Chasers"
+    ]
+  },
+  {
+    "id": 30235,
+    "name": "Maruzensky",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2024-12-27",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Front Runner Savvy ○",
+      "Moxie",
+      "Front Runner Corners ○",
+      "Playtime's Over!",
+      "An Honest Step",
+      "Straightaway Acceleration",
+      "Final Push",
+      "Focus"
+    ],
+    "event_skills": [
+      "Untouchable Shadow",
+      "Early Lead"
+    ]
+  },
+  {
+    "id": 30236,
+    "name": "Seeking the Pearl",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2025-01-10",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Sprint Straightaways ○",
+      "Sprint Corners ○",
+      "Explosive Force",
+      "Pounding Chest",
+      "Sprinting Gear",
+      "Mighty Leap",
+      "Turning Point"
+    ],
+    "event_skills": [
+      "Single-Minded Advance",
+      "Unyielding Tenacity",
+      "Straight Course ○",
+      "Uma Stan"
+    ]
+  },
+  {
+    "id": 30237,
+    "name": "Curren Chan",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2025-01-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Sprint Straightaways ○",
+      "Sprint Corners ○",
+      "Nimble Step",
+      "Explosive Force",
+      "Sprinting Gear",
+      "Groundwork",
+      "Swift Takeoff",
+      "Flying Sparks",
+      "Focus"
+    ],
+    "event_skills": [
+      "Opening Leg Adept",
+      "Fierce Clash",
+      "Concentration",
+      "Intimidate"
+    ]
+  },
+  {
+    "id": 30238,
+    "name": "Ikuno Dictus",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2025-01-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Self-Assured",
+      "Mile Straightaways ○",
+      "Mile Corners ○",
+      "Unyielding Spirit",
+      "Rushing in Blind",
+      "Boiling Emotions",
+      "Wind Vane",
+      "Pounding Chest",
+      "Groundwork"
+    ],
+    "event_skills": [
+      "Unyielding Spirit",
+      "Big-Sisterly",
+      "Trick (Rear)"
+    ]
+  },
+  {
+    "id": 30239,
+    "name": "Nice Nature",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2025-01-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Lay Low",
+      "Pace Strategy",
+      "Quiet Breathing",
+      "Position Pilfer",
+      "Tumbling Forward",
+      "Fearless Heart",
+      "Tether",
+      "Trick (Rear)"
+    ],
+    "event_skills": [
+      "Relax",
+      "Ramp Up"
+    ]
+  },
+  {
+    "id": 30240,
+    "name": "Jungle Pocket",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2025-02-14",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Tokyo Racecourse ○",
+      "Late Surger Savvy ○",
+      "A Small Breather",
+      "Homestretch Haste",
+      "Outer Swell",
+      "Late Surger Straightaways ○",
+      "Fighter",
+      "Go with the Flow"
+    ],
+    "event_skills": [
+      "Devil-May-Care"
+    ]
+  },
+  {
+    "id": 30241,
+    "name": "Embodiment of Legends",
+    "rarity": "SSR",
+    "type": "Group",
+    "start_date": "2025-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Slipstream",
+      "Corner Adept ○",
+      "Opening Leg Adept",
+      "Middle Leg Adept",
+      "Peerless",
+      "Tail Held High",
+      "Fighting Spirit",
+      "Groundwork",
+      "Unpredecented Prodigy"
+    ]
+  },
+  {
+    "id": 30242,
+    "name": "Almond Eye",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2025-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Inquisitive Mind",
+      "Corner Adept ○",
+      "Straightaway Adept",
+      "Uma Stan",
+      "Tail Held High",
+      "Leap Premonition",
+      "To Greater Heights",
+      "Dynamic Motion",
+      "Nimble Navigator",
+      "Surpassing Ambitions"
+    ],
+    "event_skills": [
+      "Singularity",
+      "Brilliant Mind",
+      "Beeline Burst",
+      "Professor of Curvature",
+      "Refined Conduct"
+    ]
+  },
+  {
+    "id": 30243,
+    "name": "Gran Alegria",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2025-02-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Self-Assured",
+      "Standard Distance ○",
+      "Sufficient Spirit",
+      "Rapid",
+      "Pounding Chest",
+      "Forward Step by Step",
+      "Updrafters"
+    ],
+    "event_skills": [
+      "Cyclone Flash",
+      "Mile Straightaways ○"
+    ]
+  },
+  {
+    "id": 30244,
+    "name": "Mejiro Bright",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2025-03-11",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Spring Runner ○",
+      "Quiet Breathing",
+      "Fuse",
+      "Long Straightaways ○",
+      "Late Surger Straightaways ○",
+      "Lock On",
+      "Great Haste",
+      "Preliminary Preparation",
+      "Fierce Struggle",
+      "Devil-May-Care",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "In One Fell Swoop",
+      "Deep Breaths"
+    ]
+  },
+  {
+    "id": 30245,
+    "name": "Vodka",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2025-03-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Left-Handed ○",
+      "Self-Assured",
+      "Medium Corners ○",
+      "Late Surger Straightaways ○",
+      "Late Surger Corners ○",
+      "Razor-Sharp Stride",
+      "Overflowing Passion",
+      "Towards the Light",
+      "Foothold",
+      "Satisfying Pace"
+    ],
+    "event_skills": [
+      "Incisive Flash",
+      "Breach",
+      "Nimble Navigator"
+    ]
+  },
+  {
+    "id": 30246,
+    "name": "Dream Journey",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2025-03-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Masterful Gambit",
+      "End Closer Corners ○",
+      "Early Gambit",
+      "Boiling Blood",
+      "Sufficient Thrust",
+      "No Reluctance",
+      "Shadowstepper",
+      "Capture",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "Breakthrough Plan",
+      "Complete Combustion",
+      "Relentless Approach",
+      "Sufficient Thrust"
+    ]
+  },
+  {
+    "id": 30247,
+    "name": "Symboli Kris S",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2025-03-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Strategy",
+      "Deep Breaths",
+      "My Own Pace",
+      "Homestretch Haste",
+      "Pressure",
+      "Lock On",
+      "Fervor",
+      "Stamina Eater"
+    ],
+    "event_skills": [
+      "Wind Slash",
+      "Cloudy Days ○"
+    ]
+  },
+  {
+    "id": 30248,
+    "name": "Daring Tact",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2025-04-10",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Spring Runner ○",
+      "Position Pilfer",
+      "Late Surger Straightaways ○",
+      "1,500,000 CC",
+      "Downhill Adept",
+      "Razor-Sharp Stride",
+      "Overflowing Passion",
+      "On the Move",
+      "Pushing Through!",
+      "Descent"
+    ],
+    "event_skills": [
+      "Graceful Step",
+      "Independence",
+      "Fast & Furious",
+      "Forward Step by Step"
+    ]
+  },
+  {
+    "id": 30249,
+    "name": "Transcend",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2025-04-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Skillful Step",
+      "Playtime's Over!",
+      "Top Pick",
+      "Pioneer",
+      "Dirt Straights ○",
+      "Dirt Corners ○",
+      "Contradicting Emotions",
+      "Sand Stride",
+      "Groundwork",
+      "Front Row Aim"
+    ],
+    "event_skills": [
+      "Pioneer",
+      "Sandstorm Flash",
+      "Magnificent Sand Stride",
+      "Front Row Aim"
+    ]
+  },
+  {
+    "id": 30250,
+    "name": "Buena Vista",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2025-04-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Medium Straightaways ○",
+      "End Closer Corners ○",
+      "Tumbling Forward",
+      "Graceful Step",
+      "Switch Over Pro",
+      "Creeping Footsteps",
+      "Dynamic Motion",
+      "Gateway to Success",
+      "Mighty Step",
+      "Glimpse of Light"
+    ],
+    "event_skills": [
+      "Reign",
+      "Elation",
+      "Overflowing Passion"
+    ]
+  },
+  {
+    "id": 30251,
+    "name": "Espoir City",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2025-04-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Mud Play ○",
+      "Self-Assured",
+      "Ramp Up",
+      "Mile Straightaways ○",
+      "At Full Speed",
+      "Dust Bath ○",
+      "Wind Vane",
+      "Go with the Flow"
+    ],
+    "event_skills": [
+      "Trending in the Charts!",
+      "Dust Off"
+    ]
+  },
+  {
+    "id": 30252,
+    "name": "Silence Suzuka",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2025-05-12",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Fast-Paced",
+      "Front Runner Straightaways ○",
+      "An Honest Step",
+      "Unprecedented",
+      "Outstanding Step",
+      "Groundwork",
+      "Early Bird",
+      "Pulling Away",
+      "Riding the Tailwind",
+      "Prudent Positioning"
+    ],
+    "event_skills": [
+      "The Fight's Not Over Yet!",
+      "Escape Artist",
+      "Left-Handed ○"
+    ]
+  },
+  {
+    "id": 30253,
+    "name": "Rhein Kraft",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2025-05-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Productive Plan",
+      "Mile Straightaways ○",
+      "Shifting Gears",
+      "Wind Vane",
+      "An Honest Step",
+      "Overflowing Fighting Spirit",
+      "Groundwork",
+      "Mighty Leap",
+      "High Hopes",
+      "Speed Eater"
+    ],
+    "event_skills": [
+      "Changing Gears",
+      "High Voltage",
+      "Mile Corners ○"
+    ]
+  },
+  {
+    "id": 30254,
+    "name": "Daring Heart",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2025-05-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Self-Assured",
+      "Mile Corners ○",
+      "Unyielding Spirit",
+      "Pace Chaser Straightaways ○",
+      "Rushing in Blind",
+      "Pounding Chest",
+      "Fearless Advance",
+      "Believe in Yourself",
+      "Head-To-Head"
+    ],
+    "event_skills": [
+      "Rushing in Blind",
+      "Reckless",
+      "Aggressive"
+    ]
+  },
+  {
+    "id": 30255,
+    "name": "Air Messiah",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2025-05-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Standard Distance ○",
+      "Fuse",
+      "Position Pilfer",
+      "Fighter",
+      "Highlander",
+      "Descent",
+      "Go with the Flow"
+    ],
+    "event_skills": [
+      "15,000,000 CC"
+    ]
+  },
+  {
+    "id": 30256,
+    "name": "Tamamo Cross",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2025-06-27",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Homestretch Haste",
+      "Tail Held High",
+      "Mold Breaker",
+      "Rapid",
+      "Forward Step by Step",
+      "Peerless",
+      "Trekker",
+      "Nimble Navigator"
+    ],
+    "event_skills": [
+      "Slipstream",
+      "Opening Leg Adept",
+      "Divine Speed",
+      "Proven Mettle",
+      "Long Haul",
+      "Calm in a Crowd"
+    ]
+  },
+  {
+    "id": 30257,
+    "name": "Tucker Bryne",
+    "rarity": "SSR",
+    "type": "Friend",
+    "start_date": "2025-06-27",
+    "end_date": "(no EN release)",
+    "support_hints": [],
+    "event_skills": [
+      "Find a Way!",
+      "Pathfinder",
+      "Straightaway Recovery",
+      "Fuse"
+    ]
+  },
+  {
+    "id": 30258,
+    "name": "Mejiro Ryan",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2025-07-11",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Late Surger Corners ○",
+      "All That There Is",
+      "Tumbling Forward",
+      "Fearless Heart",
+      "Preliminary Preparation",
+      "Foothold",
+      "Ceaseless Training",
+      "Slick Surge",
+      "One Chance",
+      "Descent"
+    ],
+    "event_skills": [
+      "Latent Fighting Spirit",
+      "Pace Strategy"
+    ]
+  },
+  {
+    "id": 30259,
+    "name": "Fusaichi Pandora",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2025-07-22",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Preferred Position",
+      "Homestretch Haste",
+      "Pace Chaser Corners ○",
+      "Firm Step",
+      "Leap Premonition",
+      "Straight Descent",
+      "Go with the Flow"
+    ],
+    "event_skills": [
+      "Bravery Slash"
+    ]
+  },
+  {
+    "id": 30260,
+    "name": "Mejiro McQueen",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2025-04-30",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Pace Chaser Savvy ○",
+      "Extra Tank",
+      "Hydrate",
+      "Long Corners ○",
+      "Attack Stance",
+      "Toward Victory",
+      "Go with the Flow"
+    ],
+    "event_skills": [
+      "Peak Ferocity",
+      "Early Lead"
+    ]
+  },
+  {
+    "id": 30261,
+    "name": "Win Variation",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2025-07-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Right-Handed ○",
+      "Summer Runner ○",
+      "Straightaway Recovery",
+      "Stay the Course",
+      "Inside Scoop",
+      "Long Straightaways ○",
+      "Rapid Overtakes",
+      "Fierce Struggle",
+      "Find a Way!",
+      "Enthusiastic",
+      "Unwavering Heart"
+    ],
+    "event_skills": [
+      "Peerless",
+      "Energetic",
+      "Innate Experience"
+    ]
+  },
+  {
+    "id": 30262,
+    "name": "Duramente",
+    "rarity": "SSR",
+    "type": "Stamina",
+    "start_date": "2025-07-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Immovable Spirit",
+      "End Closer Straightaways ○",
+      "End Closer Corners ○",
+      "Slipstream",
+      "Breakthrough Plan",
+      "Bare Passion",
+      "High Ambitions",
+      "Chasing the Shadow",
+      "Give Chase",
+      "Straightaway Spurt"
+    ],
+    "event_skills": [
+      "Soaring Stride",
+      "Afterimage",
+      "Ignition"
+    ]
+  },
+  {
+    "id": 30263,
+    "name": "Vivlos",
+    "rarity": "SSR",
+    "type": "Power",
+    "start_date": "2025-07-31",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Self-Assured",
+      "Late Surger Savvy ○",
+      "Unyielding Spirit",
+      "1,500,000 CC",
+      "Downhill Adept",
+      "From the First Step",
+      "Acceleration"
+    ],
+    "event_skills": [
+      "Unstoppable Force",
+      "Late Surger Straightaways ○"
+    ]
+  },
+  {
+    "id": 30264,
+    "name": "Stay Gold",
+    "rarity": "SSR",
+    "type": "Guts",
+    "start_date": "2025-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Corner Adept ○",
+      "Uma Stan",
+      "Slipstream",
+      "Graceful Step",
+      "Ignition",
+      "Unbreakable Mind",
+      "Forward Step by Step",
+      "Peerless",
+      "Dream-Fulfilling Challenge",
+      "Intrigued",
+      "Carefree Step",
+      "Groundwork"
+    ],
+    "event_skills": [
+      "Peerless",
+      "Never Give Up",
+      "Curiosity",
+      "Freewheeling"
+    ]
+  },
+  {
+    "id": 30265,
+    "name": "Admire Groove",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2025-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Fall Runner ○",
+      "Medium Straightaways ○",
+      "Medium Corners ○",
+      "1,500,000 CC",
+      "Fearless Heart",
+      "Dynamic Motion",
+      "Foothold",
+      "Simmering Heat",
+      "Model Student",
+      "Descent",
+      "Aim for the Summit"
+    ],
+    "event_skills": [
+      "Overflowing Passion",
+      "Natural Talent",
+      "Brains and Beauty"
+    ]
+  },
+  {
+    "id": 30266,
+    "name": "Chrono Genesis",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2025-08-24",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Non-Standard Distance ○",
+      "Calm in a Crowd",
+      "Tooth and Tail",
+      "Unshakeable Faith",
+      "Self-Restraint",
+      "Restless Step"
+    ],
+    "event_skills": [
+      "Killer Tunes"
+    ]
+  },
+  {
+    "id": 30267,
+    "name": "Calstone Light O",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2025-08-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Fall Runner ○",
+      "Straightaway Adept",
+      "Sprint Straightaways ○",
+      "Playtime's Over!",
+      "An Honest Step",
+      "Pounding Chest",
+      "No Second Thoughts",
+      "No Third Chances",
+      "In No Time",
+      "Sprinting Gear",
+      "Swift Takeoff",
+      "Unyielding Step",
+      "Prudent Positioning"
+    ],
+    "event_skills": [
+      "In High Spirits",
+      "Foregone Conclusion"
+    ]
+  },
+  {
+    "id": 30268,
+    "name": "Durandal",
+    "rarity": "SSR",
+    "type": "Intelligence",
+    "start_date": "2025-08-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Firm Conditions ○",
+      "Straightaway Adept",
+      "End Closer Straightaways ○",
+      "Breakthrough Plan",
+      "No Reluctance",
+      "Bare Passion",
+      "Give Chase",
+      "Mighty Leap",
+      "Heat Up",
+      "Nosedive"
+    ],
+    "event_skills": [
+      "Mighty Leap",
+      "Give Chase",
+      "Moonlight Flash",
+      "Lightning Speed",
+      "Swift Decision"
+    ]
+  },
+  {
+    "id": 30269,
+    "name": "Dantsu Flame",
+    "rarity": "SSR",
+    "type": "Speed",
+    "start_date": "2025-08-29",
+    "end_date": "(no EN release)",
+    "support_hints": [
+      "Hanshin Racecourse ○",
+      "Prepared to Pass",
+      "Full Throttle",
+      "Unbreakable Mind",
+      "Refined Conduct",
+      "To Greater Heights",
+      "Slick Surge"
+    ],
+    "event_skills": [
+      "Prepared to Die",
+      "Tooth and Tail"
+    ]
+  }
+]

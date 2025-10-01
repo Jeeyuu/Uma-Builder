@@ -26,8 +26,10 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .card .name { margin: 8px 0 6px 0; font-weight: 600; text-align: center; word-break: break-word; }
 .card .skills { width: 100%; display: flex; flex-direction: column; gap: 4px; }
 .card .skill { background: #eef2ff; border-radius: 6px; padding: 4px 6px; font-size: 12px; word-break: break-word; white-space: normal; }
-.card .type-icon, .slot .type-icon { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; }
+.card .type-icon, .slot .type-icon { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; text-align:center; font-size:11px; line-height:28px; font-weight:bold;}
 .card.disabled { opacity: 0.45; pointer-events: none; }
+.skills-group { margin-bottom: 6px; }
+.skills-header { font-weight: bold; font-size: 12px; color: #444; margin-bottom: 2px; }
 @media (max-width: 1100px) { :root { --card-w: 100px; } }
 </style>
 </head>
@@ -108,31 +110,7 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 </div>
 
 <script>
-// Sample cards
-const cardsData = Array.from({length:10}, (_, i) => {
-  const id = 10001 + i;
-  const raceArr = ["Sapporo","Hakodate","Niigata","Fukushima","Nakayama","Tokyo","Chukyo","Kyoto","Hanshin","Kokura"];
-  const lenArr = ["1000m","1150m","1200m","1300m","1400m","1500m","1600m","1700m","1800m","1900m","2000m","2100m","2200m","2300m","2400m","2500m","2600m","3000m","3200m","3400m","3600m"];
-  const dirArr = ["Clockwise","Counterclockwise"];
-  const trackArr = ["Firm","Good","Soft","Heavy"];
-  const seasonArr = ["Spring","Summer","Fall","Winter"];
-  const weatherArr = ["Sunny","Cloudy","Rainy","Snowy"];
-  const race = raceArr[i % raceArr.length];
-  const length = lenArr[i % lenArr.length];
-  const direction = dirArr[i % dirArr.length];
-  const track = trackArr[i % trackArr.length];
-  const season = seasonArr[i % seasonArr.length];
-  const weather = weatherArr[i % weatherArr.length];
-  return {
-    id, name: `Card ${id}`,
-    image: `https://gametora.com/images/umamusume/supports/support_card_s_${id}.png`,
-    racecourse: race, length, direction, track, season, weather,
-    skills: [race,length,direction,track,season,weather],
-    typeNum: String(Math.floor(Math.random()*6)).padStart(2,"0"),
-    typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${String(Math.floor(Math.random()*6)).padStart(2,"0")}.png`
-  };
-});
-
+let cardsData = [];
 const cardSections = document.getElementById('cardSections');
 const slots = Array.from(document.querySelectorAll('.slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
@@ -140,25 +118,64 @@ const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
 
 const categories = [
-  {id:'racecourse', title:'Racecourse', prop:'racecourse'},
-  {id:'length', title:'Length', prop:'length'},
-  {id:'direction', title:'Direction', prop:'direction'},
-  {id:'track', title:'Track Conditions', prop:'track'},
-  {id:'season', title:'Season', prop:'season'},
-  {id:'weather', title:'Weather', prop:'weather'}
+  {id:'racecourse', title:'Racecourse'},
+  {id:'length', title:'Length'},
+  {id:'direction', title:'Direction'},
+  {id:'track', title:'Track Conditions'},
+  {id:'season', title:'Season'},
+  {id:'weather', title:'Weather'}
 ];
 
 const slotListeners = new Map();
+
+async function loadCards() {
+  const files = ["supportcards_R.json","supportcards_SR.json","supportcards_SSR.json"];
+  let all = [];
+
+  for (const f of files) {
+    try {
+      const res = await fetch(f);
+      if (!res.ok) throw new Error(`Failed to load ${f}`);
+      const data = await res.json();
+      all = all.concat(data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  cardsData = all.map(card => ({
+    id: card.id,
+    name: card.name,
+    rarity: card.rarity,
+    type: card.type,
+    start_date: card.start_date,
+    end_date: card.end_date,
+    image: `https://gametora.com/images/umamusume/supports/support_card_s_${card.id}.png`,
+    support_hints: card.support_hints || [],
+    event_skills: card.event_skills || []
+  }));
+
+  renderSections();
+}
 
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
   el.dataset.id = card.id;
   el.innerHTML = `
-    <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
+    <div class="type-icon">${escapeHtml(card.rarity)}</div>
     <img src="${card.image}" alt="${card.name}">
     <div class="name">${escapeHtml(card.name)}</div>
-    <div class="skills">${card.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>
+    <div class="skills">
+      <div class="skills-group">
+        <div class="skills-header">Support Hints</div>
+        ${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+      </div>
+      <div class="skills-group">
+        <div class="skills-header">Event Skills</div>
+        ${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+      </div>
+    </div>
   `;
   el.addEventListener('click', ()=> addToSlot(card));
   if(selectedCardIds.has(card.id)) el.classList.add('disabled');
@@ -170,47 +187,22 @@ function renderSections(){
   let any = false;
 
   categories.forEach(cat=>{
-    let val = (document.getElementById(cat.id) || {value: ''}).value;
+    const val = (document.getElementById(cat.id) || {value: ''}).value;
     if(!val) return;
 
     let searchTerms = [];
-
     switch(cat.id){
-      case 'racecourse':
-        searchTerms.push(val + ' Racecourse');
-        break;
+      case 'racecourse': searchTerms.push(val+" Racecourse"); break;
       case 'length':
-        switch(val){
-          case 'Sprint':
-            searchTerms.push('Sprint Corners','Sprint Straightaways');
-            searchTerms.push(1000 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
-            break;
-          case 'Mile':
-            searchTerms.push('Mile Corners','Mile Straightaways');
-            searchTerms.push(1600 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
-            break;
-          case 'Medium':
-            searchTerms.push('Medium Corners','Medium Straightaways');
-            searchTerms.push(2000 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
-            break;
-          case 'Long':
-            searchTerms.push('Long Corners','Long Straightaways');
-            searchTerms.push(2600 % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance');
-            break;
-        }
+        if(val==="Sprint") searchTerms.push("Sprint");
+        if(val==="Mile") searchTerms.push("Mile");
+        if(val==="Medium") searchTerms.push("Medium");
+        if(val==="Long") searchTerms.push("Long");
         break;
-      case 'direction':
-        searchTerms.push(val === 'Clockwise' ? 'Right-Handed' : 'Left-Handed');
-        break;
-      case 'track':
-        searchTerms.push(val === 'Firm' ? 'Firm Conditions' : 'Wet Conditions');
-        break;
-      case 'season':
-        searchTerms.push(val + ' Runner');
-        break;
-      case 'weather':
-        searchTerms.push(val + ' Days');
-        break;
+      case 'direction': searchTerms.push(val==="Clockwise"?"Right-Handed":"Left-Handed"); break;
+      case 'track': searchTerms.push(val==="Firm"?"Firm Conditions":"Wet Conditions"); break;
+      case 'season': searchTerms.push(val+" Runner"); break;
+      case 'weather': searchTerms.push(val+" Days"); break;
     }
 
     any = true;
@@ -222,9 +214,10 @@ function renderSections(){
     const grid = document.createElement('div');
     grid.className = 'cards';
 
-    const matches = cardsData.filter(card =>
-      searchTerms.some(term => card.skills.includes(term))
-    );
+    const matches = cardsData.filter(card=>{
+      const allSkills = [...card.support_hints,...card.event_skills];
+      return searchTerms.some(term=> allSkills.some(skill=> skill.includes(term)));
+    });
 
     matches.forEach(card => grid.appendChild(createCardElement(card)));
     section.appendChild(grid);
@@ -241,7 +234,7 @@ function renderSections(){
 }
 
 function addToSlot(card){
-  const freeSlot = slots.find(s => !s.dataset.cardId);
+  const freeSlot = slots.find(s=>!s.dataset.cardId);
   if(!freeSlot) return;
 
   if(slotListeners.has(freeSlot)){
@@ -252,10 +245,19 @@ function addToSlot(card){
   freeSlot.dataset.cardId = card.id;
   freeSlot.classList.add('has-card');
   freeSlot.innerHTML = `
-    <div class="type-icon"><img src="${card.typeImage}" alt="type"></div>
+    <div class="type-icon">${escapeHtml(card.rarity)}</div>
     <img src="${card.image}" alt="${card.name}">
     <div class="name">${escapeHtml(card.name)}</div>
-    <div class="skills">${card.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>
+    <div class="skills">
+      <div class="skills-group">
+        <div class="skills-header">Support Hints</div>
+        ${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+      </div>
+      <div class="skills-group">
+        <div class="skills-header">Event Skills</div>
+        ${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+      </div>
+    </div>
   `;
 
   function slotClickHandler(){ removeFromSlot(freeSlot, card.id); }
@@ -273,7 +275,7 @@ function removeFromSlot(slotEl, cardId){
   }
   slotEl.classList.remove('has-card');
   delete slotEl.dataset.cardId;
-  slotEl.innerHTML = '';
+  slotEl.innerHTML='';
   selectedCardIds.delete(Number(cardId));
   document.querySelectorAll(`.card[data-id="${cardId}"]`).forEach(el => el.classList.remove('disabled'));
 }
@@ -287,16 +289,16 @@ clearAllBtn.addEventListener('click', ()=>{
     }
     slot.classList.remove('has-card');
     delete slot.dataset.cardId;
-    slot.innerHTML = '';
+    slot.innerHTML='';
   });
   document.querySelectorAll('.card').forEach(el => el.classList.remove('disabled'));
 });
 
-clearFiltersBtn.addEventListener('click', () => {
-  categories.forEach(cat => {
+clearFiltersBtn.addEventListener('click', ()=>{
+  categories.forEach(cat=>{
     const sel = document.getElementById(cat.id);
     if(sel){
-      sel.value = '';
+      sel.value='';
       localStorage.removeItem('filter_'+cat.id);
     }
   });
@@ -308,7 +310,7 @@ function setupFilterPersistence(){
     const sel = document.getElementById(cat.id);
     if(!sel) return;
     const saved = localStorage.getItem('filter_'+cat.id);
-    if(saved) sel.value = saved;
+    if(saved) sel.value=saved;
     sel.addEventListener('change', ()=>{
       localStorage.setItem('filter_'+cat.id, sel.value);
       renderSections();
@@ -316,11 +318,10 @@ function setupFilterPersistence(){
   });
 }
 
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 setupFilterPersistence();
-renderSections();
-window.addEventListener('load', ()=> renderSections());
+loadCards();
 </script>
 
 </body>
