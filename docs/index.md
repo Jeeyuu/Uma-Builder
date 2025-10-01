@@ -18,16 +18,17 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .slot:not(.has-card) { border: 2px dashed #ccc; background: #fafafa; }
 .slot img { width: 100%; height: auto; }
 
-/* Name styling: smaller and clamp 2 lines */
+/* Name styling: smaller and clamp 2 liness */
 .slot .name, .card .name {
   margin: 8px 0 6px 0;
   font-weight: 700;
   text-align: center;
   font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap;       /* single line */
+  overflow: hidden;          /* hide overflow */
+  text-overflow: ellipsis;   /* add ... if too long */
 }
+
 
 .slot .skills, .card .skills {
   width: 100%;
@@ -89,30 +90,31 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 
     <div class="filter-group">
       <label for="length">Length</label>
-      <select id="length">
-        <option value="">-- Select --</option>
-        <option value="1000">1000m</option>
-        <option value="1150">1150m</option>
-        <option value="1200">1200m</option>
-        <option value="1300">1300m</option>
-        <option value="1400">1400m</option>
-        <option value="1500">1500m</option>
-        <option value="1600">1600m</option>
-        <option value="1700">1700m</option>
-        <option value="1800">1800m</option>
-        <option value="1900">1900m</option>
-        <option value="2000">2000m</option>
-        <option value="2100">2100m</option>
-        <option value="2200">2200m</option>
-        <option value="2300">2300m</option>
-        <option value="2400">2400m</option>
-        <option value="2500">2500m</option>
-        <option value="2600">2600m</option>
-        <option value="3000">3000m</option>
-        <option value="3200">3200m</option>
-        <option value="3400">3400m</option>
-        <option value="3600">3600m</option>
-      </select>
+<select id="length">
+  <option value="">-- Select --</option>
+  <option value="1000">1000m</option>
+  <option value="1150">1150m</option>
+  <option value="1200">1200m</option>
+  <option value="1300">1300m</option>
+  <option value="1400">1400m</option>
+  <option value="1500">1500m</option>
+  <option value="1600">1600m</option>
+  <option value="1700">1700m</option>
+  <option value="1800">1800m</option>
+  <option value="1900">1900m</option>
+  <option value="2000">2000m</option>
+  <option value="2100">2100m</option>
+  <option value="2200">2200m</option>
+  <option value="2300">2300m</option>
+  <option value="2400">2400m</option>
+  <option value="2500">2500m</option>
+  <option value="2600">2600m</option>
+  <option value="3000">3000m</option>
+  <option value="3200">3200m</option>
+  <option value="3400">3400m</option>
+  <option value="3600">3600m</option>
+</select>
+
     </div>
 
     <div class="filter-group">
@@ -223,156 +225,186 @@ function renderSections(){
   sectionPages.clear();
   let any = false;
 
-  function normalizeText(s){ return s.replace(/[◎○]/g,'').trim().toLowerCase(); }
+  function normalizeText(s){
+  return s.replace(/[◎○]/g,'').trim().toLowerCase();
+}
 
-  categories.forEach(cat=>{
-    let val = (document.getElementById(cat.id) || {value:''}).value;
-    if(!val) return;
+categories.forEach(cat=>{
+  let val = (document.getElementById(cat.id) || {value:''}).value;
+  if(!val) return;
 
-    any = true;
-    const section = document.createElement('div');
-    section.className = 'card-section';
+  any = true;
+  const section = document.createElement('div');
+  section.className = 'card-section';
+  const header = document.createElement('h2');
+  header.textContent = `${cat.title}: ${val}`;
+  section.appendChild(header);
 
-    const rows = [];
+  const rows = [];
 
-    if(cat.id==='length'){
-      const dist = parseInt(val);
-      let catLabel = '';
-      if(dist <= 1400) catLabel='Sprint';
-      else if(dist <= 1800) catLabel='Mile';
-      else if(dist <= 2400) catLabel='Medium';
-      else catLabel='Long';
+  if(cat.id==='length'){
+    const dist = parseInt(val);
+    let catLabel = '';
+    if(dist <= 1400) catLabel='Sprint';
+    else if(dist <= 1800) catLabel='Mile';
+    else if(dist <= 2400) catLabel='Medium';
+    else catLabel='Long';
 
-      rows.push(
-        {title: 'Corners', termArr: [`${catLabel} Corners`]},
-        {title: 'Straightaways', termArr: [`${catLabel} Straightaways`]},
-        {title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
-         termArr: [dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance']}
-      );
-    } else {
-      let searchTerms = [];
-      switch(cat.id){
-        case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
-        case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
-        case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
-        case 'season': searchTerms.push(val+' Runner'); break;
-        case 'weather': searchTerms.push(val+' Days'); break;
-      }
-      rows.push({title: cat.title, termArr: searchTerms});
+    rows.push(
+      {title: 'Corners', term: `${catLabel} Corners`},
+      {title: 'Straightaways', term: `${catLabel} Straightaways`},
+      {title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
+       term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'}
+    );
+  } else {
+    let searchTerms = [];
+    switch(cat.id){
+      case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
+      case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
+      case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
+      case 'season': searchTerms.push(val+' Runner'); break;
+      case 'weather': searchTerms.push(val+' Days'); break;
     }
+    rows.push({title: cat.title, termArr: searchTerms});
+  }
 
-    rows.forEach((row,rowIndex)=>{
-      const rowContainer = document.createElement('div');
-      rowContainer.style.position='relative';
-      rowContainer.style.marginBottom='30px';
+  rows.forEach((row,rowIndex)=>{
+    const rowContainer = document.createElement('div');
+    rowContainer.style.position='relative';
+    rowContainer.style.marginBottom='30px';
 
-      const rowHeader = document.createElement('div');
-      rowHeader.style.fontWeight = 'bold';
-      rowHeader.style.marginBottom = '6px';
-      if(cat.id === 'racecourse') rowHeader.textContent = `${val} Racecourse`;
-      else if(cat.id === 'direction') rowHeader.textContent = `${val} Direction`;
-      else if(cat.id === 'track') rowHeader.textContent = `${val} Track Conditions`;
-      else if(cat.id === 'season') rowHeader.textContent = `${val} Season`;
-      else if(cat.id === 'weather') rowHeader.textContent = `${val} Weather`;
-      else rowHeader.textContent = row.title;
-      rowContainer.appendChild(rowHeader);
+const rowHeader = document.createElement('div');
+rowHeader.style.fontWeight = 'bold';
+rowHeader.style.marginBottom = '6px';
 
-      const grid = document.createElement('div');
-      grid.className = 'cards';
-      rowContainer.appendChild(grid);
+// Use selected value for presentation if available
+if(cat.id === 'racecourse' && val) {
+    rowHeader.textContent = `${val} Racecourse`;
+} else if(cat.id === 'direction' && val) {
+    rowHeader.textContent = `${val} Direction`;
+} else if(cat.id === 'track' && val) {
+    rowHeader.textContent = `${val} Track Conditions`;
+} else if(cat.id === 'season' && val) {
+    rowHeader.textContent = `${val} Season`;
+} else if(cat.id === 'weather' && val) {
+    rowHeader.textContent = `${val} Weather`;
+} else {
+    rowHeader.textContent = row.title; // fallback for other rows (e.g., Length)
+}
 
-      // --- FILTER MATCHES ---
-      const matches = row.termArr ? cardsData.filter(card =>
-        row.termArr.some(term =>
-          (card.support_hints || []).some(h=>{
-            if(cat.id==='length' && row.title.includes('Distance')){
-              return normalizeText(h) === term.toLowerCase();
-            }
-            return h.toLowerCase().includes(term.toLowerCase());
-          }) ||
-          (card.event_skills || []).some(e=>{
-            if(cat.id==='length' && row.title.includes('Distance')){
-              return normalizeText(e) === term.toLowerCase();
-            }
-            return e.toLowerCase().includes(term.toLowerCase());
-          })
-        )
-      ) : [];
+    rowHeader.style.fontWeight = 'bold';
+    rowHeader.style.marginBottom = '6px';
+    rowContainer.appendChild(rowHeader);
 
-      if(matches.length===0){
-        const noMsg = document.createElement('div');
-        noMsg.style.opacity='0.6';
-        noMsg.textContent='(No matching cards)';
-        grid.appendChild(noMsg);
-        section.appendChild(rowContainer);
-        return;
+    const grid = document.createElement('div');
+    grid.className = 'cards';
+    rowContainer.appendChild(grid);
+
+    // --- FILTER MATCHES ---
+    const matches = row.termArr ? cardsData.filter(card =>
+      row.termArr.some(term =>
+        (card.support_hints || []).some(h=>{
+          if(cat.id==='length' && row.title.includes('Distance')){
+            return normalizeText(h) === term.toLowerCase();
+          }
+          return h.toLowerCase().includes(term.toLowerCase());
+        }) ||
+        (card.event_skills || []).some(e=>{
+          if(cat.id==='length' && row.title.includes('Distance')){
+            return normalizeText(e) === term.toLowerCase();
+          }
+          return e.toLowerCase().includes(term.toLowerCase());
+        })
+      )
+    ) : cardsData.filter(card=>{
+      if(cat.id==='length' && row.title.includes('Distance')){
+        return (card.support_hints || []).some(h=>normalizeText(h) === row.term.toLowerCase()) ||
+               (card.event_skills || []).some(e=>normalizeText(e) === row.term.toLowerCase());
       }
-
-      const pageKey = cat.id+'-'+rowIndex;
-      sectionPages.set(pageKey,0);
-      const totalPages = Math.ceil(matches.length/6);
-
-      function renderPage(page){
-        grid.innerHTML='';
-        const start = page*6;
-        const end = start+6;
-        matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
-        updateButtons(page);
-      }
-
-      const btnContainer = document.createElement('div');
-      btnContainer.style.position='absolute';
-      btnContainer.style.top='2px';
-      btnContainer.style.right='0';
-      btnContainer.style.display='flex';
-      btnContainer.style.gap='5px';
-      rowContainer.appendChild(btnContainer);
-
-      const leftBtn = document.createElement('button');
-      leftBtn.textContent='◀';
-      leftBtn.style.border='none';
-      leftBtn.style.borderRadius='6px';
-      leftBtn.style.background='#444';
-      leftBtn.style.color='#fff';
-      const rightBtn = document.createElement('button');
-      rightBtn.textContent='▶';
-      rightBtn.style.border='none';
-      rightBtn.style.borderRadius='6px';
-      rightBtn.style.background='#444';
-      rightBtn.style.color='#fff';
-      btnContainer.appendChild(leftBtn);
-      btnContainer.appendChild(rightBtn);
-
-      function updateButtons(page){
-        leftBtn.style.opacity = page>0?'1':'0.4';
-        leftBtn.style.pointerEvents = page>0?'auto':'none';
-        rightBtn.style.opacity = page<totalPages-1?'1':'0.4';
-        rightBtn.style.pointerEvents = page<totalPages-1?'auto':'none';
-      }
-
-      leftBtn.addEventListener('click',()=>{
-        let page = sectionPages.get(pageKey);
-        if(page>0){
-          page--;
-          sectionPages.set(pageKey,page);
-          renderPage(page);
-        }
-      });
-      rightBtn.addEventListener('click',()=>{
-        let page = sectionPages.get(pageKey);
-        if(page<totalPages-1){
-          page++;
-          sectionPages.set(pageKey,page);
-          renderPage(page);
-        }
-      });
-
-      renderPage(0);
-      section.appendChild(rowContainer);
+      return (card.support_hints || []).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
+             (card.event_skills || []).some(e=>e.toLowerCase().includes(row.term.toLowerCase()));
     });
 
-    cardSections.appendChild(section);
+    // --- RENDERING PAGE ---
+    if(matches.length===0){
+      const noMsg = document.createElement('div');
+      noMsg.style.opacity='0.6';
+      noMsg.textContent='(No matching cards)';
+      grid.appendChild(noMsg);
+      section.appendChild(rowContainer);
+      return;
+    }
+
+    const pageKey = cat.id+'-'+rowIndex;
+    sectionPages.set(pageKey,0);
+    const totalPages = Math.ceil(matches.length/6);
+
+    function renderPage(page){
+      grid.innerHTML='';
+      const start = page*6;
+      const end = start+6;
+      matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
+      updateButtons(page);
+    }
+
+    const btnContainer = document.createElement('div');
+    btnContainer.style.position='absolute';
+    btnContainer.style.top='2px';
+    btnContainer.style.right='0';
+    btnContainer.style.display='flex';
+    btnContainer.style.gap='5px';
+    rowContainer.appendChild(btnContainer);
+
+    const leftBtn = document.createElement('button');
+    leftBtn.textContent='◀';
+    leftBtn.style.opacity='0.4';
+    leftBtn.style.pointerEvents='none';
+    leftBtn.style.border='none';
+    leftBtn.style.borderRadius='6px';
+    leftBtn.style.background='#444';
+    leftBtn.style.color='#fff';
+    const rightBtn = document.createElement('button');
+    rightBtn.textContent='▶';
+    rightBtn.style.opacity='0.4';
+    rightBtn.style.pointerEvents='none';
+    rightBtn.style.border='none';
+    rightBtn.style.borderRadius='6px';
+    rightBtn.style.background='#444';
+    rightBtn.style.color='#fff';
+    btnContainer.appendChild(leftBtn);
+    btnContainer.appendChild(rightBtn);
+
+    function updateButtons(page){
+      leftBtn.style.opacity = page>0?'1':'0.4';
+      leftBtn.style.pointerEvents = page>0?'auto':'none';
+      rightBtn.style.opacity = page<totalPages-1?'1':'0.4';
+      rightBtn.style.pointerEvents = page<totalPages-1?'auto':'none';
+    }
+
+    leftBtn.addEventListener('click',()=>{
+      let page = sectionPages.get(pageKey);
+      if(page>0){
+        page--;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
+      }
+    });
+    rightBtn.addEventListener('click',()=>{
+      let page = sectionPages.get(pageKey);
+      if(page<totalPages-1){
+        page++;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
+      }
+    });
+
+    renderPage(0);
+    section.appendChild(rowContainer);
   });
+
+  cardSections.appendChild(section);
+});
+
 
   if(!any){
     const msg=document.createElement('div');
@@ -401,50 +433,110 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
+  // If card is already selected, show disabled appearance
   if(selectedCardIds.has(card.id) || isNameBlocked(card.name)) el.classList.add('disabled');
 
   el.addEventListener('click', ()=>{
     if(selectedCardIds.has(card.id)){
+      // Card is selected → remove from slot
       const slotEl = slots.find(s=>s.dataset.cardId==card.id);
-      if(slotEl) removeFromSlot(slotEl, card.id);
+      if(slotEl) removeFromSlot(slotEl, card);
     } else {
-      const emptySlot = slots.find(s=>!s.dataset.cardId);
-      if(emptySlot) assignToSlot(emptySlot, card);
+      // Card not selected → add to first free slot
+      addToSlot(card);
     }
-    renderSections();
   });
 
   return el;
 }
 
-function assignToSlot(slotEl, card){
-  slotEl.dataset.cardId = card.id;
-  slotEl.innerHTML = `<img src="${card.image}" alt="${card.name}" style="width:100%;height:auto;">`;
+// Update addToSlot / removeFromSlot to refresh the grid
+function addToSlot(card){
+  const freeSlot = slots.find(s=>!s.dataset.cardId);
+  if(!freeSlot) return;
+
+  if(slotListeners.has(freeSlot)){
+    freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
+    slotListeners.delete(freeSlot);
+  }
+
+  let skillsHTML = '';
+  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+
+  freeSlot.dataset.cardId = card.id;
+  freeSlot.classList.add('has-card');
+  freeSlot.innerHTML = `
+    <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
+    <img src="${card.image}" alt="${escapeHtml(card.name)}">
+    <div class="name">${escapeHtml(card.name)}</div>
+    <div class="skills">${skillsHTML}</div>
+  `;
+
+  function slotClickHandler(){ removeFromSlot(freeSlot, card); }
+  freeSlot.addEventListener('click', slotClickHandler);
+  slotListeners.set(freeSlot, slotClickHandler);
+
   selectedCardIds.add(card.id);
+  renderSections(); // refresh grid so selected card appears dimmed
 }
 
-function removeFromSlot(slotEl, cardId){
+function removeFromSlot(slotEl, card){
+  if(slotListeners.has(slotEl)){
+    slotEl.removeEventListener('click', slotListeners.get(slotEl));
+    slotListeners.delete(slotEl);
+  }
+  slotEl.classList.remove('has-card');
   delete slotEl.dataset.cardId;
-  slotEl.innerHTML='';
-  selectedCardIds.delete(cardId);
+  slotEl.innerHTML = '';
+  selectedCardIds.delete(Number(card.id));
+  renderSections(); // refresh grid so card becomes clickable again
 }
 
-// --- Buttons ---
+
+// --- Clear buttons ---
 clearAllBtn.addEventListener('click', ()=>{
-  slots.forEach(s=>{s.dataset.cardId=''; s.innerHTML='';});
   selectedCardIds.clear();
+  slots.forEach(slot=>{
+    if(slotListeners.has(slot)){
+      slot.removeEventListener('click', slotListeners.get(slot));
+      slotListeners.delete(slot);
+    }
+    slot.classList.remove('has-card');
+    delete slot.dataset.cardId;
+    slot.innerHTML='';
+  });
   renderSections();
 });
 
 clearFiltersBtn.addEventListener('click', ()=>{
-  categories.forEach(cat=>{const el=document.getElementById(cat.id); if(el) el.value='';});
+  categories.forEach(cat=>{
+    const sel=document.getElementById(cat.id);
+    if(sel){
+      sel.value='';
+      localStorage.removeItem('filter_'+cat.id);
+    }
+  });
   renderSections();
 });
 
-function escapeHtml(text) {
-  return text.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function setupFilterPersistence(){
+  categories.forEach(cat=>{
+    const sel=document.getElementById(cat.id);
+    if(!sel) return;
+    const saved = localStorage.getItem('filter_'+cat.id);
+    if(saved) sel.value=saved;
+    sel.addEventListener('change', ()=>{
+      localStorage.setItem('filter_'+cat.id, sel.value);
+      renderSections();
+    });
+  });
 }
+
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+setupFilterPersistence();
 </script>
+
 
 </body>
 </html>
