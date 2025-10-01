@@ -180,24 +180,10 @@ function createPagination(rowContainer, matches, pageKey, renderCardsPerPage) {
 
     const leftBtn = document.createElement('button');
     leftBtn.textContent = '◀';
-    leftBtn.style.padding = '5px 10px';
-    leftBtn.style.fontSize = '14px';
-    leftBtn.style.cursor = 'pointer';
-    leftBtn.style.border = 'none';
-    leftBtn.style.borderRadius = '6px';
-    leftBtn.style.background = '#444';
-    leftBtn.style.color = '#fff';
-
+    leftBtn.className = 'clear-all';
     const rightBtn = document.createElement('button');
     rightBtn.textContent = '▶';
-    rightBtn.style.padding = '5px 10px';
-    rightBtn.style.fontSize = '14px';
-    rightBtn.style.cursor = 'pointer';
-    rightBtn.style.border = 'none';
-    rightBtn.style.borderRadius = '6px';
-    rightBtn.style.background = '#444';
-    rightBtn.style.color = '#fff';
-
+    rightBtn.className = 'clear-all';
     btnContainer.appendChild(leftBtn);
     btnContainer.appendChild(rightBtn);
 
@@ -217,7 +203,6 @@ function createPagination(rowContainer, matches, pageKey, renderCardsPerPage) {
             page--;
             sectionPages.set(pageKey, page);
             renderCardsPerPage(page);
-            updateButtons(page);
         }
     });
 
@@ -227,7 +212,6 @@ function createPagination(rowContainer, matches, pageKey, renderCardsPerPage) {
             page++;
             sectionPages.set(pageKey, page);
             renderCardsPerPage(page);
-            updateButtons(page);
         }
     });
 
@@ -236,7 +220,6 @@ function createPagination(rowContainer, matches, pageKey, renderCardsPerPage) {
         updateButtons(page);
     };
 }
-
 
 // --- Render sections ---
 function renderSections() {
