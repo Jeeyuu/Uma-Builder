@@ -381,8 +381,6 @@ if(cat.id === 'racecourse' && val) {
 const pageKey = cat.id+'-'+rowIndex;
 const currentPage = sectionPages.get(pageKey) || 0;
 sectionPages.set(pageKey, currentPage);
-renderPage(currentPage);
-
     const totalPages = Math.ceil(matches.length/6);
 
     function renderPage(page){
@@ -444,6 +442,7 @@ renderPage(currentPage);
       }
     });
 
+    renderPage(currentPage);
     section.appendChild(rowContainer);
   });
 
