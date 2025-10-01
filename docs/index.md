@@ -253,13 +253,10 @@ function renderSections(){
     any = true;
     const section = document.createElement('div');
     section.className = 'card-section';
-    const header = document.createElement('h2');
-    header.textContent = `${cat.title}: ${val}`;
-    section.appendChild(header);
 
     const rows = [];
 
-    // Special handling for length
+    // --- Handle Length ---
     if(cat.id==='length'){
       const dist = parseInt(val);
       let catLabel = '';
@@ -274,11 +271,16 @@ function renderSections(){
         {title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
          term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'}
       );
-    } else {
-      // Other filters
+    }
+    // --- Handle Racecourse ---
+    else if(cat.id==='racecourse'){
+      // Show racecourse below cards, no header above
+      rows.push({title: val + ' Racecourse', termArr: []});
+    }
+    // --- Other filters ---
+    else {
       let searchTerms = [];
       switch(cat.id){
-        case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
         case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
         case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
         case 'season': searchTerms.push(val+' Runner'); break;
@@ -292,11 +294,15 @@ function renderSections(){
       rowContainer.style.position='relative';
       rowContainer.style.marginBottom='30px';
 
-      const rowHeader = document.createElement('div');
-      rowHeader.textContent = row.title;
-      rowHeader.style.fontWeight = 'bold';
-      rowHeader.style.marginBottom = '6px';
-      rowContainer.appendChild(rowHeader);
+      // Only show row header if not Length, Direction, Track, Season, Weather
+      if(row.title && row.title !== 'Length' && row.title !== 'Direction' 
+         && row.title !== 'Track Conditions' && row.title !== 'Season' && row.title !== 'Weather'){
+        const rowHeader = document.createElement('div');
+        rowHeader.textContent = row.title;
+        rowHeader.style.fontWeight = 'bold';
+        rowHeader.style.marginBottom = '6px';
+        rowContainer.appendChild(rowHeader);
+      }
 
       const grid = document.createElement('div');
       grid.className = 'cards';
@@ -308,11 +314,13 @@ function renderSections(){
           (card.event_skills || []).some(e=>e.toLowerCase().includes(term.toLowerCase()))
         )
       ) : cardsData.filter(card =>
+        row.term ? 
         (card.support_hints || []).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
         (card.event_skills || []).some(e=>e.toLowerCase().includes(row.term.toLowerCase()))
+        : false
       );
 
-      if(matches.length===0){
+      if(matches.length===0 && row.term){
         const noMsg = document.createElement('div');
         noMsg.style.opacity='0.6';
         noMsg.textContent='(No matching cards)';
@@ -321,6 +329,7 @@ function renderSections(){
         return;
       }
 
+      // Pagination
       const pageKey = cat.id+'-'+rowIndex;
       sectionPages.set(pageKey,0);
       const totalPages = Math.ceil(matches.length/6);
@@ -333,6 +342,7 @@ function renderSections(){
         updateButtons(page);
       }
 
+      // Pagination buttons
       const btnContainer = document.createElement('div');
       btnContainer.style.position='absolute';
       btnContainer.style.top='2px';
@@ -400,6 +410,7 @@ function renderSections(){
     cardSections.appendChild(msg);
   }
 }
+
 
 // --- Slot handling ---
 function addToSlot(card){
