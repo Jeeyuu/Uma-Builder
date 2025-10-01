@@ -303,72 +303,73 @@ function renderSections(){
         }
 
         // --- PAGINATION ---
-        const pageKey = cat.id + '-' + rowIndex;
-        sectionPages.set(pageKey, 0);
-        const totalPages = Math.ceil(matches.length / 6);
+const pageKey = cat.id + '-0'; // unique key even if one row
+sectionPages.set(pageKey, 0);
+const totalPages = Math.ceil(matches.length / 6);
 
-        function renderPage(page){
-          grid.innerHTML = '';
-          const start = page*6;
-          const end = start+6;
-          matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
-          updateButtons(page);
-        }
-
-        // --- ARROWS ---
-        const btnContainer = document.createElement('div');
-        btnContainer.style.position='absolute';
-        btnContainer.style.top='-20px';
-        btnContainer.style.right='0';
-        btnContainer.style.display='flex';
-        btnContainer.style.gap='5px';
-        rowContainer.appendChild(btnContainer);
-
-        const leftBtn = document.createElement('button');
-        leftBtn.textContent='◀';
-        leftBtn.className='clear-all';
-        const rightBtn = document.createElement('button');
-        rightBtn.textContent='▶';
-        rightBtn.className='clear-all';
-        btnContainer.appendChild(leftBtn);
-        btnContainer.appendChild(rightBtn);
-
-function updateButtons(page){
-  if(page > 0){
-    leftBtn.style.opacity = '1';
-    leftBtn.style.pointerEvents = 'auto';
-  } else {
-    leftBtn.style.opacity = '0.4';
-    leftBtn.style.pointerEvents = 'none';
-  }
-
-  if(page < totalPages - 1){
-    rightBtn.style.opacity = '1';
-    rightBtn.style.pointerEvents = 'auto';
-  } else {
-    rightBtn.style.opacity = '0.4';
-    rightBtn.style.pointerEvents = 'none';
-  }
+function renderPage(page){
+  grid.innerHTML='';
+  const start = page*6;
+  const end = start+6;
+  matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
+  updateButtons(page);
 }
 
-        leftBtn.addEventListener('click', ()=>{
-          let page = sectionPages.get(pageKey);
-          if(page > 0){
-            page--;
-            sectionPages.set(pageKey, page);
-            renderPage(page);
-          }
-        });
-        rightBtn.addEventListener('click', ()=>{
-          let page = sectionPages.get(pageKey);
-          if(page < totalPages - 1){
-            page++;
-            sectionPages.set(pageKey, page);
-            renderPage(page);
-          }
-        });
+const btnContainer = document.createElement('div');
+btnContainer.style.position='absolute';
+btnContainer.style.top='-20px';
+btnContainer.style.right='0';
+btnContainer.style.display='flex';
+btnContainer.style.gap='5px';
+rowContainer.appendChild(btnContainer);
 
-        renderPage(0);
+const leftBtn = document.createElement('button');
+leftBtn.textContent='◀';
+leftBtn.style.opacity = '0.4';
+leftBtn.style.pointerEvents = 'none';
+leftBtn.style.border = 'none';
+leftBtn.style.borderRadius = '6px';
+leftBtn.style.background = '#444';
+leftBtn.style.color = '#fff';
+const rightBtn = document.createElement('button');
+rightBtn.textContent='▶';
+rightBtn.style.opacity = '0.4';
+rightBtn.style.pointerEvents = 'none';
+rightBtn.style.border = 'none';
+rightBtn.style.borderRadius = '6px';
+rightBtn.style.background = '#444';
+rightBtn.style.color = '#fff';
+
+btnContainer.appendChild(leftBtn);
+btnContainer.appendChild(rightBtn);
+
+function updateButtons(page){
+  leftBtn.style.opacity = page > 0 ? '1' : '0.4';
+  leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
+  rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
+  rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
+}
+
+leftBtn.addEventListener('click', ()=>{
+  let page = sectionPages.get(pageKey);
+  if(page > 0){
+    page--;
+    sectionPages.set(pageKey, page);
+    renderPage(page);
+  }
+});
+
+rightBtn.addEventListener('click', ()=>{
+  let page = sectionPages.get(pageKey);
+  if(page < totalPages - 1){
+    page++;
+    sectionPages.set(pageKey, page);
+    renderPage(page);
+  }
+});
+
+renderPage(0);
+
         section.appendChild(rowContainer);
       });
 
