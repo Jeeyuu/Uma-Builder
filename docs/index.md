@@ -183,26 +183,40 @@ Promise.all([
   renderSections();
 });
 
-// create card element
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
   el.dataset.id = card.id;
   el.dataset.name = card.name;
 
+  let skillsHTML = '';
+
+  // Only render Support Hints if available
+  if(card.support_hints && card.support_hints.length > 0){
+    skillsHTML += `
+      <div class="skills-group">
+        <div class="skills-header">Support Hints</div>
+        ${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+      </div>
+    `;
+  }
+
+  // Only render Event Skills if available
+  if(card.event_skills && card.event_skills.length > 0){
+    skillsHTML += `
+      <div class="skills-group">
+        <div class="skills-header">Event Skills</div>
+        ${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+      </div>
+    `;
+  }
+
   el.innerHTML = `
     <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
     <img src="${card.image}" alt="${escapeHtml(card.name)}">
     <div class="name">${escapeHtml(card.name)}</div>
     <div class="skills">
-      <div class="skills-group">
-        <div class="skills-header">Support Hints</div>
-        ${(card.support_hints||[]).map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
-      </div>
-      <div class="skills-group">
-        <div class="skills-header">Event Skills</div>
-        ${(card.event_skills||[]).map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
-      </div>
+      ${skillsHTML}
     </div>
   `;
 
@@ -214,6 +228,7 @@ function createCardElement(card){
 
   return el;
 }
+
 
 // check if card with same name already chosen
 function isNameBlocked(name){
