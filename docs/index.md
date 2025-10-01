@@ -147,7 +147,7 @@ Promise.all([
   cardsData = [...ssr, ...sr, ...r].map(card=>({
     ...card,
     image: `https://gametora.com/images/umamusume/supports/support_card_s_${card.id}.png`,
-    typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type.toLowerCase() ? card.type.toLowerCase().replace(/^\w/, c=>c.toUpperCase()) : card.type] || "xx"}.png`
+    typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png`
   }));
   renderSections();
 });
@@ -217,7 +217,8 @@ function renderSections(){
         searchTerms.push(val === 'Clockwise' ? 'Right-Handed' : 'Left-Handed');
         break;
       case 'track':
-        searchTerms.push(val === 'Firm' ? 'Firm Conditions' : 'Wet Conditions');
+        if(val === 'Firm') searchTerms.push('Firm Conditions');
+        else searchTerms.push('Wet Conditions');
         break;
       case 'season':
         searchTerms.push(val + ' Runner');
@@ -242,7 +243,15 @@ function renderSections(){
       )
     );
 
-    matches.forEach(card => grid.appendChild(createCardElement(card)));
+    if(matches.length === 0){
+      const noMsg = document.createElement('div');
+      noMsg.style.opacity = '0.6';
+      noMsg.textContent = '(No matching cards)';
+      grid.appendChild(noMsg);
+    } else {
+      matches.forEach(card => grid.appendChild(createCardElement(card)));
+    }
+
     section.appendChild(grid);
     cardSections.appendChild(section);
   });
@@ -345,7 +354,5 @@ function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','
 
 setupFilterPersistence();
 </script>
-
-
 </body>
 </html>
