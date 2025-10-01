@@ -239,9 +239,11 @@ function renderSections(){
 
     const matches = cardsData.filter(card =>
       searchTerms.some(term =>
-        (card.support_hints||[]).includes(term) || (card.event_skills||[]).includes(term)
+        (card.support_hints || []).some(h => h.toLowerCase().includes(term.toLowerCase())) ||
+        (card.event_skills || []).some(e => e.toLowerCase().includes(term.toLowerCase()))
       )
     );
+
 
     if(matches.length === 0){
       const noMsg = document.createElement('div');
