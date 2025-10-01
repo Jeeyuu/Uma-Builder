@@ -230,22 +230,21 @@ function createCardElement(card){
   `;
 
   el.addEventListener('click', ()=>{
-  const slot = slots.find(s => Number(s.dataset.cardId) === card.id);
-  if(slot){
-    // if card is in a slot, remove it
-    removeFromSlot(slot, card);
-  } else {
-    // otherwise add to first free slot
-    addToSlot(card);
-  }
-});
+    const slot = slots.find(s => Number(s.dataset.cardId) === card.id);
+    if(slot){
+      // if card is in a slot, remove it
+      removeFromSlot(slot, card);
+    } else {
+      // otherwise add to first free slot
+      addToSlot(card);
+    }
+  });
 
-// visually dim other cards with the same name, but allow this card if already selected
-if(isNameBlocked(card.name) && !selectedCardIds.has(Number(card.id))) {
-  el.classList.add('disabled');
+// visually dim if any card with the same name is already selected
+if(isNameBlocked(card.name)) el.classList.add('disabled');
+
+  return el;
 }
-
-return el;
 
 
 // --- Direction mapping for filters ---
