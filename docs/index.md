@@ -18,7 +18,7 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .slot:not(.has-card) { border: 2px dashed #ccc; background: #fafafa; }
 .slot img { width: 100%; height: auto; }
 
-/* Name styling: smaller and clamp 2 lines */
+/* Name styling: smaller and clamp 2 liness */
 .slot .name, .card .name {
   margin: 8px 0 6px 0;
   font-weight: 700;
