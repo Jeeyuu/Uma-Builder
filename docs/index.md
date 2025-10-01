@@ -257,7 +257,7 @@ function renderSections(){
     header.textContent = `${cat.title}: ${val}`;
     section.appendChild(header);
 
-    // Length filter special handling
+    // --- LENGTH SPECIAL HANDLING ---
     if(cat.id === 'length'){
       const dist = parseInt(val);
       let catLabel = '';
@@ -276,7 +276,7 @@ function renderSections(){
       rows.forEach((row,rowIndex)=>{
         const rowContainer = document.createElement('div');
         rowContainer.style.position='relative';
-        rowContainer.style.marginBottom='20px';
+        rowContainer.style.marginBottom='30px'; // enough space for arrows
 
         const rowHeader = document.createElement('div');
         rowHeader.textContent = row.title;
@@ -302,45 +302,60 @@ function renderSections(){
           return;
         }
 
-        // Pagination
-        sectionPages.set(cat.id + '-' + rowIndex, 0);
+        // --- PAGINATION ---
+        const pageKey = cat.id + '-' + rowIndex;
+        sectionPages.set(pageKey, 0);
+        const totalPages = Math.ceil(matches.length / 6);
+
         function renderPage(page){
           grid.innerHTML = '';
           const start = page*6;
           const end = start+6;
           matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
+          updateButtons(page);
         }
+
+        // --- ARROWS ---
+        const btnContainer = document.createElement('div');
+        btnContainer.style.position='absolute';
+        btnContainer.style.top='10px';
+        btnContainer.style.right='0';
+        btnContainer.style.display='flex';
+        btnContainer.style.gap='5px';
+        rowContainer.appendChild(btnContainer);
+
+        const leftBtn = document.createElement('button');
+        leftBtn.textContent='◀';
+        leftBtn.className='clear-all';
+        const rightBtn = document.createElement('button');
+        rightBtn.textContent='▶';
+        rightBtn.className='clear-all';
+        btnContainer.appendChild(leftBtn);
+        btnContainer.appendChild(rightBtn);
+
+        function updateButtons(page){
+          leftBtn.style.display = page > 0 ? 'inline-block' : 'none';
+          rightBtn.style.display = page < totalPages - 1 ? 'inline-block' : 'none';
+        }
+
+        leftBtn.addEventListener('click', ()=>{
+          let page = sectionPages.get(pageKey);
+          if(page > 0){
+            page--;
+            sectionPages.set(pageKey, page);
+            renderPage(page);
+          }
+        });
+        rightBtn.addEventListener('click', ()=>{
+          let page = sectionPages.get(pageKey);
+          if(page < totalPages - 1){
+            page++;
+            sectionPages.set(pageKey, page);
+            renderPage(page);
+          }
+        });
+
         renderPage(0);
-
-        if(matches.length > 6){
-          const btnContainer = document.createElement('div');
-          btnContainer.style.position='absolute';
-          btnContainer.style.top='0';
-          btnContainer.style.right='0';
-          btnContainer.style.display='flex';
-          btnContainer.style.gap='5px';
-
-          const leftBtn = document.createElement('button');
-          leftBtn.textContent='◀';
-          leftBtn.className='clear-all';
-          leftBtn.addEventListener('click', ()=>{
-            let page = sectionPages.get(cat.id + '-' + rowIndex);
-            if(page > 0){ page--; sectionPages.set(cat.id + '-' + rowIndex, page); renderPage(page);}
-          });
-
-          const rightBtn = document.createElement('button');
-          rightBtn.textContent='▶';
-          rightBtn.className='clear-all';
-          rightBtn.addEventListener('click', ()=>{
-            let page = sectionPages.get(cat.id + '-' + rowIndex);
-            if((page+1)*6 < matches.length){ page++; sectionPages.set(cat.id + '-' + rowIndex, page); renderPage(page);}
-          });
-
-          btnContainer.appendChild(leftBtn);
-          btnContainer.appendChild(rightBtn);
-          rowContainer.appendChild(btnContainer);
-        }
-
         section.appendChild(rowContainer);
       });
 
@@ -348,7 +363,7 @@ function renderSections(){
       return;
     }
 
-    // Other categories
+    // --- OTHER CATEGORIES ---
     let searchTerms = [];
     switch(cat.id){
       case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
@@ -360,7 +375,7 @@ function renderSections(){
 
     const rowContainer = document.createElement('div');
     rowContainer.style.position='relative';
-    rowContainer.style.marginBottom='20px';
+    rowContainer.style.marginBottom='30px';
 
     const grid = document.createElement('div');
     grid.className = 'cards';
@@ -383,65 +398,58 @@ function renderSections(){
       return;
     }
 
-    sectionPages.set(cat.id, 0);
+    const pageKey = cat.id;
+    sectionPages.set(pageKey, 0);
+    const totalPages = Math.ceil(matches.length / 6);
+
     function renderPage(page){
       grid.innerHTML='';
       const start = page*6;
       const end = start+6;
       matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
+      updateButtons(page);
     }
-    renderPage(0);
 
-    // Inside renderSections(), where we create the btnContainer and buttons
-    if(matches.length > 6){
-      const btnContainer = document.createElement('div');
-      btnContainer.style.position='absolute';
-      btnContainer.style.top='-10px'; // move arrows up by 10px
-      btnContainer.style.right='0';
-      btnContainer.style.display='flex';
-      btnContainer.style.gap='5px';
+    const btnContainer = document.createElement('div');
+    btnContainer.style.position='absolute';
+    btnContainer.style.top='-10px';
+    btnContainer.style.right='0';
+    btnContainer.style.display='flex';
+    btnContainer.style.gap='5px';
+    rowContainer.appendChild(btnContainer);
 
-      const leftBtn = document.createElement('button');
-      leftBtn.textContent='◀';
-      leftBtn.className='clear-all';
+    const leftBtn = document.createElement('button');
+    leftBtn.textContent='◀';
+    leftBtn.className='clear-all';
+    const rightBtn = document.createElement('button');
+    rightBtn.textContent='▶';
+    rightBtn.className='clear-all';
+    btnContainer.appendChild(leftBtn);
+    btnContainer.appendChild(rightBtn);
 
-      const rightBtn = document.createElement('button');
-      rightBtn.textContent='▶';
-      rightBtn.className='clear-all';
+    function updateButtons(page){
+      leftBtn.style.display = page > 0 ? 'inline-block' : 'none';
+      rightBtn.style.display = page < totalPages - 1 ? 'inline-block' : 'none';
+    }
 
-      function updateButtons(page, totalPages){
-        leftBtn.style.display = page > 0 ? 'inline-block' : 'none';
-        rightBtn.style.display = page < totalPages - 1 ? 'inline-block' : 'none';
+    leftBtn.addEventListener('click', ()=>{
+      let page = sectionPages.get(pageKey);
+      if(page > 0){
+        page--;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
       }
+    });
+    rightBtn.addEventListener('click', ()=>{
+      let page = sectionPages.get(pageKey);
+      if(page < totalPages - 1){
+        page++;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
+      }
+    });
 
-      leftBtn.addEventListener('click', ()=>{
-        let page = sectionPages.get(cat.id + (rowIndex!==undefined ? '-' + rowIndex : ''));
-        if(page > 0){
-          page--; 
-          sectionPages.set(cat.id + (rowIndex!==undefined ? '-' + rowIndex : ''), page); 
-          renderPage(page);
-          updateButtons(page, Math.ceil(matches.length/6));
-        }
-      });
-
-      rightBtn.addEventListener('click', ()=>{
-        let page = sectionPages.get(cat.id + (rowIndex!==undefined ? '-' + rowIndex : ''));
-        if((page+1)*6 < matches.length){
-          page++; 
-          sectionPages.set(cat.id + (rowIndex!==undefined ? '-' + rowIndex : ''), page); 
-          renderPage(page);
-          updateButtons(page, Math.ceil(matches.length/6));
-        }
-      });
-
-      btnContainer.appendChild(leftBtn);
-      btnContainer.appendChild(rightBtn);
-      rowContainer.appendChild(btnContainer);
-
-      // Initialize button visibility
-      updateButtons(0, Math.ceil(matches.length/6));
-    }
-
+    renderPage(0);
     section.appendChild(rowContainer);
     cardSections.appendChild(section);
   });
@@ -454,7 +462,6 @@ function renderSections(){
     cardSections.appendChild(msg);
   }
 }
-
 
 
 // Keep addToSlot / removeFromSlot / filters unchanged
