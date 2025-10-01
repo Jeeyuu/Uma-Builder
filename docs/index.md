@@ -211,6 +211,7 @@ Promise.all([
   renderSections();
 });
 
+// --- Card element ---
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -227,10 +228,30 @@ function createCardElement(card){
     <div class="name">${escapeHtml(card.name)}</div>
     <div class="skills">${skillsHTML}</div>
   `;
-  el.addEventListener('click', ()=> addToSlot(card));
-  if(selectedCardIds.has(card.id) || isNameBlocked(card.name)) el.classList.add('disabled');
+
+  // --- Toggle behavior ---
+  el.addEventListener('click', ()=>{
+    if(selectedCardIds.has(card.id)){
+      // remove from slot if already added
+      const slot = slots.find(s => Number(s.dataset.cardId) === card.id);
+      if(slot) removeFromSlot(slot, card);
+    } else {
+      addToSlot(card);
+    }
+  });
+
+  // initially dim if in slot
+  if(selectedCardIds.has(card.id)) el.classList.add('disabled');
+
   return el;
 }
+
+// --- Direction mapping for filters ---
+function mapDirection(val){
+  if(!val) return '';
+  return val.toLowerCase() === 'clockwise' ? 'Right-Handed' : 'Left-Handed';
+}
+
 
 function isNameBlocked(name){
   for(const id of selectedCardIds){
