@@ -247,7 +247,7 @@ function renderSections(){
   let any = false;
 
   categories.forEach(cat=>{
-    const val = (document.getElementById(cat.id) || {value:''}).value;
+    let val = (document.getElementById(cat.id) || {value:''}).value;
     if(!val) return;
 
     any = true;
@@ -256,7 +256,7 @@ function renderSections(){
 
     const rows = [];
 
-    // --- Length ---
+    // --- Handle Length ---
     if(cat.id==='length'){
       const dist = parseInt(val);
       let catLabel = '';
@@ -265,33 +265,28 @@ function renderSections(){
       else if(dist <= 2400) catLabel='Medium';
       else catLabel='Long';
 
-      rows.push({title: `${catLabel} Corners`, term: `${catLabel} Corners`});
-      rows.push({title: `${catLabel} Straightaways`, term: `${catLabel} Straightaways`});
-      rows.push({title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
-                 term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'});
+      rows.push(
+        {title: 'Corners', term: `${catLabel} Corners`},
+        {title: 'Straightaways', term: `${catLabel} Straightaways`},
+        {title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
+         term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'}
+      );
     }
-    // --- Racecourse ---
-const matches = row.term ? 
-  cardsData.filter(card =>
-    row.termArr ? row.termArr.some(term =>
-      (card.support_hints||[]).some(h=>h.toLowerCase().includes(term.toLowerCase())) ||
-      (card.event_skills||[]).some(e=>e.toLowerCase().includes(term.toLowerCase()))
-    )
-    : (row.term ? (card.support_hints||[]).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
-      (card.event_skills||[]).some(e=>e.toLowerCase().includes(row.term.toLowerCase())) : true)
-  )
-  : cardsData.slice(); // if term is empty, just show all cards
-
-    // --- Direction, Track, Season, Weather ---
+    // --- Handle Racecourse ---
+    else if(cat.id==='racecourse'){
+      // Show racecourse below cards, no header above
+      rows.push({title: val + ' Racecourse', termArr: []});
+    }
+    // --- Other filters ---
     else {
-      let term = '';
+      let searchTerms = [];
       switch(cat.id){
-        case 'direction': term = val==='Clockwise'?'Right-Handed':'Left-Handed'; break;
-        case 'track': term = val==='Firm'?'Firm Conditions':'Wet Conditions'; break;
-        case 'season': term = val + ' Runner'; break;
-        case 'weather': term = val + ' Days'; break;
+        case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
+        case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
+        case 'season': searchTerms.push(val+' Runner'); break;
+        case 'weather': searchTerms.push(val+' Days'); break;
       }
-      if(term) rows.push({title: term, term});
+      rows.push({title: cat.title, termArr: searchTerms});
     }
 
     rows.forEach((row,rowIndex)=>{
@@ -299,8 +294,9 @@ const matches = row.term ?
       rowContainer.style.position='relative';
       rowContainer.style.marginBottom='30px';
 
-      // Show the title as a small subtitle above the grid
-      if(row.title){
+      // Only show row header if not Length, Direction, Track, Season, Weather
+      if(row.title && row.title !== 'Length' && row.title !== 'Direction' 
+         && row.title !== 'Track Conditions' && row.title !== 'Season' && row.title !== 'Weather'){
         const rowHeader = document.createElement('div');
         rowHeader.textContent = row.title;
         rowHeader.style.fontWeight = 'bold';
@@ -318,7 +314,7 @@ const matches = row.term ?
           (card.event_skills || []).some(e=>e.toLowerCase().includes(term.toLowerCase()))
         )
       ) : cardsData.filter(card =>
-        row.term ?
+        row.term ? 
         (card.support_hints || []).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
         (card.event_skills || []).some(e=>e.toLowerCase().includes(row.term.toLowerCase()))
         : false
@@ -333,6 +329,7 @@ const matches = row.term ?
         return;
       }
 
+      // Pagination
       const pageKey = cat.id+'-'+rowIndex;
       sectionPages.set(pageKey,0);
       const totalPages = Math.ceil(matches.length/6);
@@ -345,6 +342,7 @@ const matches = row.term ?
         updateButtons(page);
       }
 
+      // Pagination buttons
       const btnContainer = document.createElement('div');
       btnContainer.style.position='absolute';
       btnContainer.style.top='2px';
@@ -412,7 +410,6 @@ const matches = row.term ?
     cardSections.appendChild(msg);
   }
 }
-
 
 
 // --- Slot handling ---
