@@ -241,165 +241,191 @@ function isNameBlocked(name){
 }
 
 // Render card sections with unified pagination
-function renderSections() {
+function renderSections(){
   cardSections.innerHTML = '';
   sectionPages.clear();
   let any = false;
 
-  function normalizeText(s) {
-    return s.replace(/[◎○]/g, '').trim().toLowerCase();
+  function normalizeText(s){
+  return s.replace(/[◎○]/g,'').trim().toLowerCase();
+}
+
+categories.forEach(cat=>{
+  let val = (document.getElementById(cat.id) || {value:''}).value;
+  if(!val) return;
+
+  any = true;
+  const section = document.createElement('div');
+  section.className = 'card-section';
+  const header = document.createElement('h2');
+  header.textContent = `${cat.title}: ${val}`;
+  section.appendChild(header);
+
+  const rows = [];
+
+  if(cat.id==='length'){
+    const dist = parseInt(val);
+    let catLabel = '';
+    if(dist <= 1400) catLabel='Sprint';
+    else if(dist <= 1800) catLabel='Mile';
+    else if(dist <= 2400) catLabel='Medium';
+    else catLabel='Long';
+
+    rows.push(
+      {title: '', term: `${catLabel} Corners`}, 
+      {title: '', term: `${catLabel} Straightaways`}, 
+      {title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
+      term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'}
+    );
+
+  } else {
+    let searchTerms = [];
+    switch(cat.id){
+      case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
+      case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
+      case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
+      case 'season': searchTerms.push(val+' Runner'); break;
+      case 'weather': searchTerms.push(val+' Days'); break;
+    }
+    rows.push({title: cat.title, termArr: searchTerms});
   }
 
-  categories.forEach(cat => {
-    const val = (document.getElementById(cat.id) || { value: '' }).value;
-    if (!val) return;
+  rows.forEach((row,rowIndex)=>{
+    const rowContainer = document.createElement('div');
+    rowContainer.style.position='relative';
+    rowContainer.style.marginBottom='30px';
 
-    any = true;
-    const section = document.createElement('div');
-    section.className = 'card-section';
+const rowHeader = document.createElement('div');
+rowHeader.style.fontWeight = 'bold';
+rowHeader.style.marginBottom = '6px';
 
-    const rows = [];
+// Use selected value for presentation if available
+if(cat.id === 'racecourse' && val) {
+    rowHeader.textContent = `${val} Racecourse`;
+} else if(cat.id === 'direction' && val) {
+    rowHeader.textContent = `${val} Direction`;
+} else if(cat.id === 'track' && val) {
+    rowHeader.textContent = `${val} Track Conditions`;
+} else if(cat.id === 'season' && val) {
+    rowHeader.textContent = `${val} Season`;
+} else if(cat.id === 'weather' && val) {
+    rowHeader.textContent = `${val} Weather`;
+} else {
+    rowHeader.textContent = row.title; // fallback for other rows (e.g., Length)
+}
 
-    if (cat.id === 'length') {
-      const dist = parseInt(val);
-      let catLabel = '';
-      if (dist < 1400) catLabel = 'Sprint';
-      else if (dist <= 1800) catLabel = 'Mile';
-      else if (dist <= 2400) catLabel = 'Medium';
-      else catLabel = 'Long';
+    rowHeader.style.fontWeight = 'bold';
+    rowHeader.style.marginBottom = '6px';
+    rowContainer.appendChild(rowHeader);
 
-      // Corners / Straightaways with prepended label
-      rows.push({ title: '', termArr: [`${catLabel} Corners`] });
-      rows.push({ title: '', termArr: [`${catLabel} Straightaways`] });
+    const grid = document.createElement('div');
+    grid.className = 'cards';
+    rowContainer.appendChild(grid);
 
-      // Standard / Non-Standard Distance
-      rows.push({ title: '', termArr: [dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'] });
-    } else {
-      let searchTerms = [];
-      switch (cat.id) {
-        case 'racecourse': searchTerms.push(`${val} Racecourse`); break;
-        case 'direction': searchTerms.push(val === 'Clockwise' ? 'Right-Handed' : 'Left-Handed'); break;
-        case 'track': searchTerms.push(val === 'Firm' ? 'Firm Conditions' : 'Wet Conditions'); break;
-        case 'season': searchTerms.push(`${val} Runner`); break;
-        case 'weather': searchTerms.push(`${val} Days`); break;
+    // --- FILTER MATCHES ---
+    const matches = row.termArr ? cardsData.filter(card =>
+      row.termArr.some(term =>
+        (card.support_hints || []).some(h=>{
+          if(cat.id==='length' && row.title.includes('Distance')){
+            return normalizeText(h) === term.toLowerCase();
+          }
+          return h.toLowerCase().includes(term.toLowerCase());
+        }) ||
+        (card.event_skills || []).some(e=>{
+          if(cat.id==='length' && row.title.includes('Distance')){
+            return normalizeText(e) === term.toLowerCase();
+          }
+          return e.toLowerCase().includes(term.toLowerCase());
+        })
+      )
+    ) : cardsData.filter(card=>{
+      if(cat.id==='length' && row.title.includes('Distance')){
+        return (card.support_hints || []).some(h=>normalizeText(h) === row.term.toLowerCase()) ||
+               (card.event_skills || []).some(e=>normalizeText(e) === row.term.toLowerCase());
       }
-      rows.push({ title: cat.title, termArr: searchTerms });
-    }
-
-    rows.forEach((row, rowIndex) => {
-      const rowContainer = document.createElement('div');
-      rowContainer.style.position = 'relative';
-      rowContainer.style.marginBottom = '30px';
-
-      // Only render header if row.title exists
-      if (row.title) {
-        const rowHeader = document.createElement('div');
-        rowHeader.style.fontWeight = 'bold';
-        rowHeader.style.marginBottom = '6px';
-        rowHeader.textContent = row.title;
-        rowContainer.appendChild(rowHeader);
-      }
-
-      const grid = document.createElement('div');
-      grid.className = 'cards';
-      rowContainer.appendChild(grid);
-
-      // --- FILTER MATCHES ---
-      const matches = cardsData.filter(card =>
-        row.termArr.some(term =>
-          (card.support_hints || []).some(h => normalizeText(h) === term.toLowerCase()) ||
-          (card.event_skills || []).some(e => normalizeText(e) === term.toLowerCase())
-        )
-      );
-
-      if (matches.length === 0) {
-        const noMsg = document.createElement('div');
-        noMsg.style.opacity = '0.6';
-        noMsg.textContent = '(No matching cards)';
-        grid.appendChild(noMsg);
-        section.appendChild(rowContainer);
-        return;
-      }
-
-      // --- Pagination ---
-      const pageKey = cat.id + '-' + rowIndex;
-      sectionPages.set(pageKey, 0);
-      const totalPages = Math.ceil(matches.length / 6);
-
-      function renderPage(page) {
-        grid.innerHTML = '';
-        const start = page * 6;
-        const end = start + 6;
-        matches.slice(start, end).forEach(card => grid.appendChild(createCardElement(card)));
-        updateButtons(page);
-      }
-
-      const btnContainer = document.createElement('div');
-      btnContainer.style.position = 'absolute';
-      btnContainer.style.top = '2px';
-      btnContainer.style.right = '0';
-      btnContainer.style.display = 'flex';
-      btnContainer.style.gap = '5px';
-      rowContainer.appendChild(btnContainer);
-
-      const leftBtn = document.createElement('button');
-      leftBtn.textContent = '◀';
-      leftBtn.style.opacity = '0.4';
-      leftBtn.style.pointerEvents = 'none';
-      leftBtn.style.border = 'none';
-      leftBtn.style.borderRadius = '6px';
-      leftBtn.style.background = '#444';
-      leftBtn.style.color = '#fff';
-      const rightBtn = document.createElement('button');
-      rightBtn.textContent = '▶';
-      rightBtn.style.opacity = '0.4';
-      rightBtn.style.pointerEvents = 'none';
-      rightBtn.style.border = 'none';
-      rightBtn.style.borderRadius = '6px';
-      rightBtn.style.background = '#444';
-      rightBtn.style.color = '#fff';
-      btnContainer.appendChild(leftBtn);
-      btnContainer.appendChild(rightBtn);
-
-      function updateButtons(page) {
-        leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-        leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-        rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-        rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
-      }
-
-      leftBtn.addEventListener('click', () => {
-        let page = sectionPages.get(pageKey);
-        if (page > 0) {
-          page--;
-          sectionPages.set(pageKey, page);
-          renderPage(page);
-        }
-      });
-      rightBtn.addEventListener('click', () => {
-        let page = sectionPages.get(pageKey);
-        if (page < totalPages - 1) {
-          page++;
-          sectionPages.set(pageKey, page);
-          renderPage(page);
-        }
-      });
-
-      renderPage(0);
-      section.appendChild(rowContainer);
+      return (card.support_hints || []).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
+             (card.event_skills || []).some(e=>e.toLowerCase().includes(row.term.toLowerCase()));
     });
 
-    cardSections.appendChild(section);
+    // --- RENDERING PAGE ---
+    if(matches.length===0){
+      const noMsg = document.createElement('div');
+      noMsg.style.opacity='0.6';
+      noMsg.textContent='(No matching cards)';
+      grid.appendChild(noMsg);
+      section.appendChild(rowContainer);
+      return;
+    }
+
+    const pageKey = cat.id+'-'+rowIndex;
+    sectionPages.set(pageKey,0);
+    const totalPages = Math.ceil(matches.length/6);
+
+    function renderPage(page){
+      grid.innerHTML='';
+      const start = page*6;
+      const end = start+6;
+      matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
+      updateButtons(page);
+    }
+
+    const btnContainer = document.createElement('div');
+    btnContainer.style.position='absolute';
+    btnContainer.style.top='2px';
+    btnContainer.style.right='0';
+    btnContainer.style.display='flex';
+    btnContainer.style.gap='5px';
+    rowContainer.appendChild(btnContainer);
+
+    const leftBtn = document.createElement('button');
+    leftBtn.textContent='◀';
+    leftBtn.style.opacity='0.4';
+    leftBtn.style.pointerEvents='none';
+    leftBtn.style.border='none';
+    leftBtn.style.borderRadius='6px';
+    leftBtn.style.background='#444';
+    leftBtn.style.color='#fff';
+    const rightBtn = document.createElement('button');
+    rightBtn.textContent='▶';
+    rightBtn.style.opacity='0.4';
+    rightBtn.style.pointerEvents='none';
+    rightBtn.style.border='none';
+    rightBtn.style.borderRadius='6px';
+    rightBtn.style.background='#444';
+    rightBtn.style.color='#fff';
+    btnContainer.appendChild(leftBtn);
+    btnContainer.appendChild(rightBtn);
+
+    function updateButtons(page){
+      leftBtn.style.opacity = page>0?'1':'0.4';
+      leftBtn.style.pointerEvents = page>0?'auto':'none';
+      rightBtn.style.opacity = page<totalPages-1?'1':'0.4';
+      rightBtn.style.pointerEvents = page<totalPages-1?'auto':'none';
+    }
+
+    leftBtn.addEventListener('click',()=>{
+      let page = sectionPages.get(pageKey);
+      if(page>0){
+        page--;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
+      }
+    });
+    rightBtn.addEventListener('click',()=>{
+      let page = sectionPages.get(pageKey);
+      if(page<totalPages-1){
+        page++;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
+      }
+    });
+
+    renderPage(0);
+    section.appendChild(rowContainer);
   });
 
-  if (!any) {
-    const msg = document.createElement('div');
-    msg.style.opacity = '0.7';
-    msg.style.marginTop = '8px';
-    msg.textContent = 'Select options from the left to show matching card sections.';
-    cardSections.appendChild(msg);
-  }
-}
+  cardSections.appendChild(section);
+});
 
 
   if(!any){
