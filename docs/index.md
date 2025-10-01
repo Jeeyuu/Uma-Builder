@@ -257,7 +257,7 @@ function renderSections(){
     header.textContent = `${cat.title}: ${val}`;
     section.appendChild(header);
 
-    // --------- Length filter special handling ---------
+    // Length filter special handling
     if(cat.id === 'length'){
       const dist = parseInt(val);
       let catLabel = '';
@@ -274,15 +274,19 @@ function renderSections(){
       ];
 
       rows.forEach((row,rowIndex)=>{
+        const rowContainer = document.createElement('div');
+        rowContainer.style.position='relative';
+        rowContainer.style.marginBottom='20px';
+
         const rowHeader = document.createElement('div');
         rowHeader.textContent = row.title;
         rowHeader.style.fontWeight = 'bold';
         rowHeader.style.marginBottom = '6px';
-        section.appendChild(rowHeader);
+        rowContainer.appendChild(rowHeader);
 
         const grid = document.createElement('div');
         grid.className = 'cards';
-        section.appendChild(grid);
+        rowContainer.appendChild(grid);
 
         const matches = cardsData.filter(card =>
           (card.support_hints || []).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
@@ -294,6 +298,7 @@ function renderSections(){
           noMsg.style.opacity='0.6';
           noMsg.textContent='(No matching cards)';
           grid.appendChild(noMsg);
+          section.appendChild(rowContainer);
           return;
         }
 
@@ -309,10 +314,11 @@ function renderSections(){
 
         if(matches.length > 6){
           const btnContainer = document.createElement('div');
+          btnContainer.style.position='absolute';
+          btnContainer.style.top='0';
+          btnContainer.style.right='0';
           btnContainer.style.display='flex';
-          btnContainer.style.justifyContent='center';
-          btnContainer.style.gap='10px';
-          btnContainer.style.marginBottom='10px';
+          btnContainer.style.gap='5px';
 
           const leftBtn = document.createElement('button');
           leftBtn.textContent='◀';
@@ -332,16 +338,17 @@ function renderSections(){
 
           btnContainer.appendChild(leftBtn);
           btnContainer.appendChild(rightBtn);
-          section.appendChild(btnContainer);
+          rowContainer.appendChild(btnContainer);
         }
+
+        section.appendChild(rowContainer);
       });
 
       cardSections.appendChild(section);
       return;
     }
-    // --------- End of Length special handling ---------
 
-    // --------- Other categories ---------
+    // Other categories
     let searchTerms = [];
     switch(cat.id){
       case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
@@ -351,9 +358,13 @@ function renderSections(){
       case 'weather': searchTerms.push(val+' Days'); break;
     }
 
+    const rowContainer = document.createElement('div');
+    rowContainer.style.position='relative';
+    rowContainer.style.marginBottom='20px';
+
     const grid = document.createElement('div');
     grid.className = 'cards';
-    section.appendChild(grid);
+    rowContainer.appendChild(grid);
 
     const matches = cardsData.filter(card =>
       searchTerms.some(term =>
@@ -367,6 +378,7 @@ function renderSections(){
       noMsg.style.opacity='0.6';
       noMsg.textContent='(No matching cards)';
       grid.appendChild(noMsg);
+      section.appendChild(rowContainer);
       cardSections.appendChild(section);
       return;
     }
@@ -382,10 +394,11 @@ function renderSections(){
 
     if(matches.length > 6){
       const btnContainer = document.createElement('div');
+      btnContainer.style.position='absolute';
+      btnContainer.style.top='0';
+      btnContainer.style.right='0';
       btnContainer.style.display='flex';
-      btnContainer.style.justifyContent='center';
-      btnContainer.style.gap='10px';
-      btnContainer.style.marginBottom='10px';
+      btnContainer.style.gap='5px';
 
       const leftBtn = document.createElement('button');
       leftBtn.textContent='◀';
@@ -405,9 +418,10 @@ function renderSections(){
 
       btnContainer.appendChild(leftBtn);
       btnContainer.appendChild(rightBtn);
-      section.appendChild(btnContainer);
+      rowContainer.appendChild(btnContainer);
     }
 
+    section.appendChild(rowContainer);
     cardSections.appendChild(section);
   });
 
@@ -419,6 +433,7 @@ function renderSections(){
     cardSections.appendChild(msg);
   }
 }
+
 
 
 // Keep addToSlot / removeFromSlot / filters unchanged
