@@ -168,399 +168,156 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 </div>
 
 <script>
-let cardsData = [];
-const cardSections = document.getElementById('cardSections');
-const slots = Array.from(document.querySelectorAll('.slot'));
-const clearAllBtn = document.getElementById('clearAllBtn');
-const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-const selectedCardIds = new Set();
-
-const categories = [
-  {id:'racecourse', title:'Racecourse', prop:'racecourse'},
-  {id:'length', title:'Length', prop:'length'},
-  {id:'direction', title:'Direction', prop:'direction'},
-  {id:'track', title:'Track Conditions', prop:'track'},
-  {id:'season', title:'Season', prop:'season'},
-  {id:'weather', title:'Weather', prop:'weather'}
-];
-
-const slotListeners = new Map();
-const typeMap = {
-  "Speed":"00",
-  "Stamina":"01",
-  "Power":"02",
-  "Guts":"03",
-  "Intelligence":"04",
-  "Support":"05",
-  "Group":"06"
-};
-
-// Pagination storage per section
-const sectionPages = new Map();
-
-Promise.all([
-  fetch("supportcards_SSR.json").then(r=>r.json()),
-  fetch("supportcards_SR.json").then(r=>r.json()),
-  fetch("supportcards_R.json").then(r=>r.json())
-]).then(([ssr, sr, r])=>{
-  cardsData = [...ssr, ...sr, ...r].map(card=>({
-    ...card,
-    image: `https://gametora.com/images/umamusume/supports/support_card_s_${card.id}.png`,
-    typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png`
-  }));
-  renderSections();
-});
-
-function createCardElement(card){
-  const el = document.createElement('div');
-  el.className = 'card';
-  el.dataset.id = card.id;
-  el.dataset.name = card.name;
-
-  let skillsHTML = '';
-  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-
-  el.innerHTML = `
-    <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
-    <img src="${card.image}" alt="${escapeHtml(card.name)}">
-    <div class="name">${escapeHtml(card.name)}</div>
-    <div class="skills">${skillsHTML}</div>
-  `;
-  el.addEventListener('click', ()=> addToSlot(card));
-  if(selectedCardIds.has(card.id) || isNameBlocked(card.name)) el.classList.add('disabled');
-  return el;
-}
-
-function isNameBlocked(name){
-  for(const id of selectedCardIds){
-    const chosen = cardsData.find(c=>c.id===id);
-    if(chosen && chosen.name===name) return true;
-  }
-  return false;
-}
-
-// Render card sections with pagination
-function renderSections(){
-  cardSections.innerHTML = '';
-  sectionPages.clear();
-  let any = false;
-
-  categories.forEach(cat=>{
-    let val = (document.getElementById(cat.id) || {value:''}).value;
-    if(!val) return;
-
-    any = true;
-    const section = document.createElement('div');
-    section.className = 'card-section';
-    const header = document.createElement('h2');
-    header.textContent = `${cat.title}: ${val}`;
-    section.appendChild(header);
-
-    // --- LENGTH SPECIAL HANDLING ---
-    if(cat.id === 'length'){
-      const dist = parseInt(val);
-      let catLabel = '';
-      if(dist <= 1400) catLabel='Sprint';
-      else if(dist <= 1800) catLabel='Mile';
-      else if(dist <= 2400) catLabel='Medium';
-      else catLabel='Long';
-
-      const rows = [
-        {title: 'Corners', term: `${catLabel} Corners`},
-        {title: 'Straightaways', term: `${catLabel} Straightaways`},
-        {title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
-         term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'}
-      ];
-
-      rows.forEach((row,rowIndex)=>{
-        const rowContainer = document.createElement('div');
-        rowContainer.style.position='relative';
-        rowContainer.style.marginBottom='30px'; // enough space for arrows
-
-        const rowHeader = document.createElement('div');
-        rowHeader.textContent = row.title;
-        rowHeader.style.fontWeight = 'bold';
-        rowHeader.style.marginBottom = '6px';
-        rowContainer.appendChild(rowHeader);
-
-        const grid = document.createElement('div');
-        grid.className = 'cards';
-        rowContainer.appendChild(grid);
-
-        const matches = cardsData.filter(card =>
-          (card.support_hints || []).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
-          (card.event_skills || []).some(e=>e.toLowerCase().includes(row.term.toLowerCase()))
-        );
-
-        if(matches.length === 0){
-          const noMsg = document.createElement('div');
-          noMsg.style.opacity='0.6';
-          noMsg.textContent='(No matching cards)';
-          grid.appendChild(noMsg);
-          section.appendChild(rowContainer);
-          return;
-        }
-
-        // --- PAGINATION ---
-        const pageKey = cat.id + '-' + rowIndex;
-        sectionPages.set(pageKey, 0);
-        const totalPages = Math.ceil(matches.length / 6);
-
-        function renderPage(page){
-          grid.innerHTML = '';
-          const start = page*6;
-          const end = start+6;
-          matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
-          updateButtons(page);
-        }
-
-        // --- ARROWS ---
-        const btnContainer = document.createElement('div');
-        btnContainer.style.position='absolute';
-        btnContainer.style.top='-20px';
-        btnContainer.style.right='0';
-        btnContainer.style.display='flex';
-        btnContainer.style.gap='5px';
-        rowContainer.appendChild(btnContainer);
-
-        const leftBtn = document.createElement('button');
-        leftBtn.textContent='◀';
-        leftBtn.className='clear-all';
-        const rightBtn = document.createElement('button');
-        rightBtn.textContent='▶';
-        rightBtn.className='clear-all';
-        btnContainer.appendChild(leftBtn);
-        btnContainer.appendChild(rightBtn);
-
-function updateButtons(page){
-  if(page > 0){
-    leftBtn.style.opacity = '1';
-    leftBtn.style.pointerEvents = 'auto';
-  } else {
-    leftBtn.style.opacity = '0.4';
-    leftBtn.style.pointerEvents = 'none';
-  }
-
-  if(page < totalPages - 1){
-    rightBtn.style.opacity = '1';
-    rightBtn.style.pointerEvents = 'auto';
-  } else {
-    rightBtn.style.opacity = '0.4';
-    rightBtn.style.pointerEvents = 'none';
-  }
-}
-
-        leftBtn.addEventListener('click', ()=>{
-          let page = sectionPages.get(pageKey);
-          if(page > 0){
-            page--;
-            sectionPages.set(pageKey, page);
-            renderPage(page);
-          }
-        });
-        rightBtn.addEventListener('click', ()=>{
-          let page = sectionPages.get(pageKey);
-          if(page < totalPages - 1){
-            page++;
-            sectionPages.set(pageKey, page);
-            renderPage(page);
-          }
-        });
-
-        renderPage(0);
-        section.appendChild(rowContainer);
-      });
-
-      cardSections.appendChild(section);
-      return;
-    }
-
-    // --- OTHER CATEGORIES ---
-    let searchTerms = [];
-    switch(cat.id){
-      case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
-      case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
-      case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
-      case 'season': searchTerms.push(val+' Runner'); break;
-      case 'weather': searchTerms.push(val+' Days'); break;
-    }
-
-    const rowContainer = document.createElement('div');
-    rowContainer.style.position='relative';
-    rowContainer.style.marginBottom='30px';
-
-    const grid = document.createElement('div');
-    grid.className = 'cards';
-    rowContainer.appendChild(grid);
-
-    const matches = cardsData.filter(card =>
-      searchTerms.some(term =>
-        (card.support_hints || []).some(h=>h.toLowerCase().includes(term.toLowerCase())) ||
-        (card.event_skills || []).some(e=>e.toLowerCase().includes(term.toLowerCase()))
-      )
-    );
-
-    if(matches.length===0){
-      const noMsg = document.createElement('div');
-      noMsg.style.opacity='0.6';
-      noMsg.textContent='(No matching cards)';
-      grid.appendChild(noMsg);
-      section.appendChild(rowContainer);
-      cardSections.appendChild(section);
-      return;
-    }
-
-    const pageKey = cat.id;
-    sectionPages.set(pageKey, 0);
-    const totalPages = Math.ceil(matches.length / 6);
-
-    function renderPage(page){
-      grid.innerHTML='';
-      const start = page*6;
-      const end = start+6;
-      matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
-      updateButtons(page);
-    }
-
+// --- Pagination helper ---
+function createPagination(rowContainer, matches, pageKey, renderCardsPerPage) {
     const btnContainer = document.createElement('div');
-    btnContainer.style.position='absolute';
-    btnContainer.style.top='-10px';
-    btnContainer.style.right='0';
-    btnContainer.style.display='flex';
-    btnContainer.style.gap='5px';
+    btnContainer.style.position = 'absolute';
+    btnContainer.style.top = '-20px';
+    btnContainer.style.right = '0';
+    btnContainer.style.display = 'flex';
+    btnContainer.style.gap = '5px';
     rowContainer.appendChild(btnContainer);
 
     const leftBtn = document.createElement('button');
-    leftBtn.textContent='◀';
-    leftBtn.className='clear-all';
+    leftBtn.textContent = '◀';
+    leftBtn.className = 'clear-all';
     const rightBtn = document.createElement('button');
-    rightBtn.textContent='▶';
-    rightBtn.className='clear-all';
+    rightBtn.textContent = '▶';
+    rightBtn.className = 'clear-all';
     btnContainer.appendChild(leftBtn);
     btnContainer.appendChild(rightBtn);
 
-    function updateButtons(page){
-      leftBtn.style.display = page > 0 ? 'inline-block' : 'none';
-      rightBtn.style.display = page < totalPages - 1 ? 'inline-block' : 'none';
+    const totalPages = Math.ceil(matches.length / 6);
+    sectionPages.set(pageKey, 0);
+
+    function updateButtons(page) {
+        leftBtn.style.opacity = page > 0 ? '1' : '0.4';
+        leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
+        rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
+        rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
     }
 
-    leftBtn.addEventListener('click', ()=>{
-      let page = sectionPages.get(pageKey);
-      if(page > 0){
-        page--;
-        sectionPages.set(pageKey,page);
-        renderPage(page);
-      }
-    });
-    rightBtn.addEventListener('click', ()=>{
-      let page = sectionPages.get(pageKey);
-      if(page < totalPages - 1){
-        page++;
-        sectionPages.set(pageKey,page);
-        renderPage(page);
-      }
+    leftBtn.addEventListener('click', () => {
+        let page = sectionPages.get(pageKey);
+        if (page > 0) {
+            page--;
+            sectionPages.set(pageKey, page);
+            renderCardsPerPage(page);
+        }
     });
 
-    renderPage(0);
-    section.appendChild(rowContainer);
-    cardSections.appendChild(section);
-  });
+    rightBtn.addEventListener('click', () => {
+        let page = sectionPages.get(pageKey);
+        if (page < totalPages - 1) {
+            page++;
+            sectionPages.set(pageKey, page);
+            renderCardsPerPage(page);
+        }
+    });
 
-  if(!any){
-    const msg=document.createElement('div');
-    msg.style.opacity='0.7';
-    msg.style.marginTop='8px';
-    msg.textContent='Select options from the left to show matching card sections.';
-    cardSections.appendChild(msg);
-  }
+    return function renderPage(page) {
+        renderCardsPerPage(page);
+        updateButtons(page);
+    };
 }
 
+// --- Render sections ---
+function renderSections() {
+    cardSections.innerHTML = '';
+    sectionPages.clear();
+    let any = false;
 
-// Keep addToSlot / removeFromSlot / filters unchanged
-function addToSlot(card){
-  const freeSlot = slots.find(s=>!s.dataset.cardId);
-  if(!freeSlot) return;
+    categories.forEach(cat => {
+        const val = (document.getElementById(cat.id) || { value: '' }).value;
+        if (!val) return;
+        any = true;
 
-  if(slotListeners.has(freeSlot)){
-    freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
-    slotListeners.delete(freeSlot);
-  }
+        const section = document.createElement('div');
+        section.className = 'card-section';
+        const header = document.createElement('h2');
+        header.textContent = `${cat.title}: ${val}`;
+        section.appendChild(header);
 
-  let skillsHTML = '';
-  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+        let rows = [];
+        if (cat.id === 'length') {
+            const dist = parseInt(val);
+            let catLabel = '';
+            if (dist <= 1400) catLabel = 'Sprint';
+            else if (dist <= 1800) catLabel = 'Mile';
+            else if (dist <= 2400) catLabel = 'Medium';
+            else catLabel = 'Long';
+            rows = [
+                { title: 'Corners', term: `${catLabel} Corners` },
+                { title: 'Straightaways', term: `${catLabel} Straightaways` },
+                { title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
+                  term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance' }
+            ];
+        } else {
+            let searchTerms = [];
+            switch (cat.id) {
+                case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
+                case 'direction': searchTerms.push(val === 'Clockwise' ? 'Right-Handed' : 'Left-Handed'); break;
+                case 'track': searchTerms.push(val === 'Firm' ? 'Firm Conditions' : 'Wet Conditions'); break;
+                case 'season': searchTerms.push(val + ' Runner'); break;
+                case 'weather': searchTerms.push(val + ' Days'); break;
+            }
+            rows = [{ title: cat.title, term: searchTerms }];
+        }
 
-  freeSlot.dataset.cardId = card.id;
-  freeSlot.classList.add('has-card');
-  freeSlot.innerHTML = `
-    <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
-    <img src="${card.image}" alt="${escapeHtml(card.name)}">
-    <div class="name">${escapeHtml(card.name)}</div>
-    <div class="skills">${skillsHTML}</div>
-  `;
+        rows.forEach((row, rowIndex) => {
+            const rowContainer = document.createElement('div');
+            rowContainer.style.position = 'relative';
+            rowContainer.style.marginBottom = '30px';
 
-  function slotClickHandler(){ removeFromSlot(freeSlot, card); }
-  freeSlot.addEventListener('click', slotClickHandler);
-  slotListeners.set(freeSlot, slotClickHandler);
+            const rowHeader = document.createElement('div');
+            rowHeader.textContent = row.title;
+            rowHeader.style.fontWeight = 'bold';
+            rowHeader.style.marginBottom = '6px';
+            rowContainer.appendChild(rowHeader);
 
-  selectedCardIds.add(card.id);
-  renderSections();
-}
+            const grid = document.createElement('div');
+            grid.className = 'cards';
+            rowContainer.appendChild(grid);
 
-function removeFromSlot(slotEl, card){
-  if(slotListeners.has(slotEl)){
-    slotEl.removeEventListener('click', slotListeners.get(slotEl));
-    slotListeners.delete(slotEl);
-  }
-  slotEl.classList.remove('has-card');
-  delete slotEl.dataset.cardId;
-  slotEl.innerHTML = '';
-  selectedCardIds.delete(Number(card.id));
-  renderSections();
-}
+            const matches = cardsData.filter(card =>
+                (Array.isArray(row.term) ? row.term : [row.term]).some(term =>
+                    (card.support_hints || []).some(h => h.toLowerCase().includes(term.toLowerCase())) ||
+                    (card.event_skills || []).some(e => e.toLowerCase().includes(term.toLowerCase()))
+                )
+            );
 
-clearAllBtn.addEventListener('click', ()=>{
-  selectedCardIds.clear();
-  slots.forEach(slot=>{
-    if(slotListeners.has(slot)){
-      slot.removeEventListener('click', slotListeners.get(slot));
-      slotListeners.delete(slot);
+            if (matches.length === 0) {
+                const noMsg = document.createElement('div');
+                noMsg.style.opacity = '0.6';
+                noMsg.textContent = '(No matching cards)';
+                grid.appendChild(noMsg);
+                section.appendChild(rowContainer);
+                return;
+            }
+
+            const pageKey = cat.id + '-' + rowIndex;
+            const renderPage = createPagination(rowContainer, matches, pageKey, page => {
+                grid.innerHTML = '';
+                matches.slice(page * 6, page * 6 + 6).forEach(card => grid.appendChild(createCardElement(card)));
+            });
+
+            renderPage(0);
+            section.appendChild(rowContainer);
+        });
+
+        cardSections.appendChild(section);
+    });
+
+    if (!any) {
+        const msg = document.createElement('div');
+        msg.style.opacity = '0.7';
+        msg.style.marginTop = '8px';
+        msg.textContent = 'Select options from the left to show matching card sections.';
+        cardSections.appendChild(msg);
     }
-    slot.classList.remove('has-card');
-    delete slot.dataset.cardId;
-    slot.innerHTML='';
-  });
-  renderSections();
-});
-
-clearFiltersBtn.addEventListener('click', ()=>{
-  categories.forEach(cat=>{
-    const sel=document.getElementById(cat.id);
-    if(sel){
-      sel.value='';
-      localStorage.removeItem('filter_'+cat.id);
-    }
-  });
-  renderSections();
-});
-
-function setupFilterPersistence(){
-  categories.forEach(cat=>{
-    const sel=document.getElementById(cat.id);
-    if(!sel) return;
-    const saved = localStorage.getItem('filter_'+cat.id);
-    if(saved) sel.value=saved;
-    sel.addEventListener('change', ()=>{
-      localStorage.setItem('filter_'+cat.id, sel.value);
-      renderSections();
-    });
-  });
 }
-
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-setupFilterPersistence();
 </script>
+
 
 </body>
 </html>
