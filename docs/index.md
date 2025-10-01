@@ -265,7 +265,7 @@ function isNameBlocked(name){
 // Render card sections with unified pagination
 function renderSections(){
   cardSections.innerHTML = '';
-  sectionPages.clear();
+
   let any = false;
 
   function normalizeText(s){
@@ -378,8 +378,11 @@ if(cat.id === 'racecourse' && val) {
       return;
     }
 
-    const pageKey = cat.id+'-'+rowIndex;
-    sectionPages.set(pageKey,0);
+const pageKey = cat.id+'-'+rowIndex;
+const currentPage = sectionPages.get(pageKey) || 0;
+sectionPages.set(pageKey, currentPage);
+renderPage(currentPage);
+
     const totalPages = Math.ceil(matches.length/6);
 
     function renderPage(page){
@@ -441,7 +444,6 @@ if(cat.id === 'racecourse' && val) {
       }
     });
 
-    renderPage(0);
     section.appendChild(rowContainer);
   });
 
