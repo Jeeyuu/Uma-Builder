@@ -118,68 +118,79 @@ const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
 
 const categories = [
-  {id:'racecourse', title:'Racecourse'},
-  {id:'length', title:'Length'},
-  {id:'direction', title:'Direction'},
-  {id:'track', title:'Track Conditions'},
-  {id:'season', title:'Season'},
-  {id:'weather', title:'Weather'}
+  {id:'racecourse', title:'Racecourse', prop:'racecourse'},
+  {id:'length', title:'Length', prop:'length'},
+  {id:'direction', title:'Direction', prop:'direction'},
+  {id:'track', title:'Track Conditions', prop:'track'},
+  {id:'season', title:'Season', prop:'season'},
+  {id:'weather', title:'Weather', prop:'weather'}
 ];
 
 const slotListeners = new Map();
 
-async function loadCards() {
-  const files = ["supportcards_R.json","supportcards_SR.json","supportcards_SSR.json"];
-  let all = [];
+// type → icon code map
+const typeMap = {
+  "Speed":"00",
+  "Stamina":"01",
+  "Power":"02",
+  "Guts":"03",
+  "Wit":"04",
+  "Support":"05"
+};
 
-  for (const f of files) {
-    try {
-      const res = await fetch(f);
-      if (!res.ok) throw new Error(`Failed to load ${f}`);
-      const data = await res.json();
-      all = all.concat(data);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  cardsData = all.map(card => ({
-    id: card.id,
-    name: card.name,
-    rarity: card.rarity,
-    type: card.type,
-    start_date: card.start_date,
-    end_date: card.end_date,
+// load all jsons (SSR first, then SR, then R)
+Promise.all([
+  fetch("supportcards_SSR.json").then(r=>r.json()),
+  fetch("supportcards_SR.json").then(r=>r.json()),
+  fetch("supportcards_R.json").then(r=>r.json())
+]).then(([ssr, sr, r])=>{
+  cardsData = [...ssr, ...sr, ...r].map(card=>({
+    ...card,
     image: `https://gametora.com/images/umamusume/supports/support_card_s_${card.id}.png`,
-    support_hints: card.support_hints || [],
-    event_skills: card.event_skills || []
+    typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type.toLowerCase() ? card.type.toLowerCase().replace(/^\w/, c=>c.toUpperCase()) : card.type] || "xx"}.png`
   }));
-
   renderSections();
-}
+});
 
+// create card element
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
   el.dataset.id = card.id;
+  el.dataset.name = card.name;
+
   el.innerHTML = `
-    <div class="type-icon">${escapeHtml(card.rarity)}</div>
-    <img src="${card.image}" alt="${card.name}">
+    <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
+    <img src="${card.image}" alt="${escapeHtml(card.name)}">
     <div class="name">${escapeHtml(card.name)}</div>
     <div class="skills">
       <div class="skills-group">
         <div class="skills-header">Support Hints</div>
-        ${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+        ${(card.support_hints||[]).map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
       </div>
       <div class="skills-group">
         <div class="skills-header">Event Skills</div>
-        ${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+        ${(card.event_skills||[]).map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
       </div>
     </div>
   `;
+
   el.addEventListener('click', ()=> addToSlot(card));
-  if(selectedCardIds.has(card.id)) el.classList.add('disabled');
+
+  if(selectedCardIds.has(card.id) || isNameBlocked(card.name)){
+    el.classList.add('disabled');
+  }
+
   return el;
+}
+
+// check if card with same name already chosen
+function isNameBlocked(name){
+  for(const id of selectedCardIds){
+    const chosen = cardsData.find(c=>c.id===id);
+    if(chosen && chosen.name===name) return true;
+  }
+  return false;
 }
 
 function renderSections(){
@@ -187,22 +198,33 @@ function renderSections(){
   let any = false;
 
   categories.forEach(cat=>{
-    const val = (document.getElementById(cat.id) || {value: ''}).value;
+    let val = (document.getElementById(cat.id) || {value: ''}).value;
     if(!val) return;
 
     let searchTerms = [];
+
     switch(cat.id){
-      case 'racecourse': searchTerms.push(val+" Racecourse"); break;
-      case 'length':
-        if(val==="Sprint") searchTerms.push("Sprint");
-        if(val==="Mile") searchTerms.push("Mile");
-        if(val==="Medium") searchTerms.push("Medium");
-        if(val==="Long") searchTerms.push("Long");
+      case 'racecourse':
+        searchTerms.push(val + ' Racecourse');
         break;
-      case 'direction': searchTerms.push(val==="Clockwise"?"Right-Handed":"Left-Handed"); break;
-      case 'track': searchTerms.push(val==="Firm"?"Firm Conditions":"Wet Conditions"); break;
-      case 'season': searchTerms.push(val+" Runner"); break;
-      case 'weather': searchTerms.push(val+" Days"); break;
+      case 'length':
+        if(val==='Sprint') searchTerms.push('Sprint Corners','Sprint Straightaways');
+        if(val==='Mile') searchTerms.push('Mile Corners','Mile Straightaways');
+        if(val==='Medium') searchTerms.push('Medium Corners','Medium Straightaways');
+        if(val==='Long') searchTerms.push('Long Corners','Long Straightaways');
+        break;
+      case 'direction':
+        searchTerms.push(val === 'Clockwise' ? 'Right-Handed' : 'Left-Handed');
+        break;
+      case 'track':
+        searchTerms.push(val === 'Firm' ? 'Firm Conditions' : 'Wet Conditions');
+        break;
+      case 'season':
+        searchTerms.push(val + ' Runner');
+        break;
+      case 'weather':
+        searchTerms.push(val + ' Days');
+        break;
     }
 
     any = true;
@@ -214,10 +236,11 @@ function renderSections(){
     const grid = document.createElement('div');
     grid.className = 'cards';
 
-    const matches = cardsData.filter(card=>{
-      const allSkills = [...card.support_hints,...card.event_skills];
-      return searchTerms.some(term=> allSkills.some(skill=> skill.includes(term)));
-    });
+    const matches = cardsData.filter(card =>
+      searchTerms.some(term =>
+        (card.support_hints||[]).includes(term) || (card.event_skills||[]).includes(term)
+      )
+    );
 
     matches.forEach(card => grid.appendChild(createCardElement(card)));
     section.appendChild(grid);
@@ -234,7 +257,7 @@ function renderSections(){
 }
 
 function addToSlot(card){
-  const freeSlot = slots.find(s=>!s.dataset.cardId);
+  const freeSlot = slots.find(s => !s.dataset.cardId);
   if(!freeSlot) return;
 
   if(slotListeners.has(freeSlot)){
@@ -245,39 +268,39 @@ function addToSlot(card){
   freeSlot.dataset.cardId = card.id;
   freeSlot.classList.add('has-card');
   freeSlot.innerHTML = `
-    <div class="type-icon">${escapeHtml(card.rarity)}</div>
-    <img src="${card.image}" alt="${card.name}">
+    <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
+    <img src="${card.image}" alt="${escapeHtml(card.name)}">
     <div class="name">${escapeHtml(card.name)}</div>
     <div class="skills">
       <div class="skills-group">
         <div class="skills-header">Support Hints</div>
-        ${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+        ${(card.support_hints||[]).map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
       </div>
       <div class="skills-group">
         <div class="skills-header">Event Skills</div>
-        ${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
+        ${(card.event_skills||[]).map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
       </div>
     </div>
   `;
 
-  function slotClickHandler(){ removeFromSlot(freeSlot, card.id); }
+  function slotClickHandler(){ removeFromSlot(freeSlot, card); }
   freeSlot.addEventListener('click', slotClickHandler);
   slotListeners.set(freeSlot, slotClickHandler);
 
   selectedCardIds.add(card.id);
-  document.querySelectorAll(`.card[data-id="${card.id}"]`).forEach(el => el.classList.add('disabled'));
+  renderSections();
 }
 
-function removeFromSlot(slotEl, cardId){
+function removeFromSlot(slotEl, card){
   if(slotListeners.has(slotEl)){
     slotEl.removeEventListener('click', slotListeners.get(slotEl));
     slotListeners.delete(slotEl);
   }
   slotEl.classList.remove('has-card');
   delete slotEl.dataset.cardId;
-  slotEl.innerHTML='';
-  selectedCardIds.delete(Number(cardId));
-  document.querySelectorAll(`.card[data-id="${cardId}"]`).forEach(el => el.classList.remove('disabled'));
+  slotEl.innerHTML = '';
+  selectedCardIds.delete(Number(card.id));
+  renderSections();
 }
 
 clearAllBtn.addEventListener('click', ()=>{
@@ -289,16 +312,16 @@ clearAllBtn.addEventListener('click', ()=>{
     }
     slot.classList.remove('has-card');
     delete slot.dataset.cardId;
-    slot.innerHTML='';
+    slot.innerHTML = '';
   });
-  document.querySelectorAll('.card').forEach(el => el.classList.remove('disabled'));
+  renderSections();
 });
 
-clearFiltersBtn.addEventListener('click', ()=>{
-  categories.forEach(cat=>{
+clearFiltersBtn.addEventListener('click', () => {
+  categories.forEach(cat => {
     const sel = document.getElementById(cat.id);
     if(sel){
-      sel.value='';
+      sel.value = '';
       localStorage.removeItem('filter_'+cat.id);
     }
   });
@@ -310,7 +333,7 @@ function setupFilterPersistence(){
     const sel = document.getElementById(cat.id);
     if(!sel) return;
     const saved = localStorage.getItem('filter_'+cat.id);
-    if(saved) sel.value=saved;
+    if(saved) sel.value = saved;
     sel.addEventListener('change', ()=>{
       localStorage.setItem('filter_'+cat.id, sel.value);
       renderSections();
@@ -318,11 +341,11 @@ function setupFilterPersistence(){
   });
 }
 
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 setupFilterPersistence();
-loadCards();
 </script>
+
 
 </body>
 </html>
