@@ -141,7 +141,8 @@ const typeMap = {
   "Power":"02",
   "Guts":"03",
   "Wit":"04",
-  "Support":"05"
+  "Support":"05",
+  "Group":"06"
 };
 
 // load all jsons (SSR first, then SR, then R)
