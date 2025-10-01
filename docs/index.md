@@ -60,7 +60,7 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .card img { width: 100%; height: auto; }
 
 .card .type-icon, .slot .type-icon { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; text-align:center; font-size:10px; line-height:28px; font-weight:bold;}
-.card.disabled { opacity: 0.45; pointer-events: none; }
+.card.disabled { opacity: 0.45; }
 
 .skills-header {
   font-weight: bold;
@@ -229,22 +229,23 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  // --- Toggle behavior ---
   el.addEventListener('click', ()=>{
-    if(selectedCardIds.has(card.id)){
-      // remove from slot if already added
-      const slot = slots.find(s => Number(s.dataset.cardId) === card.id);
-      if(slot) removeFromSlot(slot, card);
+    const slot = slots.find(s => Number(s.dataset.cardId) === card.id);
+    if(slot){
+      // if card is in a slot, remove it
+      removeFromSlot(slot, card);
     } else {
+      // otherwise add to first free slot
       addToSlot(card);
     }
   });
 
-  // initially dim if in slot
+  // visually dim if in slot, but still clickable
   if(selectedCardIds.has(card.id)) el.classList.add('disabled');
 
   return el;
 }
+
 
 // --- Direction mapping for filters ---
 function mapDirection(val){
