@@ -211,6 +211,27 @@ Promise.all([
   renderSections();
 });
 
+function createCardElement(card){
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.dataset.id = card.id;
+  el.dataset.name = card.name;
+
+  let skillsHTML = '';
+  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+
+  el.innerHTML = `
+    <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
+    <img src="${card.image}" alt="${escapeHtml(card.name)}">
+    <div class="name">${escapeHtml(card.name)}</div>
+    <div class="skills">${skillsHTML}</div>
+  `;
+  el.addEventListener('click', ()=> addToSlot(card));
+  if(selectedCardIds.has(card.id) || isNameBlocked(card.name)) el.classList.add('disabled');
+  return el;
+}
+
 function isNameBlocked(name){
   for(const id of selectedCardIds){
     const chosen = cardsData.find(c=>c.id===id);
@@ -416,41 +437,6 @@ if(cat.id === 'racecourse' && val) {
 }
 
 // --- Slot handling ---
-function createCardElement(card){
-  const el = document.createElement('div');
-  el.className = 'card';
-  el.dataset.id = card.id;
-  el.dataset.name = card.name;
-
-  let skillsHTML = '';
-  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-
-  el.innerHTML = `
-    <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
-    <img src="${card.image}" alt="${escapeHtml(card.name)}">
-    <div class="name">${escapeHtml(card.name)}</div>
-    <div class="skills">${skillsHTML}</div>
-  `;
-
-  // If card is already selected, show disabled appearance
-  if(selectedCardIds.has(card.id) || isNameBlocked(card.name)) el.classList.add('disabled');
-
-  el.addEventListener('click', ()=>{
-    if(selectedCardIds.has(card.id)){
-      // Card is selected → remove from slot
-      const slotEl = slots.find(s=>s.dataset.cardId==card.id);
-      if(slotEl) removeFromSlot(slotEl, card);
-    } else {
-      // Card not selected → add to first free slot
-      addToSlot(card);
-    }
-  });
-
-  return el;
-}
-
-// Update addToSlot / removeFromSlot to refresh the grid
 function addToSlot(card){
   const freeSlot = slots.find(s=>!s.dataset.cardId);
   if(!freeSlot) return;
@@ -478,7 +464,7 @@ function addToSlot(card){
   slotListeners.set(freeSlot, slotClickHandler);
 
   selectedCardIds.add(card.id);
-  renderSections(); // refresh grid so selected card appears dimmed
+  renderSections();
 }
 
 function removeFromSlot(slotEl, card){
@@ -490,9 +476,8 @@ function removeFromSlot(slotEl, card){
   delete slotEl.dataset.cardId;
   slotEl.innerHTML = '';
   selectedCardIds.delete(Number(card.id));
-  renderSections(); // refresh grid so card becomes clickable again
+  renderSections();
 }
-
 
 // --- Clear buttons ---
 clearAllBtn.addEventListener('click', ()=>{
