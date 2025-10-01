@@ -18,15 +18,17 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .slot:not(.has-card) { border: 2px dashed #ccc; background: #fafafa; }
 .slot img { width: 100%; height: auto; }
 
+/* Name styling: smaller and clamp 2 liness */
 .slot .name, .card .name {
   margin: 8px 0 6px 0;
   font-weight: 700;
   text-align: center;
   font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: nowrap;       /* single line */
+  overflow: hidden;          /* hide overflow */
+  text-overflow: ellipsis;   /* add ... if too long */
 }
+
 
 .slot .skills, .card .skills {
   width: 100%;
@@ -58,7 +60,7 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .card img { width: 100%; height: auto; }
 
 .card .type-icon, .slot .type-icon { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; text-align:center; font-size:10px; line-height:28px; font-weight:bold;}
-.card.disabled { opacity: 0.45; pointer-events: auto; } /* still clickable for toggle */
+.card.disabled { opacity: 0.45; pointer-events: none; }
 
 .skills-header {
   font-weight: bold;
@@ -88,30 +90,31 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 
     <div class="filter-group">
       <label for="length">Length</label>
-      <select id="length">
-        <option value="">-- Select --</option>
-        <option value="1000">1000m</option>
-        <option value="1150">1150m</option>
-        <option value="1200">1200m</option>
-        <option value="1300">1300m</option>
-        <option value="1400">1400m</option>
-        <option value="1500">1500m</option>
-        <option value="1600">1600m</option>
-        <option value="1700">1700m</option>
-        <option value="1800">1800m</option>
-        <option value="1900">1900m</option>
-        <option value="2000">2000m</option>
-        <option value="2100">2100m</option>
-        <option value="2200">2200m</option>
-        <option value="2300">2300m</option>
-        <option value="2400">2400m</option>
-        <option value="2500">2500m</option>
-        <option value="2600">2600m</option>
-        <option value="3000">3000m</option>
-        <option value="3200">3200m</option>
-        <option value="3400">3400m</option>
-        <option value="3600">3600m</option>
-      </select>
+<select id="length">
+  <option value="">-- Select --</option>
+  <option value="1000">1000m</option>
+  <option value="1150">1150m</option>
+  <option value="1200">1200m</option>
+  <option value="1300">1300m</option>
+  <option value="1400">1400m</option>
+  <option value="1500">1500m</option>
+  <option value="1600">1600m</option>
+  <option value="1700">1700m</option>
+  <option value="1800">1800m</option>
+  <option value="1900">1900m</option>
+  <option value="2000">2000m</option>
+  <option value="2100">2100m</option>
+  <option value="2200">2200m</option>
+  <option value="2300">2300m</option>
+  <option value="2400">2400m</option>
+  <option value="2500">2500m</option>
+  <option value="2600">2600m</option>
+  <option value="3000">3000m</option>
+  <option value="3200">3200m</option>
+  <option value="3400">3400m</option>
+  <option value="3600">3600m</option>
+</select>
+
     </div>
 
     <div class="filter-group">
@@ -171,9 +174,6 @@ const slots = Array.from(document.querySelectorAll('.slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
-const slotListeners = new Map();
-const typeMap = { "Speed":"00", "Stamina":"01", "Power":"02", "Guts":"03", "Intelligence":"04", "Support":"05", "Group":"06" };
-const sectionPages = new Map();
 
 const categories = [
   {id:'racecourse', title:'Racecourse', prop:'racecourse'},
@@ -184,7 +184,20 @@ const categories = [
   {id:'weather', title:'Weather', prop:'weather'}
 ];
 
-// --- Load cards ---
+const slotListeners = new Map();
+const typeMap = {
+  "Speed":"00",
+  "Stamina":"01",
+  "Power":"02",
+  "Guts":"03",
+  "Intelligence":"04",
+  "Support":"05",
+  "Group":"06"
+};
+
+// Pagination storage per section
+const sectionPages = new Map();
+
 Promise.all([
   fetch("supportcards_SSR.json").then(r=>r.json()),
   fetch("supportcards_SR.json").then(r=>r.json()),
@@ -198,7 +211,6 @@ Promise.all([
   renderSections();
 });
 
-// --- Card element ---
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -215,24 +227,218 @@ function createCardElement(card){
     <div class="name">${escapeHtml(card.name)}</div>
     <div class="skills">${skillsHTML}</div>
   `;
-
-  // Toggle behavior: add/remove from slot
-  el.addEventListener('click', ()=>{
-    if(selectedCardIds.has(card.id)){
-      // Find slot with this exact card
-      const slot = slots.find(s => Number(s.dataset.cardId) === card.id);
-      if(slot) removeFromSlot(slot, card);
-    } else addToSlot(card);
-  });
-
-  // Initially disable if in slot
-  if(selectedCardIds.has(card.id)) el.classList.add('disabled');
+  el.addEventListener('click', ()=> addToSlot(card));
+  if(selectedCardIds.has(card.id) || isNameBlocked(card.name)) el.classList.add('disabled');
   return el;
 }
 
-// --- Add to slot ---
+function isNameBlocked(name){
+  for(const id of selectedCardIds){
+    const chosen = cardsData.find(c=>c.id===id);
+    if(chosen && chosen.name===name) return true;
+  }
+  return false;
+}
+
+// Render card sections with unified pagination
+function renderSections(){
+  cardSections.innerHTML = '';
+  sectionPages.clear();
+  let any = false;
+
+  function normalizeText(s){
+  return s.replace(/[◎○]/g,'').trim().toLowerCase();
+}
+
+categories.forEach(cat=>{
+  let val = (document.getElementById(cat.id) || {value:''}).value;
+  if(!val) return;
+
+  any = true;
+  const section = document.createElement('div');
+  section.className = 'card-section';
+  const header = document.createElement('h2');
+  header.textContent = `${cat.title}: ${val}`;
+  section.appendChild(header);
+
+  const rows = [];
+
+  if(cat.id==='length'){
+    const dist = parseInt(val);
+    let catLabel = '';
+    if(dist <= 1400) catLabel='Sprint';
+    else if(dist <= 1800) catLabel='Mile';
+    else if(dist <= 2400) catLabel='Medium';
+    else catLabel='Long';
+
+    rows.push(
+      {title: 'Corners', term: `${catLabel} Corners`},
+      {title: 'Straightaways', term: `${catLabel} Straightaways`},
+      {title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
+       term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'}
+    );
+  } else {
+    let searchTerms = [];
+    switch(cat.id){
+      case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
+      case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
+      case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
+      case 'season': searchTerms.push(val+' Runner'); break;
+      case 'weather': searchTerms.push(val+' Days'); break;
+    }
+    rows.push({title: cat.title, termArr: searchTerms});
+  }
+
+  rows.forEach((row,rowIndex)=>{
+    const rowContainer = document.createElement('div');
+    rowContainer.style.position='relative';
+    rowContainer.style.marginBottom='30px';
+
+const rowHeader = document.createElement('div');
+rowHeader.style.fontWeight = 'bold';
+rowHeader.style.marginBottom = '6px';
+
+// Use selected value for presentation if available
+if(cat.id === 'racecourse' && val) {
+    rowHeader.textContent = `${val} Racecourse`;
+} else if(cat.id === 'direction' && val) {
+    rowHeader.textContent = `${val} Direction`;
+} else if(cat.id === 'track' && val) {
+    rowHeader.textContent = `${val} Track Conditions`;
+} else if(cat.id === 'season' && val) {
+    rowHeader.textContent = `${val} Season`;
+} else if(cat.id === 'weather' && val) {
+    rowHeader.textContent = `${val} Weather`;
+} else {
+    rowHeader.textContent = row.title; // fallback for other rows (e.g., Length)
+}
+
+    rowHeader.style.fontWeight = 'bold';
+    rowHeader.style.marginBottom = '6px';
+    rowContainer.appendChild(rowHeader);
+
+    const grid = document.createElement('div');
+    grid.className = 'cards';
+    rowContainer.appendChild(grid);
+
+    // --- FILTER MATCHES ---
+    const matches = row.termArr ? cardsData.filter(card =>
+      row.termArr.some(term =>
+        (card.support_hints || []).some(h=>{
+          if(cat.id==='length' && row.title.includes('Distance')){
+            return normalizeText(h) === term.toLowerCase();
+          }
+          return h.toLowerCase().includes(term.toLowerCase());
+        }) ||
+        (card.event_skills || []).some(e=>{
+          if(cat.id==='length' && row.title.includes('Distance')){
+            return normalizeText(e) === term.toLowerCase();
+          }
+          return e.toLowerCase().includes(term.toLowerCase());
+        })
+      )
+    ) : cardsData.filter(card=>{
+      if(cat.id==='length' && row.title.includes('Distance')){
+        return (card.support_hints || []).some(h=>normalizeText(h) === row.term.toLowerCase()) ||
+               (card.event_skills || []).some(e=>normalizeText(e) === row.term.toLowerCase());
+      }
+      return (card.support_hints || []).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
+             (card.event_skills || []).some(e=>e.toLowerCase().includes(row.term.toLowerCase()));
+    });
+
+    // --- RENDERING PAGE ---
+    if(matches.length===0){
+      const noMsg = document.createElement('div');
+      noMsg.style.opacity='0.6';
+      noMsg.textContent='(No matching cards)';
+      grid.appendChild(noMsg);
+      section.appendChild(rowContainer);
+      return;
+    }
+
+    const pageKey = cat.id+'-'+rowIndex;
+    sectionPages.set(pageKey,0);
+    const totalPages = Math.ceil(matches.length/6);
+
+    function renderPage(page){
+      grid.innerHTML='';
+      const start = page*6;
+      const end = start+6;
+      matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
+      updateButtons(page);
+    }
+
+    const btnContainer = document.createElement('div');
+    btnContainer.style.position='absolute';
+    btnContainer.style.top='2px';
+    btnContainer.style.right='0';
+    btnContainer.style.display='flex';
+    btnContainer.style.gap='5px';
+    rowContainer.appendChild(btnContainer);
+
+    const leftBtn = document.createElement('button');
+    leftBtn.textContent='◀';
+    leftBtn.style.opacity='0.4';
+    leftBtn.style.pointerEvents='none';
+    leftBtn.style.border='none';
+    leftBtn.style.borderRadius='6px';
+    leftBtn.style.background='#444';
+    leftBtn.style.color='#fff';
+    const rightBtn = document.createElement('button');
+    rightBtn.textContent='▶';
+    rightBtn.style.opacity='0.4';
+    rightBtn.style.pointerEvents='none';
+    rightBtn.style.border='none';
+    rightBtn.style.borderRadius='6px';
+    rightBtn.style.background='#444';
+    rightBtn.style.color='#fff';
+    btnContainer.appendChild(leftBtn);
+    btnContainer.appendChild(rightBtn);
+
+    function updateButtons(page){
+      leftBtn.style.opacity = page>0?'1':'0.4';
+      leftBtn.style.pointerEvents = page>0?'auto':'none';
+      rightBtn.style.opacity = page<totalPages-1?'1':'0.4';
+      rightBtn.style.pointerEvents = page<totalPages-1?'auto':'none';
+    }
+
+    leftBtn.addEventListener('click',()=>{
+      let page = sectionPages.get(pageKey);
+      if(page>0){
+        page--;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
+      }
+    });
+    rightBtn.addEventListener('click',()=>{
+      let page = sectionPages.get(pageKey);
+      if(page<totalPages-1){
+        page++;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
+      }
+    });
+
+    renderPage(0);
+    section.appendChild(rowContainer);
+  });
+
+  cardSections.appendChild(section);
+});
+
+
+  if(!any){
+    const msg=document.createElement('div');
+    msg.style.opacity='0.7';
+    msg.style.marginTop='8px';
+    msg.textContent='Select options from the left to show matching card sections.';
+    cardSections.appendChild(msg);
+  }
+}
+
+// --- Slot handling ---
 function addToSlot(card){
-  const freeSlot = slots.find(s => !s.dataset.cardId);
+  const freeSlot = slots.find(s=>!s.dataset.cardId);
   if(!freeSlot) return;
 
   if(slotListeners.has(freeSlot)){
@@ -261,7 +467,6 @@ function addToSlot(card){
   renderSections();
 }
 
-// --- Remove from slot ---
 function removeFromSlot(slotEl, card){
   if(slotListeners.has(slotEl)){
     slotEl.removeEventListener('click', slotListeners.get(slotEl));
@@ -272,81 +477,6 @@ function removeFromSlot(slotEl, card){
   slotEl.innerHTML = '';
   selectedCardIds.delete(Number(card.id));
   renderSections();
-}
-
-// --- Render Sections & Filters ---
-function renderSections(){
-  cardSections.innerHTML = '';
-  sectionPages.clear();
-  let any = false;
-  function normalizeText(s){ return s.replace(/[◎○]/g,'').trim().toLowerCase(); }
-
-  categories.forEach(cat=>{
-    const val = (document.getElementById(cat.id) || {value:''}).value;
-    if(!val) return;
-    any = true;
-
-    const section = document.createElement('div');
-    section.className = 'card-section';
-    const header = document.createElement('h2');
-    header.textContent = cat.title + ': ' + val;
-    section.appendChild(header);
-
-    const rowContainer = document.createElement('div');
-    rowContainer.style.position='relative';
-    rowContainer.style.marginBottom='30px';
-
-    const rowHeader = document.createElement('div');
-    rowHeader.style.fontWeight='bold'; rowHeader.style.marginBottom='6px';
-
-    if(cat.id === 'racecourse' && val) rowHeader.textContent = val + ' Racecourse';
-    else if(cat.id === 'direction' && val) rowHeader.textContent = val + ' Direction';
-    else if(cat.id === 'track' && val) rowHeader.textContent = val + ' Track Conditions';
-    else if(cat.id === 'season' && val) rowHeader.textContent = val + ' Season';
-    else if(cat.id === 'weather' && val) rowHeader.textContent = val + ' Weather';
-    else rowHeader.textContent = cat.title;
-
-    rowContainer.appendChild(rowHeader);
-
-    const grid = document.createElement('div'); grid.className='cards';
-    rowContainer.appendChild(grid);
-
-    // --- Filter Matches ---
-    let matches = [];
-    const filterTerm = val.toLowerCase();
-    matches = cardsData.filter(card=>{
-      switch(cat.id){
-        case 'racecourse':
-          return (card.support_hints||[]).some(h=>h.toLowerCase().includes(filterTerm)) || 
-                 (card.event_skills||[]).some(e=>e.toLowerCase().includes(filterTerm));
-        case 'length':
-          const dist = parseInt(val);
-          let catLabel = dist<=1400?'Sprint':dist<=1800?'Mile':dist<=2400?'Medium':'Long';
-          return (card.support_hints||[]).some(h=>normalizeText(h).includes(catLabel.toLowerCase())) ||
-                 (card.event_skills||[]).some(e=>normalizeText(e).includes(catLabel.toLowerCase()));
-        case 'direction':
-          const dirVal = val==='Clockwise'?'Right-Handed':'Left-Handed';
-          return (card.support_hints||[]).some(h=>normalizeText(h).includes(dirVal.toLowerCase())) ||
-                 (card.event_skills||[]).some(e=>normalizeText(e).includes(dirVal.toLowerCase()));
-        default:
-          return (card.support_hints||[]).some(h=>normalizeText(h).includes(filterTerm)) ||
-                 (card.event_skills||[]).some(e=>normalizeText(e).includes(filterTerm));
-      }
-    });
-
-    if(matches.length===0){ grid.innerHTML='(No matching cards)'; section.appendChild(rowContainer); return; }
-
-    matches.forEach(c=>grid.appendChild(createCardElement(c)));
-    section.appendChild(rowContainer);
-  });
-
-  if(!any){
-    const msg=document.createElement('div');
-    msg.style.opacity='0.7';
-    msg.style.marginTop='8px';
-    msg.textContent='Select options from the left to show matching card sections.';
-    cardSections.appendChild(msg);
-  }
 }
 
 // --- Clear buttons ---
@@ -391,6 +521,7 @@ function setupFilterPersistence(){
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 setupFilterPersistence();
 </script>
+
 
 </body>
 </html>
