@@ -17,7 +17,7 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .slot { border: 1px solid #ddd; padding: 8px; box-sizing: border-box; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; cursor: pointer; position: relative; width: var(--card-w); min-height: var(--card-w); }
 .slot:not(.has-card) { border: 2px dashed #ccc; background: #fafafa; }
 .slot img { width: 100%; height: auto; }
-.slot .name { margin: 8px 0 6px 0; font-weight: 600; text-align: center; word-break: break-word; }
+.slot .name { margin: 8px 0 6px 0; font-weight: 400; text-align: center; word-break: break-word; }
 
 .slot .skills, .card .skills {
   width: 100%;
@@ -53,7 +53,7 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .card.disabled { opacity: 0.45; pointer-events: none; }
 .skills-header {
   font-weight: bold;
-  font-size: 11px;
+  font-size: 10px;
   color: #444;
   margin-bottom: 2px;
   text-align: center; /* center Support Hints / Event Skills text */
