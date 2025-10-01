@@ -167,7 +167,6 @@ const categories = [
 ];
 
 const slotListeners = new Map();
-
 const typeMap = {
   "Speed":"00",
   "Stamina":"01",
@@ -177,6 +176,9 @@ const typeMap = {
   "Support":"05",
   "Group":"06"
 };
+
+// Pagination storage per section
+const sectionPages = new Map();
 
 Promise.all([
   fetch("supportcards_SSR.json").then(r=>r.json()),
@@ -207,7 +209,6 @@ function createCardElement(card){
     <div class="name">${escapeHtml(card.name)}</div>
     <div class="skills">${skillsHTML}</div>
   `;
-
   el.addEventListener('click', ()=> addToSlot(card));
   if(selectedCardIds.has(card.id) || isNameBlocked(card.name)) el.classList.add('disabled');
   return el;
@@ -221,11 +222,14 @@ function isNameBlocked(name){
   return false;
 }
 
+// Render card sections with pagination
 function renderSections(){
   cardSections.innerHTML = '';
+  sectionPages.clear();
   let any = false;
+
   categories.forEach(cat=>{
-    let val = (document.getElementById(cat.id) || {value: ''}).value;
+    let val = (document.getElementById(cat.id) || {value:''}).value;
     if(!val) return;
 
     let searchTerms = [];
@@ -250,26 +254,74 @@ function renderSections(){
     header.textContent = `${cat.title}: ${val}`;
     section.appendChild(header);
 
-    const grid = document.createElement('div'); grid.className = 'cards';
+    const grid = document.createElement('div');
+    grid.className = 'cards';
 
-    const matches = cardsData.filter(card => searchTerms.some(term =>
-      (card.support_hints || []).some(h=>h.toLowerCase().includes(term.toLowerCase())) ||
-      (card.event_skills || []).some(e=>e.toLowerCase().includes(term.toLowerCase()))
-    ));
+    const matches = cardsData.filter(card =>
+      searchTerms.some(term =>
+        (card.support_hints || []).some(h=>h.toLowerCase().includes(term.toLowerCase())) ||
+        (card.event_skills || []).some(e=>e.toLowerCase().includes(term.toLowerCase()))
+      )
+    );
 
     if(matches.length===0){
       const noMsg = document.createElement('div');
       noMsg.style.opacity='0.6';
       noMsg.textContent='(No matching cards)';
       grid.appendChild(noMsg);
-    } else matches.forEach(card=>grid.appendChild(createCardElement(card)));
+      section.appendChild(grid);
+      cardSections.appendChild(section);
+      return;
+    }
+
+    // Pagination logic
+    sectionPages.set(cat.id, 0); // start at page 0
+
+    function renderPage(page){
+      grid.innerHTML='';
+      const start = page*6;
+      const end = start+6;
+      const pageCards = matches.slice(start,end);
+      pageCards.forEach(card=>grid.appendChild(createCardElement(card)));
+    }
+
+    renderPage(0);
+
+    // Add buttons if more than 6
+    if(matches.length > 6){
+      const btnContainer = document.createElement('div');
+      btnContainer.style.display='flex';
+      btnContainer.style.justifyContent='center';
+      btnContainer.style.gap='10px';
+      btnContainer.style.marginBottom='10px';
+
+      const leftBtn = document.createElement('button');
+      leftBtn.textContent='◀';
+      leftBtn.className='clear-all';
+      leftBtn.addEventListener('click', ()=>{
+        let page = sectionPages.get(cat.id);
+        if(page > 0){ page--; sectionPages.set(cat.id,page); renderPage(page);}
+      });
+
+      const rightBtn = document.createElement('button');
+      rightBtn.textContent='▶';
+      rightBtn.className='clear-all';
+      rightBtn.addEventListener('click', ()=>{
+        let page = sectionPages.get(cat.id);
+        if((page+1)*6 < matches.length){ page++; sectionPages.set(cat.id,page); renderPage(page);}
+      });
+
+      btnContainer.appendChild(leftBtn);
+      btnContainer.appendChild(rightBtn);
+      section.appendChild(btnContainer);
+    }
 
     section.appendChild(grid);
     cardSections.appendChild(section);
   });
 
   if(!any){
-    const msg = document.createElement('div');
+    const msg=document.createElement('div');
     msg.style.opacity='0.7';
     msg.style.marginTop='8px';
     msg.textContent='Select options from the left to show matching card sections.';
@@ -277,6 +329,7 @@ function renderSections(){
   }
 }
 
+// Keep addToSlot / removeFromSlot / filters unchanged
 function addToSlot(card){
   const freeSlot = slots.find(s=>!s.dataset.cardId);
   if(!freeSlot) return;
@@ -360,5 +413,6 @@ function setupFilterPersistence(){
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 setupFilterPersistence();
 </script>
+
 </body>
 </html>
