@@ -29,7 +29,13 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .card .type-icon, .slot .type-icon { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; text-align:center; font-size:11px; line-height:28px; font-weight:bold;}
 .card.disabled { opacity: 0.45; pointer-events: none; }
 .skills-group { margin-bottom: 6px; }
-.skills-header { font-weight: bold; font-size: 11px; color: #444; margin-bottom: 2px; }
+.skills-header {
+  font-weight: bold;
+  font-size: 11px;
+  color: #444;
+  margin-bottom: 2px;
+  text-align: center;   /* add this */
+}
 @media (max-width: 1100px) { :root { --card-w: 100px; } }
 </style>
 </head>
