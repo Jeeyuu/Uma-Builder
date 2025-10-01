@@ -302,15 +302,30 @@ function renderSections(){
       grid.className = 'cards';
       rowContainer.appendChild(grid);
 
-      const matches = row.termArr ? cardsData.filter(card =>
-        row.termArr.some(term =>
-          (card.support_hints || []).some(h=>h.toLowerCase().includes(term.toLowerCase())) ||
-          (card.event_skills || []).some(e=>e.toLowerCase().includes(term.toLowerCase()))
-        )
-      ) : cardsData.filter(card =>
-        (card.support_hints || []).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
-        (card.event_skills || []).some(e=>e.toLowerCase().includes(row.term.toLowerCase()))
-      );
+const matches = row.termArr ? cardsData.filter(card =>
+  row.termArr.some(term =>
+    (card.support_hints || []).some(h => {
+      if(cat.id === 'length' && row.title.includes('Distance')) {
+        return h.toLowerCase() === term.toLowerCase(); // strict match
+      }
+      return h.toLowerCase().includes(term.toLowerCase());
+    }) ||
+    (card.event_skills || []).some(e => {
+      if(cat.id === 'length' && row.title.includes('Distance')) {
+        return e.toLowerCase() === term.toLowerCase(); // strict match
+      }
+      return e.toLowerCase().includes(term.toLowerCase());
+    })
+  )
+) : cardsData.filter(card => {
+  if(cat.id === 'length' && row.title.includes('Distance')) {
+    return (card.support_hints || []).some(h => h.toLowerCase() === row.term.toLowerCase()) ||
+           (card.event_skills || []).some(e => e.toLowerCase() === row.term.toLowerCase());
+  }
+  return (card.support_hints || []).some(h => h.toLowerCase().includes(row.term.toLowerCase())) ||
+         (card.event_skills || []).some(e => e.toLowerCase().includes(row.term.toLowerCase()));
+});
+
 
       if(matches.length===0){
         const noMsg = document.createElement('div');
