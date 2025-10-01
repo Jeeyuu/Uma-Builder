@@ -17,51 +17,62 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 .slot { border: 1px solid #ddd; padding: 8px; box-sizing: border-box; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; cursor: pointer; position: relative; width: var(--card-w); min-height: var(--card-w); }
 .slot:not(.has-card) { border: 2px dashed #ccc; background: #fafafa; }
 .slot img { width: 100%; height: auto; }
-.slot .name { margin: 8px 0 6px 0; font-weight: 400; text-align: center; word-break: break-word; }
+
+/* Name styling: smaller and clamp 2 lines */
+.slot .name, .card .name {
+  margin: 8px 0 6px 0;
+  font-weight: 600;
+  text-align: center;
+  font-size: 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
 
 .slot .skills, .card .skills {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 6px;  /* gap between each skill */
+  gap: 6px;
 }
 
 .slot .skills-group, .card .skills-group {
   display: flex;
   flex-direction: column;
-  align-items: center; /* centers skill boxes */
+  align-items: center;
   gap: 6px;
 }
 
 .slot .skill, .card .skill {
-  width: 100%;      /* full width skill box */
+  width: 100%;
   background: #eef2ff;
   border-radius: 6px;
   padding: 4px 6px;
   font-size: 10px;
   word-break: break-word;
   white-space: normal;
-  text-align: center; /* center text inside skill box */
+  text-align: center;
 }
 
 .cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 6px; margin-bottom: 12px; }
 .card { border: 1px solid #ddd; padding: 8px; box-sizing: border-box; background: #fff; display: flex; flex-direction: column; align-items: center; cursor: pointer; width: var(--card-w); position: relative; }
 .card img { width: 100%; height: auto; }
-.card .name { margin: 8px 0 6px 0; font-weight: 600; text-align: center; word-break: break-word; }
 
 .card .type-icon, .slot .type-icon { position: absolute; top: 6px; right: 6px; width: 30px; height: 30px; border: 1px solid #ccc; background: #fff; border-radius: 4px; overflow: hidden; text-align:center; font-size:10px; line-height:28px; font-weight:bold;}
 .card.disabled { opacity: 0.45; pointer-events: none; }
+
 .skills-header {
   font-weight: bold;
   font-size: 10px;
   color: #444;
   margin-bottom: 2px;
-  text-align: center; /* center Support Hints / Event Skills text */
+  text-align: center;
 }
 
 @media (max-width: 1100px) { :root { --card-w: 100px; } }
 </style>
-
 </head>
 <body>
 
@@ -158,7 +169,6 @@ const categories = [
 
 const slotListeners = new Map();
 
-// type → icon code map
 const typeMap = {
   "Speed":"00",
   "Stamina":"01",
@@ -169,7 +179,6 @@ const typeMap = {
   "Group":"06"
 };
 
-// load all jsons (SSR first, then SR, then R)
 Promise.all([
   fetch("supportcards_SSR.json").then(r=>r.json()),
   fetch("supportcards_SR.json").then(r=>r.json()),
@@ -190,47 +199,21 @@ function createCardElement(card){
   el.dataset.name = card.name;
 
   let skillsHTML = '';
-
-  // Only render Support Hints if available
-  if(card.support_hints && card.support_hints.length > 0){
-    skillsHTML += `
-      <div class="skills-group">
-        <div class="skills-header">Support Hints</div>
-        ${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
-      </div>
-    `;
-  }
-
-  // Only render Event Skills if available
-  if(card.event_skills && card.event_skills.length > 0){
-    skillsHTML += `
-      <div class="skills-group">
-        <div class="skills-header">Event Skills</div>
-        ${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
-      </div>
-    `;
-  }
+  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
 
   el.innerHTML = `
     <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
     <img src="${card.image}" alt="${escapeHtml(card.name)}">
     <div class="name">${escapeHtml(card.name)}</div>
-    <div class="skills">
-      ${skillsHTML}
-    </div>
+    <div class="skills">${skillsHTML}</div>
   `;
 
   el.addEventListener('click', ()=> addToSlot(card));
-
-  if(selectedCardIds.has(card.id) || isNameBlocked(card.name)){
-    el.classList.add('disabled');
-  }
-
+  if(selectedCardIds.has(card.id) || isNameBlocked(card.name)) el.classList.add('disabled');
   return el;
 }
 
-
-// check if card with same name already chosen
 function isNameBlocked(name){
   for(const id of selectedCardIds){
     const chosen = cardsData.find(c=>c.id===id);
@@ -242,36 +225,23 @@ function isNameBlocked(name){
 function renderSections(){
   cardSections.innerHTML = '';
   let any = false;
-
   categories.forEach(cat=>{
     let val = (document.getElementById(cat.id) || {value: ''}).value;
     if(!val) return;
 
     let searchTerms = [];
-
     switch(cat.id){
-      case 'racecourse':
-        searchTerms.push(val + ' Racecourse');
-        break;
+      case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
       case 'length':
         if(val==='Sprint') searchTerms.push('Sprint Corners','Sprint Straightaways');
         if(val==='Mile') searchTerms.push('Mile Corners','Mile Straightaways');
         if(val==='Medium') searchTerms.push('Medium Corners','Medium Straightaways');
         if(val==='Long') searchTerms.push('Long Corners','Long Straightaways');
         break;
-      case 'direction':
-        searchTerms.push(val === 'Clockwise' ? 'Right-Handed' : 'Left-Handed');
-        break;
-      case 'track':
-        if(val === 'Firm') searchTerms.push('Firm Conditions');
-        else searchTerms.push('Wet Conditions');
-        break;
-      case 'season':
-        searchTerms.push(val + ' Runner');
-        break;
-      case 'weather':
-        searchTerms.push(val + ' Days');
-        break;
+      case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
+      case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
+      case 'season': searchTerms.push(val+' Runner'); break;
+      case 'weather': searchTerms.push(val+' Days'); break;
     }
 
     any = true;
@@ -280,25 +250,20 @@ function renderSections(){
     const header = document.createElement('h2');
     header.textContent = `${cat.title}: ${val}`;
     section.appendChild(header);
-    const grid = document.createElement('div');
-    grid.className = 'cards';
 
-    const matches = cardsData.filter(card =>
-      searchTerms.some(term =>
-        (card.support_hints || []).some(h => h.toLowerCase().includes(term.toLowerCase())) ||
-        (card.event_skills || []).some(e => e.toLowerCase().includes(term.toLowerCase()))
-      )
-    );
+    const grid = document.createElement('div'); grid.className = 'cards';
 
+    const matches = cardsData.filter(card => searchTerms.some(term =>
+      (card.support_hints || []).some(h=>h.toLowerCase().includes(term.toLowerCase())) ||
+      (card.event_skills || []).some(e=>e.toLowerCase().includes(term.toLowerCase()))
+    ));
 
-    if(matches.length === 0){
+    if(matches.length===0){
       const noMsg = document.createElement('div');
-      noMsg.style.opacity = '0.6';
-      noMsg.textContent = '(No matching cards)';
+      noMsg.style.opacity='0.6';
+      noMsg.textContent='(No matching cards)';
       grid.appendChild(noMsg);
-    } else {
-      matches.forEach(card => grid.appendChild(createCardElement(card)));
-    }
+    } else matches.forEach(card=>grid.appendChild(createCardElement(card)));
 
     section.appendChild(grid);
     cardSections.appendChild(section);
@@ -306,15 +271,15 @@ function renderSections(){
 
   if(!any){
     const msg = document.createElement('div');
-    msg.style.opacity = '0.7';
-    msg.style.marginTop = '8px';
-    msg.textContent = 'Select options from the left to show matching card sections.';
+    msg.style.opacity='0.7';
+    msg.style.marginTop='8px';
+    msg.textContent='Select options from the left to show matching card sections.';
     cardSections.appendChild(msg);
   }
 }
 
 function addToSlot(card){
-  const freeSlot = slots.find(s => !s.dataset.cardId);
+  const freeSlot = slots.find(s=>!s.dataset.cardId);
   if(!freeSlot) return;
 
   if(slotListeners.has(freeSlot)){
@@ -322,22 +287,17 @@ function addToSlot(card){
     slotListeners.delete(freeSlot);
   }
 
+  let skillsHTML = '';
+  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+
   freeSlot.dataset.cardId = card.id;
   freeSlot.classList.add('has-card');
   freeSlot.innerHTML = `
     <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
     <img src="${card.image}" alt="${escapeHtml(card.name)}">
     <div class="name">${escapeHtml(card.name)}</div>
-    <div class="skills">
-      <div class="skills-group">
-        <div class="skills-header">Support Hints</div>
-        ${(card.support_hints||[]).map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
-      </div>
-      <div class="skills-group">
-        <div class="skills-header">Event Skills</div>
-        ${(card.event_skills||[]).map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
-      </div>
-    </div>
+    <div class="skills">${skillsHTML}</div>
   `;
 
   function slotClickHandler(){ removeFromSlot(freeSlot, card); }
@@ -369,16 +329,16 @@ clearAllBtn.addEventListener('click', ()=>{
     }
     slot.classList.remove('has-card');
     delete slot.dataset.cardId;
-    slot.innerHTML = '';
+    slot.innerHTML='';
   });
   renderSections();
 });
 
-clearFiltersBtn.addEventListener('click', () => {
-  categories.forEach(cat => {
-    const sel = document.getElementById(cat.id);
+clearFiltersBtn.addEventListener('click', ()=>{
+  categories.forEach(cat=>{
+    const sel=document.getElementById(cat.id);
     if(sel){
-      sel.value = '';
+      sel.value='';
       localStorage.removeItem('filter_'+cat.id);
     }
   });
@@ -387,10 +347,10 @@ clearFiltersBtn.addEventListener('click', () => {
 
 function setupFilterPersistence(){
   categories.forEach(cat=>{
-    const sel = document.getElementById(cat.id);
+    const sel=document.getElementById(cat.id);
     if(!sel) return;
     const saved = localStorage.getItem('filter_'+cat.id);
-    if(saved) sel.value = saved;
+    if(saved) sel.value=saved;
     sel.addEventListener('change', ()=>{
       localStorage.setItem('filter_'+cat.id, sel.value);
       renderSections();
@@ -398,8 +358,7 @@ function setupFilterPersistence(){
   });
 }
 
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 setupFilterPersistence();
 </script>
 </body>
