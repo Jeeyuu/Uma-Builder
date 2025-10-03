@@ -19,6 +19,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10001,
     "type": "guts",
     "url_name": "10001-special-week"
   },
@@ -44,6 +45,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10002,
     "type": "speed",
     "url_name": "10002-silence-suzuka"
   },
@@ -66,6 +68,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10003,
     "type": "speed",
     "url_name": "10003-tokai-teio"
   },
@@ -87,6 +90,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10004,
     "type": "speed",
     "url_name": "10004-maruzensky"
   },
@@ -113,6 +117,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10005,
     "type": "power",
     "url_name": "10005-oguri-cap"
   },
@@ -143,6 +148,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10006,
     "type": "stamina",
     "url_name": "10006-gold-ship"
   },
@@ -168,6 +174,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10007,
     "type": "power",
     "url_name": "10007-vodka"
   },
@@ -193,6 +200,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10008,
     "type": "speed",
     "url_name": "10008-taiki-shuttle"
   },
@@ -218,6 +226,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10009,
     "type": "guts",
     "url_name": "10009-grass-wonder"
   },
@@ -242,6 +251,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10010,
     "type": "stamina",
     "url_name": "10010-mejiro-mcqueen"
   },
@@ -265,6 +275,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10011,
     "type": "power",
     "url_name": "10011-el-condor-pasa"
   },
@@ -288,6 +299,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10012,
     "type": "stamina",
     "url_name": "10012-tm-opera-o"
   },
@@ -312,6 +324,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10013,
     "type": "intelligence",
     "url_name": "10013-symboli-rudolf"
   },
@@ -334,6 +347,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10014,
     "type": "stamina",
     "url_name": "10014-seiun-sky"
   },
@@ -359,6 +373,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10015,
     "type": "stamina",
     "url_name": "10015-rice-shower"
   },
@@ -380,6 +395,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10016,
     "type": "guts",
     "url_name": "10016-winning-ticket"
   },
@@ -399,6 +415,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10017,
     "type": "speed",
     "url_name": "10017-gold-city"
   },
@@ -423,6 +440,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10018,
     "type": "speed",
     "url_name": "10018-sakura-bakushin-o"
   },
@@ -444,6 +462,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10019,
     "type": "stamina",
     "url_name": "10019-super-creek"
   },
@@ -459,6 +478,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10020,
     "type": "guts",
     "url_name": "10020-haru-urara"
   },
@@ -476,6 +496,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10021,
     "type": "friend",
     "url_name": "10021-tazuna-hayakawa"
   },
@@ -495,6 +516,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10022,
     "type": "friend",
     "url_name": "10022-aoi-kiryuin"
   },
@@ -517,6 +539,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10023,
     "type": "intelligence",
     "url_name": "10023-daiwa-scarlet"
   },
@@ -538,6 +561,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10024,
     "type": "power",
     "url_name": "10024-hishi-amazon"
   },
@@ -560,6 +584,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10025,
     "type": "guts",
     "url_name": "10025-air-groove"
   },
@@ -583,6 +608,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10026,
     "type": "power",
     "url_name": "10026-agnes-digital"
   },
@@ -606,6 +632,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10027,
     "type": "stamina",
     "url_name": "10027-tamamo-cross"
   },
@@ -627,6 +654,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10028,
     "type": "intelligence",
     "url_name": "10028-fine-motion"
   },
@@ -648,6 +676,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10029,
     "type": "power",
     "url_name": "10029-biwa-hayahide"
   },
@@ -670,6 +699,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10030,
     "type": "stamina",
     "url_name": "10030-mayano-top-gun"
   },
@@ -692,6 +722,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10031,
     "type": "stamina",
     "url_name": "10031-manhattan-cafe"
   },
@@ -712,6 +743,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10032,
     "type": "power",
     "url_name": "10032-mihono-bourbon"
   },
@@ -732,6 +764,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10033,
     "type": "power",
     "url_name": "10033-mejiro-ryan"
   },
@@ -752,6 +785,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10034,
     "type": "guts",
     "url_name": "10034-yukino-bijin"
   },
@@ -773,6 +807,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10035,
     "type": "guts",
     "url_name": "10035-ines-fujin"
   },
@@ -793,6 +828,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10036,
     "type": "intelligence",
     "url_name": "10036-agnes-tachyon"
   },
@@ -812,6 +848,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10037,
     "type": "intelligence",
     "url_name": "10037-air-shakur"
   },
@@ -833,6 +870,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10038,
     "type": "speed",
     "url_name": "10038-eishin-flash"
   },
@@ -857,6 +895,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10039,
     "type": "power",
     "url_name": "10039-smart-falcon"
   },
@@ -880,6 +919,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10040,
     "type": "speed",
     "url_name": "10040-narita-taishin"
   },
@@ -899,6 +939,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10041,
     "type": "speed",
     "url_name": "10041-nishino-flower"
   },
@@ -922,6 +963,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10042,
     "type": "speed",
     "url_name": "10042-biko-pegasus"
   },
@@ -943,6 +985,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10043,
     "type": "intelligence",
     "url_name": "10043-marvelous-sunday"
   },
@@ -964,6 +1007,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10044,
     "type": "intelligence",
     "url_name": "10044-matikanefukukitaru"
   },
@@ -987,6 +1031,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10045,
     "type": "guts",
     "url_name": "10045-meisho-doto"
   },
@@ -1008,6 +1053,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10046,
     "type": "intelligence",
     "url_name": "10046-mejiro-dober"
   },
@@ -1032,6 +1078,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10047,
     "type": "guts",
     "url_name": "10047-nice-nature"
   },
@@ -1054,6 +1101,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10048,
     "type": "speed",
     "url_name": "10048-king-halo"
   },
@@ -1075,6 +1123,7 @@
     "rarity": 1,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 10049,
     "type": "intelligence",
     "url_name": "10049-fuji-kiseki"
   },
@@ -1096,6 +1145,7 @@
     "rarity": 1,
     "release": "2021-03-02",
     "release_en": "2025-06-26",
+    "support_id": 10050,
     "type": "speed",
     "url_name": "10050-sweep-tosho"
   },
@@ -1118,6 +1168,7 @@
     "rarity": 1,
     "release": "2021-03-09",
     "release_en": "2025-07-02",
+    "support_id": 10051,
     "type": "speed",
     "url_name": "10051-twin-turbo"
   },
@@ -1141,6 +1192,7 @@
     "rarity": 1,
     "release": "2021-03-09",
     "release_en": "2025-07-02",
+    "support_id": 10052,
     "type": "power",
     "url_name": "10052-daitaku-helios"
   },
@@ -1162,6 +1214,7 @@
     "rarity": 1,
     "release": "2021-03-18",
     "release_en": "2025-07-10",
+    "support_id": 10053,
     "type": "intelligence",
     "url_name": "10053-ikuno-dictus"
   },
@@ -1185,6 +1238,7 @@
     "rarity": 1,
     "release": "2021-03-18",
     "release_en": "2025-07-10",
+    "support_id": 10054,
     "type": "guts",
     "url_name": "10054-mejiro-palmer"
   },
@@ -1207,6 +1261,7 @@
     "rarity": 1,
     "release": "2021-03-30",
     "release_en": "2025-07-16",
+    "support_id": 10055,
     "type": "speed",
     "url_name": "10055-kitasan-black"
   },
@@ -1230,6 +1285,7 @@
     "rarity": 1,
     "release": "2021-03-30",
     "release_en": "2025-07-16",
+    "support_id": 10056,
     "type": "stamina",
     "url_name": "10056-satono-diamond"
   },
@@ -1251,6 +1307,7 @@
     "rarity": 1,
     "release": "2021-03-30",
     "release_en": "2025-07-16",
+    "support_id": 10057,
     "type": "guts",
     "url_name": "10057-matikanetannhauser"
   },
@@ -1272,6 +1329,7 @@
     "rarity": 1,
     "release": "2021-04-26",
     "release_en": "2025-08-03",
+    "support_id": 10058,
     "type": "power",
     "url_name": "10058-yaeno-muteki"
   },
@@ -1296,6 +1354,7 @@
     "rarity": 1,
     "release": "2021-04-26",
     "release_en": "2025-08-03",
+    "support_id": 10059,
     "type": "stamina",
     "url_name": "10059-zenno-rob-roy"
   },
@@ -1315,6 +1374,7 @@
     "rarity": 1,
     "release": "2021-08-30",
     "release_en": null,
+    "support_id": 10060,
     "type": "friend",
     "url_name": "10060-riko-kashimoto"
   },
@@ -1340,6 +1400,7 @@
     "rarity": 1,
     "release": "2021-05-17",
     "release_en": "2025-08-20",
+    "support_id": 10061,
     "type": "guts",
     "url_name": "10061-seeking-the-pearl"
   },
@@ -1360,6 +1421,7 @@
     "rarity": 1,
     "release": "2021-05-17",
     "release_en": "2025-08-20",
+    "support_id": 10062,
     "type": "stamina",
     "url_name": "10062-sakura-chiyono-o"
   },
@@ -1380,6 +1442,7 @@
     "rarity": 1,
     "release": "2021-05-28",
     "release_en": "2025-08-28",
+    "support_id": 10063,
     "type": "speed",
     "url_name": "10063-kawakami-princess"
   },
@@ -1402,6 +1465,7 @@
     "rarity": 1,
     "release": "2021-05-28",
     "release_en": "2025-08-28",
+    "support_id": 10064,
     "type": "guts",
     "url_name": "10064-hishi-akebono"
   },
@@ -1424,6 +1488,7 @@
     "rarity": 1,
     "release": "2021-06-21",
     "release_en": "2025-09-17",
+    "support_id": 10065,
     "type": "power",
     "url_name": "10065-bamboo-memory"
   },
@@ -1444,6 +1509,7 @@
     "rarity": 1,
     "release": "2021-06-21",
     "release_en": "2025-09-17",
+    "support_id": 10066,
     "type": "speed",
     "url_name": "10066-shinko-windy"
   },
@@ -1470,6 +1536,7 @@
     "rarity": 1,
     "release": "2021-10-20",
     "release_en": null,
+    "support_id": 10067,
     "type": "stamina",
     "url_name": "10067-nakayama-festa"
   },
@@ -1494,6 +1561,7 @@
     "rarity": 1,
     "release": "2021-12-14",
     "release_en": null,
+    "support_id": 10068,
     "type": "power",
     "url_name": "10068-inari-one"
   },
@@ -1515,6 +1583,7 @@
     "rarity": 1,
     "release": "2021-07-12",
     "release_en": null,
+    "support_id": 10069,
     "type": "intelligence",
     "url_name": "10069-mejiro-ardan"
   },
@@ -1537,6 +1606,7 @@
     "rarity": 1,
     "release": "2021-08-20",
     "release_en": null,
+    "support_id": 10070,
     "type": "stamina",
     "url_name": "10070-tosen-jordan"
   },
@@ -1557,6 +1627,7 @@
     "rarity": 1,
     "release": "2021-10-20",
     "release_en": null,
+    "support_id": 10071,
     "type": "guts",
     "url_name": "10071-sirius-symboli"
   },
@@ -1581,6 +1652,7 @@
     "rarity": 1,
     "release": "2021-07-20",
     "release_en": null,
+    "support_id": 10072,
     "type": "speed",
     "url_name": "10072-narita-brian"
   },
@@ -1602,6 +1674,7 @@
     "rarity": 1,
     "release": "2021-10-28",
     "release_en": null,
+    "support_id": 10073,
     "type": "intelligence",
     "url_name": "10073-curren-chan"
   },
@@ -1621,6 +1694,7 @@
     "rarity": 1,
     "release": "2022-01-11",
     "release_en": null,
+    "support_id": 10074,
     "type": "friend",
     "url_name": "10074-sasami-anshinzawa"
   },
@@ -1642,6 +1716,7 @@
     "rarity": 1,
     "release": "2021-12-31",
     "release_en": null,
+    "support_id": 10075,
     "type": "power",
     "url_name": "10075-admire-vega"
   },
@@ -1663,6 +1738,7 @@
     "rarity": 1,
     "release": "2022-02-24",
     "release_en": null,
+    "support_id": 10076,
     "type": "stamina",
     "url_name": "10076-mejiro-bright"
   },
@@ -1686,6 +1762,7 @@
     "rarity": 1,
     "release": "2022-02-24",
     "release_en": null,
+    "support_id": 10077,
     "type": "speed",
     "url_name": "10077-narita-top-road"
   },
@@ -1709,6 +1786,7 @@
     "rarity": 1,
     "release": "2022-05-10",
     "release_en": null,
+    "support_id": 10078,
     "type": "intelligence",
     "url_name": "10078-mr-cb"
   },
@@ -1736,6 +1814,7 @@
     "rarity": 1,
     "release": "2022-09-20",
     "release_en": null,
+    "support_id": 10079,
     "type": "power",
     "url_name": "10079-daiichi-ruby"
   },
@@ -1758,6 +1837,7 @@
     "rarity": 1,
     "release": "2022-09-20",
     "release_en": null,
+    "support_id": 10080,
     "type": "guts",
     "url_name": "10080-ksmiracle"
   },
@@ -1779,6 +1859,7 @@
     "rarity": 1,
     "release": "2022-07-20",
     "release_en": null,
+    "support_id": 10081,
     "type": "guts",
     "url_name": "10081-tsurumaru-tsuyoshi"
   },
@@ -1803,6 +1884,7 @@
     "rarity": 1,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 10082,
     "type": "stamina",
     "url_name": "10082-symboli-kris-s"
   },
@@ -1821,6 +1903,7 @@
     "rarity": 1,
     "release": "2022-08-24",
     "release_en": null,
+    "support_id": 10083,
     "type": "friend",
     "url_name": "10083-light-hello"
   },
@@ -1843,6 +1926,7 @@
     "rarity": 1,
     "release": "2022-10-17",
     "release_en": null,
+    "support_id": 10084,
     "type": "power",
     "url_name": "10084-tanino-gimlet"
   },
@@ -1868,6 +1952,7 @@
     "rarity": 1,
     "release": "2022-11-28",
     "release_en": null,
+    "support_id": 10085,
     "type": "stamina",
     "url_name": "10085-sakura-laurel"
   },
@@ -1893,6 +1978,7 @@
     "rarity": 1,
     "release": "2022-12-20",
     "release_en": null,
+    "support_id": 10086,
     "type": "guts",
     "url_name": "10086-yamanin-zephyr"
   },
@@ -1916,6 +2002,7 @@
     "rarity": 1,
     "release": "2023-01-20",
     "release_en": null,
+    "support_id": 10087,
     "type": "speed",
     "url_name": "10087-aston-machan"
   },
@@ -1941,6 +2028,7 @@
     "rarity": 1,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 10088,
     "type": "intelligence",
     "url_name": "10088-mejiro-ramonu"
   },
@@ -1964,6 +2052,7 @@
     "rarity": 1,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 10089,
     "type": "speed",
     "url_name": "10089-jungle-pocket"
   },
@@ -1986,6 +2075,7 @@
     "rarity": 1,
     "release": "2024-01-19",
     "release_en": null,
+    "support_id": 10090,
     "type": "stamina",
     "url_name": "10090-hokko-tarumae"
   },
@@ -2011,6 +2101,7 @@
     "rarity": 1,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 10091,
     "type": "speed",
     "url_name": "10091-katsuragi-ace"
   },
@@ -2035,6 +2126,7 @@
     "rarity": 1,
     "release": "2023-06-19",
     "release_en": null,
+    "support_id": 10092,
     "type": "guts",
     "url_name": "10092-copano-rickey"
   },
@@ -2060,6 +2152,7 @@
     "rarity": 1,
     "release": "2023-07-21",
     "release_en": null,
+    "support_id": 10093,
     "type": "power",
     "url_name": "10093-wonder-acute"
   },
@@ -2077,6 +2170,7 @@
     "rarity": 1,
     "release": "2023-08-24",
     "release_en": null,
+    "support_id": 10094,
     "type": "friend",
     "url_name": "10094-mei-satake"
   },
@@ -2098,6 +2192,7 @@
     "rarity": 1,
     "release": "2023-09-29",
     "release_en": null,
+    "support_id": 10095,
     "type": "guts",
     "url_name": "10095-tap-dance-city"
   },
@@ -2122,6 +2217,7 @@
     "rarity": 1,
     "release": "2024-08-24",
     "release_en": null,
+    "support_id": 10096,
     "type": "speed",
     "url_name": "10096-still-in-love"
   },
@@ -2143,6 +2239,7 @@
     "rarity": 1,
     "release": "2023-11-20",
     "release_en": null,
+    "support_id": 10097,
     "type": "guts",
     "url_name": "10097-verxina"
   },
@@ -2166,6 +2263,7 @@
     "rarity": 1,
     "release": "2023-11-20",
     "release_en": null,
+    "support_id": 10098,
     "type": "stamina",
     "url_name": "10098-sounds-of-earth"
   },
@@ -2189,6 +2287,7 @@
     "rarity": 1,
     "release": "2023-12-20",
     "release_en": null,
+    "support_id": 10099,
     "type": "guts",
     "url_name": "10099-vivlos"
   },
@@ -2212,6 +2311,7 @@
     "rarity": 1,
     "release": "2023-12-20",
     "release_en": null,
+    "support_id": 10100,
     "type": "power",
     "url_name": "10100-royce-and-royce"
   },
@@ -2235,6 +2335,7 @@
     "rarity": 1,
     "release": "2023-12-28",
     "release_en": null,
+    "support_id": 10101,
     "type": "speed",
     "url_name": "10101-duramente"
   },
@@ -2259,6 +2360,7 @@
     "rarity": 1,
     "release": "2024-01-31",
     "release_en": null,
+    "support_id": 10102,
     "type": "intelligence",
     "url_name": "10102-north-flight"
   },
@@ -2282,6 +2384,7 @@
     "rarity": 1,
     "release": "2024-02-24",
     "release_en": null,
+    "support_id": 10103,
     "type": "guts",
     "url_name": "10103-orfevre"
   },
@@ -2299,6 +2402,7 @@
     "rarity": 1,
     "release": "2024-02-24",
     "release_en": null,
+    "support_id": 10104,
     "type": "friend",
     "url_name": "10104-ryoka-tsurugi"
   },
@@ -2323,6 +2427,7 @@
     "rarity": 1,
     "release": "2024-03-21",
     "release_en": null,
+    "support_id": 10105,
     "type": "stamina",
     "url_name": "10105-cheval-grand"
   },
@@ -2347,6 +2452,7 @@
     "rarity": 1,
     "release": "2024-04-09",
     "release_en": null,
+    "support_id": 10106,
     "type": "intelligence",
     "url_name": "10106-neo-universe"
   },
@@ -2370,6 +2476,7 @@
     "rarity": 1,
     "release": "2024-04-30",
     "release_en": null,
+    "support_id": 10107,
     "type": "stamina",
     "url_name": "10107-hishi-miracle"
   },
@@ -2394,6 +2501,7 @@
     "rarity": 1,
     "release": "2024-05-10",
     "release_en": null,
+    "support_id": 10108,
     "type": "intelligence",
     "url_name": "10108-dantsu-flame"
   },
@@ -2411,6 +2519,7 @@
     "rarity": 1,
     "release": "2024-06-26",
     "release_en": null,
+    "support_id": 10109,
     "type": "friend",
     "url_name": "10109-yayoi-akikawa"
   },
@@ -2436,6 +2545,7 @@
     "rarity": 1,
     "release": "2024-09-10",
     "release_en": null,
+    "support_id": 10110,
     "type": "power",
     "url_name": "10110-espoir-city"
   },
@@ -2458,6 +2568,7 @@
     "rarity": 1,
     "release": "2024-12-10",
     "release_en": null,
+    "support_id": 10111,
     "type": "speed",
     "url_name": "10111-bubble-gum-fellow"
   },
@@ -2481,6 +2592,7 @@
     "rarity": 1,
     "release": "2024-02-24",
     "release_en": null,
+    "support_id": 10113,
     "type": "speed",
     "url_name": "10113-gentildonna"
   },
@@ -2504,6 +2616,7 @@
     "rarity": 1,
     "release": "2024-03-21",
     "release_en": null,
+    "support_id": 10114,
     "type": "guts",
     "url_name": "10114-rhein-kraft"
   },
@@ -2526,6 +2639,7 @@
     "rarity": 1,
     "release": "2024-09-20",
     "release_en": null,
+    "support_id": 10115,
     "type": "intelligence",
     "url_name": "10115-cesario"
   },
@@ -2551,6 +2665,7 @@
     "rarity": 1,
     "release": "2024-12-10",
     "release_en": null,
+    "support_id": 10116,
     "type": "guts",
     "url_name": "10116-blast-onepiece"
   },
@@ -2574,6 +2689,7 @@
     "rarity": 1,
     "release": "2024-04-30",
     "release_en": null,
+    "support_id": 10117,
     "type": "guts",
     "url_name": "10117-no-reason"
   },
@@ -2597,6 +2713,7 @@
     "rarity": 1,
     "release": "2024-08-24",
     "release_en": null,
+    "support_id": 10118,
     "type": "guts",
     "url_name": "10118-buena-vista"
   },
@@ -2623,6 +2740,7 @@
     "rarity": 1,
     "release": "2025-03-31",
     "release_en": null,
+    "support_id": 10119,
     "type": "speed",
     "url_name": "10119-dream-journey"
   },
@@ -2649,6 +2767,7 @@
     "rarity": 1,
     "release": "2025-04-10",
     "release_en": null,
+    "support_id": 10120,
     "type": "intelligence",
     "url_name": "10120-daring-tact"
   },
@@ -2673,6 +2792,7 @@
     "rarity": 1,
     "release": "2025-04-10",
     "release_en": null,
+    "support_id": 10121,
     "type": "power",
     "url_name": "10121-daring-heart"
   },
@@ -2699,6 +2819,7 @@
     "rarity": 1,
     "release": "2025-02-24",
     "release_en": null,
+    "support_id": 10122,
     "type": "speed",
     "url_name": "10122-almond-eye"
   },
@@ -2722,6 +2843,7 @@
     "rarity": 1,
     "release": "2025-02-24",
     "release_en": null,
+    "support_id": 10123,
     "type": "intelligence",
     "url_name": "10123-lucky-lilac"
   },
@@ -2745,6 +2867,7 @@
     "rarity": 1,
     "release": "2025-02-24",
     "release_en": null,
+    "support_id": 10124,
     "type": "power",
     "url_name": "10124-gran-alegria"
   },
@@ -2771,6 +2894,7 @@
     "rarity": 1,
     "release": "2025-04-30",
     "release_en": null,
+    "support_id": 10125,
     "type": "guts",
     "url_name": "10125-transcend"
   },
@@ -2796,6 +2920,7 @@
     "rarity": 1,
     "release": "2025-05-12",
     "release_en": null,
+    "support_id": 10126,
     "type": "stamina",
     "url_name": "10126-curren-bouquetdor"
   },
@@ -2817,6 +2942,7 @@
     "rarity": 1,
     "release": "2025-05-30",
     "release_en": null,
+    "support_id": 10127,
     "type": "intelligence",
     "url_name": "10127-air-messiah"
   },
@@ -2835,6 +2961,7 @@
     "rarity": 1,
     "release": "2025-06-27",
     "release_en": null,
+    "support_id": 10128,
     "type": "friend",
     "url_name": "10128-tucker-bryne"
   },
@@ -2856,6 +2983,7 @@
     "rarity": 1,
     "release": "2025-07-22",
     "release_en": null,
+    "support_id": 10129,
     "type": "speed",
     "url_name": "10129-fusaichi-pandora"
   },
@@ -2881,6 +3009,7 @@
     "rarity": 1,
     "release": "2025-07-31",
     "release_en": null,
+    "support_id": 10131,
     "type": "intelligence",
     "url_name": "10131-win-variation"
   },
@@ -2907,6 +3036,7 @@
     "rarity": 1,
     "release": "2025-08-24",
     "release_en": null,
+    "support_id": 10132,
     "type": "guts",
     "url_name": "10132-stay-gold"
   },
@@ -2932,6 +3062,7 @@
     "rarity": 1,
     "release": "2025-08-24",
     "release_en": null,
+    "support_id": 10133,
     "type": "speed",
     "url_name": "10133-admire-groove"
   },
@@ -2952,6 +3083,7 @@
     "rarity": 1,
     "release": "2025-08-24",
     "release_en": null,
+    "support_id": 10134,
     "type": "intelligence",
     "url_name": "10134-chrono-genesis"
   },
@@ -2979,6 +3111,7 @@
     "rarity": 1,
     "release": "2025-08-29",
     "release_en": null,
+    "support_id": 10135,
     "type": "speed",
     "url_name": "10135-calstone-light-o"
   },
@@ -3003,6 +3136,7 @@
     "rarity": 1,
     "release": "2025-08-29",
     "release_en": null,
+    "support_id": 10136,
     "type": "intelligence",
     "url_name": "10136-durandal"
   },
@@ -3025,6 +3159,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20001,
     "type": "intelligence",
     "url_name": "20001-fuji-kiseki"
   },
@@ -3048,6 +3183,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20002,
     "type": "intelligence",
     "url_name": "20002-daiwa-scarlet"
   },
@@ -3070,6 +3206,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20003,
     "type": "power",
     "url_name": "20003-hishi-amazon"
   },
@@ -3093,6 +3230,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20004,
     "type": "guts",
     "url_name": "20004-air-groove"
   },
@@ -3117,6 +3255,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20005,
     "type": "power",
     "url_name": "20005-agnes-digital"
   },
@@ -3139,6 +3278,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20006,
     "type": "power",
     "url_name": "20006-biwa-hayahide"
   },
@@ -3162,6 +3302,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20007,
     "type": "stamina",
     "url_name": "20007-mayano-top-gun"
   },
@@ -3185,6 +3326,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20008,
     "type": "stamina",
     "url_name": "20008-manhattan-cafe"
   },
@@ -3207,6 +3349,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20009,
     "type": "power",
     "url_name": "20009-mihono-bourbon"
   },
@@ -3228,6 +3371,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20010,
     "type": "power",
     "url_name": "20010-mejiro-ryan"
   },
@@ -3248,6 +3392,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20011,
     "type": "guts",
     "url_name": "20011-yukino-bijin"
   },
@@ -3269,6 +3414,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20012,
     "type": "intelligence",
     "url_name": "20012-agnes-tachyon"
   },
@@ -3291,6 +3437,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20013,
     "type": "speed",
     "url_name": "20013-eishin-flash"
   },
@@ -3315,6 +3462,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20014,
     "type": "speed",
     "url_name": "20014-narita-taishin"
   },
@@ -3336,6 +3484,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20015,
     "type": "intelligence",
     "url_name": "20015-marvelous-sunday"
   },
@@ -3359,6 +3508,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20016,
     "type": "intelligence",
     "url_name": "20016-matikanefukukitaru"
   },
@@ -3383,6 +3533,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20017,
     "type": "guts",
     "url_name": "20017-meisho-doto"
   },
@@ -3405,6 +3556,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20018,
     "type": "intelligence",
     "url_name": "20018-mejiro-dober"
   },
@@ -3430,6 +3582,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20019,
     "type": "guts",
     "url_name": "20019-nice-nature"
   },
@@ -3452,6 +3605,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20020,
     "type": "speed",
     "url_name": "20020-king-halo"
   },
@@ -3471,6 +3625,7 @@
     "rarity": 2,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 20021,
     "type": "friend",
     "url_name": "20021-aoi-kiryuin"
   },
@@ -3496,6 +3651,7 @@
     "rarity": 2,
     "release": "2022-01-11",
     "release_en": null,
+    "support_id": 20022,
     "type": "guts",
     "url_name": "20022-tamamo-cross"
   },
@@ -3522,6 +3678,7 @@
     "rarity": 2,
     "release": "2021-03-02",
     "release_en": "2025-06-26",
+    "support_id": 20023,
     "type": "speed",
     "url_name": "20023-sweep-tosho"
   },
@@ -3547,6 +3704,7 @@
     "rarity": 2,
     "release": "2021-03-09",
     "release_en": "2025-07-02",
+    "support_id": 20024,
     "type": "power",
     "url_name": "20024-daitaku-helios"
   },
@@ -3570,6 +3728,7 @@
     "rarity": 2,
     "release": "2021-03-18",
     "release_en": "2025-07-10",
+    "support_id": 20025,
     "type": "intelligence",
     "url_name": "20025-ikuno-dictus"
   },
@@ -3595,6 +3754,7 @@
     "rarity": 2,
     "release": "2021-03-30",
     "release_en": "2025-07-16",
+    "support_id": 20026,
     "type": "intelligence",
     "url_name": "20026-nice-nature"
   },
@@ -3617,6 +3777,7 @@
     "rarity": 2,
     "release": "2021-04-15",
     "release_en": "2025-07-27",
+    "support_id": 20027,
     "type": "power",
     "url_name": "20027-nishino-flower"
   },
@@ -3642,6 +3803,7 @@
     "rarity": 2,
     "release": "2021-04-26",
     "release_en": "2025-08-03",
+    "support_id": 20028,
     "type": "stamina",
     "url_name": "20028-zenno-rob-roy"
   },
@@ -3671,6 +3833,7 @@
     "rarity": 2,
     "release": "2021-05-17",
     "release_en": "2025-08-20",
+    "support_id": 20029,
     "type": "guts",
     "url_name": "20029-seeking-the-pearl"
   },
@@ -3696,6 +3859,7 @@
     "rarity": 2,
     "release": "2022-02-08",
     "release_en": null,
+    "support_id": 20030,
     "type": "intelligence",
     "url_name": "20030-ines-fujin"
   },
@@ -3717,6 +3881,7 @@
     "rarity": 2,
     "release": "2021-06-21",
     "release_en": "2025-09-17",
+    "support_id": 20031,
     "type": "speed",
     "url_name": "20031-shinko-windy"
   },
@@ -3742,6 +3907,7 @@
     "rarity": 2,
     "release": "2021-12-14",
     "release_en": null,
+    "support_id": 20032,
     "type": "power",
     "url_name": "20032-inari-one"
   },
@@ -3764,6 +3930,7 @@
     "rarity": 2,
     "release": "2022-07-20",
     "release_en": null,
+    "support_id": 20033,
     "type": "speed",
     "url_name": "20033-el-condor-pasa"
   },
@@ -3785,6 +3952,7 @@
     "rarity": 2,
     "release": "2021-07-12",
     "release_en": null,
+    "support_id": 20034,
     "type": "intelligence",
     "url_name": "20034-mejiro-ardan"
   },
@@ -3808,6 +3976,7 @@
     "rarity": 2,
     "release": "2021-08-20",
     "release_en": null,
+    "support_id": 20035,
     "type": "stamina",
     "url_name": "20035-tosen-jordan"
   },
@@ -3833,6 +4002,7 @@
     "rarity": 2,
     "release": "2024-08-14",
     "release_en": null,
+    "support_id": 20036,
     "type": "stamina",
     "url_name": "20036-mejiro-palmer"
   },
@@ -3855,6 +4025,7 @@
     "rarity": 2,
     "release": "2021-09-20",
     "release_en": null,
+    "support_id": 20037,
     "type": "power",
     "url_name": "20037-fine-motion"
   },
@@ -3876,6 +4047,7 @@
     "rarity": 2,
     "release": "2021-10-20",
     "release_en": null,
+    "support_id": 20038,
     "type": "guts",
     "url_name": "20038-sirius-symboli"
   },
@@ -3902,6 +4074,7 @@
     "rarity": 2,
     "release": "2021-11-19",
     "release_en": null,
+    "support_id": 20039,
     "type": "speed",
     "url_name": "20039-vodka"
   },
@@ -3922,6 +4095,7 @@
     "rarity": 2,
     "release": "2022-02-24",
     "release_en": null,
+    "support_id": 20040,
     "type": "stamina",
     "url_name": "20040-mejiro-ryan"
   },
@@ -3944,6 +4118,7 @@
     "rarity": 2,
     "release": "2022-02-24",
     "release_en": null,
+    "support_id": 20041,
     "type": "guts",
     "url_name": "20041-admire-vega"
   },
@@ -3969,6 +4144,7 @@
     "rarity": 2,
     "release": "2022-02-24",
     "release_en": null,
+    "support_id": 20042,
     "type": "power",
     "url_name": "20042-sakura-bakushin-o"
   },
@@ -3993,6 +4169,7 @@
     "rarity": 2,
     "release": "2022-02-24",
     "release_en": null,
+    "support_id": 20043,
     "type": "power",
     "url_name": "20043-special-week"
   },
@@ -4016,6 +4193,7 @@
     "rarity": 2,
     "release": "2022-03-07",
     "release_en": null,
+    "support_id": 20044,
     "type": "speed",
     "url_name": "20044-curren-chan"
   },
@@ -4041,6 +4219,7 @@
     "rarity": 2,
     "release": "2022-04-01",
     "release_en": null,
+    "support_id": 20045,
     "type": "guts",
     "url_name": "20045-smart-falcon"
   },
@@ -4066,6 +4245,7 @@
     "rarity": 2,
     "release": "2022-04-11",
     "release_en": null,
+    "support_id": 20046,
     "type": "intelligence",
     "url_name": "20046-sweep-tosho"
   },
@@ -4089,6 +4269,7 @@
     "rarity": 2,
     "release": "2022-05-10",
     "release_en": null,
+    "support_id": 20047,
     "type": "stamina",
     "url_name": "20047-tokai-teio"
   },
@@ -4114,6 +4295,7 @@
     "rarity": 2,
     "release": "2022-06-20",
     "release_en": null,
+    "support_id": 20048,
     "type": "guts",
     "url_name": "20048-oguri-cap"
   },
@@ -4137,6 +4319,7 @@
     "rarity": 2,
     "release": "2022-07-11",
     "release_en": null,
+    "support_id": 20049,
     "type": "intelligence",
     "url_name": "20049-gold-city"
   },
@@ -4161,6 +4344,7 @@
     "rarity": 2,
     "release": "2022-08-19",
     "release_en": null,
+    "support_id": 20050,
     "type": "intelligence",
     "url_name": "20050-seiun-sky"
   },
@@ -4184,6 +4368,7 @@
     "rarity": 2,
     "release": "2022-09-20",
     "release_en": null,
+    "support_id": 20051,
     "type": "guts",
     "url_name": "20051-ksmiracle"
   },
@@ -4206,6 +4391,7 @@
     "rarity": 2,
     "release": "2022-10-19",
     "release_en": null,
+    "support_id": 20052,
     "type": "guts",
     "url_name": "20052-tsurumaru-tsuyoshi"
   },
@@ -4228,6 +4414,7 @@
     "rarity": 2,
     "release": "2022-11-17",
     "release_en": null,
+    "support_id": 20053,
     "type": "power",
     "url_name": "20053-narita-top-road"
   },
@@ -4254,6 +4441,7 @@
     "rarity": 2,
     "release": "2022-12-20",
     "release_en": null,
+    "support_id": 20054,
     "type": "stamina",
     "url_name": "20054-tm-opera-o"
   },
@@ -4282,6 +4470,7 @@
     "rarity": 2,
     "release": "2023-01-20",
     "release_en": null,
+    "support_id": 20055,
     "type": "speed",
     "url_name": "20055-aston-machan"
   },
@@ -4307,6 +4496,7 @@
     "rarity": 2,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 20056,
     "type": "speed",
     "url_name": "20056-jungle-pocket"
   },
@@ -4330,6 +4520,7 @@
     "rarity": 2,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 20057,
     "type": "guts",
     "url_name": "20057-mejiro-dober"
   },
@@ -4356,6 +4547,7 @@
     "rarity": 2,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 20058,
     "type": "stamina",
     "url_name": "20058-symboli-rudolf"
   },
@@ -4382,6 +4574,7 @@
     "rarity": 2,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 20059,
     "type": "power",
     "url_name": "20059-agnes-tachyon"
   },
@@ -4406,6 +4599,7 @@
     "rarity": 2,
     "release": "2023-03-20",
     "release_en": null,
+    "support_id": 20060,
     "type": "power",
     "url_name": "20060-hishi-akebono"
   },
@@ -4450,6 +4644,7 @@
     "rarity": 2,
     "release": "2023-04-19",
     "release_en": null,
+    "support_id": 20061,
     "type": "stamina",
     "url_name": "20061-gold-ship"
   },
@@ -4476,6 +4671,7 @@
     "rarity": 2,
     "release": "2023-05-19",
     "release_en": null,
+    "support_id": 20062,
     "type": "intelligence",
     "url_name": "20062-maruzensky"
   },
@@ -4502,6 +4698,7 @@
     "rarity": 2,
     "release": "2023-06-09",
     "release_en": null,
+    "support_id": 20063,
     "type": "speed",
     "url_name": "20063-silence-suzuka"
   },
@@ -4529,6 +4726,7 @@
     "rarity": 2,
     "release": "2023-06-19",
     "release_en": null,
+    "support_id": 20064,
     "type": "guts",
     "url_name": "20064-copano-rickey"
   },
@@ -4554,6 +4752,7 @@
     "rarity": 2,
     "release": "2023-07-21",
     "release_en": null,
+    "support_id": 20065,
     "type": "power",
     "url_name": "20065-grass-wonder"
   },
@@ -4577,6 +4776,7 @@
     "rarity": 2,
     "release": "2023-08-31",
     "release_en": null,
+    "support_id": 20066,
     "type": "stamina",
     "url_name": "20066-kitasan-black"
   },
@@ -4603,6 +4803,7 @@
     "rarity": 2,
     "release": "2023-09-20",
     "release_en": null,
+    "support_id": 20067,
     "type": "intelligence",
     "url_name": "20067-taiki-shuttle"
   },
@@ -4626,6 +4827,7 @@
     "rarity": 2,
     "release": "2023-10-19",
     "release_en": null,
+    "support_id": 20068,
     "type": "stamina",
     "url_name": "20068-nice-nature"
   },
@@ -4649,6 +4851,7 @@
     "rarity": 2,
     "release": "2023-11-09",
     "release_en": null,
+    "support_id": 20069,
     "type": "speed",
     "url_name": "20069-matikanetannhauser"
   },
@@ -4671,6 +4874,7 @@
     "rarity": 2,
     "release": "2023-11-20",
     "release_en": null,
+    "support_id": 20070,
     "type": "guts",
     "url_name": "20070-verxina"
   },
@@ -4695,6 +4899,7 @@
     "rarity": 2,
     "release": "2023-12-20",
     "release_en": null,
+    "support_id": 20071,
     "type": "power",
     "url_name": "20071-royce-and-royce"
   },
@@ -4719,6 +4924,7 @@
     "rarity": 2,
     "release": "2024-01-19",
     "release_en": null,
+    "support_id": 20072,
     "type": "intelligence",
     "url_name": "20072-tanino-gimlet"
   },
@@ -4743,6 +4949,7 @@
     "rarity": 2,
     "release": "2024-02-24",
     "release_en": null,
+    "support_id": 20073,
     "type": "speed",
     "url_name": "20073-tosen-jordan"
   },
@@ -4767,6 +4974,7 @@
     "rarity": 2,
     "release": "2024-02-24",
     "release_en": null,
+    "support_id": 20074,
     "type": "stamina",
     "url_name": "20074-yaeno-muteki"
   },
@@ -4792,6 +5000,7 @@
     "rarity": 2,
     "release": "2024-03-21",
     "release_en": null,
+    "support_id": 20075,
     "type": "guts",
     "url_name": "20075-tap-dance-city"
   },
@@ -4815,6 +5024,7 @@
     "rarity": 2,
     "release": "2024-04-09",
     "release_en": null,
+    "support_id": 20076,
     "type": "power",
     "url_name": "20076-air-shakur"
   },
@@ -4840,6 +5050,7 @@
     "rarity": 2,
     "release": "2024-05-10",
     "release_en": null,
+    "support_id": 20077,
     "type": "intelligence",
     "url_name": "20077-dantsu-flame"
   },
@@ -4862,6 +5073,7 @@
     "rarity": 2,
     "release": "2024-07-09",
     "release_en": null,
+    "support_id": 20078,
     "type": "speed",
     "url_name": "20078-matikanefukukitaru"
   },
@@ -4886,6 +5098,7 @@
     "rarity": 2,
     "release": "2024-08-24",
     "release_en": null,
+    "support_id": 20079,
     "type": "guts",
     "url_name": "20079-marvelous-sunday"
   },
@@ -4910,6 +5123,7 @@
     "rarity": 2,
     "release": "2024-09-10",
     "release_en": null,
+    "support_id": 20080,
     "type": "intelligence",
     "url_name": "20080-sakura-laurel"
   },
@@ -4935,6 +5149,7 @@
     "rarity": 2,
     "release": "2024-11-08",
     "release_en": null,
+    "support_id": 20081,
     "type": "power",
     "url_name": "20081-north-flight"
   },
@@ -4958,6 +5173,7 @@
     "rarity": 2,
     "release": "2024-12-10",
     "release_en": null,
+    "support_id": 20082,
     "type": "speed",
     "url_name": "20082-bubble-gum-fellow"
   },
@@ -4982,6 +5198,7 @@
     "rarity": 2,
     "release": "2025-01-10",
     "release_en": null,
+    "support_id": 20083,
     "type": "stamina",
     "url_name": "20083-mejiro-ramonu"
   },
@@ -5006,6 +5223,7 @@
     "rarity": 2,
     "release": "2025-02-24",
     "release_en": null,
+    "support_id": 20084,
     "type": "intelligence",
     "url_name": "20084-lucky-lilac"
   },
@@ -5031,6 +5249,7 @@
     "rarity": 2,
     "release": "2025-02-24",
     "release_en": null,
+    "support_id": 20085,
     "type": "guts",
     "url_name": "20085-mejiro-mcqueen"
   },
@@ -5055,6 +5274,7 @@
     "rarity": 2,
     "release": "2025-03-11",
     "release_en": null,
+    "support_id": 20086,
     "type": "speed",
     "url_name": "20086-rice-shower"
   },
@@ -5080,6 +5300,7 @@
     "rarity": 2,
     "release": "2025-04-10",
     "release_en": null,
+    "support_id": 20087,
     "type": "power",
     "url_name": "20087-daring-heart"
   },
@@ -5106,6 +5327,7 @@
     "rarity": 2,
     "release": "2025-05-12",
     "release_en": null,
+    "support_id": 20088,
     "type": "stamina",
     "url_name": "20088-curren-bouquetdor"
   },
@@ -5130,6 +5352,7 @@
     "rarity": 2,
     "release": "2025-07-11",
     "release_en": null,
+    "support_id": 20089,
     "type": "guts",
     "url_name": "20089-kawakami-princess"
   },
@@ -5155,6 +5378,7 @@
     "rarity": 2,
     "release": "2025-09-09",
     "release_en": null,
+    "support_id": 20090,
     "type": "intelligence",
     "url_name": "20090-biko-pegasus"
   },
@@ -5186,6 +5410,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30001,
     "type": "guts",
     "url_name": "30001-special-week"
   },
@@ -5217,6 +5442,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30002,
     "type": "speed",
     "url_name": "30002-silence-suzuka"
   },
@@ -5240,6 +5466,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30003,
     "type": "speed",
     "url_name": "30003-tokai-teio"
   },
@@ -5277,6 +5504,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30004,
     "type": "stamina",
     "url_name": "30004-gold-ship"
   },
@@ -5307,6 +5535,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30005,
     "type": "power",
     "url_name": "30005-vodka"
   },
@@ -5340,6 +5569,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30006,
     "type": "guts",
     "url_name": "30006-grass-wonder"
   },
@@ -5365,6 +5595,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30007,
     "type": "power",
     "url_name": "30007-el-condor-pasa"
   },
@@ -5396,6 +5627,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30008,
     "type": "stamina",
     "url_name": "30008-seiun-sky"
   },
@@ -5424,6 +5656,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30009,
     "type": "stamina",
     "url_name": "30009-tamamo-cross"
   },
@@ -5447,6 +5680,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30010,
     "type": "intelligence",
     "url_name": "30010-fine-motion"
   },
@@ -5470,6 +5704,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30011,
     "type": "guts",
     "url_name": "30011-ines-fujin"
   },
@@ -5496,6 +5731,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30012,
     "type": "guts",
     "url_name": "30012-winning-ticket"
   },
@@ -5521,6 +5757,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30013,
     "type": "intelligence",
     "url_name": "30013-air-shakur"
   },
@@ -5545,6 +5782,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30014,
     "type": "speed",
     "url_name": "30014-gold-city"
   },
@@ -5570,6 +5808,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30015,
     "type": "speed",
     "url_name": "30015-sakura-bakushin-o"
   },
@@ -5592,6 +5831,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30016,
     "type": "stamina",
     "url_name": "30016-super-creek"
   },
@@ -5626,6 +5866,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30017,
     "type": "power",
     "url_name": "30017-smart-falcon"
   },
@@ -5652,6 +5893,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30018,
     "type": "speed",
     "url_name": "30018-nishino-flower"
   },
@@ -5668,6 +5910,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30019,
     "type": "guts",
     "url_name": "30019-haru-urara"
   },
@@ -5692,6 +5935,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30020,
     "type": "speed",
     "url_name": "30020-biko-pegasus"
   },
@@ -5710,6 +5954,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30021,
     "type": "friend",
     "url_name": "30021-tazuna-hayakawa"
   },
@@ -5738,6 +5983,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30022,
     "type": "stamina",
     "url_name": "30022-mejiro-mcqueen"
   },
@@ -5765,6 +6011,7 @@
     "rarity": 3,
     "release": "2021-02-24",
     "release_en": "2025-06-26",
+    "support_id": 30023,
     "type": "stamina",
     "url_name": "30023-rice-shower"
   },
@@ -5794,6 +6041,7 @@
     "rarity": 3,
     "release": "2021-03-02",
     "release_en": "2025-06-26",
+    "support_id": 30024,
     "type": "power",
     "url_name": "30024-oguri-cap"
   },
@@ -5820,6 +6068,7 @@
     "rarity": 3,
     "release": "2021-03-02",
     "release_en": "2025-06-26",
+    "support_id": 30025,
     "type": "speed",
     "url_name": "30025-special-week"
   },
@@ -5845,6 +6094,7 @@
     "rarity": 3,
     "release": "2021-03-09",
     "release_en": "2025-07-02",
+    "support_id": 30026,
     "type": "speed",
     "url_name": "30026-twin-turbo"
   },
@@ -5880,6 +6130,7 @@
     "rarity": 3,
     "release": "2021-03-18",
     "release_en": "2025-07-10",
+    "support_id": 30027,
     "type": "guts",
     "url_name": "30027-mejiro-palmer"
   },
@@ -5905,6 +6156,7 @@
     "rarity": 3,
     "release": "2021-03-30",
     "release_en": "2025-07-16",
+    "support_id": 30028,
     "type": "speed",
     "url_name": "30028-kitasan-black"
   },
@@ -5933,6 +6185,7 @@
     "rarity": 3,
     "release": "2021-03-30",
     "release_en": "2025-07-16",
+    "support_id": 30029,
     "type": "stamina",
     "url_name": "30029-satono-diamond"
   },
@@ -5956,6 +6209,7 @@
     "rarity": 3,
     "release": "2021-03-30",
     "release_en": "2025-07-16",
+    "support_id": 30030,
     "type": "guts",
     "url_name": "30030-matikanetannhauser"
   },
@@ -5982,6 +6236,7 @@
     "rarity": 3,
     "release": "2021-04-15",
     "release_en": "2025-07-27",
+    "support_id": 30031,
     "type": "intelligence",
     "url_name": "30031-yukino-bijin"
   },
@@ -6011,6 +6266,7 @@
     "rarity": 3,
     "release": "2021-04-26",
     "release_en": "2025-08-03",
+    "support_id": 30032,
     "type": "power",
     "url_name": "30032-yaeno-muteki"
   },
@@ -6033,6 +6289,7 @@
     "rarity": 3,
     "release": "2021-04-26",
     "release_en": "2025-08-03",
+    "support_id": 30033,
     "type": "power",
     "url_name": "30033-winning-ticket"
   },
@@ -6060,6 +6317,7 @@
     "rarity": 3,
     "release": "2021-08-30",
     "release_en": null,
+    "support_id": 30034,
     "type": "power",
     "url_name": "30034-rice-shower"
   },
@@ -6079,6 +6337,7 @@
     "rarity": 3,
     "release": "2021-08-30",
     "release_en": null,
+    "support_id": 30036,
     "type": "friend",
     "url_name": "30036-riko-kashimoto"
   },
@@ -6110,6 +6369,7 @@
     "rarity": 3,
     "release": "2023-04-19",
     "release_en": null,
+    "support_id": 30037,
     "type": "guts",
     "url_name": "30037-symboli-rudolf"
   },
@@ -6137,6 +6397,7 @@
     "rarity": 3,
     "release": "2021-05-17",
     "release_en": "2025-08-20",
+    "support_id": 30038,
     "type": "stamina",
     "url_name": "30038-sakura-chiyono-o"
   },
@@ -6159,6 +6420,7 @@
     "rarity": 3,
     "release": "2021-05-28",
     "release_en": "2025-08-28",
+    "support_id": 30039,
     "type": "speed",
     "url_name": "30039-kawakami-princess"
   },
@@ -6190,6 +6452,7 @@
     "rarity": 3,
     "release": "2021-05-28",
     "release_en": "2025-08-28",
+    "support_id": 30040,
     "type": "guts",
     "url_name": "30040-hishi-akebono"
   },
@@ -6212,6 +6475,7 @@
     "rarity": 3,
     "release": "2021-05-28",
     "release_en": "2025-08-28",
+    "support_id": 30041,
     "type": "intelligence",
     "url_name": "30041-mejiro-dober"
   },
@@ -6240,6 +6504,7 @@
     "rarity": 3,
     "release": "2021-06-21",
     "release_en": "2025-09-17",
+    "support_id": 30042,
     "type": "power",
     "url_name": "30042-bamboo-memory"
   },
@@ -6269,6 +6534,7 @@
     "rarity": 3,
     "release": "2021-10-20",
     "release_en": null,
+    "support_id": 30043,
     "type": "stamina",
     "url_name": "30043-nakayama-festa"
   },
@@ -6294,6 +6560,7 @@
     "rarity": 3,
     "release": "2021-07-20",
     "release_en": null,
+    "support_id": 30044,
     "type": "speed",
     "url_name": "30044-narita-brian"
   },
@@ -6318,6 +6585,7 @@
     "rarity": 3,
     "release": "2021-07-29",
     "release_en": null,
+    "support_id": 30045,
     "type": "speed",
     "url_name": "30045-sweep-tosho"
   },
@@ -6349,6 +6617,7 @@
     "rarity": 3,
     "release": "2021-07-29",
     "release_en": null,
+    "support_id": 30046,
     "type": "stamina",
     "url_name": "30046-winning-ticket"
   },
@@ -6373,6 +6642,7 @@
     "rarity": 3,
     "release": "2021-07-29",
     "release_en": null,
+    "support_id": 30047,
     "type": "power",
     "url_name": "30047-daiwa-scarlet"
   },
@@ -6395,6 +6665,7 @@
     "rarity": 3,
     "release": "2021-07-12",
     "release_en": null,
+    "support_id": 30048,
     "type": "guts",
     "url_name": "30048-mejiro-ryan"
   },
@@ -6413,6 +6684,7 @@
     "rarity": 3,
     "release": "2022-08-24",
     "release_en": null,
+    "support_id": 30052,
     "type": "friend",
     "url_name": "30052-light-hello"
   },
@@ -6442,6 +6714,7 @@
     "rarity": 3,
     "release": "2022-06-20",
     "release_en": null,
+    "support_id": 30053,
     "type": "speed",
     "url_name": "30053-taiki-shuttle"
   },
@@ -6467,6 +6740,7 @@
     "rarity": 3,
     "release": "2021-08-20",
     "release_en": null,
+    "support_id": 30054,
     "type": "intelligence",
     "url_name": "30054-nice-nature"
   },
@@ -6491,6 +6765,7 @@
     "rarity": 3,
     "release": "2021-06-29",
     "release_en": "2025-09-21",
+    "support_id": 30055,
     "type": "intelligence",
     "url_name": "30055-seiun-sky"
   },
@@ -6521,6 +6796,7 @@
     "rarity": 3,
     "release": "2021-06-29",
     "release_en": "2025-09-21",
+    "support_id": 30056,
     "type": "power",
     "url_name": "30056-king-halo"
   },
@@ -6555,6 +6831,7 @@
     "rarity": 3,
     "release": "2021-06-29",
     "release_en": "2025-09-21",
+    "support_id": 30057,
     "type": "speed",
     "url_name": "30057-gold-ship"
   },
@@ -6578,6 +6855,7 @@
     "rarity": 3,
     "release": "2021-05-26",
     "release_en": null,
+    "support_id": 30058,
     "type": "power",
     "url_name": "30058-tokai-teio"
   },
@@ -6600,6 +6878,7 @@
     "rarity": 3,
     "release": "2021-06-23",
     "release_en": null,
+    "support_id": 30059,
     "type": "stamina",
     "url_name": "30059-mihono-bourbon"
   },
@@ -6624,6 +6903,7 @@
     "rarity": 3,
     "release": "2021-07-21",
     "release_en": null,
+    "support_id": 30060,
     "type": "guts",
     "url_name": "30060-twin-turbo"
   },
@@ -6647,6 +6927,7 @@
     "rarity": 3,
     "release": "2021-08-18",
     "release_en": null,
+    "support_id": 30061,
     "type": "intelligence",
     "url_name": "30061-biwa-hayahide"
   },
@@ -6675,6 +6956,7 @@
     "rarity": 3,
     "release": "2021-08-24",
     "release_en": null,
+    "support_id": 30062,
     "type": "stamina",
     "url_name": "30062-silence-suzuka"
   },
@@ -6698,6 +6980,7 @@
     "rarity": 3,
     "release": "2021-09-20",
     "release_en": null,
+    "support_id": 30063,
     "type": "guts",
     "url_name": "30063-ikuno-dictus"
   },
@@ -6723,6 +7006,7 @@
     "rarity": 3,
     "release": "2021-09-29",
     "release_en": null,
+    "support_id": 30064,
     "type": "power",
     "url_name": "30064-tamamo-cross"
   },
@@ -6750,6 +7034,7 @@
     "rarity": 3,
     "release": "2021-09-29",
     "release_en": null,
+    "support_id": 30065,
     "type": "speed",
     "url_name": "30065-zenno-rob-roy"
   },
@@ -6772,6 +7057,7 @@
     "rarity": 3,
     "release": "2021-09-29",
     "release_en": null,
+    "support_id": 30066,
     "type": "intelligence",
     "url_name": "30066-mihono-bourbon"
   },
@@ -6795,6 +7081,7 @@
     "rarity": 3,
     "release": "2022-07-20",
     "release_en": null,
+    "support_id": 30067,
     "type": "group",
     "url_name": "30067-the-thrones-assemblage"
   },
@@ -6820,6 +7107,7 @@
     "rarity": 3,
     "release": "2021-10-28",
     "release_en": null,
+    "support_id": 30068,
     "type": "intelligence",
     "url_name": "30068-curren-chan"
   },
@@ -6846,6 +7134,7 @@
     "rarity": 3,
     "release": "2021-10-28",
     "release_en": null,
+    "support_id": 30069,
     "type": "stamina",
     "url_name": "30069-narita-brian"
   },
@@ -6869,6 +7158,7 @@
     "rarity": 3,
     "release": "2021-10-28",
     "release_en": null,
+    "support_id": 30070,
     "type": "guts",
     "url_name": "30070-yukino-bijin"
   },
@@ -6896,6 +7186,7 @@
     "rarity": 3,
     "release": "2021-11-19",
     "release_en": null,
+    "support_id": 30071,
     "type": "power",
     "url_name": "30071-daitaku-helios"
   },
@@ -6921,6 +7212,7 @@
     "rarity": 3,
     "release": "2021-11-29",
     "release_en": null,
+    "support_id": 30072,
     "type": "speed",
     "url_name": "30072-mayano-top-gun"
   },
@@ -6948,6 +7240,7 @@
     "rarity": 3,
     "release": "2021-11-29",
     "release_en": null,
+    "support_id": 30073,
     "type": "intelligence",
     "url_name": "30073-narita-taishin"
   },
@@ -6972,6 +7265,7 @@
     "rarity": 3,
     "release": "2021-11-29",
     "release_en": null,
+    "support_id": 30074,
     "type": "power",
     "url_name": "30074-marvelous-sunday"
   },
@@ -6996,6 +7290,7 @@
     "rarity": 3,
     "release": "2021-12-14",
     "release_en": null,
+    "support_id": 30075,
     "type": "stamina",
     "url_name": "30075-manhattan-cafe"
   },
@@ -7022,6 +7317,7 @@
     "rarity": 3,
     "release": "2021-12-22",
     "release_en": null,
+    "support_id": 30076,
     "type": "speed",
     "url_name": "30076-silence-suzuka"
   },
@@ -7045,6 +7341,7 @@
     "rarity": 3,
     "release": "2021-12-31",
     "release_en": null,
+    "support_id": 30077,
     "type": "power",
     "url_name": "30077-admire-vega"
   },
@@ -7069,6 +7366,7 @@
     "rarity": 3,
     "release": "2021-12-31",
     "release_en": null,
+    "support_id": 30078,
     "type": "speed",
     "url_name": "30078-matikanefukukitaru"
   },
@@ -7094,6 +7392,7 @@
     "rarity": 3,
     "release": "2021-12-31",
     "release_en": null,
+    "support_id": 30079,
     "type": "stamina",
     "url_name": "30079-meisho-doto"
   },
@@ -7114,6 +7413,7 @@
     "rarity": 3,
     "release": "2022-01-11",
     "release_en": null,
+    "support_id": 30080,
     "type": "friend",
     "url_name": "30080-sasami-anshinzawa"
   },
@@ -7138,6 +7438,7 @@
     "rarity": 3,
     "release": "2022-03-18",
     "release_en": null,
+    "support_id": 30081,
     "type": "group",
     "url_name": "30081-team-sirius"
   },
@@ -7160,6 +7461,7 @@
     "rarity": 3,
     "release": "2022-01-28",
     "release_en": null,
+    "support_id": 30082,
     "type": "intelligence",
     "url_name": "30082-nishino-flower"
   },
@@ -7187,6 +7489,7 @@
     "rarity": 3,
     "release": "2022-01-28",
     "release_en": null,
+    "support_id": 30083,
     "type": "guts",
     "url_name": "30083-sakura-bakushin-o"
   },
@@ -7211,6 +7514,7 @@
     "rarity": 3,
     "release": "2022-01-28",
     "release_en": null,
+    "support_id": 30084,
     "type": "speed",
     "url_name": "30084-tosen-jordan"
   },
@@ -7238,6 +7542,7 @@
     "rarity": 3,
     "release": "2022-02-08",
     "release_en": null,
+    "support_id": 30085,
     "type": "power",
     "url_name": "30085-agnes-digital"
   },
@@ -7264,6 +7569,7 @@
     "rarity": 3,
     "release": "2022-02-24",
     "release_en": null,
+    "support_id": 30086,
     "type": "speed",
     "url_name": "30086-narita-top-road"
   },
@@ -7287,6 +7593,7 @@
     "rarity": 3,
     "release": "2022-02-24",
     "release_en": null,
+    "support_id": 30087,
     "type": "stamina",
     "url_name": "30087-mejiro-bright"
   },
@@ -7312,6 +7619,7 @@
     "rarity": 3,
     "release": "2022-02-24",
     "release_en": null,
+    "support_id": 30088,
     "type": "intelligence",
     "url_name": "30088-satono-diamond"
   },
@@ -7334,6 +7642,7 @@
     "rarity": 3,
     "release": "2022-03-07",
     "release_en": null,
+    "support_id": 30089,
     "type": "guts",
     "url_name": "30089-marvelous-sunday"
   },
@@ -7360,6 +7669,7 @@
     "rarity": 3,
     "release": "2022-03-29",
     "release_en": null,
+    "support_id": 30090,
     "type": "stamina",
     "url_name": "30090-symboli-rudolf"
   },
@@ -7385,6 +7695,7 @@
     "rarity": 3,
     "release": "2022-03-29",
     "release_en": null,
+    "support_id": 30091,
     "type": "intelligence",
     "url_name": "30091-sirius-symboli"
   },
@@ -7409,6 +7720,7 @@
     "rarity": 3,
     "release": "2022-03-29",
     "release_en": null,
+    "support_id": 30092,
     "type": "speed",
     "url_name": "30092-air-shakur"
   },
@@ -7433,6 +7745,7 @@
     "rarity": 3,
     "release": "2022-04-11",
     "release_en": null,
+    "support_id": 30093,
     "type": "power",
     "url_name": "30093-daiwa-scarlet"
   },
@@ -7458,6 +7771,7 @@
     "rarity": 3,
     "release": "2022-04-28",
     "release_en": null,
+    "support_id": 30094,
     "type": "guts",
     "url_name": "30094-bamboo-memory"
   },
@@ -7492,6 +7806,7 @@
     "rarity": 3,
     "release": "2022-04-28",
     "release_en": null,
+    "support_id": 30095,
     "type": "speed",
     "url_name": "30095-seeking-the-pearl"
   },
@@ -7513,6 +7828,7 @@
     "rarity": 3,
     "release": "2022-04-28",
     "release_en": null,
+    "support_id": 30096,
     "type": "power",
     "url_name": "30096-kawakami-princess"
   },
@@ -7539,6 +7855,7 @@
     "rarity": 3,
     "release": "2022-05-10",
     "release_en": null,
+    "support_id": 30097,
     "type": "intelligence",
     "url_name": "30097-mr-cb"
   },
@@ -7555,6 +7872,7 @@
     "rarity": 3,
     "release": "2022-05-30",
     "release_en": null,
+    "support_id": 30098,
     "type": "power",
     "url_name": "30098-haru-urara"
   },
@@ -7580,6 +7898,7 @@
     "rarity": 3,
     "release": "2022-05-30",
     "release_en": null,
+    "support_id": 30099,
     "type": "stamina",
     "url_name": "30099-ikuno-dictus"
   },
@@ -7604,6 +7923,7 @@
     "rarity": 3,
     "release": "2022-05-30",
     "release_en": null,
+    "support_id": 30100,
     "type": "intelligence",
     "url_name": "30100-rice-shower"
   },
@@ -7631,6 +7951,7 @@
     "rarity": 3,
     "release": "2022-08-24",
     "release_en": null,
+    "support_id": 30101,
     "type": "speed",
     "url_name": "30101-agnes-tachyon"
   },
@@ -7655,6 +7976,7 @@
     "rarity": 3,
     "release": "2022-06-30",
     "release_en": null,
+    "support_id": 30102,
     "type": "guts",
     "url_name": "30102-el-condor-pasa"
   },
@@ -7680,6 +8002,7 @@
     "rarity": 3,
     "release": "2022-06-30",
     "release_en": null,
+    "support_id": 30103,
     "type": "intelligence",
     "url_name": "30103-matikanetannhauser"
   },
@@ -7705,6 +8028,7 @@
     "rarity": 3,
     "release": "2022-06-30",
     "release_en": null,
+    "support_id": 30104,
     "type": "stamina",
     "url_name": "30104-zenno-rob-roy"
   },
@@ -7730,6 +8054,7 @@
     "rarity": 3,
     "release": "2022-07-20",
     "release_en": null,
+    "support_id": 30105,
     "type": "guts",
     "url_name": "30105-special-week"
   },
@@ -7756,6 +8081,7 @@
     "rarity": 3,
     "release": "2022-07-11",
     "release_en": null,
+    "support_id": 30106,
     "type": "power",
     "url_name": "30106-air-groove"
   },
@@ -7784,6 +8110,7 @@
     "rarity": 3,
     "release": "2022-07-29",
     "release_en": null,
+    "support_id": 30107,
     "type": "speed",
     "url_name": "30107-maruzensky"
   },
@@ -7815,6 +8142,7 @@
     "rarity": 3,
     "release": "2022-07-29",
     "release_en": null,
+    "support_id": 30108,
     "type": "intelligence",
     "url_name": "30108-nakayama-festa"
   },
@@ -7840,6 +8168,7 @@
     "rarity": 3,
     "release": "2022-07-29",
     "release_en": null,
+    "support_id": 30109,
     "type": "guts",
     "url_name": "30109-sakura-chiyono-o"
   },
@@ -7864,6 +8193,7 @@
     "rarity": 3,
     "release": "2022-08-19",
     "release_en": null,
+    "support_id": 30110,
     "type": "stamina",
     "url_name": "30110-manhattan-cafe"
   },
@@ -7890,6 +8220,7 @@
     "rarity": 3,
     "release": "2022-08-29",
     "release_en": null,
+    "support_id": 30111,
     "type": "intelligence",
     "url_name": "30111-tokai-teio"
   },
@@ -7915,6 +8246,7 @@
     "rarity": 3,
     "release": "2022-08-29",
     "release_en": null,
+    "support_id": 30112,
     "type": "guts",
     "url_name": "30112-twin-turbo"
   },
@@ -7944,6 +8276,7 @@
     "rarity": 3,
     "release": "2022-08-29",
     "release_en": null,
+    "support_id": 30113,
     "type": "stamina",
     "url_name": "30113-biwa-hayahide"
   },
@@ -7974,6 +8307,7 @@
     "rarity": 3,
     "release": "2022-09-20",
     "release_en": null,
+    "support_id": 30114,
     "type": "power",
     "url_name": "30114-daiichi-ruby"
   },
@@ -8001,6 +8335,7 @@
     "rarity": 3,
     "release": "2022-09-29",
     "release_en": null,
+    "support_id": 30115,
     "type": "stamina",
     "url_name": "30115-mejiro-palmer"
   },
@@ -8029,6 +8364,7 @@
     "rarity": 3,
     "release": "2022-09-29",
     "release_en": null,
+    "support_id": 30116,
     "type": "speed",
     "url_name": "30116-daitaku-helios"
   },
@@ -8056,6 +8392,7 @@
     "rarity": 3,
     "release": "2022-09-29",
     "release_en": null,
+    "support_id": 30117,
     "type": "guts",
     "url_name": "30117-shinko-windy"
   },
@@ -8082,6 +8419,7 @@
     "rarity": 3,
     "release": "2022-10-19",
     "release_en": null,
+    "support_id": 30118,
     "type": "stamina",
     "url_name": "30118-symboli-kris-s"
   },
@@ -8104,6 +8442,7 @@
     "rarity": 3,
     "release": "2022-10-28",
     "release_en": null,
+    "support_id": 30119,
     "type": "speed",
     "url_name": "30119-mejiro-ardan"
   },
@@ -8130,6 +8469,7 @@
     "rarity": 3,
     "release": "2022-10-28",
     "release_en": null,
+    "support_id": 30120,
     "type": "guts",
     "url_name": "30120-yaeno-muteki"
   },
@@ -8154,6 +8494,7 @@
     "rarity": 3,
     "release": "2022-08-24",
     "release_en": null,
+    "support_id": 30121,
     "type": "speed",
     "url_name": "30121-mihono-bourbon"
   },
@@ -8179,6 +8520,7 @@
     "rarity": 3,
     "release": "2022-11-17",
     "release_en": null,
+    "support_id": 30122,
     "type": "speed",
     "url_name": "30122-eishin-flash"
   },
@@ -8207,6 +8549,7 @@
     "rarity": 3,
     "release": "2022-11-28",
     "release_en": null,
+    "support_id": 30123,
     "type": "power",
     "url_name": "30123-narita-brian"
   },
@@ -8234,6 +8577,7 @@
     "rarity": 3,
     "release": "2022-11-28",
     "release_en": null,
+    "support_id": 30124,
     "type": "intelligence",
     "url_name": "30124-air-groove"
   },
@@ -8261,6 +8605,7 @@
     "rarity": 3,
     "release": "2022-11-28",
     "release_en": null,
+    "support_id": 30125,
     "type": "stamina",
     "url_name": "30125-sakura-laurel"
   },
@@ -8288,6 +8633,7 @@
     "rarity": 3,
     "release": "2022-12-20",
     "release_en": null,
+    "support_id": 30126,
     "type": "guts",
     "url_name": "30126-yamanin-zephyr"
   },
@@ -8316,6 +8662,7 @@
     "rarity": 3,
     "release": "2022-12-29",
     "release_en": null,
+    "support_id": 30127,
     "type": "stamina",
     "url_name": "30127-special-week"
   },
@@ -8342,6 +8689,7 @@
     "rarity": 3,
     "release": "2022-12-29",
     "release_en": null,
+    "support_id": 30128,
     "type": "intelligence",
     "url_name": "30128-sweep-tosho"
   },
@@ -8366,6 +8714,7 @@
     "rarity": 3,
     "release": "2022-12-29",
     "release_en": null,
+    "support_id": 30129,
     "type": "power",
     "url_name": "30129-grass-wonder"
   },
@@ -8390,6 +8739,7 @@
     "rarity": 3,
     "release": "2023-01-20",
     "release_en": null,
+    "support_id": 30130,
     "type": "guts",
     "url_name": "30130-ksmiracle"
   },
@@ -8416,6 +8766,7 @@
     "rarity": 3,
     "release": "2023-01-30",
     "release_en": null,
+    "support_id": 30131,
     "type": "speed",
     "url_name": "30131-marvelous-sunday"
   },
@@ -8442,6 +8793,7 @@
     "rarity": 3,
     "release": "2023-01-30",
     "release_en": null,
+    "support_id": 30132,
     "type": "power",
     "url_name": "30132-biko-pegasus"
   },
@@ -8466,6 +8818,7 @@
     "rarity": 3,
     "release": "2023-01-30",
     "release_en": null,
+    "support_id": 30133,
     "type": "intelligence",
     "url_name": "30133-hishi-akebono"
   },
@@ -8494,6 +8847,7 @@
     "rarity": 3,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 30134,
     "type": "intelligence",
     "url_name": "30134-mejiro-ramonu"
   },
@@ -8521,6 +8875,7 @@
     "rarity": 3,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 30135,
     "type": "speed",
     "url_name": "30135-katsuragi-ace"
   },
@@ -8545,6 +8900,7 @@
     "rarity": 3,
     "release": "2023-02-24",
     "release_en": null,
+    "support_id": 30136,
     "type": "guts",
     "url_name": "30136-symboli-kris-s"
   },
@@ -8574,6 +8930,7 @@
     "rarity": 3,
     "release": "2023-03-20",
     "release_en": null,
+    "support_id": 30137,
     "type": "group",
     "url_name": "30137-ancestors-guides"
   },
@@ -8601,6 +8958,7 @@
     "rarity": 3,
     "release": "2023-03-29",
     "release_en": null,
+    "support_id": 30138,
     "type": "power",
     "url_name": "30138-nice-nature"
   },
@@ -8629,6 +8987,7 @@
     "rarity": 3,
     "release": "2023-03-29",
     "release_en": null,
+    "support_id": 30139,
     "type": "stamina",
     "url_name": "30139-mejiro-mcqueen"
   },
@@ -8654,6 +9013,7 @@
     "rarity": 3,
     "release": "2023-03-29",
     "release_en": null,
+    "support_id": 30140,
     "type": "speed",
     "url_name": "30140-tokai-teio"
   },
@@ -8681,6 +9041,7 @@
     "rarity": 3,
     "release": "2023-04-28",
     "release_en": null,
+    "support_id": 30141,
     "type": "intelligence",
     "url_name": "30141-mihono-bourbon"
   },
@@ -8707,6 +9068,7 @@
     "rarity": 3,
     "release": "2023-04-28",
     "release_en": null,
+    "support_id": 30142,
     "type": "stamina",
     "url_name": "30142-sakura-laurel"
   },
@@ -8730,6 +9092,7 @@
     "rarity": 3,
     "release": "2023-04-28",
     "release_en": null,
+    "support_id": 30143,
     "type": "power",
     "url_name": "30143-ikuno-dictus"
   },
@@ -8753,6 +9116,7 @@
     "rarity": 3,
     "release": "2022-10-17",
     "release_en": null,
+    "support_id": 30145,
     "type": "power",
     "url_name": "30145-tanino-gimlet"
   },
@@ -8783,6 +9147,7 @@
     "rarity": 3,
     "release": "2022-10-28",
     "release_en": null,
+    "support_id": 30146,
     "type": "intelligence",
     "url_name": "30146-oguri-cap"
   },
@@ -8808,6 +9173,7 @@
     "rarity": 3,
     "release": "2023-05-19",
     "release_en": null,
+    "support_id": 30147,
     "type": "speed",
     "url_name": "30147-jungle-pocket"
   },
@@ -8836,6 +9202,7 @@
     "rarity": 3,
     "release": "2023-05-29",
     "release_en": null,
+    "support_id": 30148,
     "type": "guts",
     "url_name": "30148-daiwa-scarlet"
   },
@@ -8862,6 +9229,7 @@
     "rarity": 3,
     "release": "2023-05-29",
     "release_en": null,
+    "support_id": 30149,
     "type": "intelligence",
     "url_name": "30149-aston-machan"
   },
@@ -8886,6 +9254,7 @@
     "rarity": 3,
     "release": "2023-05-29",
     "release_en": null,
+    "support_id": 30150,
     "type": "stamina",
     "url_name": "30150-vodka"
   },
@@ -8910,6 +9279,7 @@
     "rarity": 3,
     "release": "2023-06-19",
     "release_en": null,
+    "support_id": 30151,
     "type": "power",
     "url_name": "30151-mayano-top-gun"
   },
@@ -8939,6 +9309,7 @@
     "rarity": 3,
     "release": "2023-06-09",
     "release_en": null,
+    "support_id": 30152,
     "type": "intelligence",
     "url_name": "30152-tm-opera-o"
   },
@@ -8965,6 +9336,7 @@
     "rarity": 3,
     "release": "2023-06-29",
     "release_en": null,
+    "support_id": 30153,
     "type": "guts",
     "url_name": "30153-gold-city"
   },
@@ -8992,6 +9364,7 @@
     "rarity": 3,
     "release": "2023-06-29",
     "release_en": null,
+    "support_id": 30154,
     "type": "speed",
     "url_name": "30154-mejiro-palmer"
   },
@@ -9018,6 +9391,7 @@
     "rarity": 3,
     "release": "2023-06-29",
     "release_en": null,
+    "support_id": 30155,
     "type": "intelligence",
     "url_name": "30155-daitaku-helios"
   },
@@ -9045,6 +9419,7 @@
     "rarity": 3,
     "release": "2023-07-21",
     "release_en": null,
+    "support_id": 30156,
     "type": "power",
     "url_name": "30156-wonder-acute"
   },
@@ -9072,6 +9447,7 @@
     "rarity": 3,
     "release": "2023-07-31",
     "release_en": null,
+    "support_id": 30157,
     "type": "intelligence",
     "url_name": "30157-manhattan-cafe"
   },
@@ -9098,6 +9474,7 @@
     "rarity": 3,
     "release": "2023-07-31",
     "release_en": null,
+    "support_id": 30158,
     "type": "guts",
     "url_name": "30158-jungle-pocket"
   },
@@ -9123,6 +9500,7 @@
     "rarity": 3,
     "release": "2023-07-31",
     "release_en": null,
+    "support_id": 30159,
     "type": "speed",
     "url_name": "30159-air-groove"
   },
@@ -9140,6 +9518,7 @@
     "rarity": 3,
     "release": "2023-08-24",
     "release_en": null,
+    "support_id": 30160,
     "type": "friend",
     "url_name": "30160-mei-satake"
   },
@@ -9168,6 +9547,7 @@
     "rarity": 3,
     "release": "2023-08-24",
     "release_en": null,
+    "support_id": 30161,
     "type": "speed",
     "url_name": "30161-el-condor-pasa"
   },
@@ -9191,6 +9571,7 @@
     "rarity": 3,
     "release": "2023-08-24",
     "release_en": null,
+    "support_id": 30162,
     "type": "stamina",
     "url_name": "30162-admire-vega"
   },
@@ -9217,6 +9598,7 @@
     "rarity": 3,
     "release": "2023-08-31",
     "release_en": null,
+    "support_id": 30163,
     "type": "intelligence",
     "url_name": "30163-nakayama-festa"
   },
@@ -9243,6 +9625,7 @@
     "rarity": 3,
     "release": "2023-09-20",
     "release_en": null,
+    "support_id": 30164,
     "type": "power",
     "url_name": "30164-hishi-amazon"
   },
@@ -9269,6 +9652,7 @@
     "rarity": 3,
     "release": "2023-09-29",
     "release_en": null,
+    "support_id": 30165,
     "type": "stamina",
     "url_name": "30165-tanino-gimlet"
   },
@@ -9293,6 +9677,7 @@
     "rarity": 3,
     "release": "2023-09-29",
     "release_en": null,
+    "support_id": 30166,
     "type": "guts",
     "url_name": "30166-tap-dance-city"
   },
@@ -9316,6 +9701,7 @@
     "rarity": 3,
     "release": "2023-09-29",
     "release_en": null,
+    "support_id": 30167,
     "type": "speed",
     "url_name": "30167-fine-motion"
   },
@@ -9345,6 +9731,7 @@
     "rarity": 3,
     "release": "2023-10-19",
     "release_en": null,
+    "support_id": 30168,
     "type": "speed",
     "url_name": "30168-gold-ship"
   },
@@ -9370,6 +9757,7 @@
     "rarity": 3,
     "release": "2023-10-30",
     "release_en": null,
+    "support_id": 30169,
     "type": "power",
     "url_name": "30169-tsurumaru-tsuyoshi"
   },
@@ -9395,6 +9783,7 @@
     "rarity": 3,
     "release": "2023-10-30",
     "release_en": null,
+    "support_id": 30170,
     "type": "guts",
     "url_name": "30170-king-halo"
   },
@@ -9411,6 +9800,7 @@
     "rarity": 3,
     "release": "2023-10-30",
     "release_en": null,
+    "support_id": 30171,
     "type": "power",
     "url_name": "30171-haru-urara"
   },
@@ -9438,6 +9828,7 @@
     "rarity": 3,
     "release": "2023-11-09",
     "release_en": null,
+    "support_id": 30172,
     "type": "intelligence",
     "url_name": "30172-mejiro-mcqueen"
   },
@@ -9465,6 +9856,7 @@
     "rarity": 3,
     "release": "2023-11-20",
     "release_en": null,
+    "support_id": 30173,
     "type": "stamina",
     "url_name": "30173-sounds-of-earth"
   },
@@ -9490,6 +9882,7 @@
     "rarity": 3,
     "release": "2023-11-30",
     "release_en": null,
+    "support_id": 30174,
     "type": "speed",
     "url_name": "30174-mejiro-dober"
   },
@@ -9519,6 +9912,7 @@
     "rarity": 3,
     "release": "2023-11-30",
     "release_en": null,
+    "support_id": 30175,
     "type": "power",
     "url_name": "30175-mejiro-ramonu"
   },
@@ -9542,6 +9936,7 @@
     "rarity": 3,
     "release": "2023-11-30",
     "release_en": null,
+    "support_id": 30176,
     "type": "guts",
     "url_name": "30176-mejiro-ryan"
   },
@@ -9568,6 +9963,7 @@
     "rarity": 3,
     "release": "2023-12-20",
     "release_en": null,
+    "support_id": 30177,
     "type": "guts",
     "url_name": "30177-vivlos"
   },
@@ -9592,6 +9988,7 @@
     "rarity": 3,
     "release": "2023-12-28",
     "release_en": null,
+    "support_id": 30178,
     "type": "speed",
     "url_name": "30178-duramente"
   },
@@ -9619,6 +10016,7 @@
     "rarity": 3,
     "release": "2023-12-28",
     "release_en": null,
+    "support_id": 30179,
     "type": "intelligence",
     "url_name": "30179-satono-diamond"
   },
@@ -9640,6 +10038,7 @@
     "rarity": 3,
     "release": "2023-12-28",
     "release_en": null,
+    "support_id": 30180,
     "type": "group",
     "url_name": "30180-group"
   },
@@ -9668,6 +10067,7 @@
     "rarity": 3,
     "release": "2023-12-28",
     "release_en": null,
+    "support_id": 30181,
     "type": "stamina",
     "url_name": "30181-twin-turbo"
   },
@@ -9692,6 +10092,7 @@
     "rarity": 3,
     "release": "2024-01-19",
     "release_en": null,
+    "support_id": 30182,
     "type": "stamina",
     "url_name": "30182-hokko-tarumae"
   },
@@ -9716,6 +10117,7 @@
     "rarity": 3,
     "release": "2024-01-31",
     "release_en": null,
+    "support_id": 30183,
     "type": "power",
     "url_name": "30183-winning-ticket"
   },
@@ -9742,6 +10144,7 @@
     "rarity": 3,
     "release": "2024-01-31",
     "release_en": null,
+    "support_id": 30184,
     "type": "speed",
     "url_name": "30184-sakura-bakushin-o"
   },
@@ -9767,6 +10170,7 @@
     "rarity": 3,
     "release": "2024-01-31",
     "release_en": null,
+    "support_id": 30185,
     "type": "intelligence",
     "url_name": "30185-north-flight"
   },
@@ -9793,6 +10197,7 @@
     "rarity": 3,
     "release": "2024-02-24",
     "release_en": null,
+    "support_id": 30186,
     "type": "speed",
     "url_name": "30186-gentildonna"
   },
@@ -9818,6 +10223,7 @@
     "rarity": 3,
     "release": "2024-02-24",
     "release_en": null,
+    "support_id": 30187,
     "type": "guts",
     "url_name": "30187-orfevre"
   },
@@ -9835,6 +10241,7 @@
     "rarity": 3,
     "release": "2024-02-24",
     "release_en": null,
+    "support_id": 30188,
     "type": "friend",
     "url_name": "30188-ryoka-tsurugi"
   },
@@ -9857,6 +10264,7 @@
     "rarity": 3,
     "release": "2024-01-19",
     "release_en": null,
+    "support_id": 30189,
     "type": "guts",
     "url_name": "30189-kitasan-black"
   },
@@ -9878,6 +10286,7 @@
     "rarity": 3,
     "release": "2024-02-14",
     "release_en": null,
+    "support_id": 30190,
     "type": "stamina",
     "url_name": "30190-duramente"
   },
@@ -9901,6 +10310,7 @@
     "rarity": 3,
     "release": "2024-03-12",
     "release_en": null,
+    "support_id": 30191,
     "type": "power",
     "url_name": "30191-sounds-of-earth"
   },
@@ -9924,6 +10334,7 @@
     "rarity": 3,
     "release": "2024-04-09",
     "release_en": null,
+    "support_id": 30192,
     "type": "speed",
     "url_name": "30192-vivlos"
   },
@@ -9950,6 +10361,7 @@
     "rarity": 3,
     "release": "2024-03-21",
     "release_en": null,
+    "support_id": 30193,
     "type": "stamina",
     "url_name": "30193-cheval-grand"
   },
@@ -9974,6 +10386,7 @@
     "rarity": 3,
     "release": "2024-03-21",
     "release_en": null,
+    "support_id": 30194,
     "type": "guts",
     "url_name": "30194-rhein-kraft"
   },
@@ -9999,6 +10412,7 @@
     "rarity": 3,
     "release": "2024-03-29",
     "release_en": null,
+    "support_id": 30195,
     "type": "power",
     "url_name": "30195-ksmiracle"
   },
@@ -10024,6 +10438,7 @@
     "rarity": 3,
     "release": "2024-03-29",
     "release_en": null,
+    "support_id": 30196,
     "type": "speed",
     "url_name": "30196-yamanin-zephyr"
   },
@@ -10048,6 +10463,7 @@
     "rarity": 3,
     "release": "2024-03-29",
     "release_en": null,
+    "support_id": 30197,
     "type": "power",
     "url_name": "30197-bamboo-memory"
   },
@@ -10074,6 +10490,7 @@
     "rarity": 3,
     "release": "2024-04-09",
     "release_en": null,
+    "support_id": 30198,
     "type": "intelligence",
     "url_name": "30198-neo-universe"
   },
@@ -10099,6 +10516,7 @@
     "rarity": 3,
     "release": "2024-04-30",
     "release_en": null,
+    "support_id": 30199,
     "type": "stamina",
     "url_name": "30199-hishi-miracle"
   },
@@ -10123,6 +10541,7 @@
     "rarity": 3,
     "release": "2024-04-30",
     "release_en": null,
+    "support_id": 30200,
     "type": "guts",
     "url_name": "30200-no-reason"
   },
@@ -10151,6 +10570,7 @@
     "rarity": 3,
     "release": "2024-04-30",
     "release_en": null,
+    "support_id": 30201,
     "type": "intelligence",
     "url_name": "30201-narita-taishin"
   },
@@ -10176,6 +10596,7 @@
     "rarity": 3,
     "release": "2024-05-10",
     "release_en": null,
+    "support_id": 30202,
     "type": "guts",
     "url_name": "30202-vodka"
   },
@@ -10200,6 +10621,7 @@
     "rarity": 3,
     "release": "2024-05-20",
     "release_en": null,
+    "support_id": 30203,
     "type": "power",
     "url_name": "30203-jungle-pocket"
   },
@@ -10225,6 +10647,7 @@
     "rarity": 3,
     "release": "2024-05-30",
     "release_en": null,
+    "support_id": 30204,
     "type": "power",
     "url_name": "30204-seiun-sky"
   },
@@ -10249,6 +10672,7 @@
     "rarity": 3,
     "release": "2024-05-30",
     "release_en": null,
+    "support_id": 30205,
     "type": "speed",
     "url_name": "30205-verxina"
   },
@@ -10273,6 +10697,7 @@
     "rarity": 3,
     "release": "2024-05-30",
     "release_en": null,
+    "support_id": 30206,
     "type": "speed",
     "url_name": "30206-vivlos"
   },
@@ -10290,6 +10715,7 @@
     "rarity": 3,
     "release": "2024-06-26",
     "release_en": null,
+    "support_id": 30207,
     "type": "friend",
     "url_name": "30207-yayoi-akikawa"
   },
@@ -10315,6 +10741,7 @@
     "rarity": 3,
     "release": "2024-06-26",
     "release_en": null,
+    "support_id": 30208,
     "type": "power",
     "url_name": "30208-nishino-flower"
   },
@@ -10342,6 +10769,7 @@
     "rarity": 3,
     "release": "2024-07-09",
     "release_en": null,
+    "support_id": 30209,
     "type": "stamina",
     "url_name": "30209-dantsu-flame"
   },
@@ -10369,6 +10797,7 @@
     "rarity": 3,
     "release": "2024-07-29",
     "release_en": null,
+    "support_id": 30210,
     "type": "speed",
     "url_name": "30210-smart-falcon"
   },
@@ -10398,6 +10827,7 @@
     "rarity": 3,
     "release": "2024-07-29",
     "release_en": null,
+    "support_id": 30211,
     "type": "intelligence",
     "url_name": "30211-copano-rickey"
   },
@@ -10420,6 +10850,7 @@
     "rarity": 3,
     "release": "2024-07-29",
     "release_en": null,
+    "support_id": 30212,
     "type": "stamina",
     "url_name": "30212-wonder-acute"
   },
@@ -10442,6 +10873,7 @@
     "rarity": 3,
     "release": "2024-08-24",
     "release_en": null,
+    "support_id": 30213,
     "type": "speed",
     "url_name": "30213-tokai-teio"
   },
@@ -10469,6 +10901,7 @@
     "rarity": 3,
     "release": "2024-08-14",
     "release_en": null,
+    "support_id": 30214,
     "type": "guts",
     "url_name": "30214-fine-motion"
   },
@@ -10497,6 +10930,7 @@
     "rarity": 3,
     "release": "2024-08-24",
     "release_en": null,
+    "support_id": 30215,
     "type": "speed",
     "url_name": "30215-still-in-love"
   },
@@ -10521,6 +10955,7 @@
     "rarity": 3,
     "release": "2024-08-24",
     "release_en": null,
+    "support_id": 30216,
     "type": "guts",
     "url_name": "30216-buena-vista"
   },
@@ -10544,6 +10979,7 @@
     "rarity": 3,
     "release": "2024-09-20",
     "release_en": null,
+    "support_id": 30217,
     "type": "intelligence",
     "url_name": "30217-cesario"
   },
@@ -10575,6 +11011,7 @@
     "rarity": 3,
     "release": "2024-08-30",
     "release_en": null,
+    "support_id": 30218,
     "type": "intelligence",
     "url_name": "30218-taiki-shuttle"
   },
@@ -10600,6 +11037,7 @@
     "rarity": 3,
     "release": "2024-08-30",
     "release_en": null,
+    "support_id": 30219,
     "type": "guts",
     "url_name": "30219-fuji-kiseki"
   },
@@ -10624,6 +11062,7 @@
     "rarity": 3,
     "release": "2024-08-30",
     "release_en": null,
+    "support_id": 30220,
     "type": "intelligence",
     "url_name": "30220-symboli-kris-s"
   },
@@ -10647,6 +11086,7 @@
     "rarity": 3,
     "release": "2024-08-24",
     "release_en": null,
+    "support_id": 30221,
     "type": "stamina",
     "url_name": "30221-satono-diamond"
   },
@@ -10674,6 +11114,7 @@
     "rarity": 3,
     "release": "2024-09-10",
     "release_en": null,
+    "support_id": 30222,
     "type": "power",
     "url_name": "30222-espoir-city"
   },
@@ -10700,6 +11141,7 @@
     "rarity": 3,
     "release": "2024-09-30",
     "release_en": null,
+    "support_id": 30223,
     "type": "guts",
     "url_name": "30223-hishi-amazon"
   },
@@ -10725,6 +11167,7 @@
     "rarity": 3,
     "release": "2024-09-30",
     "release_en": null,
+    "support_id": 30224,
     "type": "speed",
     "url_name": "30224-narita-brian"
   },
@@ -10747,6 +11190,7 @@
     "rarity": 3,
     "release": "2024-09-30",
     "release_en": null,
+    "support_id": 30225,
     "type": "guts",
     "url_name": "30225-matikanefukukitaru"
   },
@@ -10774,6 +11218,7 @@
     "rarity": 3,
     "release": "2024-10-29",
     "release_en": null,
+    "support_id": 30226,
     "type": "stamina",
     "url_name": "30226-air-shakur"
   },
@@ -10805,6 +11250,7 @@
     "rarity": 3,
     "release": "2024-10-29",
     "release_en": null,
+    "support_id": 30227,
     "type": "intelligence",
     "url_name": "30227-daiwa-scarlet"
   },
@@ -10833,6 +11279,7 @@
     "rarity": 3,
     "release": "2024-11-08",
     "release_en": null,
+    "support_id": 30228,
     "type": "power",
     "url_name": "30228-symboli-kris-s"
   },
@@ -10860,6 +11307,7 @@
     "rarity": 3,
     "release": "2024-11-28",
     "release_en": null,
+    "support_id": 30229,
     "type": "intelligence",
     "url_name": "30229-agnes-digital"
   },
@@ -10887,6 +11335,7 @@
     "rarity": 3,
     "release": "2024-11-28",
     "release_en": null,
+    "support_id": 30230,
     "type": "speed",
     "url_name": "30230-meisho-doto"
   },
@@ -10910,6 +11359,7 @@
     "rarity": 3,
     "release": "2024-11-28",
     "release_en": null,
+    "support_id": 30231,
     "type": "power",
     "url_name": "30231-tm-opera-o"
   },
@@ -10939,6 +11389,7 @@
     "rarity": 3,
     "release": "2024-12-10",
     "release_en": null,
+    "support_id": 30232,
     "type": "guts",
     "url_name": "30232-blast-onepiece"
   },
@@ -10968,6 +11419,7 @@
     "rarity": 3,
     "release": "2024-12-27",
     "release_en": null,
+    "support_id": 30233,
     "type": "intelligence",
     "url_name": "30233-symboli-rudolf"
   },
@@ -10996,6 +11448,7 @@
     "rarity": 3,
     "release": "2024-12-27",
     "release_en": null,
+    "support_id": 30234,
     "type": "power",
     "url_name": "30234-mejiro-ardan"
   },
@@ -11021,6 +11474,7 @@
     "rarity": 3,
     "release": "2024-12-27",
     "release_en": null,
+    "support_id": 30235,
     "type": "speed",
     "url_name": "30235-maruzensky"
   },
@@ -11051,6 +11505,7 @@
     "rarity": 3,
     "release": "2025-01-10",
     "release_en": null,
+    "support_id": 30236,
     "type": "speed",
     "url_name": "30236-seeking-the-pearl"
   },
@@ -11079,6 +11534,7 @@
     "rarity": 3,
     "release": "2025-01-31",
     "release_en": null,
+    "support_id": 30237,
     "type": "guts",
     "url_name": "30237-curren-chan"
   },
@@ -11106,6 +11562,7 @@
     "rarity": 3,
     "release": "2025-01-31",
     "release_en": null,
+    "support_id": 30238,
     "type": "intelligence",
     "url_name": "30238-ikuno-dictus"
   },
@@ -11131,6 +11588,7 @@
     "rarity": 3,
     "release": "2025-01-31",
     "release_en": null,
+    "support_id": 30239,
     "type": "stamina",
     "url_name": "30239-nice-nature"
   },
@@ -11155,6 +11613,7 @@
     "rarity": 3,
     "release": "2025-02-14",
     "release_en": null,
+    "support_id": 30240,
     "type": "stamina",
     "url_name": "30240-jungle-pocket"
   },
@@ -11178,6 +11637,7 @@
     "rarity": 3,
     "release": "2025-02-24",
     "release_en": null,
+    "support_id": 30241,
     "type": "group",
     "url_name": "30241-group"
   },
@@ -11208,6 +11668,7 @@
     "rarity": 3,
     "release": "2025-02-24",
     "release_en": null,
+    "support_id": 30242,
     "type": "speed",
     "url_name": "30242-almond-eye"
   },
@@ -11232,6 +11693,7 @@
     "rarity": 3,
     "release": "2025-02-24",
     "release_en": null,
+    "support_id": 30243,
     "type": "power",
     "url_name": "30243-gran-alegria"
   },
@@ -11260,6 +11722,7 @@
     "rarity": 3,
     "release": "2025-03-11",
     "release_en": null,
+    "support_id": 30244,
     "type": "stamina",
     "url_name": "30244-mejiro-bright"
   },
@@ -11288,6 +11751,7 @@
     "rarity": 3,
     "release": "2025-03-31",
     "release_en": null,
+    "support_id": 30245,
     "type": "power",
     "url_name": "30245-vodka"
   },
@@ -11317,6 +11781,7 @@
     "rarity": 3,
     "release": "2025-03-31",
     "release_en": null,
+    "support_id": 30246,
     "type": "speed",
     "url_name": "30246-dream-journey"
   },
@@ -11342,6 +11807,7 @@
     "rarity": 3,
     "release": "2025-03-31",
     "release_en": null,
+    "support_id": 30247,
     "type": "speed",
     "url_name": "30247-symboli-kris-s"
   },
@@ -11371,6 +11837,7 @@
     "rarity": 3,
     "release": "2025-04-10",
     "release_en": null,
+    "support_id": 30248,
     "type": "intelligence",
     "url_name": "30248-daring-tact"
   },
@@ -11400,6 +11867,7 @@
     "rarity": 3,
     "release": "2025-04-30",
     "release_en": null,
+    "support_id": 30249,
     "type": "guts",
     "url_name": "30249-transcend"
   },
@@ -11428,6 +11896,7 @@
     "rarity": 3,
     "release": "2025-04-30",
     "release_en": null,
+    "support_id": 30250,
     "type": "power",
     "url_name": "30250-buena-vista"
   },
@@ -11453,6 +11922,7 @@
     "rarity": 3,
     "release": "2025-04-30",
     "release_en": null,
+    "support_id": 30251,
     "type": "guts",
     "url_name": "30251-espoir-city"
   },
@@ -11481,6 +11951,7 @@
     "rarity": 3,
     "release": "2025-05-12",
     "release_en": null,
+    "support_id": 30252,
     "type": "guts",
     "url_name": "30252-silence-suzuka"
   },
@@ -11509,6 +11980,7 @@
     "rarity": 3,
     "release": "2025-05-30",
     "release_en": null,
+    "support_id": 30253,
     "type": "speed",
     "url_name": "30253-rhein-kraft"
   },
@@ -11536,6 +12008,7 @@
     "rarity": 3,
     "release": "2025-05-30",
     "release_en": null,
+    "support_id": 30254,
     "type": "intelligence",
     "url_name": "30254-daring-heart"
   },
@@ -11559,6 +12032,7 @@
     "rarity": 3,
     "release": "2025-05-30",
     "release_en": null,
+    "support_id": 30255,
     "type": "intelligence",
     "url_name": "30255-air-messiah"
   },
@@ -11588,6 +12062,7 @@
     "rarity": 3,
     "release": "2025-06-27",
     "release_en": null,
+    "support_id": 30256,
     "type": "power",
     "url_name": "30256-tamamo-cross"
   },
@@ -11606,6 +12081,7 @@
     "rarity": 3,
     "release": "2025-06-27",
     "release_en": null,
+    "support_id": 30257,
     "type": "friend",
     "url_name": "30257-tucker-bryne"
   },
@@ -11633,6 +12109,7 @@
     "rarity": 3,
     "release": "2025-07-11",
     "release_en": null,
+    "support_id": 30258,
     "type": "stamina",
     "url_name": "30258-mejiro-ryan"
   },
@@ -11656,6 +12133,7 @@
     "rarity": 3,
     "release": "2025-07-22",
     "release_en": null,
+    "support_id": 30259,
     "type": "speed",
     "url_name": "30259-fusaichi-pandora"
   },
@@ -11680,6 +12158,7 @@
     "rarity": 3,
     "release": "2025-04-30",
     "release_en": null,
+    "support_id": 30260,
     "type": "speed",
     "url_name": "30260-mejiro-mcqueen"
   },
@@ -11709,6 +12188,7 @@
     "rarity": 3,
     "release": "2025-07-31",
     "release_en": null,
+    "support_id": 30261,
     "type": "intelligence",
     "url_name": "30261-win-variation"
   },
@@ -11737,6 +12217,7 @@
     "rarity": 3,
     "release": "2025-07-31",
     "release_en": null,
+    "support_id": 30262,
     "type": "stamina",
     "url_name": "30262-duramente"
   },
@@ -11761,6 +12242,7 @@
     "rarity": 3,
     "release": "2025-07-31",
     "release_en": null,
+    "support_id": 30263,
     "type": "power",
     "url_name": "30263-vivlos"
   },
@@ -11792,6 +12274,7 @@
     "rarity": 3,
     "release": "2025-08-24",
     "release_en": null,
+    "support_id": 30264,
     "type": "guts",
     "url_name": "30264-stay-gold"
   },
@@ -11821,6 +12304,7 @@
     "rarity": 3,
     "release": "2025-08-24",
     "release_en": null,
+    "support_id": 30265,
     "type": "speed",
     "url_name": "30265-admire-groove"
   },
@@ -11843,6 +12327,7 @@
     "rarity": 3,
     "release": "2025-08-24",
     "release_en": null,
+    "support_id": 30266,
     "type": "intelligence",
     "url_name": "30266-chrono-genesis"
   },
@@ -11873,6 +12358,7 @@
     "rarity": 3,
     "release": "2025-08-29",
     "release_en": null,
+    "support_id": 30267,
     "type": "speed",
     "url_name": "30267-calstone-light-o"
   },
@@ -11903,6 +12389,7 @@
     "rarity": 3,
     "release": "2025-08-29",
     "release_en": null,
+    "support_id": 30268,
     "type": "intelligence",
     "url_name": "30268-durandal"
   },
@@ -11927,6 +12414,7 @@
     "rarity": 3,
     "release": "2025-08-29",
     "release_en": null,
+    "support_id": 30269,
     "type": "speed",
     "url_name": "30269-dantsu-flame"
   },
@@ -11955,6 +12443,7 @@
     "rarity": 3,
     "release": "2025-09-09",
     "release_en": null,
+    "support_id": 30270,
     "type": "guts",
     "url_name": "30270-daiichi-ruby"
   },
@@ -11984,6 +12473,7 @@
     "rarity": 3,
     "release": "2025-09-29",
     "release_en": null,
+    "support_id": 30271,
     "type": "guts",
     "url_name": "30271-fuji-kiseki"
   },
@@ -12016,6 +12506,7 @@
     "rarity": 3,
     "release": "2025-09-29",
     "release_en": null,
+    "support_id": 30272,
     "type": "speed",
     "url_name": "30272-eishin-flash"
   },
@@ -12041,6 +12532,7 @@
     "rarity": 3,
     "release": "2025-09-29",
     "release_en": null,
+    "support_id": 30273,
     "type": "power",
     "url_name": "30273-tosen-jordan"
   }
