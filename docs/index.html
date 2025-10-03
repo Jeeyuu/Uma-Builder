@@ -430,7 +430,7 @@ function removeFromSlot(slotEl, card){
   }
   slotEl.classList.remove('has-card');
   delete slotEl.dataset.cardId;
-  slotEl.innerHTML = '';
+  slotEl.innerHTML = '<div class="placeholder">Empty</div>'; // restore placeholder
   selectedCardIds.delete(Number(card.char_id));
   renderSections();
 }
@@ -445,7 +445,7 @@ clearAllBtn.addEventListener('click', ()=>{
     }
     slot.classList.remove('has-card');
     delete slot.dataset.cardId;
-    slot.innerHTML='';
+    slot.innerHTML = '<div class="placeholder">Empty</div>'; // restore placeholder
   });
   renderSections();
 });
