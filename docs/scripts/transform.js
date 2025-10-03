@@ -37,6 +37,7 @@ const transformed = supports.map(card => ({
   rarity: card.rarity || null,
   release: card.release || null,
   release_en: card.release_en || null,
+  support_id: card.support_id || null,
   type: card.type || null,
   url_name: card.url_name || null
 }));

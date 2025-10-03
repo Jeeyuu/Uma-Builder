@@ -233,7 +233,7 @@ function createCardElement(card){
   el.dataset.id = card.char_id;
   el.dataset.name = card.char_name;
 
-  const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.char_id}.png`;
+  const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
   const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png`;
 
   let skillsHTML = '';
@@ -286,7 +286,7 @@ function addToSlot(card){
   freeSlot.classList.add('has-card');
   freeSlot.innerHTML = `
     <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
-    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.char_id}.png" alt="${escapeHtml(card.char_name)}">
+    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
     <div class="name">${escapeHtml(card.char_name)}</div>
     <div class="skills">${skillsHTML}</div>
   `;
