@@ -176,65 +176,50 @@ const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
 
 const categories = [
-  {id:'racecourse', title:'Racecourse'},
-  {id:'length', title:'Length'},
-  {id:'direction', title:'Direction'},
-  {id:'track', title:'Track Conditions'},
-  {id:'season', title:'Season'},
-  {id:'weather', title:'Weather'}
+  {id:'racecourse', title:'Racecourse', prop:'racecourse'},
+  {id:'length', title:'Length', prop:'length'},
+  {id:'direction', title:'Direction', prop:'direction'},
+  {id:'track', title:'Track Conditions', prop:'track'},
+  {id:'season', title:'Season', prop:'season'},
+  {id:'weather', title:'Weather', prop:'weather'}
 ];
 
 const slotListeners = new Map();
 const typeMap = {
-  "speed":"00",
-  "stamina":"01",
-  "power":"02",
-  "guts":"03",
-  "intelligence":"04",
-  "support":"05",
-  "group":"06"
+  "Speed":"00",
+  "Stamina":"01",
+  "Power":"02",
+  "Guts":"03",
+  "Intelligence":"04",
+  "Support":"05",
+  "Group":"06"
 };
 
-// Pagination per section
-const sectionPages = new Map();
+// Pagination storage per section
+const sectionPages = new Map()
 
-// --- Fetch JSON ---
 fetch("latest.json")
   .then(r => r.json())
   .then(data => {
     cardsData = data.map(card => ({
-      id: card.char_id,
-      name: card.char_name,
-      type: card.type,
-      hint_skills: card.hint_skills || [],
-      event_skills: card.event_skills || [],
-      obtained: card.obtained,
-      rarity: card.rarity,
-      release: card.release,
-      release_en: card.release_en,
-      image: `https://gametora.com/images/umamusume/supports/support_card_s_${card.char_id}.png`,
+      ...card,
+      image: `https://gametora.com/images/umamusume/supports/support_card_s_${card.id}.png`,
       typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png`
     }));
     renderSections();
   });
+
 
 // --- Card element ---
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
   el.dataset.id = card.id;
+  el.dataset.name = card.name;
 
   let skillsHTML = '';
-  if(card.hint_skills.length) skillsHTML += `
-    <div class="skills-group">
-      <div class="skills-header">Support Hints</div>
-      ${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
-    </div>`;
-  if(card.event_skills.length) skillsHTML += `
-    <div class="skills-group">
-      <div class="skills-header">Event Skills</div>
-      ${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}
-    </div>`;
+  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
 
   el.innerHTML = `
     <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
@@ -243,17 +228,237 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  el.addEventListener('click', () => {
+  el.addEventListener('click', ()=>{
     const slot = slots.find(s => Number(s.dataset.cardId) === card.id);
-    if(slot) removeFromSlot(slot, card);
-    else addToSlot(card);
+    if(slot){
+      // if card is in a slot, remove it
+      removeFromSlot(slot, card);
+    } else {
+      // otherwise add to first free slot
+      addToSlot(card);
+    }
   });
 
+  // visually dim if in slot, but still clickable
   if(selectedCardIds.has(card.id)) el.classList.add('disabled');
+
   return el;
 }
 
-// --- Slots ---
+
+// --- Direction mapping for filters ---
+function mapDirection(val){
+  if(!val) return '';
+  return val.toLowerCase() === 'clockwise' ? 'Right-Handed' : 'Left-Handed';
+}
+
+
+function isNameBlocked(name){
+  for(const id of selectedCardIds){
+    const chosen = cardsData.find(c=>c.id===id);
+    if(chosen && chosen.name===name) return true;
+  }
+  return false;
+}
+
+// Render card sections with unified pagination
+function renderSections(){
+  cardSections.innerHTML = '';
+
+  let any = false;
+
+  function normalizeText(s){
+  return s.replace(/[◎○]/g,'').trim().toLowerCase();
+}
+
+categories.forEach(cat=>{
+  let val = (document.getElementById(cat.id) || {value:''}).value;
+  if(!val) return;
+
+  any = true;
+  const section = document.createElement('div');
+  section.className = 'card-section';
+  const header = document.createElement('h2');
+  header.textContent = `${cat.title}: ${val}`;
+  section.appendChild(header);
+
+  const rows = [];
+
+  if(cat.id==='length'){
+    const dist = parseInt(val);
+    let catLabel = '';
+    if(dist <= 1400) catLabel='Sprint';
+    else if(dist <= 1800) catLabel='Mile';
+    else if(dist <= 2400) catLabel='Medium';
+    else catLabel='Long';
+
+    rows.push(
+      {title: 'Corners', term: `${catLabel} Corners`},
+      {title: 'Straightaways', term: `${catLabel} Straightaways`},
+      {title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
+       term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'}
+    );
+  } else {
+    let searchTerms = [];
+    switch(cat.id){
+      case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
+      case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
+      case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
+      case 'season': searchTerms.push(val+' Runner'); break;
+      case 'weather': searchTerms.push(val+' Days'); break;
+    }
+    rows.push({title: cat.title, termArr: searchTerms});
+  }
+
+  rows.forEach((row,rowIndex)=>{
+    const rowContainer = document.createElement('div');
+    rowContainer.style.position='relative';
+    rowContainer.style.marginBottom='30px';
+
+const rowHeader = document.createElement('div');
+rowHeader.style.fontWeight = 'bold';
+rowHeader.style.marginBottom = '6px';
+
+// Use selected value for presentation if available
+if(cat.id === 'racecourse' && val) {
+    rowHeader.textContent = `${val} Racecourse`;
+} else if(cat.id === 'direction' && val) {
+    rowHeader.textContent = `${val} Direction`;
+} else if(cat.id === 'track' && val) {
+    rowHeader.textContent = `${val} Track Conditions`;
+} else if(cat.id === 'season' && val) {
+    rowHeader.textContent = `${val} Season`;
+} else if(cat.id === 'weather' && val) {
+    rowHeader.textContent = `${val} Weather`;
+} else {
+    rowHeader.textContent = row.title; // fallback for other rows (e.g., Length)
+}
+
+    rowHeader.style.fontWeight = 'bold';
+    rowHeader.style.marginBottom = '6px';
+    rowContainer.appendChild(rowHeader);
+
+    const grid = document.createElement('div');
+    grid.className = 'cards';
+    rowContainer.appendChild(grid);
+
+    // --- FILTER MATCHES ---
+    const matches = row.termArr ? cardsData.filter(card =>
+      row.termArr.some(term =>
+        (card.support_hints || []).some(h=>{
+          if(cat.id==='length' && row.title.includes('Distance')){
+            return normalizeText(h) === term.toLowerCase();
+          }
+          return h.toLowerCase().includes(term.toLowerCase());
+        }) ||
+        (card.event_skills || []).some(e=>{
+          if(cat.id==='length' && row.title.includes('Distance')){
+            return normalizeText(e) === term.toLowerCase();
+          }
+          return e.toLowerCase().includes(term.toLowerCase());
+        })
+      )
+    ) : cardsData.filter(card=>{
+      if(cat.id==='length' && row.title.includes('Distance')){
+        return (card.support_hints || []).some(h=>normalizeText(h) === row.term.toLowerCase()) ||
+               (card.event_skills || []).some(e=>normalizeText(e) === row.term.toLowerCase());
+      }
+      return (card.support_hints || []).some(h=>h.toLowerCase().includes(row.term.toLowerCase())) ||
+             (card.event_skills || []).some(e=>e.toLowerCase().includes(row.term.toLowerCase()));
+    });
+
+    // --- RENDERING PAGE ---
+    if(matches.length===0){
+      const noMsg = document.createElement('div');
+      noMsg.style.opacity='0.6';
+      noMsg.textContent='(No matching cards)';
+      grid.appendChild(noMsg);
+      section.appendChild(rowContainer);
+      return;
+    }
+
+const pageKey = cat.id+'-'+rowIndex;
+const currentPage = sectionPages.get(pageKey) || 0;
+sectionPages.set(pageKey, currentPage);
+    const totalPages = Math.ceil(matches.length/6);
+
+    function renderPage(page){
+      grid.innerHTML='';
+      const start = page*6;
+      const end = start+6;
+      matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
+      updateButtons(page);
+    }
+
+    const btnContainer = document.createElement('div');
+    btnContainer.style.position='absolute';
+    btnContainer.style.top='2px';
+    btnContainer.style.right='0';
+    btnContainer.style.display='flex';
+    btnContainer.style.gap='5px';
+    rowContainer.appendChild(btnContainer);
+
+    const leftBtn = document.createElement('button');
+    leftBtn.textContent='◀';
+    leftBtn.style.opacity='0.4';
+    leftBtn.style.pointerEvents='none';
+    leftBtn.style.border='none';
+    leftBtn.style.borderRadius='6px';
+    leftBtn.style.background='#444';
+    leftBtn.style.color='#fff';
+    const rightBtn = document.createElement('button');
+    rightBtn.textContent='▶';
+    rightBtn.style.opacity='0.4';
+    rightBtn.style.pointerEvents='none';
+    rightBtn.style.border='none';
+    rightBtn.style.borderRadius='6px';
+    rightBtn.style.background='#444';
+    rightBtn.style.color='#fff';
+    btnContainer.appendChild(leftBtn);
+    btnContainer.appendChild(rightBtn);
+
+    function updateButtons(page){
+      leftBtn.style.opacity = page>0?'1':'0.4';
+      leftBtn.style.pointerEvents = page>0?'auto':'none';
+      rightBtn.style.opacity = page<totalPages-1?'1':'0.4';
+      rightBtn.style.pointerEvents = page<totalPages-1?'auto':'none';
+    }
+
+    leftBtn.addEventListener('click',()=>{
+      let page = sectionPages.get(pageKey);
+      if(page>0){
+        page--;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
+      }
+    });
+    rightBtn.addEventListener('click',()=>{
+      let page = sectionPages.get(pageKey);
+      if(page<totalPages-1){
+        page++;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
+      }
+    });
+
+    renderPage(currentPage);
+    section.appendChild(rowContainer);
+  });
+
+  cardSections.appendChild(section);
+});
+
+
+  if(!any){
+    const msg=document.createElement('div');
+    msg.style.opacity='0.7';
+    msg.style.marginTop='8px';
+    msg.textContent='Select options from the left to show matching card sections.';
+    cardSections.appendChild(msg);
+  }
+}
+
+// --- Slot handling ---
 function addToSlot(card){
   const freeSlot = slots.find(s=>!s.dataset.cardId);
   if(!freeSlot) return;
@@ -264,8 +469,8 @@ function addToSlot(card){
   }
 
   let skillsHTML = '';
-  if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-  if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
 
   freeSlot.dataset.cardId = card.id;
   freeSlot.classList.add('has-card');
@@ -313,115 +518,30 @@ clearAllBtn.addEventListener('click', ()=>{
 
 clearFiltersBtn.addEventListener('click', ()=>{
   categories.forEach(cat=>{
-    const sel = document.getElementById(cat.id);
-    if(sel) sel.value='';
+    const sel=document.getElementById(cat.id);
+    if(sel){
+      sel.value='';
+      localStorage.removeItem('filter_'+cat.id);
+    }
   });
   renderSections();
 });
 
-// --- Render Sections ---
-function renderSections(){
-  cardSections.innerHTML='';
-
-  let any = false;
-
+function setupFilterPersistence(){
   categories.forEach(cat=>{
-    const val = (document.getElementById(cat.id)?.value || '').trim();
-    if(!val) return;
-
-    any = true;
-    const section = document.createElement('div');
-    section.className='card-section';
-    const header = document.createElement('h2');
-    header.textContent = `${cat.title}: ${val}`;
-    section.appendChild(header);
-
-    const grid = document.createElement('div');
-    grid.className='cards';
-    section.appendChild(grid);
-
-    const matches = cardsData.filter(card => {
-      // match support hints or event skills
-      const lowerVal = val.toLowerCase();
-      return card.hint_skills.some(h=>h.toLowerCase().includes(lowerVal)) ||
-             card.event_skills.some(e=>e.toLowerCase().includes(lowerVal));
+    const sel=document.getElementById(cat.id);
+    if(!sel) return;
+    const saved = localStorage.getItem('filter_'+cat.id);
+    if(saved) sel.value=saved;
+    sel.addEventListener('change', ()=>{
+      localStorage.setItem('filter_'+cat.id, sel.value);
+      renderSections();
     });
-
-    if(matches.length===0){
-      const noMsg = document.createElement('div');
-      noMsg.style.opacity='0.6';
-      noMsg.textContent='(No matching cards)';
-      grid.appendChild(noMsg);
-      cardSections.appendChild(section);
-      return;
-    }
-
-    // Pagination
-    const pageKey = cat.id;
-    const currentPage = sectionPages.get(pageKey) || 0;
-    const totalPages = Math.ceil(matches.length/6);
-    sectionPages.set(pageKey, currentPage);
-
-    function renderPage(page){
-      grid.innerHTML='';
-      const start = page*6;
-      const end = start+6;
-      matches.slice(start,end).forEach(card=>grid.appendChild(createCardElement(card)));
-      updateButtons(page);
-    }
-
-    const btnContainer = document.createElement('div');
-    btnContainer.style.position='absolute';
-    btnContainer.style.top='2px';
-    btnContainer.style.right='0';
-    btnContainer.style.display='flex';
-    btnContainer.style.gap='5px';
-    section.appendChild(btnContainer);
-
-    const leftBtn = document.createElement('button');
-    leftBtn.textContent='◀';
-    const rightBtn = document.createElement('button');
-    rightBtn.textContent='▶';
-    btnContainer.appendChild(leftBtn);
-    btnContainer.appendChild(rightBtn);
-
-    function updateButtons(page){
-      leftBtn.style.opacity = page>0?'1':'0.4';
-      leftBtn.style.pointerEvents = page>0?'auto':'none';
-      rightBtn.style.opacity = page<totalPages-1?'1':'0.4';
-      rightBtn.style.pointerEvents = page<totalPages-1?'auto':'none';
-    }
-
-    leftBtn.addEventListener('click',()=>{
-      let page = sectionPages.get(pageKey);
-      if(page>0){
-        sectionPages.set(pageKey,page-1);
-        renderPage(page-1);
-      }
-    });
-
-    rightBtn.addEventListener('click',()=>{
-      let page = sectionPages.get(pageKey);
-      if(page<totalPages-1){
-        sectionPages.set(pageKey,page+1);
-        renderPage(page+1);
-      }
-    });
-
-    renderPage(currentPage);
-    cardSections.appendChild(section);
   });
-
-  if(!any){
-    const msg=document.createElement('div');
-    msg.style.opacity='0.7';
-    msg.style.marginTop='8px';
-    msg.textContent='Select options from the left to show matching card sections.';
-    cardSections.appendChild(msg);
-  }
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+setupFilterPersistence();
 </script>
 
 
