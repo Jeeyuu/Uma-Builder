@@ -17,7 +17,7 @@ body {
   background: #fff;
   color: #111;
   display: flex;
-  justify-content: center; /* center container */
+  justify-content: center;
 }
 
 .container {
@@ -26,7 +26,7 @@ body {
   align-items: flex-start;
   padding: 24px;
   width: 100%;
-  max-width: 1280px; /* max width cap */
+  max-width: 1280px;
 }
 
 .sidebar {
@@ -60,9 +60,9 @@ select {
 
 .slots-header {
   display: flex;
-  justify-content: flex-end; /* flush right */
+  justify-content: flex-end;
   margin-bottom: 8px;
-  width: calc((var(--card-w) + var(--gap)) * 6 - var(--gap)); /* width of 6 slots */
+  width: calc((var(--card-w) + var(--gap)) * 6 - var(--gap));
 }
 
 .clear-all {
@@ -156,10 +156,10 @@ select {
   background: #fff;
   border-radius: 4px;
   overflow: hidden;
-  text-align:center;
-  font-size:10px;
-  line-height:18px;
-  font-weight:bold;
+  text-align: center;
+  font-size: 10px;
+  line-height: 18px;
+  font-weight: bold;
 }
 
 .slot .type-icon img, .card .type-icon img {
@@ -185,14 +185,15 @@ select {
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
   position: relative;
-  display: grid;
-  grid-template-columns: repeat(6, var(--card-w));
-  gap: var(--gap);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .card-section h2 {
-  margin: 6px 0;
+  margin: 0 0 6px 0;
   font-size: 16px;
+  text-align: left;
 }
 
 .cards {
@@ -203,9 +204,10 @@ select {
 
 .page-controls {
   display: flex;
+  justify-content: flex-end;
   gap: 6px;
-  justify-content: flex-end; /* flush right inside the section */
-  margin-top: 6px;
+  margin-top: 0;
+  align-items: center;
 }
 
 .page-controls button {
@@ -216,13 +218,14 @@ select {
   padding: 4px 8px;
   opacity: 0.4;
   pointer-events: none;
+  height: auto;
 }
-
 
 @media (max-width: 1100px) {
   :root { --card-w: 100px; }
 }
 </style>
+
 </head>
 
 <body>
