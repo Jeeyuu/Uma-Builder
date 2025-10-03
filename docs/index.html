@@ -515,34 +515,44 @@ function renderSections(){
   });
 
   function renderFilterRow(catId,headerText,termList,rowIndex){
-    const section=document.createElement('div'); section.className='card-section';
-    const header=document.createElement('h2'); header.textContent=headerText; section.appendChild(header);
-    const grid=document.createElement('div'); grid.className='cards'; section.appendChild(grid);
+    const section = document.createElement('div');
+    section.className = 'card-section';
 
-    const termsNormalized=termList.map(normalizeSkill);
-    const strictDistanceKeys=['standard distance','non-standard distance'];
-    const strictTerms=termsNormalized.filter(t=>strictDistanceKeys.includes(t));
-    const looseTerms=termsNormalized.filter(t=>!strictDistanceKeys.includes(t));
+    const header = document.createElement('h2');
+    header.textContent = headerText;
+    section.appendChild(header);
 
-    const matches=cardsData.filter(card=>{
-      const skills=[...card.hint_skills,...card.event_skills].map(normalizeSkill);
-      return strictTerms.every(t=>skills.includes(t)) && looseTerms.every(term=>skills.some(s=>s.includes(term)));
+    // create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'card-grid-wrapper'; // new class
+    wrapper.style.position = 'relative'; // ensure absolute positioning works
+
+    const grid = document.createElement('div');
+    grid.className = 'cards';
+    wrapper.appendChild(grid);
+
+    // pagination controls
+    const controls = document.createElement('div');
+    controls.className = 'page-controls';
+    const leftBtn = document.createElement('button'); leftBtn.textContent = '◀';
+    const rightBtn = document.createElement('button'); rightBtn.textContent = '▶';
+    [leftBtn, rightBtn].forEach(b => {
+      b.style.border = 'none';
+      b.style.borderRadius = '6px';
+      b.style.background = '#444';
+      b.style.color = '#fff';
+      b.style.padding = '4px 8px';
+      b.style.opacity = '0.4';
+      b.style.pointerEvents = 'none';
     });
+    controls.appendChild(leftBtn);
+    controls.appendChild(rightBtn);
 
-    if(matches.length===0){
-      const noMsg=document.createElement('div'); noMsg.style.opacity='0.6'; noMsg.textContent='(No matching cards)'; grid.appendChild(noMsg);
-      cardSections.appendChild(section); return;
-    }
+    // append controls to wrapper instead of section
+    wrapper.appendChild(controls);
 
-    const pageKey=`${catId}-${rowIndex}`;
-    const currentPage=sectionPages.get(pageKey)||0;
-    sectionPages.set(pageKey,currentPage);
-
-    const controls=document.createElement('div'); controls.className='page-controls';
-    const leftBtn=document.createElement('button'); leftBtn.textContent='◀';
-    const rightBtn=document.createElement('button'); rightBtn.textContent='▶';
-    [leftBtn,rightBtn].forEach(b=>{b.style.border='none';b.style.borderRadius='6px';b.style.background='#444';b.style.color='#fff';b.style.padding='4px 8px';b.style.opacity='0.4';b.style.pointerEvents='none';});
-    controls.appendChild(leftBtn); controls.appendChild(rightBtn); section.appendChild(controls);
+    // finally append wrapper to section
+    section.appendChild(wrapper);
 
     const CARDS_PER_PAGE = 6;
 
