@@ -2,7 +2,7 @@ name: Fetch and Transform Support Data
 
 on:
   schedule:
-    - cron: "0 23 * * *"   # Daily 23:00 UTC / 07:00 SGT
+    - cron: "0 23 * * *" # Daily 23:00 UTC / 07:00 SGT
   workflow_dispatch:
 
 permissions:
@@ -24,16 +24,29 @@ jobs:
       - name: Fetch supports.json
         run: |
           curl -s https://gametora.com/data/umamusume/support-cards.219b4454.json -o docs/supports.json
+          ls -lh docs/supports.json
 
       - name: Fetch skills.json
         run: |
           curl -s https://gametora.com/data/umamusume/skills.7d8a2971.json -o docs/skills.json
+          ls -lh docs/skills.json
 
       - name: Transform and archive JSON
         run: |
+          # Make sure archive folder exists
+          mkdir -p docs/archive
+          
+          # Run transform script
           node docs/scripts/transform.js
+          
+          # Archive transformed_supports.json with timestamp
+          cp docs/transformed_supports.json docs/archive/transformed_supports_$(date +'%Y-%m-%d').json
+          
+          # List files to confirm they exist
+          ls -lh docs/
+          ls -lh docs/archive/
 
-      - name: Commit and push changes
+      - name: Commit and push all JSON files
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update supports and skills JSON with daily archive"
@@ -45,4 +58,3 @@ jobs:
             docs/skills.json
             docs/transformed_supports.json
             docs/archive/*
-          token: ${{ secrets.GITHUB_TOKEN }}
