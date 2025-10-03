@@ -192,10 +192,10 @@ select {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--card-w), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(var(--card-w), var(--card-w)));
   gap: var(--gap);
+  justify-content: start;
 }
-
 
 .page-controls {
   position: absolute;
