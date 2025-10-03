@@ -220,23 +220,7 @@ select {
   :root { --card-w: 100px; }
 }
 </style>
-
-</head>function updateButtons(page){
-  const gridWidth = grid.clientWidth;
-  const cardStyle = getComputedStyle(document.documentElement);
-  const cardW = parseInt(cardStyle.getPropertyValue('--card-w')) + parseInt(cardStyle.getPropertyValue('--gap'));
-  const totalCardWidth = matches.length * cardW;
-
-  const allFit = totalCardWidth <= gridWidth;
-
-  leftBtn.style.display = allFit ? 'none' : 'inline-block';
-  rightBtn.style.display = allFit ? 'none' : 'inline-block';
-
-  leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-  leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-  rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-  rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
-}
+</head>
 
 <body>
 
