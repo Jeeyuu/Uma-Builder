@@ -628,6 +628,23 @@ function renderSections(){
     }
   });
 
+  function updateButtons(page){
+    const gridWidth = grid.clientWidth;
+    const cardStyle = getComputedStyle(document.documentElement);
+    const cardW = parseInt(cardStyle.getPropertyValue('--card-w')) + parseInt(cardStyle.getPropertyValue('--gap'));
+    const totalCardWidth = matches.length * cardW;
+
+    const allFit = totalCardWidth <= gridWidth;
+
+    leftBtn.style.display = allFit ? 'none' : 'inline-block';
+    rightBtn.style.display = allFit ? 'none' : 'inline-block';
+
+    leftBtn.style.opacity = page > 0 ? '1' : '0.4';
+    leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
+    rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
+    rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
+  }
+
   // renderFilterRow helper
   function renderFilterRow(catId, headerText, termList, rowIndex){
     const section = document.createElement('div');
@@ -684,11 +701,17 @@ function renderSections(){
 
     function renderPage(page){
       grid.innerHTML = '';
+
+      const allFit = true; // show all cards in one row when filtered
       const start = page * 6;
-      const end = start + 6;
+      const end = allFit ? matches.length : start + 6;
+
       matches.slice(start, end).forEach(card => grid.appendChild(createCardElement(card)));
-      updateButtons(page);
+
+      // Update buttons
+      updateButtons(grid, matches, leftBtn, rightBtn, page, totalPages);
     }
+
 
     // Create page controls
     const controls = document.createElement('div'); controls.className = 'page-controls';
@@ -700,24 +723,6 @@ function renderSections(){
     });
     controls.appendChild(leftBtn); controls.appendChild(rightBtn);
     section.appendChild(controls);
-
-function updateButtons(page){
-  const gridWidth = grid.clientWidth;
-  const cardStyle = getComputedStyle(document.documentElement);
-  const cardW = parseInt(cardStyle.getPropertyValue('--card-w')) + parseInt(cardStyle.getPropertyValue('--gap'));
-  const totalCardWidth = matches.length * cardW;
-
-  const allFit = totalCardWidth <= gridWidth;
-
-  leftBtn.style.display = allFit ? 'none' : 'inline-block';
-  rightBtn.style.display = allFit ? 'none' : 'inline-block';
-
-  leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-  leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-  rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-  rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
-}
-
 
     // initial render
     renderPage(currentPage);
