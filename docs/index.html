@@ -17,18 +17,16 @@ body {
   background: #fff;
   color: #111;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center; /* center container */
 }
 
-/* Cap container width to 1280px and center it */
 .container {
   display: flex;
   gap: 20px;
   align-items: flex-start;
   padding: 24px;
   width: 100%;
-  max-width: 1280px;  /* max width */
-  margin: 0 auto;     /* center horizontally */
+  max-width: 1280px; /* max width cap */
 }
 
 .sidebar {
@@ -193,12 +191,10 @@ select {
   font-size: 16px;
 }
 
-/* Cards grid: always 6 columns */
 .cards {
   display: grid;
   grid-template-columns: repeat(6, var(--card-w));
   gap: var(--gap);
-  overflow: hidden;
 }
 
 .page-controls {
@@ -218,6 +214,7 @@ select {
   opacity: 0.4;
   pointer-events: none;
 }
+
 
 @media (max-width: 1100px) {
   :root { --card-w: 100px; }
@@ -534,15 +531,15 @@ function renderSections(){
 
     const CARDS_PER_PAGE = 6;
 
-    function renderPage(page){
+    function renderPage(page, matches, grid, leftBtn, rightBtn, pageKey){
       grid.innerHTML = '';
       const startIdx = page * CARDS_PER_PAGE;
       const endIdx = startIdx + CARDS_PER_PAGE;
       const pageCards = matches.slice(startIdx, endIdx);
       pageCards.forEach(card => grid.appendChild(createCardElement(card)));
-      
-      // update buttons
+
       const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+
       leftBtn.style.display = totalPages > 1 ? 'inline-block' : 'none';
       rightBtn.style.display = totalPages > 1 ? 'inline-block' : 'none';
       leftBtn.style.opacity = page > 0 ? '1' : '0.4';
@@ -550,10 +547,9 @@ function renderSections(){
       rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
       rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
 
-      leftBtn.onclick = ()=>{ renderPage(page-1); sectionPages.set(pageKey,page-1); };
-      rightBtn.onclick = ()=>{ renderPage(page+1); sectionPages.set(pageKey,page+1); };
+      leftBtn.onclick = ()=>{ renderPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); sectionPages.set(pageKey,page-1); };
+      rightBtn.onclick = ()=>{ renderPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); sectionPages.set(pageKey,page+1); };
     }
-
 
     renderPage(currentPage);
     cardSections.appendChild(section);
