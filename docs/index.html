@@ -191,10 +191,11 @@ select {
 }
 
 .cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--card-w), var(--card-w)));
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap; /* no wrapping */
   gap: var(--gap);
-  justify-content: start;
+  overflow: hidden;   /* hide overflow for scrolling/pagination */
 }
 
 .page-controls {
@@ -291,10 +292,7 @@ select {
 
 <script>
 /* ------------- CONFIG ------------- */
-// Filename to fetch. Rename if you store the file differently.
 const JSON_FILE = "transformed_supports.json";
-
-// If true, the page will not show char_id or url_name visibly; internal logic still uses char_id.
 const HIDE = { char_id: false, url_name: true };
 
 /* ------------- STATE ------------- */
@@ -308,49 +306,27 @@ const sectionPages = new Map(); // pagination per section
 const slotListeners = new Map();
 
 /* ------------- UTIL ------------- */
-function normalizeSkill(s) {
-  return String(s || '').replace(/[◎○]/g, '').trim().toLowerCase();
-}
+function normalizeSkill(s){ return String(s||'').replace(/[◎○]/g,'').trim().toLowerCase(); }
 function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
-function getLengthCategory(distance){
-  if(distance <= 1400) return 'Sprint';
-  if(distance <= 1800) return 'Mile';
-  if(distance <= 2400) return 'Medium';
-  return 'Long';
-}
-function isStandardDistance(distance){ return distance % 400 === 0; }
+function getLengthCategory(distance){ if(distance<=1400)return'Sprint'; if(distance<=1800)return'Mile'; if(distance<=2400)return'Medium'; return'Long'; }
+function isStandardDistance(distance){ return distance%400===0; }
 
-/* ------------- Type icon mapping (lowercase keys) ------------- */
-const typeMap = {
-  "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","support":"05","group":"06"
-};
+const typeMap = { "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","support":"05","group":"06" };
 
 /* ------------- Fetch JSON ------------- */
 fetch(JSON_FILE)
-  .then(r => {
-    if(!r.ok) throw new Error('Failed to fetch JSON: ' + r.status);
-    return r.json();
-  })
-  .then(data => {
-    // Expect array of transformed_supports objects
-    cardsData = data.map(card => ({
-      ...card,
-      // normalize fields to be used in UI
-      char_id: card.char_id,
-      char_name: card.char_name,
-      hint_skills: card.hint_skills || [],
-      event_skills: card.event_skills || [],
-      type: (card.type || '').toLowerCase()
-    }));
+  .then(r=>{ if(!r.ok) throw new Error('Failed to fetch JSON: '+r.status); return r.json(); })
+  .then(data=>{
+    cardsData = data.map(card=>({ ...card, char_id: card.char_id, char_name: card.char_name, hint_skills: card.hint_skills||[], event_skills: card.event_skills||[], type: (card.type||'').toLowerCase() }));
     renderSections();
     setupFilterPersistence();
   })
-  .catch(err => {
+  .catch(err=>{
     console.error('Could not load JSON:', err);
-    cardSections.innerHTML = '<div style="opacity:0.7;padding:12px;">Error loading data. Check JSON file path and content in console.</div>';
+    cardSections.innerHTML='<div style="opacity:0.7;padding:12px;">Error loading data. Check JSON file path and content in console.</div>';
   });
 
-/* ------------- Card UI creation ------------- */
+/* ------------- Card creation ------------- */
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -358,29 +334,19 @@ function createCardElement(card){
   el.dataset.name = card.char_name;
 
   const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
-  const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png`;
+  const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
 
   let skillsHTML = '';
-  if((card.hint_skills || []).length){
-    skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-  }
-  if((card.event_skills || []).length){
-    skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-  }
+  if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
 
-  // header content
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
   if(!HIDE.char_id) nameHtml += `<div style="font-size:10px;opacity:0.6;">ID: ${card.char_id}</div>`;
   if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
-  el.innerHTML = `
-    <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
-    <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
-    ${nameHtml}
-    <div class="skills">${skillsHTML}</div>
-  `;
+  el.innerHTML = `<div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div><img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">${nameHtml}<div class="skills">${skillsHTML}</div>`;
 
-  el.addEventListener('click', ()=> {
+  el.addEventListener('click', ()=>{
     const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
     if(slot) removeFromSlot(slot, card);
     else addToSlot(card);
@@ -389,8 +355,7 @@ function createCardElement(card){
   if(selectedCardIds.has(card.char_id)) el.classList.add('disabled');
   return el;
 }
-
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 /* ------------- Slot handling ------------- */
 function addToSlot(card){
@@ -403,17 +368,12 @@ function addToSlot(card){
   }
 
   let skillsHTML = '';
-  if(card.hint_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
 
   freeSlot.dataset.cardId = card.char_id;
   freeSlot.classList.add('has-card');
-  freeSlot.innerHTML = `
-    <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
-    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
-    <div class="name">${escapeHtml(card.char_name)}</div>
-    <div class="skills">${skillsHTML}</div>
-  `;
+  freeSlot.innerHTML = `<div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div><img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}"><div class="name">${escapeHtml(card.char_name)}</div><div class="skills">${skillsHTML}</div>`;
 
   function slotClickHandler(){ removeFromSlot(freeSlot, card); }
   freeSlot.addEventListener('click', slotClickHandler);
@@ -422,7 +382,6 @@ function addToSlot(card){
   selectedCardIds.add(card.char_id);
   renderSections();
 }
-
 function removeFromSlot(slotEl, card){
   if(slotListeners.has(slotEl)){
     slotEl.removeEventListener('click', slotListeners.get(slotEl));
@@ -430,7 +389,7 @@ function removeFromSlot(slotEl, card){
   }
   slotEl.classList.remove('has-card');
   delete slotEl.dataset.cardId;
-  slotEl.innerHTML = '<div class="placeholder">Empty</div>'; // restore placeholder
+  slotEl.innerHTML='<div class="placeholder">Empty</div>';
   selectedCardIds.delete(Number(card.char_id));
   renderSections();
 }
@@ -445,15 +404,14 @@ clearAllBtn.addEventListener('click', ()=>{
     }
     slot.classList.remove('has-card');
     delete slot.dataset.cardId;
-    slot.innerHTML = '<div class="placeholder">Empty</div>'; // restore placeholder
+    slot.innerHTML='<div class="placeholder">Empty</div>';
   });
   renderSections();
 });
 
 clearFiltersBtn.addEventListener('click', ()=>{
   ['racecourse','length','direction','track','season','weather','strategy'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.value = '';
+    const el=document.getElementById(id); if(el) el.value='';
     localStorage.removeItem('filter_'+id);
   });
   renderSections();
@@ -462,13 +420,10 @@ clearFiltersBtn.addEventListener('click', ()=>{
 /* ------------- Persistence ------------- */
 function setupFilterPersistence(){
   ['racecourse','length','direction','track','season','weather','strategy'].forEach(id=>{
-    const sel = document.getElementById(id);
-    if(!sel) return;
-    const saved = localStorage.getItem('filter_'+id);
-    if(saved) sel.value = saved;
+    const sel=document.getElementById(id); if(!sel)return;
+    const saved=localStorage.getItem('filter_'+id); if(saved) sel.value=saved;
     sel.addEventListener('change', ()=>{
       localStorage.setItem('filter_'+id, sel.value);
-      // Reset pagination when filter changes
       sectionPages.clear();
       renderSections();
     });
@@ -476,254 +431,134 @@ function setupFilterPersistence(){
 }
 
 /* ------------- FILTER BUILDING & MATCHING ------------- */
-function buildFilterTerms(filters) {
-  // returns array of terms to match (normalized later)
-  const terms = [];
-
-  // racecourse: exact like "Tokyo Racecourse"
+function buildFilterTerms(filters){
+  const terms=[];
   if(filters.racecourse) terms.push(`${filters.racecourse} Racecourse`);
-
-  // direction -> Right-Handed / Left-Handed
-  if(filters.direction){
-    terms.push(filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed');
-  }
-
-  // track: Firm -> Firm Conditions, others -> Wet Conditions
-  if(filters.track){
-    terms.push(filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions');
-  }
-
-  // season -> "Spring Runner" etc (this follows your earlier rule)
-  if(filters.season){
-    terms.push(`${filters.season} Runner`);
-  }
-
-  // weather -> "Sunny Days"
-  if(filters.weather){
-    terms.push(`${capitalize(filters.weather)} Days`);
-  }
-
-  // strategy -> three possible types (Corner / Straightaways / Savvy) - we'll generate three terms
+  if(filters.direction) terms.push(filters.direction==='Clockwise'?'Right-Handed':'Left-Handed');
+  if(filters.track) terms.push(filters.track==='Firm'?'Firm Conditions':'Wet Conditions');
+  if(filters.season) terms.push(`${filters.season} Runner`);
+  if(filters.weather) terms.push(`${capitalize(filters.weather)} Days`);
   if(filters.strategy){
-    const s = filters.strategy;
-    terms.push(`${s} Corners`);
-    terms.push(`${s} Straightaways`);
-    terms.push(`${s} Savvy`);
+    const s=filters.strategy;
+    terms.push(`${s} Corners`,`${s} Straightaways`,`${s} Savvy`);
   }
-
-  // length -> generate 3 terms: {Label} Corners, {Label} Straightaways, {Standard/Non-Standard Distance}
   if(filters.length){
-    const dist = parseInt(filters.length);
-    const label = getLengthCategory(dist); // Sprint/Mile/Medium/Long
-    terms.push(`${label} Corners`);
-    terms.push(`${label} Straightaways`);
-    terms.push(isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance');
+    const dist=parseInt(filters.length);
+    const label=getLengthCategory(dist);
+    terms.push(`${label} Corners`,`${label} Straightaways`,isStandardDistance(dist)?'Standard Distance':'Non-Standard Distance');
   }
-
   return terms;
 }
-
-/*
- Filtering strategy:
- - Normalize both card's skills and the filter terms (strip ○/◎ and lowercase)
- - For Standard/Non-Standard Distance terms: require STRICT equality (skill === term)
- - For all other terms: use LAX matching: skill.includes(term)  (so Tokyo Racecourse vs Tokyo Racecourse ○ matches)
- - All terms must be satisfied (AND semantics) for a card to match.
-*/
-function filterCardsWithRules(cards, filters) {
-  const rawTerms = buildFilterTerms(filters);
-  const terms = rawTerms.map(normalizeSkill);
-
-  // separate strict terms (distance ones) from loose ones
-  const strictDistanceKeys = ['standard distance','non-standard distance'];
-  const strictTerms = terms.filter(t => strictDistanceKeys.includes(t));
-  const looseTerms = terms.filter(t => !strictDistanceKeys.includes(t));
-
-  return cards.filter(card => {
-    const skills = [...(card.hint_skills || []), ...(card.event_skills || [])].map(normalizeSkill);
-
-    // Strict: every strict term must be present exactly
-    const strictOk = strictTerms.every(t => skills.includes(t));
-
-    // Loose: every loose term must be satisfied by .includes match
-    const looseOk = looseTerms.every(term => skills.some(s => s.includes(term)));
-
-    return strictOk && looseOk;
+function filterCardsWithRules(cards,filters){
+  const terms=buildFilterTerms(filters).map(normalizeSkill);
+  const strictDistanceKeys=['standard distance','non-standard distance'];
+  const strictTerms=terms.filter(t=>strictDistanceKeys.includes(t));
+  const looseTerms=terms.filter(t=>!strictDistanceKeys.includes(t));
+  return cards.filter(card=>{
+    const skills=[...card.hint_skills,...card.event_skills].map(normalizeSkill);
+    return strictTerms.every(t=>skills.includes(t)) && looseTerms.every(term=>skills.some(s=>s.includes(term)));
   });
 }
 
 /* ------------- Rendering sections & pagination ------------- */
 function renderSections(){
-  cardSections.innerHTML = '';
+  cardSections.innerHTML='';
+  const filters={ racecourse: document.getElementById('racecourse').value||'', length: document.getElementById('length').value||'', direction: document.getElementById('direction').value||'', track: document.getElementById('track').value||'', season: document.getElementById('season').value||'', weather: document.getElementById('weather').value||'', strategy: document.getElementById('strategy').value||'' };
+  const anyActive=Object.values(filters).some(v=>v);
 
-  // read filters
-  const filters = {
-    racecourse: document.getElementById('racecourse').value || '',
-    length: document.getElementById('length').value || '',
-    direction: document.getElementById('direction').value || '',
-    track: document.getElementById('track').value || '',
-    season: document.getElementById('season').value || '',
-    weather: document.getElementById('weather').value || '',
-    strategy: document.getElementById('strategy').value || ''
-  };
-
-  // detect any active filter
-  const anyActive = Object.values(filters).some(v => v);
-
-  // If no filter: show "All Cards" single section (paginated optionally)
   if(!anyActive){
-    const section = document.createElement('div');
-    section.className = 'card-section';
-    const header = document.createElement('h2'); header.textContent = 'All Cards';
-    section.appendChild(header);
-
-    const grid = document.createElement('div'); grid.className = 'cards';
-    section.appendChild(grid);
-
-    cardsData.forEach(c => grid.appendChild(createCardElement(c)));
+    const section=document.createElement('div'); section.className='card-section';
+    const header=document.createElement('h2'); header.textContent='All Cards'; section.appendChild(header);
+    const grid=document.createElement('div'); grid.className='cards'; section.appendChild(grid);
+    cardsData.forEach(c=>grid.appendChild(createCardElement(c)));
     cardSections.appendChild(section);
     return;
   }
 
-  // Build per-filter sections (each selected filter gets its own section)
-  // We'll create one top-level section per filter type (racecourse, length, etc.).
-  const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
-
-  filterOrder.forEach(catId => {
+  const filterOrder=['racecourse','length','direction','track','season','weather','strategy'];
+  filterOrder.forEach(catId=>{
     if(!filters[catId]) return;
 
-    // For 'length', we create 3 sub-rows (Corners, Straightaways, Distance)
-    if(catId === 'length'){
-      const dist = parseInt(filters.length);
-      const label = getLengthCategory(dist);
-      const distanceType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
-
-      const rows = [
-        { title: `${label} Corners`, terms: [ `${label} Corners` ] },
-        { title: `${label} Straightaways`, terms: [ `${label} Straightaways` ] },
-        { title: `${distanceType}`, terms: [ distanceType ] } // strict
-      ];
-
-      rows.forEach((row, idx) => {
-        renderFilterRow(catId, row.title, row.terms, idx);
-      });
-
-    } else {
-      // other categories produce one row each with their term(s)
-      let rowTerms = [];
+    // handle length separately
+    if(catId==='length'){
+      const dist=parseInt(filters.length);
+      const label=getLengthCategory(dist);
+      const distanceType=isStandardDistance(dist)?'Standard Distance':'Non-Standard Distance';
+      [{title:`${label} Corners`,terms:[`${label} Corners`]},{title:`${label} Straightaways`,terms:[`${label} Straightaways`]},{title:distanceType,terms:[distanceType]}].forEach((row,idx)=>renderFilterRow(catId,row.title,row.terms,idx));
+    }else{
+      let rowTerms=[];
       switch(catId){
         case 'racecourse': rowTerms.push(`${filters.racecourse} Racecourse`); break;
-        case 'direction': rowTerms.push(filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed'); break;
-        case 'track': rowTerms.push(filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions'); break;
+        case 'direction': rowTerms.push(filters.direction==='Clockwise'?'Right-Handed':'Left-Handed'); break;
+        case 'track': rowTerms.push(filters.track==='Firm'?'Firm Conditions':'Wet Conditions'); break;
         case 'season': rowTerms.push(`${filters.season} Runner`); break;
         case 'weather': rowTerms.push(`${capitalize(filters.weather)} Days`); break;
-        case 'strategy':
-          rowTerms.push(`${filters.strategy} Corners`);
-          rowTerms.push(`${filters.strategy} Straightaways`);
-          rowTerms.push(`${filters.strategy} Savvy`);
-          break;
+        case 'strategy': rowTerms.push(`${filters.strategy} Corners`,`${filters.strategy} Straightaways`,`${filters.strategy} Savvy`); break;
       }
-      renderFilterRow(catId, `${capitalize(catId)}: ${ (filters[catId]||'') }`, rowTerms, 0);
+      renderFilterRow(catId,`${capitalize(catId)}: ${filters[catId]}`,rowTerms,0);
     }
   });
 
-  // renderFilterRow helper
-  function renderFilterRow(catId, headerText, termList, rowIndex){
-    const section = document.createElement('div');
-    section.className = 'card-section';
+  function renderFilterRow(catId,headerText,termList,rowIndex){
+    const section=document.createElement('div'); section.className='card-section';
+    const header=document.createElement('h2'); header.textContent=headerText; section.appendChild(header);
+    const grid=document.createElement('div'); grid.className='cards'; section.appendChild(grid);
 
-    const header = document.createElement('h2');
-    header.textContent = headerText;
-    section.appendChild(header);
+    const termsNormalized=termList.map(normalizeSkill);
+    const strictDistanceKeys=['standard distance','non-standard distance'];
+    const strictTerms=termsNormalized.filter(t=>strictDistanceKeys.includes(t));
+    const looseTerms=termsNormalized.filter(t=>!strictDistanceKeys.includes(t));
 
-    const grid = document.createElement('div'); grid.className = 'cards';
-    section.appendChild(grid);
-
-    // Do the filtering using our rules
-    const localFilters = {
-      racecourse: document.getElementById('racecourse').value || '',
-      length: document.getElementById('length').value || '',
-      direction: document.getElementById('direction').value || '',
-      track: document.getElementById('track').value || '',
-      season: document.getElementById('season').value || '',
-      weather: document.getElementById('weather').value || '',
-      strategy: document.getElementById('strategy').value || ''
-    };
-
-    // We'll temporarily override buildFilterTerms to only include the provided termList (so this row matches just those terms)
-    // Create a filter object for filterCardsWithRules: convert termList into a pseudo filter by matching how buildFilterTerms expects.
-    // Simpler: use a filter that directly uses termList for matching (apply same strict/lax rules).
-    const termsNormalized = termList.map(normalizeSkill);
-    const strictDistanceKeys = ['standard distance','non-standard distance'];
-    const strictTerms = termsNormalized.filter(t => strictDistanceKeys.includes(t));
-    const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
-
-    const matches = cardsData.filter(card => {
-      const skills = [...(card.hint_skills||[]), ...(card.event_skills||[])].map(normalizeSkill);
-      const strictOk = strictTerms.every(t => skills.includes(t));
-      const looseOk = looseTerms.every(term => skills.some(s => s.includes(term)));
-      return strictOk && looseOk;
+    const matches=cardsData.filter(card=>{
+      const skills=[...card.hint_skills,...card.event_skills].map(normalizeSkill);
+      return strictTerms.every(t=>skills.includes(t)) && looseTerms.every(term=>skills.some(s=>s.includes(term)));
     });
 
-    // If no matches, show message
-    if(matches.length === 0){
-      const noMsg = document.createElement('div');
-      noMsg.style.opacity = '0.6';
-      noMsg.textContent = '(No matching cards)';
-      grid.appendChild(noMsg);
-      cardSections.appendChild(section);
-      return;
+    if(matches.length===0){
+      const noMsg=document.createElement('div'); noMsg.style.opacity='0.6'; noMsg.textContent='(No matching cards)'; grid.appendChild(noMsg);
+      cardSections.appendChild(section); return;
     }
 
-    // Pagination: per (catId-rowIndex) key
-    const pageKey = `${catId}-${rowIndex}`;
-    const currentPage = sectionPages.get(pageKey) || 0;
-    sectionPages.set(pageKey, currentPage);
-    const totalPages = Math.ceil(matches.length / 6);
+    const pageKey=`${catId}-${rowIndex}`;
+    const currentPage=sectionPages.get(pageKey)||0;
+    sectionPages.set(pageKey,currentPage);
+
+    const controls=document.createElement('div'); controls.className='page-controls';
+    const leftBtn=document.createElement('button'); leftBtn.textContent='◀';
+    const rightBtn=document.createElement('button'); rightBtn.textContent='▶';
+    [leftBtn,rightBtn].forEach(b=>{b.style.border='none';b.style.borderRadius='6px';b.style.background='#444';b.style.color='#fff';b.style.padding='4px 8px';b.style.opacity='0.4';b.style.pointerEvents='none';});
+    controls.appendChild(leftBtn); controls.appendChild(rightBtn); section.appendChild(controls);
 
     function renderPage(page){
-      grid.innerHTML = '';
-      matches.forEach(card => grid.appendChild(createCardElement(card)));
-      updateButtons(page);
+      grid.innerHTML='';
+      const cardStyle=getComputedStyle(document.documentElement);
+      const cardW=parseInt(cardStyle.getPropertyValue('--card-w'))+parseInt(cardStyle.getPropertyValue('--gap'));
+      const cardsPerPage=Math.floor(grid.clientWidth/cardW)||1;
+      const startIdx=page*cardsPerPage;
+      const endIdx=startIdx+cardsPerPage;
+      matches.slice(startIdx,endIdx).forEach(card=>grid.appendChild(createCardElement(card)));
+
+      const totalPages=Math.ceil(matches.length/cardsPerPage);
+      leftBtn.style.display=totalPages>1?'inline-block':'none';
+      rightBtn.style.display=totalPages>1?'inline-block':'none';
+      leftBtn.style.opacity=page>0?'1':'0.4';
+      leftBtn.style.pointerEvents=page>0?'auto':'none';
+      rightBtn.style.opacity=page<totalPages-1?'1':'0.4';
+      rightBtn.style.pointerEvents=page<totalPages-1?'auto':'none';
+
+      leftBtn.onclick=()=>{ sectionPages.set(pageKey,page-1); renderPage(page-1); };
+      rightBtn.onclick=()=>{ sectionPages.set(pageKey,page+1); renderPage(page+1); };
     }
 
-    // Create page controls
-    const controls = document.createElement('div'); controls.className = 'page-controls';
-    const leftBtn = document.createElement('button'); leftBtn.textContent = '◀';
-    const rightBtn = document.createElement('button'); rightBtn.textContent = '▶';
-    [leftBtn, rightBtn].forEach(b => {
-      b.style.border = 'none'; b.style.borderRadius = '6px'; b.style.background = '#444'; b.style.color = '#fff';
-      b.style.padding = '4px 8px'; b.style.opacity = '0.4'; b.style.pointerEvents = 'none';
-    });
-    controls.appendChild(leftBtn); controls.appendChild(rightBtn);
-    section.appendChild(controls);
-
-function updateButtons(page){
-  const gridWidth = grid.clientWidth;
-  const cardStyle = getComputedStyle(document.documentElement);
-  const cardW = parseInt(cardStyle.getPropertyValue('--card-w')) + parseInt(cardStyle.getPropertyValue('--gap'));
-  const totalCardWidth = matches.length * cardW;
-
-  const allFit = totalCardWidth <= gridWidth;
-
-  leftBtn.style.display = allFit ? 'none' : 'inline-block';
-  rightBtn.style.display = allFit ? 'none' : 'inline-block';
-
-  leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-  leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-  rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-  rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
-}
-
-
-    // initial render
     renderPage(currentPage);
     cardSections.appendChild(section);
   }
 }
 
-/* ------------- END ------------- */
+/* ------------- STEP 3: Recalculate pagination on resize ------------- */
+window.addEventListener('resize', renderSections);
 </script>
+
 
 </body>
 </html>
