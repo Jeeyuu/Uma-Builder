@@ -26,6 +26,7 @@ jobs:
         run: |
           curl -s -L "https://gametora.com/data/umamusume/skills.7d8a2971.json" -o docs/skills.json
 
+
       - name: Transform and archive JSON
         run: |
           node docs/scripts/transform.js
