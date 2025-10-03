@@ -20,11 +20,11 @@ jobs:
 
       - name: Fetch supports.json
         run: |
-          curl -s -A "Mozilla/5.0" https://gametora.com/data/umamusume/support-cards.219b4454.json -o docs/supports.json
+          curl -s https://gametora.com/data/umamusume/support-cards.219b4454.json -o docs/supports.json
 
       - name: Fetch skills.json
         run: |
-          curl -s -A "Mozilla/5.0" https://gametora.com/data/umamusume/skills.7d8a2971.json -o docs/skills.json
+          curl -s https://gametora.com/data/umamusume/skills.7d8a2971.json -o docs/skills.json
 
       - name: Transform and archive JSON
         run: |
@@ -42,5 +42,4 @@ jobs:
             docs/skills.json
             docs/transformed_supports.json
             docs/archive/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
