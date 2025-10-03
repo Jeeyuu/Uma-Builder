@@ -1,0 +1,39 @@
+name: Fetch and Transform Support Data
+
+on:
+  schedule:
+    - cron: "0 23 * * *"   # Daily at 23:00 UTC / 7:00 SGT
+  workflow_dispatch:
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Fetch supports.json
+        run: |
+          curl -s https://gametora.com/data/umamusume/support-cards.json -o docs/supports.json
+
+      - name: Fetch skills.json
+        run: |
+          curl -s https://gametora.com/data/umamusume/skills.json -o docs/skills.json
+
+      - name: Transform and archive JSON
+        run: |
+          node docs/scripts/transform.js
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/supports.json docs/skills.json docs/transformed_supports.json docs/archive/
+          git commit -m "Update supports and skills JSON with daily archive"
+          git push

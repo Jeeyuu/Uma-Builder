@@ -198,18 +198,17 @@ const typeMap = {
 // Pagination storage per section
 const sectionPages = new Map();
 
-Promise.all([
-  fetch("supportcards_SSR.json").then(r=>r.json()),
-  fetch("supportcards_SR.json").then(r=>r.json()),
-  fetch("supportcards_R.json").then(r=>r.json())
-]).then(([ssr, sr, r])=>{
-  cardsData = [...ssr, ...sr, ...r].map(card=>({
-    ...card,
-    image: `https://gametora.com/images/umamusume/supports/support_card_s_${card.id}.png`,
-    typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png`
-  }));
-  renderSections();
-});
+fetch("latest.json")
+  .then(r => r.json())
+  .then(data => {
+    cardsData = data.map(card => ({
+      ...card,
+      image: `https://gametora.com/images/umamusume/supports/support_card_s_${card.id}.png`,
+      typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png`
+    }));
+    renderSections();
+  });
+
 
 // --- Card element ---
 function createCardElement(card){
