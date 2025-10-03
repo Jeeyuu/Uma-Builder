@@ -4,7 +4,11 @@
 <meta charset="utf-8" />
 <title>Uma Builder — Card Picker</title>
 <style>
-:root { --card-w: 118px; --gap: 10px; }
+:root {
+  --card-w: 118px;
+  --gap: 10px;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
@@ -15,6 +19,7 @@ body {
   display: flex;
   justify-content: flex-start;
 }
+
 .container {
   display: flex;
   gap: 20px;
@@ -22,6 +27,7 @@ body {
   padding: 24px;
   width: 100%;
 }
+
 .sidebar {
   flex-shrink: 0;
   width: 200px;
@@ -29,12 +35,14 @@ body {
   flex-direction: column;
   gap: 18px;
 }
+
 .filter-group label {
   font-weight: 700;
   margin-bottom: 6px;
   display: block;
   font-size: 14px;
 }
+
 select {
   padding: 8px;
   border-radius: 6px;
@@ -42,16 +50,19 @@ select {
   width: 100%;
   font-size: 14px;
 }
+
 .main-content {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
+
 .slots-header {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 8px;
 }
+
 .clear-all {
   padding: 6px 12px;
   font-size: 14px;
@@ -61,12 +72,14 @@ select {
   background: #444;
   color: #fff;
 }
+
 .slots {
   display: grid;
   grid-template-columns: repeat(6, var(--card-w));
   gap: var(--gap);
   margin-bottom: 18px;
 }
+
 .slot, .card {
   border: 1px solid #ddd;
   padding: 8px;
@@ -79,10 +92,12 @@ select {
   width: var(--card-w);
   position: relative;
 }
+
 .slot:not(.has-card) {
   border: 2px dashed #ccc;
   background: #fafafa;
 }
+
 .slot .placeholder {
   width: 100%;
   height: 100%;
@@ -92,6 +107,7 @@ select {
   color: #ccc;
   font-size: 12px;
 }
+
 .slot .name, .card .name {
   margin: 8px 0 6px 0;
   font-weight: 700;
@@ -101,6 +117,7 @@ select {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .slot .skills, .card .skills,
 .slot .skills-group, .card .skills-group {
   display: flex;
@@ -109,6 +126,7 @@ select {
   width: 100%;
   align-items: center;
 }
+
 .slot .skill, .card .skill {
   width: 100%;
   background: #eef2ff;
@@ -119,22 +137,39 @@ select {
   white-space: normal;
   text-align: center;
 }
+
+.slot img, .card img {
+  max-width: 100%;
+  max-height: 100px;
+  object-fit: contain;
+}
+
 .slot .type-icon, .card .type-icon {
   position: absolute;
   top: 6px;
   right: 6px;
-  width: 30px;
-  height: 30px;
+  width: 20px;
+  height: 20px;
   border: 1px solid #ccc;
   background: #fff;
   border-radius: 4px;
   overflow: hidden;
   text-align:center;
   font-size:10px;
-  line-height:28px;
+  line-height:18px;
   font-weight:bold;
 }
-.card.disabled { opacity: 0.45; }
+
+.slot .type-icon img, .card .type-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.card.disabled {
+  opacity: 0.45;
+}
+
 .skills-header {
   font-weight: bold;
   font-size: 10px;
@@ -142,13 +177,67 @@ select {
   margin-bottom: 2px;
   text-align: center;
 }
-.card-section { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; position: relative; }
-.card-section h2 { margin: 6px 0; font-size: 16px; }
-.cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 6px; margin-bottom: 12px; }
-.page-controls { position: absolute; top: 6px; right: 6px; display:flex; gap:6px; }
-@media (max-width: 1100px) { :root { --card-w: 100px; } }
+
+.card-section {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  position: relative;
+}
+
+.card-section h2 {
+  margin: 6px 0;
+  font-size: 16px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--card-w), 1fr));
+  gap: var(--gap);
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.page-controls {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 6px;
+}
+
+.page-controls button {
+  border: none;
+  border-radius: 6px;
+  background: #444;
+  color: #fff;
+  padding: 4px 8px;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+  :root { --card-w: 100px; }
+}
 </style>
-</head>
+
+</head>function updateButtons(page){
+  const gridWidth = grid.clientWidth;
+  const cardStyle = getComputedStyle(document.documentElement);
+  const cardW = parseInt(cardStyle.getPropertyValue('--card-w')) + parseInt(cardStyle.getPropertyValue('--gap'));
+  const totalCardWidth = matches.length * cardW;
+
+  const allFit = totalCardWidth <= gridWidth;
+
+  leftBtn.style.display = allFit ? 'none' : 'inline-block';
+  rightBtn.style.display = allFit ? 'none' : 'inline-block';
+
+  leftBtn.style.opacity = page > 0 ? '1' : '0.4';
+  leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
+  rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
+  rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
+}
+
 <body>
 
 <div class="container">
@@ -628,20 +717,23 @@ function renderSections(){
     controls.appendChild(leftBtn); controls.appendChild(rightBtn);
     section.appendChild(controls);
 
-    function updateButtons(page){
-      leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-      leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-      rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-      rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
-    }
-    leftBtn.addEventListener('click', ()=>{
-      let p = sectionPages.get(pageKey) || 0;
-      if(p > 0){ p--; sectionPages.set(pageKey, p); renderPage(p); }
-    });
-    rightBtn.addEventListener('click', ()=>{
-      let p = sectionPages.get(pageKey) || 0;
-      if(p < totalPages - 1){ p++; sectionPages.set(pageKey, p); renderPage(p); }
-    });
+function updateButtons(page){
+  const gridWidth = grid.clientWidth;
+  const cardStyle = getComputedStyle(document.documentElement);
+  const cardW = parseInt(cardStyle.getPropertyValue('--card-w')) + parseInt(cardStyle.getPropertyValue('--gap'));
+  const totalCardWidth = matches.length * cardW;
+
+  const allFit = totalCardWidth <= gridWidth;
+
+  leftBtn.style.display = allFit ? 'none' : 'inline-block';
+  rightBtn.style.display = allFit ? 'none' : 'inline-block';
+
+  leftBtn.style.opacity = page > 0 ? '1' : '0.4';
+  leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
+  rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
+  rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
+}
+
 
     // initial render
     renderPage(currentPage);
