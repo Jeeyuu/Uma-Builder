@@ -319,17 +319,37 @@ clearFiltersBtn.addEventListener('click', ()=>{
   renderSections();
 });
 
-// --- Render Sections ---
 function renderSections(){
   cardSections.innerHTML='';
 
-  let any = false;
-
+  let anyFilterActive = false;
   categories.forEach(cat=>{
+    const val = (document.getElementById(cat.id)?.value || '').trim();
+    if(val) anyFilterActive = true;
+  });
+
+  // --- If no filters, show all cards in a single section ---
+  if(!anyFilterActive){
+    const section = document.createElement('div');
+    section.className = 'card-section';
+    const header = document.createElement('h2');
+    header.textContent = 'All Cards';
+    section.appendChild(header);
+
+    const grid = document.createElement('div');
+    grid.className = 'cards';
+    section.appendChild(grid);
+
+    cardsData.forEach(card => grid.appendChild(createCardElement(card)));
+    cardSections.appendChild(section);
+    return;
+  }
+
+  // --- Filters are active ---
+  categories.forEach((cat, catIndex)=>{
     const val = (document.getElementById(cat.id)?.value || '').trim();
     if(!val) return;
 
-    any = true;
     const section = document.createElement('div');
     section.className='card-section';
     const header = document.createElement('h2');
@@ -340,12 +360,12 @@ function renderSections(){
     grid.className='cards';
     section.appendChild(grid);
 
-    const matches = cardsData.filter(card => {
-      // match support hints or event skills
-      const lowerVal = val.toLowerCase();
-      return card.hint_skills.some(h=>h.toLowerCase().includes(lowerVal)) ||
-             card.event_skills.some(e=>e.toLowerCase().includes(lowerVal));
-    });
+    // --- Filter matching cards ---
+    const lowerVal = val.toLowerCase();
+    const matches = cardsData.filter(card => 
+      (card.hint_skills || []).some(h=>h.toLowerCase().includes(lowerVal)) ||
+      (card.event_skills || []).some(e=>e.toLowerCase().includes(lowerVal))
+    );
 
     if(matches.length===0){
       const noMsg = document.createElement('div');
@@ -356,11 +376,11 @@ function renderSections(){
       return;
     }
 
-    // Pagination
-    const pageKey = cat.id;
+    // --- Pagination ---
+    const pageKey = cat.id+'-'+catIndex;
     const currentPage = sectionPages.get(pageKey) || 0;
-    const totalPages = Math.ceil(matches.length/6);
     sectionPages.set(pageKey, currentPage);
+    const totalPages = Math.ceil(matches.length/6);
 
     function renderPage(page){
       grid.innerHTML='';
@@ -370,6 +390,7 @@ function renderSections(){
       updateButtons(page);
     }
 
+    // --- Pagination buttons ---
     const btnContainer = document.createElement('div');
     btnContainer.style.position='absolute';
     btnContainer.style.top='2px';
@@ -382,6 +403,14 @@ function renderSections(){
     leftBtn.textContent='◀';
     const rightBtn = document.createElement('button');
     rightBtn.textContent='▶';
+    [leftBtn,rightBtn].forEach(btn=>{
+      btn.style.opacity='0.4';
+      btn.style.pointerEvents='none';
+      btn.style.border='none';
+      btn.style.borderRadius='6px';
+      btn.style.background='#444';
+      btn.style.color='#fff';
+    });
     btnContainer.appendChild(leftBtn);
     btnContainer.appendChild(rightBtn);
 
@@ -395,30 +424,24 @@ function renderSections(){
     leftBtn.addEventListener('click',()=>{
       let page = sectionPages.get(pageKey);
       if(page>0){
-        sectionPages.set(pageKey,page-1);
-        renderPage(page-1);
+        page--;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
       }
     });
 
     rightBtn.addEventListener('click',()=>{
       let page = sectionPages.get(pageKey);
       if(page<totalPages-1){
-        sectionPages.set(pageKey,page+1);
-        renderPage(page+1);
+        page++;
+        sectionPages.set(pageKey,page);
+        renderPage(page);
       }
     });
 
     renderPage(currentPage);
     cardSections.appendChild(section);
   });
-
-  if(!any){
-    const msg=document.createElement('div');
-    msg.style.opacity='0.7';
-    msg.style.marginTop='8px';
-    msg.textContent='Select options from the left to show matching card sections.';
-    cardSections.appendChild(msg);
-  }
 }
 
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
