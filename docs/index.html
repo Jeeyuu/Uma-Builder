@@ -622,13 +622,19 @@ function renderSections(){
   }
 }
 
-/* ------------- STEP 3: Recalculate pagination on resize ------------- */
-window.addEventListener('resize', renderSections);
+// Auto-update whenever a filter dropdown changes
+['racecourse','length','direction','track','season','weather','strategy']
+  .forEach(id => {
+    document.getElementById(id).addEventListener('change', renderSections);
+  });
 
 // Re-run filters with remembered dropdowns on reload
 document.addEventListener('DOMContentLoaded', () => {
   renderSections();
 });
+
+// Recalculate pagination on resize
+window.addEventListener('resize', renderSections);
 
 </script>
 
