@@ -554,6 +554,33 @@ function renderSections(){
     // finally append wrapper to section
     section.appendChild(wrapper);
 
+    // normalize filter terms
+    const termsNormalized = termList.map(normalizeSkill);
+    const strictDistanceKeys = ['standard distance','non-standard distance'];
+    const strictTerms = termsNormalized.filter(t => strictDistanceKeys.includes(t));
+    const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
+
+    // get matching cards
+    const matches = cardsData.filter(card => {
+      const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
+      return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
+    });
+
+    if(matches.length === 0){
+      const noMsg = document.createElement('div');
+      noMsg.style.opacity = '0.6';
+      noMsg.textContent = '(No matching cards)';
+      grid.appendChild(noMsg);
+      cardSections.appendChild(section);
+      return;
+    }
+
+    // current page
+    const pageKey = `${catId}-${rowIndex}`;
+    const currentPage = sectionPages.get(pageKey) || 0;
+    sectionPages.set(pageKey, currentPage);
+
+
     const CARDS_PER_PAGE = 6;
 
     function renderPage(page, matches, grid, leftBtn, rightBtn, pageKey){
