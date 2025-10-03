@@ -551,7 +551,7 @@ function renderSections(){
       rightBtn.onclick = ()=>{ renderPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); sectionPages.set(pageKey,page+1); };
     }
 
-    renderPage(currentPage);
+    renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
     cardSections.appendChild(section);
   }
 }
