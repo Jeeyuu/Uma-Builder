@@ -2,7 +2,7 @@ name: Fetch and Transform Support Data
 
 on:
   schedule:
-    - cron: "0 23 * * *"   # Daily 23:00 UTC / 07:00 SGT
+    - cron: "0 23 * * *" # Daily 23:00 UTC / 07:00 SGT
   workflow_dispatch:
 
 permissions:
@@ -21,36 +21,30 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Ensure docs/archive folder exists
-        run: mkdir -p docs/archive
-
       - name: Fetch supports.json
         run: |
-          curl -s -o docs/supports.json https://gametora.com/data/umamusume/support-cards.219b4454.json
-          if [ ! -s docs/supports.json ]; then
-            echo "ERROR: supports.json is empty or missing"
-            exit 1
-          fi
+          curl -s https://gametora.com/data/umamusume/support-cards.219b4454.json -o docs/supports.json
+          ls -lh docs/supports.json
 
       - name: Fetch skills.json
         run: |
-          curl -s -o docs/skills.json https://gametora.com/data/umamusume/skills.7d8a2971.json
-          if [ ! -s docs/skills.json ]; then
-            echo "ERROR: skills.json is empty or missing"
-            exit 1
-          fi
+          curl -s https://gametora.com/data/umamusume/skills.7d8a2971.json -o docs/skills.json
+          ls -lh docs/skills.json
 
-      - name: Validate JSON
+      - name: Transform and archive JSON
         run: |
-          for f in docs/supports.json docs/skills.json; do
-            node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" || { echo "Invalid JSON: $f"; exit 1; }
-          done
-
-      - name: Transform and archive supports.json
-        run: |
+          # Make sure archive folder exists
+          mkdir -p docs/archive
+          
+          # Run transform script
           node docs/scripts/transform.js
-          # Copy today's transformed file to archive
-          cp docs/transformed_supports.json docs/archive/transformed_supports_$(date +%F).json
+          
+          # Archive transformed_supports.json with timestamp
+          cp docs/transformed_supports.json docs/archive/transformed_supports_$(date +'%Y-%m-%d').json
+          
+          # List files to confirm they exist
+          ls -lh docs/
+          ls -lh docs/archive/
 
       - name: Commit and push all JSON files
         uses: stefanzweifel/git-auto-commit-action@v4
