@@ -59,11 +59,10 @@ select {
 }
 
 .slots-header {
-  display: grid;
-  grid-template-columns: repeat(6, var(--card-w));
-  gap: var(--gap);
-  justify-content: end; /* push to the last slot */
+  display: flex;
+  justify-content: flex-end; /* flush right */
   margin-bottom: 8px;
+  width: calc((var(--card-w) + var(--gap)) * 6 - var(--gap)); /* width of 6 slots */
 }
 
 .clear-all {
@@ -203,12 +202,10 @@ select {
 }
 
 .page-controls {
-  grid-column: 6 / 7; /* place in last column */
-  justify-self: end;
   display: flex;
   gap: 6px;
-  margin-bottom: 6px; /* optional spacing above cards */
-  position: static; /* remove absolute positioning */
+  justify-content: flex-end; /* flush right inside the section */
+  margin-top: 6px;
 }
 
 .page-controls button {
