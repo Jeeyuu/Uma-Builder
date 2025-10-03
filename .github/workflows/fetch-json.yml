@@ -21,19 +21,19 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Ensure docs/archive folder exists
+        run: mkdir -p docs/archive
+
       - name: Fetch supports.json
-        run: |
-          curl -s https://gametora.com/data/umamusume/support-cards.219b4454.json -o docs/supports.json
+        run: curl -s -o docs/supports.json https://gametora.com/data/umamusume/support-cards.219b4454.json
 
       - name: Fetch skills.json
-        run: |
-          curl -s https://gametora.com/data/umamusume/skills.7d8a2971.json -o docs/skills.json
+        run: curl -s -o docs/skills.json https://gametora.com/data/umamusume/skills.7d8a2971.json
 
       - name: Transform and archive JSON
-        run: |
-          node docs/scripts/transform.js
+        run: node docs/scripts/transform.js
 
-      - name: Commit and push changes
+      - name: Commit and push all JSON files
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update supports and skills JSON with daily archive"
@@ -45,4 +45,3 @@ jobs:
             docs/skills.json
             docs/transformed_supports.json
             docs/archive/*
-          token: ${{ secrets.GITHUB_TOKEN }}

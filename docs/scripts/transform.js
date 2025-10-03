@@ -60,4 +60,7 @@ fs.readdirSync(archiveDir).forEach(file => {
   }
 });
 
+// Touch skills.json to ensure commit
+fs.writeFileSync('./docs/skills.json', fs.readFileSync('./docs/skills.json', 'utf8'));
+
 console.log(`✅ Transformed ${transformed.length} support cards`);
