@@ -58,6 +58,12 @@ select {
   flex-direction: column;
 }
 
+.slots-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
 .clear-all {
   padding: 6px 12px;
   font-size: 14px;
@@ -191,29 +197,12 @@ select {
   gap: var(--gap);
 }
 
-.cards-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;   /* align header/buttons to the left of cards/slots */
-  width: max-content;        /* shrink-wrap to slots/cards */
-  margin: 0 auto;            /* center the whole wrapper on page */
-}
-
-.slots-header {
-  display: flex;
-  justify-content: flex-end; /* right-align the Clear All button to slots/cards */
-  width: 100%;
-  margin-bottom: 8px;
-}
-
 .page-controls {
-  position: relative;        /* remove absolute positioning */
-  top: auto;
-  right: auto;
+  position: absolute;
+  top: 6px;
+  right: 6px;
   display: flex;
   gap: 6px;
-  margin-left: auto;         /* push pagination to right of grid */
-  margin-bottom: 10px;
 }
 
 .page-controls button {
@@ -285,11 +274,10 @@ select {
     <button id="clearFiltersBtn" class="clear-all" style="margin-top:auto;">Clear Filters</button>
   </div>
 
-  <div class="cards-wrapper">
+  <div class="main-content">
     <div class="slots-header">
       <button class="clear-all" id="clearAllBtn">Clear All</button>
     </div>
-
     <div class="slots" id="slots">
       <div class="slot" data-slot="0"><div class="placeholder">Empty</div></div>
       <div class="slot" data-slot="1"><div class="placeholder">Empty</div></div>
@@ -298,10 +286,8 @@ select {
       <div class="slot" data-slot="4"><div class="placeholder">Empty</div></div>
       <div class="slot" data-slot="5"><div class="placeholder">Empty</div></div>
     </div>
-
     <div id="cardSections" class="card-sections"></div>
   </div>
-
 </div>
 
 <script>
@@ -536,8 +522,7 @@ function renderSections(){
     const pageKey=`${catId}-${rowIndex}`;
     const currentPage=sectionPages.get(pageKey)||0;
     sectionPages.set(pageKey,currentPage);
-const controls=document.createElement('div'); controls.className='page-controls';
-selection
+
     const controls=document.createElement('div'); controls.className='page-controls';
     const leftBtn=document.createElement('button'); leftBtn.textContent='◀';
     const rightBtn=document.createElement('button'); rightBtn.textContent='▶';
