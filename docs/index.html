@@ -194,9 +194,8 @@ select {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(var(--card-w), 1fr));
   gap: var(--gap);
-  margin-top: 6px;
-  margin-bottom: 12px;
 }
+
 
 .page-controls {
   position: absolute;
@@ -684,9 +683,7 @@ function renderSections(){
 
     function renderPage(page){
       grid.innerHTML = '';
-      const start = page * 6;
-      const end = start + 6;
-      matches.slice(start, end).forEach(card => grid.appendChild(createCardElement(card)));
+      matches.forEach(card => grid.appendChild(createCardElement(card)));
       updateButtons(page);
     }
 
