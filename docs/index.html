@@ -382,10 +382,13 @@ function createCardElement(card){
   if(!HIDE.char_id) nameHtml += `<div style="font-size:10px;opacity:0.6;">ID: ${card.char_id}</div>`;
   if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
-  el.innerHTML = `<div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
-                  <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
-                  ${nameHtml}
-                  <div class="skills">${skillsHTML}</div>`;
+  // Base card content
+  el.innerHTML = `
+    <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
+    <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
+    ${nameHtml}
+    <div class="skills">${skillsHTML}</div>
+  `;
 
   // Handle click
   el.addEventListener('click', ()=> {
@@ -394,15 +397,14 @@ function createCardElement(card){
     else addToSlot(card);
   });
 
-  // Check if card is already selected (duplicate)
+  // Duplicate support label at the top
   if(selectedCardIds.has(card.char_id)){
     el.classList.add('disabled');
 
-    // Add duplicate support label
     const dupLabel = document.createElement('div');
     dupLabel.textContent = 'Duplicate Support';
     dupLabel.style.position = 'absolute';
-    dupLabel.style.bottom = '0';
+    dupLabel.style.top = '0';
     dupLabel.style.left = '0';
     dupLabel.style.width = '100%';
     dupLabel.style.background = 'red';
@@ -411,12 +413,14 @@ function createCardElement(card){
     dupLabel.style.fontWeight = 'bold';
     dupLabel.style.textAlign = 'center';
     dupLabel.style.padding = '2px 0';
-    dupLabel.style.borderBottomLeftRadius = '6px';
-    dupLabel.style.borderBottomRightRadius = '6px';
+    dupLabel.style.borderTopLeftRadius = '6px';
+    dupLabel.style.borderTopRightRadius = '6px';
     el.appendChild(dupLabel);
   }
 
   return el;
+}
+
 }
 
 
