@@ -185,29 +185,32 @@ select {
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .card-section h2 {
   margin: 0;
   font-size: 16px;
-  text-align: left;
-  display: inline-block; /* allows us to float arrows on the same row */
 }
 
 .cards {
   display: grid;
   grid-template-columns: repeat(6, var(--card-w));
   gap: var(--gap);
+  position: relative; /* make it the reference for page-controls */
 }
 
 .page-controls {
   position: absolute;
-  top: 0; /* aligns with the top of the section */
-  right: 0; /* flush to the right edge of card grid container */
+  top: 0; /* align with the header if needed, adjust with top: 2px or similar */
+  right: 0; /* right edge of .cards */
   display: flex;
   gap: 6px;
   align-items: center;
 }
+
 
 .page-controls button {
   border: none;
