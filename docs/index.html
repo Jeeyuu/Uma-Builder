@@ -339,72 +339,63 @@ function isStandardDistance(distance){ return distance%400===0; }
 
 const typeMap = { "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","support":"05","group":"06" };
 
-/* ---------------- FETCH & INITIAL SETUP ---------------- */
+/* ------------- Fetch JSON ------------- */
 fetch(JSON_FILE)
-  .then(r => { if(!r.ok) throw new Error('Failed to fetch JSON: '+r.status); return r.json(); })
-  .then(data => {
-    cardsData = data.map(card=>({
-      ...card,
-      char_id: card.char_id,
-      char_name: card.char_name,
-      hint_skills: card.hint_skills||[],
-      event_skills: card.event_skills||[],
-      type: (card.type||'').toLowerCase()
-    }));
+  .then(r=>{ if(!r.ok) throw new Error('Failed to fetch JSON: '+r.status); return r.json(); })
+  
+.then(data=>{
+  cardsData = data.map(card=>({
+    ...card,
+    char_id: card.char_id,
+    char_name: card.char_name,
+    hint_skills: card.hint_skills || [],
+    event_skills: card.event_skills || [],
+    type: (card.type || '').toLowerCase()
+  }));
 
-    // Restore filters & slots
-    setupFilterPersistence();
-    restoringSlots = true;
-    restoreSlotsFromStorage();
-    restoringSlots = false;
+  setupFilterPersistence();  // restore filters first
+  renderSections();          // now render with them
+})
 
-    // Render everything after restoring state
-    renderSections();
-  })
-  .catch(err => {
+  .catch(err=>{
     console.error('Could not load JSON:', err);
     cardSections.innerHTML='<div style="opacity:0.7;padding:12px;">Error loading data. Check JSON file path and content in console.</div>';
   });
 
-/* ---------------- FILTER PERSISTENCE ---------------- */
-function setupFilterPersistence(){
-  ['racecourse','length','direction','track','season','weather','strategy'].forEach(id=>{
-    const sel = document.getElementById(id);
-    if(!sel) return;
+/* ------------- Card creation ------------- */
+function createCardElement(card){
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.dataset.id = card.char_id;
+  el.dataset.name = card.char_name;
 
-    // restore saved value
-    const saved = localStorage.getItem('filter_'+id);
-    if(saved) sel.value = saved;
+  const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
+  const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
 
-    sel.addEventListener('change', ()=>{
-      localStorage.setItem('filter_'+id, sel.value);
-      sectionPages.clear();
-      renderSections();
-    });
+  let skillsHTML = '';
+  if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+
+  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
+  if(!HIDE.char_id) nameHtml += `<div style="font-size:10px;opacity:0.6;">ID: ${card.char_id}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+
+  el.innerHTML = `<div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div><img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">${nameHtml}<div class="skills">${skillsHTML}</div>`;
+
+  el.addEventListener('click', ()=>{
+    const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
+    if(slot) removeFromSlot(slot, card);
+    else addToSlot(card);
   });
+
+  if(selectedCardIds.has(card.char_id)) el.classList.add('disabled');
+  return el;
 }
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-/* ---------------- SLOT PERSISTENCE ---------------- */
-let restoringSlots = false;
-
-function saveSlotsToStorage() {
-  const slotsState = slots.map(slot => slot.dataset.cardId || '');
-  localStorage.setItem('slots', JSON.stringify(slotsState));
-}
-
-function restoreSlotsFromStorage() {
-  const saved = JSON.parse(localStorage.getItem('slots') || '[]');
-  saved.forEach((cardId, index) => {
-    if(cardId && cardsData.length) {
-      const card = cardsData.find(c => c.char_id == cardId);
-      if(card) addToSlot(card); // reuse addToSlot
-    }
-  });
-}
-
-/* ---------------- ADD & REMOVE SLOTS ---------------- */
+/* ------------- Slot handling ------------- */
 function addToSlot(card){
-  const freeSlot = slots.find(s => !s.dataset.cardId);
+  const freeSlot = slots.find(s=>!s.dataset.cardId);
   if(!freeSlot) return;
 
   if(slotListeners.has(freeSlot)){
@@ -425,26 +416,21 @@ function addToSlot(card){
   slotListeners.set(freeSlot, slotClickHandler);
 
   selectedCardIds.add(card.char_id);
-  if(!restoringSlots) saveSlotsToStorage(); // save only if not restoring
   renderSections();
 }
-
 function removeFromSlot(slotEl, card){
   if(slotListeners.has(slotEl)){
     slotEl.removeEventListener('click', slotListeners.get(slotEl));
     slotListeners.delete(slotEl);
   }
-
   slotEl.classList.remove('has-card');
   delete slotEl.dataset.cardId;
-  slotEl.innerHTML = '<div class="placeholder">Empty</div>';
-
+  slotEl.innerHTML='<div class="placeholder">Empty</div>';
   selectedCardIds.delete(Number(card.char_id));
-  if(!restoringSlots) saveSlotsToStorage();
   renderSections();
 }
 
-/* ---------------- CLEAR BUTTONS ---------------- */
+/* ------------- Clear buttons ------------- */
 clearAllBtn.addEventListener('click', ()=>{
   selectedCardIds.clear();
   slots.forEach(slot=>{
@@ -454,21 +440,18 @@ clearAllBtn.addEventListener('click', ()=>{
     }
     slot.classList.remove('has-card');
     delete slot.dataset.cardId;
-    slot.innerHTML = '<div class="placeholder">Empty</div>';
+    slot.innerHTML='<div class="placeholder">Empty</div>';
   });
-  saveSlotsToStorage();
   renderSections();
 });
 
 clearFiltersBtn.addEventListener('click', ()=>{
   ['racecourse','length','direction','track','season','weather','strategy'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el) el.value = '';
+    const el=document.getElementById(id); if(el) el.value='';
     localStorage.removeItem('filter_'+id);
   });
   renderSections();
 });
-
 
 /* ------------- Persistence ------------- */
 function setupFilterPersistence(){
