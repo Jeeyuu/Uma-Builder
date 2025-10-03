@@ -287,33 +287,38 @@ function renderSections() {
     const rows = [];
 
     // Length has special corner/straightaway/distance rows
-    if (cat.id === 'length') {
-      const dist = parseInt(val);
-      let catLabel = '';
-      if (dist <= 1400) catLabel = 'Sprint';
-      else if (dist <= 1800) catLabel = 'Mile';
-      else if (dist <= 2400) catLabel = 'Medium';
-      else catLabel = 'Long';
+if(cat.id === 'length'){
+  const dist = parseInt(val);
 
-      rows.push(
-        { title: 'Corners', term: `${catLabel} Corners` },
-        { title: 'Straightaways', term: `${catLabel} Straightaways` },
-        {
-          title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance',
-          term: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'
-        }
-      );
-    } else {
-      let termArr = [];
-      switch (cat.id) {
-        case 'racecourse': termArr.push(val + ' Racecourse'); break;
-        case 'direction': termArr.push(val === 'Clockwise' ? 'Right-Handed' : 'Left-Handed'); break;
-        case 'track': termArr.push(val === 'Firm' ? 'Firm Conditions' : 'Wet Conditions'); break;
-        case 'season': termArr.push(val + ' Runner'); break;
-        case 'weather': termArr.push(val + ' Days'); break;
-      }
-      rows.push({ title: cat.title, termArr });
+  // determine length label
+  let lengthLabel = '';
+  if(dist <= 1400) lengthLabel = 'Sprint';
+  else if(dist <= 1800) lengthLabel = 'Mile';
+  else if(dist <= 2400) lengthLabel = 'Medium';
+  else lengthLabel = 'Long';
+
+  // build rows
+  rows.push(
+    { title: 'Corners', termArr: [`${lengthLabel} Corners`] },
+    { title: 'Straightaways', termArr: [`${lengthLabel} Straightaways`] },
+    { 
+      title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance', 
+      termArr: [dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'] 
     }
+  );
+} else {
+  // other filters
+  let searchTerms = [];
+  switch(cat.id){
+    case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
+    case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
+    case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
+    case 'season': searchTerms.push(val+' Runner'); break;
+    case 'weather': searchTerms.push(val+' Days'); break;
+  }
+  rows.push({ title: cat.title, termArr: searchTerms });
+}
+
 
     rows.forEach((row, rowIndex) => {
       const rowContainer = document.createElement('div');
@@ -330,21 +335,24 @@ function renderSections() {
       grid.className = 'cards';
       rowContainer.appendChild(grid);
 
-      // --- FILTER MATCHES ---
-      const matches = cardsData.filter(card => {
-        const hints = card.hint_skills || [];
-        const events = card.event_skills || [];
-        const allSkills = [...hints, ...events];
+// --- FILTER MATCHES ---
+const matches = cardsData.filter(card => {
+  const cardSkills = [...(card.hint_skills || []), ...(card.event_skills || [])].map(normalizeText);
 
-        if (row.termArr) {
-          return row.termArr.some(term =>
-            allSkills.some(skill => normalizeText(skill) === normalizeText(term))
-          );
-        } else if (row.term) {
-          return allSkills.some(skill => normalizeText(skill) === normalizeText(row.term));
-        }
-        return false;
-      });
+  if(row.termArr && row.termArr.length) {
+    return row.termArr.some(term => {
+      const normalizedTerm = normalizeText(term);
+      return cardSkills.some(skill => skill.includes(normalizedTerm));
+    });
+  } else if(row.term) {
+    const normalizedTerm = normalizeText(row.term);
+    return cardSkills.some(skill => skill.includes(normalizedTerm));
+  } else {
+    return true;
+  }
+});
+
+
 
       if (matches.length === 0) {
         const noMsg = document.createElement('div');
