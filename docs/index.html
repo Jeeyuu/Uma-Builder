@@ -613,7 +613,7 @@ function renderSections(){
 
     } else {
       let rowTerms=[], headerText='';
-      }
+
       switch(catId){
         case 'racecourse':
           rowTerms.push(`${filters.racecourse} Racecourse`);
@@ -739,7 +739,7 @@ function renderSections(){
     renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
     cardSections.appendChild(section);
   }
-}
+
 
 // Auto-update whenever a filter dropdown changes
 ['racecourse','length','direction','track','season','weather','strategy']
