@@ -20,11 +20,11 @@ jobs:
 
       - name: Fetch supports.json
         run: |
-          curl -s https://gametora.com/data/umamusume/support-cards.json -o docs/supports.json
+          curl -s -L "https://gametora.com/data/umamusume/support-cards.219b4454.json" -o docs/supports.json
 
       - name: Fetch skills.json
         run: |
-          curl -s https://gametora.com/data/umamusume/skills.json -o docs/skills.json
+          curl -s -L "https://gametora.com/data/umamusume/skills.7d8a2971.json" -o docs/skills.json
 
       - name: Transform and archive JSON
         run: |

@@ -196,7 +196,7 @@ const typeMap = {
 };
 
 // Pagination storage per section
-const sectionPages = new Map();
+const sectionPages = new Map()
 
 fetch("latest.json")
   .then(r => r.json())
