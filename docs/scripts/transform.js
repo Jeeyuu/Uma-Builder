@@ -1,57 +1,69 @@
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
-// Load JSONs
-const supports = JSON.parse(fs.readFileSync("docs/supports.json", "utf8"));
-const skills = JSON.parse(fs.readFileSync("docs/skills.json", "utf8"));
+const supportsPath = path.join(__dirname, '..', 'supports.json');
+const skillsPath = path.join(__dirname, '..', 'skills.json');
+const outputPath = path.join(__dirname, '..', 'transformed_supports.json');
+const archiveDir = path.join(__dirname, '..', 'archive');
 
-// Build skill dictionary (id -> English name)
-const skillLookup = {};
+// Ensure archive dir exists
+if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir);
+
+// Read and parse JSON safely
+function readJSON(filePath) {
+  const data = fs.readFileSync(filePath, 'utf8');
+  try {
+    return JSON.parse(data);
+  } catch (err) {
+    console.error(`Failed to parse ${filePath}. Check if it is valid JSON:`);
+    console.error(data.slice(0, 500)); // print first 500 chars
+    process.exit(1);
+  }
+}
+
+const supports = readJSON(supportsPath);
+const skills = readJSON(skillsPath);
+
+// Build a skill lookup by ID for easy numeral → name mapping
+const skillMap = {};
 skills.forEach(skill => {
-  skillLookup[skill.id] = skill.name_en || skill.enname || `Skill ${skill.id}`;
+  skillMap[skill.id] = skill.enname || skill.name_en || "Unknown Skill";
 });
 
-// Transform supports
-const transformed = supports.map(card => {
+// Transform supports data
+const transformed = supports.map(s => {
+  const eventSkills = s.event_skills.map(id => skillMap[id] || id);
+  const hintSkills = (s.hints?.hint_skills || []).map(id => skillMap[id] || id);
+
   return {
-    char_id: card.char_id,
-    char_name: card.char_name,
-    url_name: card.url_name,
-    rarity: card.rarity,
-    type: card.type,
-    obtained: card.obtained,
-    release: card.release,
-    release_en: card.release_en,
-    event_skills: card.event_skills,
-    event_skills_en: card.event_skills.map(id => skillLookup[id] || `Skill ${id}`),
-    hints_skills: card.hints.hint_skills.map(id => skillLookup[id] || `Skill ${id}`)
+    char_id: s.char_id,
+    char_name: s.char_name,
+    event_skills: s.event_skills,
+    event_skills_en: eventSkills,
+    hint_skills: hintSkills,
+    obtained: s.obtained,
+    rarity: s.rarity,
+    release: s.release,
+    release_en: s.release_en,
+    type: s.type,
+    url_name: s.url_name
   };
 });
 
-// Save the main transformed file
-const mainOutput = "docs/transformed_supports.json";
-fs.writeFileSync(mainOutput, JSON.stringify(transformed, null, 2), "utf8");
+// Save current transformed file
+fs.writeFileSync(outputPath, JSON.stringify(transformed, null, 2));
 
-// Archive system
-const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-const archiveDir = "docs/archive";
-if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir);
+// Save to archive with timestamp
+const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+const archivePath = path.join(archiveDir, `transformed_supports_${timestamp}.json`);
+fs.writeFileSync(archivePath, JSON.stringify(transformed, null, 2));
 
-const archiveFile = path.join(archiveDir, `transformed_supports_${today}.json`);
-fs.writeFileSync(archiveFile, JSON.stringify(transformed, null, 2), "utf8");
-console.log(`✅ Transformed supports.json updated and archived as ${archiveFile}`);
-
-// Prune archives older than 7 days
+// Prune old archives (keep last 7 days)
 const files = fs.readdirSync(archiveDir);
-const now = new Date();
+const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
 files.forEach(file => {
-  const match = file.match(/transformed_supports_(\d{4}-\d{2}-\d{2})\.json$/);
-  if (match) {
-    const fileDate = new Date(match[1]);
-    const diffDays = (now - fileDate) / (1000 * 60 * 60 * 24);
-    if (diffDays > 7) {
-      fs.unlinkSync(path.join(archiveDir, file));
-      console.log(`🗑️ Deleted old archive: ${file}`);
-    }
-  }
+  const filePath = path.join(archiveDir, file);
+  if (fs.statSync(filePath).mtimeMs < cutoff) fs.unlinkSync(filePath);
 });
+
+console.log("Transformation and archive complete!");

@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          persist-credentials: true  # ensures git push works
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -22,24 +20,27 @@ jobs:
 
       - name: Fetch supports.json
         run: |
-          curl -s https://gametora.com/data/umamusume/support-cards.219b4454.json -o docs/supports.json
+          curl -s -A "Mozilla/5.0" https://gametora.com/data/umamusume/support-cards.219b4454.json -o docs/supports.json
 
       - name: Fetch skills.json
         run: |
-          curl -s https://gametora.com/data/umamusume/skills.7d8a2971.json -o docs/skills.json
+          curl -s -A "Mozilla/5.0" https://gametora.com/data/umamusume/skills.7d8a2971.json -o docs/skills.json
 
       - name: Transform and archive JSON
         run: |
           node docs/scripts/transform.js
-          mkdir -p docs/archive
-          cp docs/transformed_supports.json docs/archive/transformed_supports_$(date +%F).json
-          # prune archives older than 7 days
-          find docs/archive -type f -name "*.json" -mtime +7 -delete
 
       - name: Commit and push changes
-        run: |
-          git config --local user.name "github-actions[bot]"
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/supports.json docs/skills.json docs/transformed_supports.json docs/archive/
-          git diff-index --quiet HEAD || git commit -m "Update supports and skills JSON with daily archive"
-          git push origin HEAD
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update supports and skills JSON with daily archive"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+          branch: main
+          file_pattern: |
+            docs/supports.json
+            docs/skills.json
+            docs/transformed_supports.json
+            docs/archive/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
