@@ -493,10 +493,13 @@ function renderSections(){
   const anyActive=Object.values(filters).some(v=>v);
 
   if(!anyActive){
-    const section=document.createElement('div'); section.className='card-section';
-    const header=document.createElement('h2'); header.textContent='All Cards'; section.appendChild(header);
-    const grid=document.createElement('div'); grid.className='cards'; section.appendChild(grid);
-    cardsData.forEach(c=>grid.appendChild(createCardElement(c)));
+    const section = document.createElement('div');
+    section.className = 'card-section';
+    const msg = document.createElement('div');
+    msg.style.opacity = '0.7';
+    msg.style.padding = '12px';
+    msg.textContent = 'Pick a label on the left to show matching cards.';
+    section.appendChild(msg);
     cardSections.appendChild(section);
     return;
   }
