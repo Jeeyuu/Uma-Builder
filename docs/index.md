@@ -6,13 +6,13 @@
 <style>
 :root { --card-w: 118px; --gap: 10px; }
 body { font-family: Arial, Helvetica, sans-serif; margin: 0; padding: 0; width: 100%; background: #fff; color: #111; display: flex; justify-content: flex-start; }
-.container { position: relative; transform: translateX(-100px); left: 0; top: 0; width: 100%; max-width: none; display: flex; gap: 20px; align-items: flex-start; }
-.sidebar { flex-shrink: 0; width: 180px; display: flex; flex-direction: column; gap: 20px; }
-.filter-group label { font-weight: 700; margin-bottom: 6px; display: block; }
-select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #fff; width: 100%; }
+.container { position: relative; transform: translateX(-100px); left: 0; top: 0; width: 100%; max-width: none; display: flex; gap: 20px; align-items: flex-start; padding: 24px; }
+.sidebar { flex-shrink: 0; width: 200px; display: flex; flex-direction: column; gap: 18px; }
+.filter-group label { font-weight: 700; margin-bottom: 6px; display: block; font-size: 14px; }
+select { padding: 8px; border-radius: 6px; border: 1px solid #ccc; background: #fff; width: 100%; font-size: 14px; }
 .main-content { flex-grow: 1; display: flex; flex-direction: column; }
 .slots-header { display: flex; justify-content: flex-end; margin-bottom: 8px; }
-.clear-all { padding: 5px 10px; font-size: 14px; cursor: pointer; border: none; border-radius: 6px; background: #444; color: #fff; }
+.clear-all { padding: 6px 12px; font-size: 14px; cursor: pointer; border: none; border-radius: 6px; background: #444; color: #fff; }
 .slots { display: grid; grid-template-columns: repeat(6, var(--card-w)); gap: var(--gap); margin-bottom: 18px; }
 .slot { border: 1px solid #ddd; padding: 8px; box-sizing: border-box; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; cursor: pointer; position: relative; width: var(--card-w); min-height: var(--card-w); }
 .slot:not(.has-card) { border: 2px dashed #ccc; background: #fafafa; }
@@ -24,11 +24,10 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
   font-weight: 700;
   text-align: center;
   font-size: 12px;
-  white-space: nowrap;       /* single line */
-  overflow: hidden;          /* hide overflow */
-  text-overflow: ellipsis;   /* add ... if too long */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-
 
 .slot .skills, .card .skills {
   width: 100%;
@@ -70,6 +69,11 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
   text-align: center;
 }
 
+.card-section { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; position: relative; }
+.card-section h2 { margin: 6px 0; font-size: 16px; }
+
+.page-controls { position: absolute; top: 6px; right: 6px; display:flex; gap:6px; }
+
 @media (max-width: 1100px) { :root { --card-w: 100px; } }
 </style>
 </head>
@@ -90,31 +94,14 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
 
     <div class="filter-group">
       <label for="length">Length</label>
-<select id="length">
-  <option value="">-- Select --</option>
-  <option value="1000">1000m</option>
-  <option value="1150">1150m</option>
-  <option value="1200">1200m</option>
-  <option value="1300">1300m</option>
-  <option value="1400">1400m</option>
-  <option value="1500">1500m</option>
-  <option value="1600">1600m</option>
-  <option value="1700">1700m</option>
-  <option value="1800">1800m</option>
-  <option value="1900">1900m</option>
-  <option value="2000">2000m</option>
-  <option value="2100">2100m</option>
-  <option value="2200">2200m</option>
-  <option value="2300">2300m</option>
-  <option value="2400">2400m</option>
-  <option value="2500">2500m</option>
-  <option value="2600">2600m</option>
-  <option value="3000">3000m</option>
-  <option value="3200">3200m</option>
-  <option value="3400">3400m</option>
-  <option value="3600">3600m</option>
-</select>
-
+      <select id="length">
+        <option value="">-- Select --</option>
+        <option value="1000">1000m</option><option value="1150">1150m</option><option value="1200">1200m</option><option value="1300">1300m</option>
+        <option value="1400">1400m</option><option value="1500">1500m</option><option value="1600">1600m</option><option value="1700">1700m</option>
+        <option value="1800">1800m</option><option value="1900">1900m</option><option value="2000">2000m</option><option value="2100">2100m</option>
+        <option value="2200">2200m</option><option value="2300">2300m</option><option value="2400">2400m</option><option value="2500">2500m</option>
+        <option value="2600">2600m</option><option value="3000">3000m</option><option value="3200">3200m</option><option value="3400">3400m</option><option value="3600">3600m</option>
+      </select>
     </div>
 
     <div class="filter-group">
@@ -124,6 +111,7 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
         <option>Clockwise</option><option>Counterclockwise</option>
       </select>
     </div>
+
     <div class="filter-group">
       <label for="track">Track Conditions</label>
       <select id="track">
@@ -131,6 +119,7 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
         <option>Firm</option><option>Good</option><option>Soft</option><option>Heavy</option>
       </select>
     </div>
+
     <div class="filter-group">
       <label for="season">Season</label>
       <select id="season">
@@ -138,11 +127,20 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
         <option>Spring</option><option>Summer</option><option>Fall</option><option>Winter</option>
       </select>
     </div>
+
     <div class="filter-group">
       <label for="weather">Weather</label>
       <select id="weather">
         <option value="">-- Select --</option>
         <option>Sunny</option><option>Cloudy</option><option>Rainy</option><option>Snowy</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="strategy">Strategy</label>
+      <select id="strategy">
+        <option value="">-- Select --</option>
+        <option>Front Runner</option><option>Pace Chaser</option><option>Late Surger</option><option>End Closer</option>
       </select>
     </div>
 
@@ -163,293 +161,114 @@ select { padding: 6px; border-radius: 6px; border: 1px solid #ccc; background: #
       <div class="slot" data-slot="5"></div>
     </div>
 
-    <div class="card-sections" id="cardSections"></div>
+    <div id="cardSections" class="card-sections"></div>
   </div>
 </div>
 
 <script>
+/* ------------- CONFIG ------------- */
+// Filename to fetch. Rename if you store the file differently.
+const JSON_FILE = "transformed_supports.json";
+
+// If true, the page will not show char_id or url_name visibly; internal logic still uses char_id.
+const HIDE = { char_id: false, url_name: true };
+
+/* ------------- STATE ------------- */
 let cardsData = [];
 const cardSections = document.getElementById('cardSections');
 const slots = Array.from(document.querySelectorAll('.slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
-
-const categories = [
-  {id:'racecourse', title:'Racecourse', prop:'racecourse'},
-  {id:'length', title:'Length', prop:'length'},
-  {id:'direction', title:'Direction', prop:'direction'},
-  {id:'track', title:'Track Conditions', prop:'track'},
-  {id:'season', title:'Season', prop:'season'},
-  {id:'weather', title:'Weather', prop:'weather'}
-];
-
+const sectionPages = new Map(); // pagination per section
 const slotListeners = new Map();
+
+/* ------------- UTIL ------------- */
+function normalizeSkill(s) {
+  return String(s || '').replace(/[◎○]/g, '').trim().toLowerCase();
+}
+function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
+function getLengthCategory(distance){
+  if(distance <= 1400) return 'Sprint';
+  if(distance <= 1800) return 'Mile';
+  if(distance <= 2400) return 'Medium';
+  return 'Long';
+}
+function isStandardDistance(distance){ return distance % 400 === 0; }
+
+/* ------------- Type icon mapping (lowercase keys) ------------- */
 const typeMap = {
-  "Speed":"00",
-  "Stamina":"01",
-  "Power":"02",
-  "Guts":"03",
-  "Intelligence":"04",
-  "Support":"05",
-  "Group":"06"
+  "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","support":"05","group":"06"
 };
 
-// Pagination storage per section
-const sectionPages = new Map()
-
-fetch("latest.json")
-  .then(r => r.json())
+/* ------------- Fetch JSON ------------- */
+fetch(JSON_FILE)
+  .then(r => {
+    if(!r.ok) throw new Error('Failed to fetch JSON: ' + r.status);
+    return r.json();
+  })
   .then(data => {
+    // Expect array of transformed_supports objects
     cardsData = data.map(card => ({
       ...card,
-      image: `https://gametora.com/images/umamusume/supports/support_card_s_${card.id}.png`,
-      typeImage: `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png`
+      // normalize fields to be used in UI
+      char_id: card.char_id,
+      char_name: card.char_name,
+      hint_skills: card.hint_skills || [],
+      event_skills: card.event_skills || [],
+      type: (card.type || '').toLowerCase()
     }));
     renderSections();
+    setupFilterPersistence();
+  })
+  .catch(err => {
+    console.error('Could not load JSON:', err);
+    cardSections.innerHTML = '<div style="opacity:0.7;padding:12px;">Error loading data. Check JSON file path and content in console.</div>';
   });
 
-
-// --- Card element ---
+/* ------------- Card UI creation ------------- */
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
-  el.dataset.id = card.id;
-  el.dataset.name = card.name;
+  el.dataset.id = card.char_id;
+  el.dataset.name = card.char_name;
+
+  const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.char_id}.png`;
+  const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png`;
 
   let skillsHTML = '';
-  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-  if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if((card.hint_skills || []).length){
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  }
+  if((card.event_skills || []).length){
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  }
+
+  // header content
+  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
+  if(!HIDE.char_id) nameHtml += `<div style="font-size:10px;opacity:0.6;">ID: ${card.char_id}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
   el.innerHTML = `
-    <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
-    <img src="${card.image}" alt="${escapeHtml(card.name)}">
-    <div class="name">${escapeHtml(card.name)}</div>
+    <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
+    <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
+    ${nameHtml}
     <div class="skills">${skillsHTML}</div>
   `;
 
-  el.addEventListener('click', ()=>{
-    const slot = slots.find(s => Number(s.dataset.cardId) === card.id);
-    if(slot){
-      // if card is in a slot, remove it
-      removeFromSlot(slot, card);
-    } else {
-      // otherwise add to first free slot
-      addToSlot(card);
-    }
+  el.addEventListener('click', ()=> {
+    const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
+    if(slot) removeFromSlot(slot, card);
+    else addToSlot(card);
   });
 
-  // visually dim if in slot, but still clickable
-  if(selectedCardIds.has(card.id)) el.classList.add('disabled');
-
+  if(selectedCardIds.has(card.char_id)) el.classList.add('disabled');
   return el;
 }
 
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-// --- Direction mapping for filters ---
-function mapDirection(val){
-  if(!val) return '';
-  return val.toLowerCase() === 'clockwise' ? 'Right-Handed' : 'Left-Handed';
-}
-
-
-function isNameBlocked(name){
-  for(const id of selectedCardIds){
-    const chosen = cardsData.find(c=>c.id===id);
-    if(chosen && chosen.name===name) return true;
-  }
-  return false;
-}
-
-// Render card sections with unified pagination
-function renderSections() {
-  cardSections.innerHTML = '';
-
-  let anyFilterSelected = false;
-
-  // Helper to normalize skill/term strings
-  function normalizeText(s) {
-    return String(s || '').replace(/[◎○]/g, '').trim().toLowerCase();
-  }
-
-  categories.forEach(cat => {
-    const sel = document.getElementById(cat.id);
-    const val = sel ? sel.value : '';
-    if (!val) return;
-    anyFilterSelected = true;
-
-    const section = document.createElement('div');
-    section.className = 'card-section';
-    const header = document.createElement('h2');
-    header.textContent = `${cat.title}: ${val}`;
-    section.appendChild(header);
-
-    const rows = [];
-
-    // Length has special corner/straightaway/distance rows
-if(cat.id === 'length'){
-  const dist = parseInt(val);
-
-  // determine length label
-  let lengthLabel = '';
-  if(dist <= 1400) lengthLabel = 'Sprint';
-  else if(dist <= 1800) lengthLabel = 'Mile';
-  else if(dist <= 2400) lengthLabel = 'Medium';
-  else lengthLabel = 'Long';
-
-  // build rows
-  rows.push(
-    { title: 'Corners', termArr: [`${lengthLabel} Corners`] },
-    { title: 'Straightaways', termArr: [`${lengthLabel} Straightaways`] },
-    { 
-      title: dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance', 
-      termArr: [dist % 400 === 0 ? 'Standard Distance' : 'Non-Standard Distance'] 
-    }
-  );
-} else {
-  // other filters
-  let searchTerms = [];
-  switch(cat.id){
-    case 'racecourse': searchTerms.push(val + ' Racecourse'); break;
-    case 'direction': searchTerms.push(val==='Clockwise'?'Right-Handed':'Left-Handed'); break;
-    case 'track': searchTerms.push(val==='Firm'?'Firm Conditions':'Wet Conditions'); break;
-    case 'season': searchTerms.push(val+' Runner'); break;
-    case 'weather': searchTerms.push(val+' Days'); break;
-  }
-  rows.push({ title: cat.title, termArr: searchTerms });
-}
-
-
-    rows.forEach((row, rowIndex) => {
-      const rowContainer = document.createElement('div');
-      rowContainer.style.position = 'relative';
-      rowContainer.style.marginBottom = '30px';
-
-      const rowHeader = document.createElement('div');
-      rowHeader.style.fontWeight = 'bold';
-      rowHeader.style.marginBottom = '6px';
-      rowHeader.textContent = row.title;
-      rowContainer.appendChild(rowHeader);
-
-      const grid = document.createElement('div');
-      grid.className = 'cards';
-      rowContainer.appendChild(grid);
-
-// --- FILTER MATCHES ---
-const matches = cardsData.filter(card => {
-  const cardSkills = [...(card.hint_skills || []), ...(card.event_skills || [])].map(normalizeText);
-
-  if(row.termArr && row.termArr.length) {
-    return row.termArr.some(term => {
-      const normalizedTerm = normalizeText(term);
-      return cardSkills.some(skill => skill.includes(normalizedTerm));
-    });
-  } else if(row.term) {
-    const normalizedTerm = normalizeText(row.term);
-    return cardSkills.some(skill => skill.includes(normalizedTerm));
-  } else {
-    return true;
-  }
-});
-
-
-
-      if (matches.length === 0) {
-        const noMsg = document.createElement('div');
-        noMsg.style.opacity = '0.6';
-        noMsg.textContent = '(No matching cards)';
-        grid.appendChild(noMsg);
-        section.appendChild(rowContainer);
-        return;
-      }
-
-      // --- Pagination ---
-      const pageKey = cat.id + '-' + rowIndex;
-      const currentPage = sectionPages.get(pageKey) || 0;
-      sectionPages.set(pageKey, currentPage);
-      const totalPages = Math.ceil(matches.length / 6);
-
-      function renderPage(page) {
-        grid.innerHTML = '';
-        const start = page * 6;
-        const end = start + 6;
-        matches.slice(start, end).forEach(card => grid.appendChild(createCardElement(card)));
-        updateButtons(page);
-      }
-
-      const btnContainer = document.createElement('div');
-      btnContainer.style.position = 'absolute';
-      btnContainer.style.top = '2px';
-      btnContainer.style.right = '0';
-      btnContainer.style.display = 'flex';
-      btnContainer.style.gap = '5px';
-      rowContainer.appendChild(btnContainer);
-
-      const leftBtn = document.createElement('button');
-      leftBtn.textContent = '◀';
-      leftBtn.style.opacity = '0.4';
-      leftBtn.style.pointerEvents = 'none';
-      styleNavButton(leftBtn);
-
-      const rightBtn = document.createElement('button');
-      rightBtn.textContent = '▶';
-      rightBtn.style.opacity = '0.4';
-      rightBtn.style.pointerEvents = 'none';
-      styleNavButton(rightBtn);
-
-      btnContainer.appendChild(leftBtn);
-      btnContainer.appendChild(rightBtn);
-
-      function updateButtons(page) {
-        leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-        leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-        rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-        rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
-      }
-
-      leftBtn.addEventListener('click', () => {
-        let page = sectionPages.get(pageKey);
-        if (page > 0) {
-          page--;
-          sectionPages.set(pageKey, page);
-          renderPage(page);
-        }
-      });
-
-      rightBtn.addEventListener('click', () => {
-        let page = sectionPages.get(pageKey);
-        if (page < totalPages - 1) {
-          page++;
-          sectionPages.set(pageKey, page);
-          renderPage(page);
-        }
-      });
-
-      renderPage(currentPage);
-      section.appendChild(rowContainer);
-    });
-
-    cardSections.appendChild(section);
-  });
-
-  if (!anyFilterSelected) {
-    const msg = document.createElement('div');
-    msg.style.opacity = '0.7';
-    msg.style.marginTop = '8px';
-    msg.textContent = 'Select options from the left to show matching card sections.';
-    cardSections.appendChild(msg);
-  }
-}
-
-// Helper to style pagination buttons
-function styleNavButton(btn) {
-  btn.style.border = 'none';
-  btn.style.borderRadius = '6px';
-  btn.style.background = '#444';
-  btn.style.color = '#fff';
-}
-
-// --- Slot handling ---
+/* ------------- Slot handling ------------- */
 function addToSlot(card){
   const freeSlot = slots.find(s=>!s.dataset.cardId);
   if(!freeSlot) return;
@@ -460,15 +279,15 @@ function addToSlot(card){
   }
 
   let skillsHTML = '';
-  if(card.support_hints?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.support_hints.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+  if(card.hint_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
   if(card.event_skills?.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
 
-  freeSlot.dataset.cardId = card.id;
+  freeSlot.dataset.cardId = card.char_id;
   freeSlot.classList.add('has-card');
   freeSlot.innerHTML = `
-    <div class="type-icon"><img src="${card.typeImage}" alt="${card.type}"></div>
-    <img src="${card.image}" alt="${escapeHtml(card.name)}">
-    <div class="name">${escapeHtml(card.name)}</div>
+    <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
+    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.char_id}.png" alt="${escapeHtml(card.char_name)}">
+    <div class="name">${escapeHtml(card.char_name)}</div>
     <div class="skills">${skillsHTML}</div>
   `;
 
@@ -476,7 +295,7 @@ function addToSlot(card){
   freeSlot.addEventListener('click', slotClickHandler);
   slotListeners.set(freeSlot, slotClickHandler);
 
-  selectedCardIds.add(card.id);
+  selectedCardIds.add(card.char_id);
   renderSections();
 }
 
@@ -488,11 +307,11 @@ function removeFromSlot(slotEl, card){
   slotEl.classList.remove('has-card');
   delete slotEl.dataset.cardId;
   slotEl.innerHTML = '';
-  selectedCardIds.delete(Number(card.id));
+  selectedCardIds.delete(Number(card.char_id));
   renderSections();
 }
 
-// --- Clear buttons ---
+/* ------------- Clear buttons ------------- */
 clearAllBtn.addEventListener('click', ()=>{
   selectedCardIds.clear();
   slots.forEach(slot=>{
@@ -508,33 +327,278 @@ clearAllBtn.addEventListener('click', ()=>{
 });
 
 clearFiltersBtn.addEventListener('click', ()=>{
-  categories.forEach(cat=>{
-    const sel=document.getElementById(cat.id);
-    if(sel){
-      sel.value='';
-      localStorage.removeItem('filter_'+cat.id);
-    }
+  ['racecourse','length','direction','track','season','weather','strategy'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+    localStorage.removeItem('filter_'+id);
   });
   renderSections();
 });
 
+/* ------------- Persistence ------------- */
 function setupFilterPersistence(){
-  categories.forEach(cat=>{
-    const sel=document.getElementById(cat.id);
+  ['racecourse','length','direction','track','season','weather','strategy'].forEach(id=>{
+    const sel = document.getElementById(id);
     if(!sel) return;
-    const saved = localStorage.getItem('filter_'+cat.id);
-    if(saved) sel.value=saved;
+    const saved = localStorage.getItem('filter_'+id);
+    if(saved) sel.value = saved;
     sel.addEventListener('change', ()=>{
-      localStorage.setItem('filter_'+cat.id, sel.value);
+      localStorage.setItem('filter_'+id, sel.value);
+      // Reset pagination when filter changes
+      sectionPages.clear();
       renderSections();
     });
   });
 }
 
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
-setupFilterPersistence();
-</script>
+/* ------------- FILTER BUILDING & MATCHING ------------- */
+function buildFilterTerms(filters) {
+  // returns array of terms to match (normalized later)
+  const terms = [];
 
+  // racecourse: exact like "Tokyo Racecourse"
+  if(filters.racecourse) terms.push(`${filters.racecourse} Racecourse`);
+
+  // direction -> Right-Handed / Left-Handed
+  if(filters.direction){
+    terms.push(filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed');
+  }
+
+  // track: Firm -> Firm Conditions, others -> Wet Conditions
+  if(filters.track){
+    terms.push(filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions');
+  }
+
+  // season -> "Spring Runner" etc (this follows your earlier rule)
+  if(filters.season){
+    terms.push(`${filters.season} Runner`);
+  }
+
+  // weather -> "Sunny Days"
+  if(filters.weather){
+    terms.push(`${capitalize(filters.weather)} Days`);
+  }
+
+  // strategy -> three possible types (Corner / Straightaways / Savvy) - we'll generate three terms
+  if(filters.strategy){
+    const s = filters.strategy;
+    terms.push(`${s} Corners`);
+    terms.push(`${s} Straightaways`);
+    terms.push(`${s} Savvy`);
+  }
+
+  // length -> generate 3 terms: {Label} Corners, {Label} Straightaways, {Standard/Non-Standard Distance}
+  if(filters.length){
+    const dist = parseInt(filters.length);
+    const label = getLengthCategory(dist); // Sprint/Mile/Medium/Long
+    terms.push(`${label} Corners`);
+    terms.push(`${label} Straightaways`);
+    terms.push(isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance');
+  }
+
+  return terms;
+}
+
+/*
+ Filtering strategy:
+ - Normalize both card's skills and the filter terms (strip ○/◎ and lowercase)
+ - For Standard/Non-Standard Distance terms: require STRICT equality (skill === term)
+ - For all other terms: use LAX matching: skill.includes(term)  (so Tokyo Racecourse vs Tokyo Racecourse ○ matches)
+ - All terms must be satisfied (AND semantics) for a card to match.
+*/
+function filterCardsWithRules(cards, filters) {
+  const rawTerms = buildFilterTerms(filters);
+  const terms = rawTerms.map(normalizeSkill);
+
+  // separate strict terms (distance ones) from loose ones
+  const strictDistanceKeys = ['standard distance','non-standard distance'];
+  const strictTerms = terms.filter(t => strictDistanceKeys.includes(t));
+  const looseTerms = terms.filter(t => !strictDistanceKeys.includes(t));
+
+  return cards.filter(card => {
+    const skills = [...(card.hint_skills || []), ...(card.event_skills || [])].map(normalizeSkill);
+
+    // Strict: every strict term must be present exactly
+    const strictOk = strictTerms.every(t => skills.includes(t));
+
+    // Loose: every loose term must be satisfied by .includes match
+    const looseOk = looseTerms.every(term => skills.some(s => s.includes(term)));
+
+    return strictOk && looseOk;
+  });
+}
+
+/* ------------- Rendering sections & pagination ------------- */
+function renderSections(){
+  cardSections.innerHTML = '';
+
+  // read filters
+  const filters = {
+    racecourse: document.getElementById('racecourse').value || '',
+    length: document.getElementById('length').value || '',
+    direction: document.getElementById('direction').value || '',
+    track: document.getElementById('track').value || '',
+    season: document.getElementById('season').value || '',
+    weather: document.getElementById('weather').value || '',
+    strategy: document.getElementById('strategy').value || ''
+  };
+
+  // detect any active filter
+  const anyActive = Object.values(filters).some(v => v);
+
+  // If no filter: show "All Cards" single section (paginated optionally)
+  if(!anyActive){
+    const section = document.createElement('div');
+    section.className = 'card-section';
+    const header = document.createElement('h2'); header.textContent = 'All Cards';
+    section.appendChild(header);
+
+    const grid = document.createElement('div'); grid.className = 'cards';
+    section.appendChild(grid);
+
+    cardsData.forEach(c => grid.appendChild(createCardElement(c)));
+    cardSections.appendChild(section);
+    return;
+  }
+
+  // Build per-filter sections (each selected filter gets its own section)
+  // We'll create one top-level section per filter type (racecourse, length, etc.).
+  const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
+
+  filterOrder.forEach(catId => {
+    if(!filters[catId]) return;
+
+    // For 'length', we create 3 sub-rows (Corners, Straightaways, Distance)
+    if(catId === 'length'){
+      const dist = parseInt(filters.length);
+      const label = getLengthCategory(dist);
+      const distanceType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
+
+      const rows = [
+        { title: `${label} Corners`, terms: [ `${label} Corners` ] },
+        { title: `${label} Straightaways`, terms: [ `${label} Straightaways` ] },
+        { title: `${distanceType}`, terms: [ distanceType ] } // strict
+      ];
+
+      rows.forEach((row, idx) => {
+        renderFilterRow(catId, row.title, row.terms, idx);
+      });
+
+    } else {
+      // other categories produce one row each with their term(s)
+      let rowTerms = [];
+      switch(catId){
+        case 'racecourse': rowTerms.push(`${filters.racecourse} Racecourse`); break;
+        case 'direction': rowTerms.push(filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed'); break;
+        case 'track': rowTerms.push(filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions'); break;
+        case 'season': rowTerms.push(`${filters.season} Runner`); break;
+        case 'weather': rowTerms.push(`${capitalize(filters.weather)} Days`); break;
+        case 'strategy':
+          rowTerms.push(`${filters.strategy} Corners`);
+          rowTerms.push(`${filters.strategy} Straightaways`);
+          rowTerms.push(`${filters.strategy} Savvy`);
+          break;
+      }
+      renderFilterRow(catId, `${capitalize(catId)}: ${ (filters[catId]||'') }`, rowTerms, 0);
+    }
+  });
+
+  // renderFilterRow helper
+  function renderFilterRow(catId, headerText, termList, rowIndex){
+    const section = document.createElement('div');
+    section.className = 'card-section';
+
+    const header = document.createElement('h2');
+    header.textContent = headerText;
+    section.appendChild(header);
+
+    const grid = document.createElement('div'); grid.className = 'cards';
+    section.appendChild(grid);
+
+    // Do the filtering using our rules
+    const localFilters = {
+      racecourse: document.getElementById('racecourse').value || '',
+      length: document.getElementById('length').value || '',
+      direction: document.getElementById('direction').value || '',
+      track: document.getElementById('track').value || '',
+      season: document.getElementById('season').value || '',
+      weather: document.getElementById('weather').value || '',
+      strategy: document.getElementById('strategy').value || ''
+    };
+
+    // We'll temporarily override buildFilterTerms to only include the provided termList (so this row matches just those terms)
+    // Create a filter object for filterCardsWithRules: convert termList into a pseudo filter by matching how buildFilterTerms expects.
+    // Simpler: use a filter that directly uses termList for matching (apply same strict/lax rules).
+    const termsNormalized = termList.map(normalizeSkill);
+    const strictDistanceKeys = ['standard distance','non-standard distance'];
+    const strictTerms = termsNormalized.filter(t => strictDistanceKeys.includes(t));
+    const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
+
+    const matches = cardsData.filter(card => {
+      const skills = [...(card.hint_skills||[]), ...(card.event_skills||[])].map(normalizeSkill);
+      const strictOk = strictTerms.every(t => skills.includes(t));
+      const looseOk = looseTerms.every(term => skills.some(s => s.includes(term)));
+      return strictOk && looseOk;
+    });
+
+    // If no matches, show message
+    if(matches.length === 0){
+      const noMsg = document.createElement('div');
+      noMsg.style.opacity = '0.6';
+      noMsg.textContent = '(No matching cards)';
+      grid.appendChild(noMsg);
+      cardSections.appendChild(section);
+      return;
+    }
+
+    // Pagination: per (catId-rowIndex) key
+    const pageKey = `${catId}-${rowIndex}`;
+    const currentPage = sectionPages.get(pageKey) || 0;
+    sectionPages.set(pageKey, currentPage);
+    const totalPages = Math.ceil(matches.length / 6);
+
+    function renderPage(page){
+      grid.innerHTML = '';
+      const start = page * 6;
+      const end = start + 6;
+      matches.slice(start, end).forEach(card => grid.appendChild(createCardElement(card)));
+      updateButtons(page);
+    }
+
+    // Create page controls
+    const controls = document.createElement('div'); controls.className = 'page-controls';
+    const leftBtn = document.createElement('button'); leftBtn.textContent = '◀';
+    const rightBtn = document.createElement('button'); rightBtn.textContent = '▶';
+    [leftBtn, rightBtn].forEach(b => {
+      b.style.border = 'none'; b.style.borderRadius = '6px'; b.style.background = '#444'; b.style.color = '#fff';
+      b.style.padding = '4px 8px'; b.style.opacity = '0.4'; b.style.pointerEvents = 'none';
+    });
+    controls.appendChild(leftBtn); controls.appendChild(rightBtn);
+    section.appendChild(controls);
+
+    function updateButtons(page){
+      leftBtn.style.opacity = page > 0 ? '1' : '0.4';
+      leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
+      rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
+      rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
+    }
+    leftBtn.addEventListener('click', ()=>{
+      let p = sectionPages.get(pageKey) || 0;
+      if(p > 0){ p--; sectionPages.set(pageKey, p); renderPage(p); }
+    });
+    rightBtn.addEventListener('click', ()=>{
+      let p = sectionPages.get(pageKey) || 0;
+      if(p < totalPages - 1){ p++; sectionPages.set(pageKey, p); renderPage(p); }
+    });
+
+    // initial render
+    renderPage(currentPage);
+    cardSections.appendChild(section);
+  }
+}
+
+/* ------------- END ------------- */
+</script>
 
 </body>
 </html>
