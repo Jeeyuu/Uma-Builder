@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          persist-credentials: true  # ensures git push works
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -29,6 +31,10 @@ jobs:
       - name: Transform and archive JSON
         run: |
           node docs/scripts/transform.js
+          mkdir -p docs/archive
+          cp docs/transformed_supports.json docs/archive/transformed_supports_$(date +%F).json
+          # prune archives older than 7 days
+          find docs/archive -type f -name "*.json" -mtime +7 -delete
 
       - name: Commit and push changes
         run: |
@@ -37,5 +43,3 @@ jobs:
           git add docs/supports.json docs/skills.json docs/transformed_supports.json docs/archive/
           git diff-index --quiet HEAD || git commit -m "Update supports and skills JSON with daily archive"
           git push origin HEAD
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
