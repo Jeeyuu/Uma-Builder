@@ -557,8 +557,16 @@ function filterCardsWithRules(cards,filters){
 /* ------------- Rendering sections & pagination ------------- */
 function renderSections(){
   cardSections.innerHTML='';
-  const filters={ racecourse: document.getElementById('racecourse').value||'', length: document.getElementById('length').value||'', direction: document.getElementById('direction').value||'', track: document.getElementById('track').value||'', season: document.getElementById('season').value||'', weather: document.getElementById('weather').value||'', strategy: document.getElementById('strategy').value||'' };
-  const anyActive=Object.values(filters).some(v=>v);
+  const filters={
+    racecourse: document.getElementById('racecourse').value||'',
+    length: document.getElementById('length').value||'',
+    direction: document.getElementById('direction').value||'',
+    track: document.getElementById('track').value||'',
+    season: document.getElementById('season').value||'',
+    weather: document.getElementById('weather').value||'',
+    strategy: document.getElementById('strategy').value||''
+  };
+  const anyActive = Object.values(filters).some(v => v);
 
   if(!anyActive){
     const section = document.createElement('div');
@@ -578,36 +586,34 @@ function renderSections(){
 
     // handle length separately
     if(catId==='length'){
-      const dist=parseInt(filters.length);
-      const label=getLengthCategory(dist);
-      const distanceType=isStandardDistance(dist)?'Standard Distance':'Non-Standard Distance';
-      [{title:`${label} Corners`,terms:[`${label} Corners`]},{title:`${label} Straightaways`,terms:[`${label} Straightaways`]},{title:distanceType,terms:[distanceType]}].forEach((row,idx)=>renderFilterRow(catId,row.title,row.terms,idx));
-    }else{
-      let rowTerms=[];
-      switch(catId){
-        case 'racecourse': rowTerms.push(`${filters.racecourse} Racecourse`); break;
-        case 'direction': rowTerms.push(filters.direction==='Clockwise'?'Right-Handed':'Left-Handed'); break;
-        case 'track': rowTerms.push(filters.track==='Firm'?'Firm Conditions':'Wet Conditions'); break;
-        case 'season': rowTerms.push(`${filters.season} Runner`); break;
-        case 'weather': rowTerms.push(`${capitalize(filters.weather)} Days`); break;
-        case 'strategy':
-          const strat = filters.strategy;
+      const dist = parseInt(filters.length);
+      const label = getLengthCategory(dist);
+      const distanceType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
 
-          // Create three separate rows: Corners, Straightaways, Savvy
-          const stratRows = [
-            { title: `${strat} Corners`, term: `${strat} Corners` },
-            { title: `${strat} Straightaways`, term: `${strat} Straightaways` },
-            { title: `${strat} Savvy`, term: `${strat} Savvy` }
-          ];
+      [
+        {title:`${label} Corners`, terms:[`${label} Corners`]},
+        {title:`${label} Straightaways`, terms:[`${label} Straightaways`]},
+        {title: distanceType, terms:[distanceType]}
+      ].forEach((row, idx) => renderFilterRow(catId, row.title, row.terms, idx));
 
-          // Render each row like Length does
-          stratRows.forEach((row, idx) => {
-            renderFilterRow(catId, row.title, [row.term], idx);
-          });
-          break;
+    } else if(catId === 'strategy') {
+      const strat = filters.strategy;
 
+      // Only these three rows: Corners, Straightaways, Savvy
+      const stratRows = [
+        { title: `${strat} Corners`, term: `${strat} Corners` },
+        { title: `${strat} Straightaways`, term: `${strat} Straightaways` },
+        { title: `${strat} Savvy`, term: `${strat} Savvy` }
+      ];
 
-      }
+      // Render each row
+      stratRows.forEach((row, idx) => {
+        renderFilterRow(catId, row.title, [row.term], idx);
+      });
+
+    } else {
+      let rowTerms=[], headerText='';
+
       switch(catId){
         case 'racecourse':
           rowTerms.push(`${filters.racecourse} Racecourse`);
@@ -633,14 +639,13 @@ function renderSections(){
           rowTerms.push(weatherLabel);
           headerText = weatherLabel;
           break;
-        case 'strategy':
-          rowTerms.push(`${filters.strategy} Corners`, `${filters.strategy} Straightaways`, `${filters.strategy} Savvy`);
-          headerText = filters.strategy;
-          break;
       }
+
       renderFilterRow(catId, headerText, rowTerms, 0);
     }
   });
+}
+
 
   function renderFilterRow(catId,headerText,termList,rowIndex){
     const section = document.createElement('div');
