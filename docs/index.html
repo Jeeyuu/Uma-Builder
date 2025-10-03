@@ -624,8 +624,13 @@ function renderSections(){
 
 /* ------------- STEP 3: Recalculate pagination on resize ------------- */
 window.addEventListener('resize', renderSections);
-</script>
 
+// Re-run filters with remembered dropdowns on reload
+document.addEventListener('DOMContentLoaded', () => {
+  renderSections();
+});
+
+</script>
 
 </body>
 </html>
