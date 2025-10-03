@@ -52,17 +52,20 @@ select {
   font-size: 14px;
 }
 
+/* ---------------- SHRINK-FIT MAIN CONTENT ---------------- */
 .main-content {
-  flex-grow: 1;
-  display: flex;
+  display: inline-flex;   /* shrink-to-fit */
   flex-direction: column;
+  align-items: flex-start;
+  width: calc((var(--card-w) + var(--gap)) * 6 - var(--gap));
 }
 
+/* ---------------- SLOTS ---------------- */
 .slots-header {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 8px;
-  width: calc((var(--card-w) + var(--gap)) * 6 - var(--gap));
+  width: 100%;
 }
 
 .clear-all {
@@ -80,6 +83,7 @@ select {
   grid-template-columns: repeat(6, var(--card-w));
   gap: var(--gap);
   margin-bottom: 18px;
+  width: calc((var(--card-w) + var(--gap)) * 6 - var(--gap));
 }
 
 .slot, .card {
@@ -181,6 +185,11 @@ select {
 }
 
 /* ---------------- CARD SECTION ---------------- */
+.card-sections,
+.card-section {
+  width: calc((var(--card-w) + var(--gap)) * 6 - var(--gap));
+}
+
 .card-section {
   margin-bottom: 20px;
   padding-bottom: 10px;
@@ -211,8 +220,8 @@ select {
 /* ARROWS */
 .page-controls {
   position: absolute;
-  top: -24px; /* align with section header */
-  right: 0; /* flush with right edge of cards */
+  top: -26px; /* move up near header */
+  right: 0;
   display: flex;
   gap: 6px;
   align-items: center;
@@ -233,7 +242,6 @@ select {
   :root { --card-w: 100px; }
 }
 </style>
-
 
 </head>
 
