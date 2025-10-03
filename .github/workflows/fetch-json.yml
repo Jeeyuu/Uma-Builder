@@ -2,7 +2,7 @@ name: Fetch and Transform Support Data
 
 on:
   schedule:
-    - cron: "0 23 * * *"   # Daily at 23:00 UTC / 7:00 SGT
+    - cron: "0 23 * * *"   # Daily 23:00 UTC / 07:00 SGT
   workflow_dispatch:
 
 permissions:

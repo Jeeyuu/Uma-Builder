@@ -1,69 +1,63 @@
 const fs = require('fs');
 const path = require('path');
 
-const supportsPath = path.join(__dirname, '..', 'supports.json');
-const skillsPath = path.join(__dirname, '..', 'skills.json');
-const outputPath = path.join(__dirname, '..', 'transformed_supports.json');
-const archiveDir = path.join(__dirname, '..', 'archive');
+const supportsPath = './docs/supports.json';
+const skillsPath = './docs/skills.json';
+const archiveDir = './docs/archive';
+const transformedPath = './docs/transformed_supports.json';
 
-// Ensure archive dir exists
-if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir);
-
-// Read and parse JSON safely
-function readJSON(filePath) {
-  const data = fs.readFileSync(filePath, 'utf8');
-  try {
-    return JSON.parse(data);
-  } catch (err) {
-    console.error(`Failed to parse ${filePath}. Check if it is valid JSON:`);
-    console.error(data.slice(0, 500)); // print first 500 chars
+function loadJson(filePath) {
+  const data = fs.readFileSync(filePath, 'utf8').trim();
+  if (!data.startsWith('[') && !data.startsWith('{')) {
+    console.error(`❌ ${filePath} is not valid JSON. Aborting.`);
     process.exit(1);
   }
+  return JSON.parse(data);
 }
 
-const supports = readJSON(supportsPath);
-const skills = readJSON(skillsPath);
+const supports = loadJson(supportsPath);
+const skills = loadJson(skillsPath);
 
-// Build a skill lookup by ID for easy numeral → name mapping
+// Map skill ID -> English name
 const skillMap = {};
 skills.forEach(skill => {
-  skillMap[skill.id] = skill.enname || skill.name_en || "Unknown Skill";
+  skillMap[skill.id || skill.iconid] = skill.name_en || skill.enname;
 });
 
-// Transform supports data
-const transformed = supports.map(s => {
-  const eventSkills = s.event_skills.map(id => skillMap[id] || id);
-  const hintSkills = (s.hints?.hint_skills || []).map(id => skillMap[id] || id);
+// Transform supports
+const transformed = supports.map(card => ({
+  char_id: card.char_id,
+  char_name: card.char_name,
+  event_skills: card.event_skills.map(id => skillMap[id] || id),
+  event_skills_en: (card.event_skills_en || []).map(id => skillMap[id] || id),
+  hint_skills: (card.hints?.hint_skills || []).map(id => skillMap[id] || id),
+  obtained: card.obtained,
+  rarity: card.rarity,
+  release: card.release,
+  release_en: card.release_en,
+  type: card.type,
+  url_name: card.url_name
+}));
 
-  return {
-    char_id: s.char_id,
-    char_name: s.char_name,
-    event_skills: s.event_skills,
-    event_skills_en: eventSkills,
-    hint_skills: hintSkills,
-    obtained: s.obtained,
-    rarity: s.rarity,
-    release: s.release,
-    release_en: s.release_en,
-    type: s.type,
-    url_name: s.url_name
-  };
-});
+// Ensure archive folder exists
+if (!fs.existsSync(archiveDir)) fs.mkdirSync(archiveDir, { recursive: true });
 
-// Save current transformed file
-fs.writeFileSync(outputPath, JSON.stringify(transformed, null, 2));
+// Save transformed JSON
+fs.writeFileSync(transformedPath, JSON.stringify(transformed, null, 2));
 
-// Save to archive with timestamp
-const timestamp = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+// Archive with date
+const timestamp = new Date().toISOString().slice(0, 10);
 const archivePath = path.join(archiveDir, `transformed_supports_${timestamp}.json`);
 fs.writeFileSync(archivePath, JSON.stringify(transformed, null, 2));
 
-// Prune old archives (keep last 7 days)
-const files = fs.readdirSync(archiveDir);
-const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
-files.forEach(file => {
-  const filePath = path.join(archiveDir, file);
-  if (fs.statSync(filePath).mtimeMs < cutoff) fs.unlinkSync(filePath);
+// Prune older than 7 days
+fs.readdirSync(archiveDir).forEach(file => {
+  const match = file.match(/transformed_supports_(\d{4}-\d{2}-\d{2})\.json/);
+  if (match) {
+    const fileDate = new Date(match[1]);
+    const age = (Date.now() - fileDate.getTime()) / (1000 * 60 * 60 * 24);
+    if (age > 7) fs.unlinkSync(path.join(archiveDir, file));
+  }
 });
 
-console.log("Transformation and archive complete!");
+console.log(`✅ Transformed ${transformed.length} support cards`);
