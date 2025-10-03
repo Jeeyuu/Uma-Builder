@@ -2,7 +2,7 @@ name: Fetch and Transform Support Data
 
 on:
   schedule:
-    - cron: "0 23 * * *"   # Daily 23:00 UTC / 07:00 SGT
+    - cron: "0 23 * * *" # Daily 23:00 UTC / 07:00 SGT
   workflow_dispatch:
 
 permissions:
@@ -21,19 +21,27 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Ensure docs/archive folder exists
-        run: mkdir -p docs/archive
-
       - name: Fetch supports.json
-        run: curl -s -o docs/supports.json https://gametora.com/data/umamusume/support-cards.219b4454.json
+        run: |
+          curl -s -o docs/supports.json https://gametora.com/data/umamusume/support-cards.219b4454.json
+          if ! jq empty docs/supports.json; then
+            echo "❌ supports.json is not valid JSON. Aborting."
+            exit 1
+          fi
 
       - name: Fetch skills.json
-        run: curl -s -o docs/skills.json https://gametora.com/data/umamusume/skills.7d8a2971.json
+        run: |
+          curl -s -o docs/skills.json https://gametora.com/data/umamusume/skills.7d8a2971.json
+          if ! jq empty docs/skills.json; then
+            echo "❌ skills.json is not valid JSON. Aborting."
+            exit 1
+          fi
 
       - name: Transform and archive JSON
-        run: node docs/scripts/transform.js
+        run: |
+          node docs/scripts/transform.js
 
-      - name: Commit and push all JSON files
+      - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update supports and skills JSON with daily archive"

@@ -7,36 +7,38 @@ const archiveDir = './docs/archive';
 const transformedPath = './docs/transformed_supports.json';
 
 function loadJson(filePath) {
-  const data = fs.readFileSync(filePath, 'utf8').trim();
-  if (!data.startsWith('[') && !data.startsWith('{')) {
-    console.error(`❌ ${filePath} is not valid JSON. Aborting.`);
+  try {
+    const data = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  } catch (err) {
+    console.error(`❌ Failed to parse ${filePath}: ${err.message}`);
     process.exit(1);
   }
-  return JSON.parse(data);
 }
 
+// Load JSON files
 const supports = loadJson(supportsPath);
 const skills = loadJson(skillsPath);
 
 // Map skill ID -> English name
 const skillMap = {};
 skills.forEach(skill => {
-  skillMap[skill.id || skill.iconid] = skill.name_en || skill.enname;
+  skillMap[skill.id || skill.iconid] = skill.name_en || skill.enname || null;
 });
 
 // Transform supports
 const transformed = supports.map(card => ({
   char_id: card.char_id,
   char_name: card.char_name,
-  event_skills: card.event_skills.map(id => skillMap[id] || id),
+  event_skills: (card.event_skills || []).map(id => skillMap[id] || id),
   event_skills_en: (card.event_skills_en || []).map(id => skillMap[id] || id),
   hint_skills: (card.hints?.hint_skills || []).map(id => skillMap[id] || id),
-  obtained: card.obtained,
-  rarity: card.rarity,
-  release: card.release,
-  release_en: card.release_en,
-  type: card.type,
-  url_name: card.url_name
+  obtained: card.obtained || null,
+  rarity: card.rarity || null,
+  release: card.release || null,
+  release_en: card.release_en || null,
+  type: card.type || null,
+  url_name: card.url_name || null
 }));
 
 // Ensure archive folder exists
@@ -60,7 +62,5 @@ fs.readdirSync(archiveDir).forEach(file => {
   }
 });
 
-// Touch skills.json to ensure commit
-fs.writeFileSync('./docs/skills.json', fs.readFileSync('./docs/skills.json', 'utf8'));
-
 console.log(`✅ Transformed ${transformed.length} support cards`);
+console.log(`✅ All JSONs are generated: supports.json, skills.json, transformed_supports.json, archive/${path.basename(archivePath)}`);
