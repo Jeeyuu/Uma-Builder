@@ -590,7 +590,21 @@ function renderSections(){
         case 'track': rowTerms.push(filters.track==='Firm'?'Firm Conditions':'Wet Conditions'); break;
         case 'season': rowTerms.push(`${filters.season} Runner`); break;
         case 'weather': rowTerms.push(`${capitalize(filters.weather)} Days`); break;
-        case 'strategy': rowTerms.push(`${filters.strategy} Corners`,`${filters.strategy} Straightaways`,`${filters.strategy} Savvy`); break;
+        case 'strategy':
+          const strat = filters.strategy;
+          // Each skill type gets its own row (like Length)
+          const stratRows = [
+            { title: `${strat} Corners`, term: `${strat} Corners` },
+            { title: `${strat} Straightaways`, term: `${strat} Straightaways` },
+            { title: `${strat} Savvy`, term: `${strat} Savvy` },
+          ];
+
+          stratRows.forEach((row, idx) => {
+            // renderFilterRow expects an array of terms
+            renderFilterRow(catId, row.title, [row.term], idx);
+          });
+          break;
+
       }
       switch(catId){
         case 'racecourse':
