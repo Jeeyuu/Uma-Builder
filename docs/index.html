@@ -59,8 +59,10 @@ select {
 }
 
 .slots-header {
-  display: flex;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-columns: repeat(6, var(--card-w));
+  gap: var(--gap);
+  justify-content: end; /* push to the last slot */
   margin-bottom: 8px;
 }
 
@@ -184,6 +186,9 @@ select {
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
   position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, var(--card-w));
+  gap: var(--gap);
 }
 
 .card-section h2 {
@@ -198,11 +203,12 @@ select {
 }
 
 .page-controls {
-  position: absolute;
-  top: 6px;
-  right: 6px;
+  grid-column: 6 / 7; /* place in last column */
+  justify-self: end;
   display: flex;
   gap: 6px;
+  margin-bottom: 6px; /* optional spacing above cards */
+  position: static; /* remove absolute positioning */
 }
 
 .page-controls button {
