@@ -38,7 +38,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 18px;
+  padding-top: 12px; /* <-- add this */
 }
+
 
 .filter-group label {
   font-weight: 700;
@@ -99,6 +101,7 @@ select {
   align-items: center;
   cursor: pointer;
   width: var(--card-w);
+  height: 160px; /* <-- add this for default empty slot height */
   position: relative;
 }
 
@@ -620,7 +623,7 @@ function renderSections(){
       b.style.borderRadius = '6px';
       b.style.background = '#444';
       b.style.color = '#fff';
-      b.style.padding = '2px 16px';
+      b.style.padding = '2px 12px';
       b.style.opacity = '0.4';
       b.style.pointerEvents = 'none';
     });
