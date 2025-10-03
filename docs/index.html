@@ -592,7 +592,37 @@ function renderSections(){
         case 'weather': rowTerms.push(`${capitalize(filters.weather)} Days`); break;
         case 'strategy': rowTerms.push(`${filters.strategy} Corners`,`${filters.strategy} Straightaways`,`${filters.strategy} Savvy`); break;
       }
-      renderFilterRow(catId,`${capitalize(catId)}: ${filters[catId]}`,rowTerms,0);
+      switch(catId){
+        case 'racecourse':
+          rowTerms.push(`${filters.racecourse} Racecourse`);
+          headerText = `${filters.racecourse} Racecourse`;
+          break;
+        case 'direction':
+          const dir = filters.direction==='Clockwise'?'Right-Handed':'Left-Handed';
+          rowTerms.push(dir);
+          headerText = dir;
+          break;
+        case 'track':
+          const trackLabel = filters.track==='Firm'?'Firm Conditions':'Wet Conditions';
+          rowTerms.push(trackLabel);
+          headerText = trackLabel;
+          break;
+        case 'season':
+          const seasonLabel = `${filters.season} Runner`;
+          rowTerms.push(seasonLabel);
+          headerText = seasonLabel;
+          break;
+        case 'weather':
+          const weatherLabel = `${capitalize(filters.weather)} Days`;
+          rowTerms.push(weatherLabel);
+          headerText = weatherLabel;
+          break;
+        case 'strategy':
+          rowTerms.push(`${filters.strategy} Corners`, `${filters.strategy} Straightaways`, `${filters.strategy} Savvy`);
+          headerText = filters.strategy;
+          break;
+      }
+      renderFilterRow(catId, headerText, rowTerms, 0);
     }
   });
 
