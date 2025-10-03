@@ -36,5 +36,7 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git add docs/supports.json docs/skills.json docs/transformed_supports.json docs/archive/
-          git commit -m "Update supports and skills JSON with daily archive"
-          git push
+          git diff-index --quiet HEAD || git commit -m "Update supports and skills JSON with daily archive"
+          git push origin HEAD
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
