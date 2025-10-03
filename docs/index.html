@@ -20,12 +20,15 @@ body {
   justify-content: flex-start;
 }
 
+/* Cap container width to 1280px and center it */
 .container {
   display: flex;
   gap: 20px;
   align-items: flex-start;
   padding: 24px;
   width: 100%;
+  max-width: 1280px;  /* max width */
+  margin: 0 auto;     /* center horizontally */
 }
 
 .sidebar {
@@ -190,12 +193,12 @@ select {
   font-size: 16px;
 }
 
+/* Cards grid: always 6 columns */
 .cards {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap; /* no wrapping */
+  display: grid;
+  grid-template-columns: repeat(6, var(--card-w));
   gap: var(--gap);
-  overflow: hidden;   /* hide overflow for scrolling/pagination */
+  overflow: hidden;
 }
 
 .page-controls {
@@ -529,26 +532,28 @@ function renderSections(){
     [leftBtn,rightBtn].forEach(b=>{b.style.border='none';b.style.borderRadius='6px';b.style.background='#444';b.style.color='#fff';b.style.padding='4px 8px';b.style.opacity='0.4';b.style.pointerEvents='none';});
     controls.appendChild(leftBtn); controls.appendChild(rightBtn); section.appendChild(controls);
 
+    const CARDS_PER_PAGE = 6;
+
     function renderPage(page){
-      grid.innerHTML='';
-      const cardStyle=getComputedStyle(document.documentElement);
-      const cardW=parseInt(cardStyle.getPropertyValue('--card-w'))+parseInt(cardStyle.getPropertyValue('--gap'));
-      const cardsPerPage=Math.floor(grid.clientWidth/cardW)||1;
-      const startIdx=page*cardsPerPage;
-      const endIdx=startIdx+cardsPerPage;
-      matches.slice(startIdx,endIdx).forEach(card=>grid.appendChild(createCardElement(card)));
+      grid.innerHTML = '';
+      const startIdx = page * CARDS_PER_PAGE;
+      const endIdx = startIdx + CARDS_PER_PAGE;
+      const pageCards = matches.slice(startIdx, endIdx);
+      pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+      
+      // update buttons
+      const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+      leftBtn.style.display = totalPages > 1 ? 'inline-block' : 'none';
+      rightBtn.style.display = totalPages > 1 ? 'inline-block' : 'none';
+      leftBtn.style.opacity = page > 0 ? '1' : '0.4';
+      leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
+      rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
+      rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
 
-      const totalPages=Math.ceil(matches.length/cardsPerPage);
-      leftBtn.style.display=totalPages>1?'inline-block':'none';
-      rightBtn.style.display=totalPages>1?'inline-block':'none';
-      leftBtn.style.opacity=page>0?'1':'0.4';
-      leftBtn.style.pointerEvents=page>0?'auto':'none';
-      rightBtn.style.opacity=page<totalPages-1?'1':'0.4';
-      rightBtn.style.pointerEvents=page<totalPages-1?'auto':'none';
-
-      leftBtn.onclick=()=>{ sectionPages.set(pageKey,page-1); renderPage(page-1); };
-      rightBtn.onclick=()=>{ sectionPages.set(pageKey,page+1); renderPage(page+1); };
+      leftBtn.onclick = ()=>{ renderPage(page-1); sectionPages.set(pageKey,page-1); };
+      rightBtn.onclick = ()=>{ renderPage(page+1); sectionPages.set(pageKey,page+1); };
     }
+
 
     renderPage(currentPage);
     cardSections.appendChild(section);
