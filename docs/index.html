@@ -330,7 +330,8 @@ const cardSections = document.getElementById('cardSections');
 const slots = Array.from(document.querySelectorAll('.slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-const selectedCardIds = new Set();
+const selectedCards = new Map(); // slotIndex -> support_id
+const selectedCardIds = new Set(); // Tracks char_ids that are currently in slots
 const sectionPages = new Map(); // pagination per section
 const slotListeners = new Map();
 const SLOT_KEY = 'saved_slots';
@@ -385,7 +386,6 @@ function createCardElement(card){
   if(!HIDE.char_id) nameHtml += `<div style="font-size:10px;opacity:0.6;">ID: ${card.char_id}</div>`;
   if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
-  // Base card content
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
     <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
@@ -393,15 +393,33 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  // Handle click
-  el.addEventListener('click', ()=> {
-    const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
-    if(slot) removeFromSlot(slot, card);
-    else addToSlot(card);
+  el.addEventListener('click', () => {
+    const slotWithSameSupport = Array.from(slots).find(s => Number(s.dataset.supportId) === card.support_id);
+
+    if(slotWithSameSupport){
+        // Already in slot, remove
+        removeFromSlot(slotWithSameSupport, card);
+    } else {
+        // Check for same char_id in slots (different support_id)
+        const slotWithSameChar = Array.from(slots).find(s => Number(s.dataset.cardId) === card.char_id);
+        if(slotWithSameChar){
+            // Swap card in that slot
+            const oldCard = cardsData.find(c => c.support_id == slotWithSameChar.dataset.supportId);
+            removeFromSlot(slotWithSameChar, oldCard);
+            addToSlot(card, slotWithSameChar);
+        } else {
+            // Add to first free slot
+            addToSlot(card);
+        }
+    }
+
+    // Re-render to update dimming of duplicates
+    renderSections();
   });
 
-  // Duplicate support label at the top
-  if(selectedCardIds.has(card.char_id)){
+  // Dim duplicates if char_id is selected elsewhere (but not this exact support_id)
+  const isDuplicate = Array.from(slots).some(s => Number(s.dataset.cardId) === card.char_id && Number(s.dataset.supportId) !== card.support_id);
+  if(isDuplicate){
     el.classList.add('disabled');
 
     const dupLabel = document.createElement('div');
@@ -423,6 +441,7 @@ function createCardElement(card){
 
   return el;
 }
+
 
 /* ------------- Slot handling & persistence ------------- */
 function saveSlotsToLocalStorage() {
@@ -446,45 +465,56 @@ function loadSlotsFromLocalStorage() {
 }
 
 function addToSlot(card, targetSlot = null, save = true){
-  const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
-  if(!freeSlot) return;
+    const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
+    if(!freeSlot) return;
 
-  if(slotListeners.has(freeSlot)){
-    freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
-    slotListeners.delete(freeSlot);
-  }
+    // Update slot dataset
+    freeSlot.dataset.cardId = card.char_id;
+    freeSlot.dataset.supportId = card.support_id;
+    freeSlot.classList.add('has-card');
 
-  let skillsHTML = '';
-  if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-  if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
+    // Render content
+    const skillsHTML = getSkillsHTML(card);
+    freeSlot.innerHTML = `
+        <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png"></div>
+        <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png">
+        <div class="name">${escapeHtml(card.char_name)}</div>
+        <div class="skills">${skillsHTML}</div>
+    `;
 
-  freeSlot.dataset.cardId = card.char_id;
-  freeSlot.dataset.supportId = card.support_id; // <--- save unique identifier
-  freeSlot.classList.add('has-card');
-  freeSlot.innerHTML = `<div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div><img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}"><div class="name">${escapeHtml(card.char_name)}</div><div class="skills">${skillsHTML}</div>`;
+    // Update tracking
+    selectedCards.set(slots.indexOf(freeSlot), card.support_id);
+    selectedCardIds.add(card.char_id);
 
-  function slotClickHandler(){ removeFromSlot(freeSlot, card); }
-  freeSlot.addEventListener('click', slotClickHandler);
-  slotListeners.set(freeSlot, slotClickHandler);
+    // Clicking slot removes the card
+    freeSlot.onclick = () => removeFromSlot(freeSlot, card);
 
-  selectedCardIds.add(card.char_id);
-  if(save) saveSlotsToLocalStorage();
-  renderSections();
+    if(save) saveSlotsToLocalStorage();
+
+    renderSections(); // update duplicate dimming
 }
 
 
 function removeFromSlot(slotEl, card){
-  if(slotListeners.has(slotEl)){
-    slotEl.removeEventListener('click', slotListeners.get(slotEl));
-    slotListeners.delete(slotEl);
-  }
-  slotEl.classList.remove('has-card');
-  delete slotEl.dataset.cardId;
-  slotEl.innerHTML='<div class="placeholder">Empty</div>';
-  selectedCardIds.delete(Number(card.char_id));
-  saveSlotsToLocalStorage();
-  renderSections();
+    slotEl.classList.remove('has-card');
+    delete slotEl.dataset.cardId;
+    delete slotEl.dataset.supportId;
+    slotEl.innerHTML = '<div class="placeholder">Empty</div>';
+
+    // Remove from selectedCards
+    selectedCards.forEach((supportId, idx) => {
+        if(supportId == card.support_id) selectedCards.delete(idx);
+    });
+
+    // Remove char_id if no more slots have this char
+    const stillSelected = Array.from(slots).some(s => Number(s.dataset.cardId) === card.char_id);
+    if(!stillSelected) selectedCardIds.delete(card.char_id);
+
+    saveSlotsToLocalStorage();
+    renderSections(); // update duplicate dimming
 }
+
+
 
 /* ------------- Clear buttons ------------- */
 clearAllBtn.addEventListener('click', ()=>{
