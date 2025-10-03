@@ -48,8 +48,5 @@ jobs:
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
           branch: main
-          file_pattern: |
-            docs/supports.json
-            docs/skills.json
-            docs/transformed_supports.json
-            docs/archive/*
+          file_pattern: "docs/**"
+          add_options: ${{ github.event_name == 'workflow_dispatch' && '-A' || '' }}
