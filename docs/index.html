@@ -395,7 +395,8 @@ function createCardElement(card){
 
 /* ------------- Slot handling & persistence ------------- */
 function saveSlotsToLocalStorage() {
-  const slotData = slots.map(s => s.dataset.cardId || null);
+  // Save support_id for each slot instead of just char_id
+  const slotData = slots.map(s => s.dataset.supportId || null);
   localStorage.setItem(SLOT_KEY, JSON.stringify(slotData));
 }
 
@@ -404,9 +405,10 @@ function loadSlotsFromLocalStorage() {
   if (!saved) return;
   const slotData = JSON.parse(saved);
 
-  slotData.forEach((cardId, index) => {
-    if (cardId) {
-      const card = cardsData.find(c => String(c.char_id) === String(cardId));
+  slotData.forEach((supportId, index) => {
+    if (supportId) {
+      // Find card by support_id (unique)
+      const card = cardsData.find(c => String(c.support_id) === String(supportId));
       if (card) addToSlot(card, slots[index], false); // false = don't save again
     }
   });
@@ -426,6 +428,7 @@ function addToSlot(card, targetSlot = null, save = true){
   if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
 
   freeSlot.dataset.cardId = card.char_id;
+  freeSlot.dataset.supportId = card.support_id; // <--- save unique identifier
   freeSlot.classList.add('has-card');
   freeSlot.innerHTML = `<div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div><img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}"><div class="name">${escapeHtml(card.char_name)}</div><div class="skills">${skillsHTML}</div>`;
 
@@ -437,6 +440,7 @@ function addToSlot(card, targetSlot = null, save = true){
   if(save) saveSlotsToLocalStorage();
   renderSections();
 }
+
 
 function removeFromSlot(slotEl, card){
   if(slotListeners.has(slotEl)){
