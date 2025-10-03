@@ -223,7 +223,7 @@ select {
 /* ARROWS */
 .page-controls {
   position: absolute;
-  top: -26px; /* move up near header */
+  top: -24px; /* move up near header */
   right: 0;
   display: flex;
   gap: 6px;
@@ -613,14 +613,14 @@ function renderSections(){
     // pagination controls
     const controls = document.createElement('div');
     controls.className = 'page-controls';
-    const leftBtn = document.createElement('button'); leftBtn.textContent = '◀';
-    const rightBtn = document.createElement('button'); rightBtn.textContent = '▶';
+    const leftBtn = document.createElement('button'); leftBtn.textContent = '<';
+    const rightBtn = document.createElement('button'); rightBtn.textContent = '>';
     [leftBtn, rightBtn].forEach(b => {
       b.style.border = 'none';
       b.style.borderRadius = '6px';
       b.style.background = '#444';
       b.style.color = '#fff';
-      b.style.padding = '4px 8px';
+      b.style.padding = '2px 16px';
       b.style.opacity = '0.4';
       b.style.pointerEvents = 'none';
     });
