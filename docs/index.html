@@ -321,7 +321,7 @@ select {
 const JSON_FILE = "transformed_supports.json";
 const HIDE = { char_id: false, url_name: true };
 
-/* ------------- STATE -------------- */
+/* ------------- STATE ------------- */
 let cardsData = [];
 const cardSections = document.getElementById('cardSections');
 const slots = Array.from(document.querySelectorAll('.slot'));
@@ -330,33 +330,34 @@ const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
 const sectionPages = new Map(); // pagination per section
 const slotListeners = new Map();
+const SLOT_KEY = 'saved_slots';
+const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
 
 /* ------------- UTIL ------------- */
 function normalizeSkill(s){ return String(s||'').replace(/[◎○]/g,'').trim().toLowerCase(); }
 function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
 function getLengthCategory(distance){ if(distance<=1400)return'Sprint'; if(distance<=1800)return'Mile'; if(distance<=2400)return'Medium'; return'Long'; }
 function isStandardDistance(distance){ return distance%400===0; }
-
 const typeMap = { "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","support":"05","group":"06" };
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 /* ------------- Fetch JSON ------------- */
 fetch(JSON_FILE)
   .then(r=>{ if(!r.ok) throw new Error('Failed to fetch JSON: '+r.status); return r.json(); })
-  
-.then(data=>{
-  cardsData = data.map(card=>({
-    ...card,
-    char_id: card.char_id,
-    char_name: card.char_name,
-    hint_skills: card.hint_skills || [],
-    event_skills: card.event_skills || [],
-    type: (card.type || '').toLowerCase()
-  }));
+  .then(data=>{
+    cardsData = data.map(card=>({
+      ...card,
+      char_id: card.char_id,
+      char_name: card.char_name,
+      hint_skills: card.hint_skills || [],
+      event_skills: card.event_skills || [],
+      type: (card.type || '').toLowerCase()
+    }));
 
-  setupFilterPersistence();  // restore filters first
-  renderSections();          // now render with them
-})
-
+    setupFilterPersistence();  // restore filters first
+    loadSlotsFromLocalStorage(); // restore slots next
+    renderSections();
+  })
   .catch(err=>{
     console.error('Could not load JSON:', err);
     cardSections.innerHTML='<div style="opacity:0.7;padding:12px;">Error loading data. Check JSON file path and content in console.</div>';
@@ -391,11 +392,28 @@ function createCardElement(card){
   if(selectedCardIds.has(card.char_id)) el.classList.add('disabled');
   return el;
 }
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-/* ------------- Slot handling ------------- */
-function addToSlot(card){
-  const freeSlot = slots.find(s=>!s.dataset.cardId);
+/* ------------- Slot handling & persistence ------------- */
+function saveSlotsToLocalStorage() {
+  const slotData = slots.map(s => s.dataset.cardId || null);
+  localStorage.setItem(SLOT_KEY, JSON.stringify(slotData));
+}
+
+function loadSlotsFromLocalStorage() {
+  const saved = localStorage.getItem(SLOT_KEY);
+  if (!saved) return;
+  const slotData = JSON.parse(saved);
+
+  slotData.forEach((cardId, index) => {
+    if (cardId) {
+      const card = cardsData.find(c => String(c.char_id) === String(cardId));
+      if (card) addToSlot(card, slots[index], false); // false = don't save again
+    }
+  });
+}
+
+function addToSlot(card, targetSlot = null, save = true){
+  const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
   if(!freeSlot) return;
 
   if(slotListeners.has(freeSlot)){
@@ -416,8 +434,10 @@ function addToSlot(card){
   slotListeners.set(freeSlot, slotClickHandler);
 
   selectedCardIds.add(card.char_id);
+  if(save) saveSlotsToLocalStorage();
   renderSections();
 }
+
 function removeFromSlot(slotEl, card){
   if(slotListeners.has(slotEl)){
     slotEl.removeEventListener('click', slotListeners.get(slotEl));
@@ -427,6 +447,7 @@ function removeFromSlot(slotEl, card){
   delete slotEl.dataset.cardId;
   slotEl.innerHTML='<div class="placeholder">Empty</div>';
   selectedCardIds.delete(Number(card.char_id));
+  saveSlotsToLocalStorage();
   renderSections();
 }
 
@@ -442,20 +463,22 @@ clearAllBtn.addEventListener('click', ()=>{
     delete slot.dataset.cardId;
     slot.innerHTML='<div class="placeholder">Empty</div>';
   });
+  localStorage.removeItem(SLOT_KEY);
   renderSections();
 });
 
 clearFiltersBtn.addEventListener('click', ()=>{
-  ['racecourse','length','direction','track','season','weather','strategy'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
+  FILTER_KEYS.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.value='';
     localStorage.removeItem('filter_'+id);
   });
   renderSections();
 });
 
-/* ------------- Persistence ------------- */
+/* ------------- Filter persistence ------------- */
 function setupFilterPersistence(){
-  ['racecourse','length','direction','track','season','weather','strategy'].forEach(id=>{
+  FILTER_KEYS.forEach(id=>{
     const sel=document.getElementById(id); if(!sel)return;
     const saved=localStorage.getItem('filter_'+id); if(saved) sel.value=saved;
     sel.addEventListener('change', ()=>{
