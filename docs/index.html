@@ -567,9 +567,9 @@ function setupSkillSearchPersistence(){
   });
 }
 
-/* ------------- Highlight skills inside cards when searching ------------- */
+/* ------------- Highlight skills inside cards and search rows when searching ------------- */
 function highlightSkillsInCards() {
-  // remove old highlights
+  // remove old highlights everywhere
   document.querySelectorAll('.skill.highlighted').forEach(el => el.classList.remove('highlighted'));
 
   // gather search terms
@@ -579,8 +579,8 @@ function highlightSkillsInCards() {
 
   if (searchTerms.length === 0) return;
 
-  // loop all skill divs and mark those containing the search term
-  document.querySelectorAll('.card .skill').forEach(skillEl => {
+  // loop all skill divs everywhere (cards + search results)
+  document.querySelectorAll('.skill').forEach(skillEl => {
     const text = skillEl.textContent.toLowerCase();
     if (searchTerms.some(term => text.includes(term))) {
       skillEl.classList.add('highlighted');
