@@ -740,6 +740,66 @@ function renderSections(){
     cardSections.appendChild(section);
   }
 
+  /* ---------------- HIGHLIGHT SKILLS BASED ON FILTER ---------------- */
+function highlightSkills(filters) {
+  // Remove existing highlights
+  document.querySelectorAll('.skill').forEach(skill => {
+    skill.style.background = '#eef2ff';
+    skill.style.color = '#000';
+  });
+
+  // Build highlight rules
+  const highlights = [];
+
+  if (filters.racecourse) {
+    highlights.push({
+      color: 'red',
+      terms: [`${filters.racecourse} Racecourse`]
+    });
+  }
+
+  if (filters.length) {
+    const dist = parseInt(filters.length);
+    const label = getLengthCategory(dist);
+    const distType = isStandardDistance(dist)
+      ? 'Standard Distance'
+      : 'Non-Standard Distance';
+    highlights.push({
+      color: 'orange',
+      terms: [`${label} Corners`, `${label} Straightaways`, distType]
+    });
+  }
+
+  // Apply highlights
+  highlights.forEach(rule => {
+    const normalized = rule.terms.map(normalizeSkill);
+    document.querySelectorAll('.skill').forEach(skill => {
+      const text = normalizeSkill(skill.textContent);
+      if (normalized.some(term => text === term)) {
+        skill.style.background = rule.color;
+        skill.style.color = '#fff';
+      }
+    });
+  });
+}
+
+// 🔹 Patch renderSections to include highlight step
+const _origRenderSections = renderSections;
+renderSections = function() {
+  _origRenderSections.apply(this, arguments);
+  const filters = {
+    racecourse: document.getElementById('racecourse').value || '',
+    length: document.getElementById('length').value || '',
+    direction: document.getElementById('direction').value || '',
+    track: document.getElementById('track').value || '',
+    season: document.getElementById('season').value || '',
+    weather: document.getElementById('weather').value || '',
+    strategy: document.getElementById('strategy').value || ''
+  };
+  highlightSkills(filters);
+};
+
+
 
 // Auto-update whenever a filter dropdown changes
 ['racecourse','length','direction','track','season','weather','strategy']
