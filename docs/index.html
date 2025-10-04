@@ -510,11 +510,11 @@ function createPresetLabel(cup) {
   const date = formatPresetDate(cup.start_date);
   const distance = cup.distance === "Mile" ? "MILE" : cup.distance;
   const trackType = cup.aptitude === "Turf" ? "Turf" : "Dirt";
+  const length = cup.length.replace(/\s*m/g, 'm'); // Remove space before 'm'
   
-  return `${date} — ${cup.title} — ${cup.racecourse} ${trackType} ${cup.length} ${cup.track_conditions}`;
+  return `${date} — ${cup.title} — ${cup.racecourse} ${trackType} ${length} ${cup.track_conditions}`;
 }
 
-// Fetch and populate presets
 // Fetch and populate presets
 function setupPresets() {
   const presetsSelect = document.getElementById('presets');
