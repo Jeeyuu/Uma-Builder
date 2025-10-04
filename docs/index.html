@@ -510,7 +510,7 @@ function createPresetLabel(cup) {
   const date = formatPresetDate(cup.start_date);
   const distance = cup.distance === "Mile" ? "MILE" : cup.distance;
   const trackType = cup.aptitude === "Turf" ? "Turf" : "Dirt";
-  const length = cup.length.replace(' m', 'm'); // Remove space between number and 'm'
+  
   return `${date} — ${cup.title} — ${cup.racecourse} ${trackType} ${cup.length} ${cup.track_conditions}`;
 }
 
