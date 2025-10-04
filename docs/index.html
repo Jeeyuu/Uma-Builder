@@ -315,17 +315,20 @@ select {
         <option>Front Runner</option><option>Pace Chaser</option><option>Late Surger</option><option>End Closer</option>
       </select>
     </div>
-        <!-- Skill Search Bars -->
-    <div id="skillSearchGroup">
-      <label style="font-weight:700; margin-bottom:4px;">Skill Search</label>
-      <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill 1">
-      <input type="text" id="skillSearch2" class="skill-search" placeholder="Search skill 2">
-      <input type="text" id="skillSearch3" class="skill-search" placeholder="Search skill 3">
-      <input type="text" id="skillSearch4" class="skill-search" placeholder="Search skill 4">
-      <input type="text" id="skillSearch5" class="skill-search" placeholder="Search skill 5">
-    </div>
-    <button id="clearFiltersBtn" class="clear-all" style="margin-top:auto;">Clear Filters</button>
-  </div>
+
+<!-- Move clearFiltersBtn above Skill Search -->
+<button id="clearFiltersBtn" class="clear-all" style="margin-bottom: 8px;">Clear Filters</button>
+
+<!-- Skill Search Bars -->
+<div id="skillSearchGroup">
+  <label style="font-weight:700; margin-bottom:4px;">Skill Search</label>
+  <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill 1">
+  <input type="text" id="skillSearch2" class="skill-search" placeholder="Search skill 2">
+  <input type="text" id="skillSearch3" class="skill-search" placeholder="Search skill 3">
+  <input type="text" id="skillSearch4" class="skill-search" placeholder="Search skill 4">
+  <input type="text" id="skillSearch5" class="skill-search" placeholder="Search skill 5">
+</div>
+
 
   <div class="main-content">
     <div class="slots-header">
@@ -528,14 +531,19 @@ clearAllBtn.addEventListener('click', ()=>{
   renderSections();
 });
 
-clearFiltersBtn.addEventListener('click', ()=>{
-  FILTER_KEYS.forEach(id=>{
+clearFiltersBtn.addEventListener('click', () => {
+  FILTER_KEYS.forEach(id => {
     const el = document.getElementById(id);
-    if(el) el.value='';
-    localStorage.removeItem('filter_'+id);
+    if (el) el.value = '';
+    localStorage.removeItem('filter_' + id);
   });
+
+  // Do NOT clear Skill Search inputs
+  // Re-render sections to reflect only dropdown clearing
+  sectionPages.clear();
   renderSections();
 });
+
 
 /* ------------- Filter persistence ------------- */
 function setupFilterPersistence(){
@@ -572,21 +580,37 @@ function highlightSkillsInCards() {
   // remove old highlights
   document.querySelectorAll('.skill.highlighted').forEach(el => el.classList.remove('highlighted'));
 
-  // gather search terms
-  const searchTerms = SKILL_SEARCH_KEYS
+  // gather dropdown search terms
+  const filters = {
+    racecourse: document.getElementById('racecourse').value || '',
+    length: document.getElementById('length').value || '',
+    direction: document.getElementById('direction').value || '',
+    track: document.getElementById('track').value || '',
+    season: document.getElementById('season').value || '',
+    weather: document.getElementById('weather').value || '',
+    strategy: document.getElementById('strategy').value || ''
+  };
+
+  const filterTerms = buildFilterTerms(filters).map(normalizeSkill);
+
+  // gather Skill Search terms
+  const skillTerms = SKILL_SEARCH_KEYS
     .map(id => document.getElementById(id)?.value.trim().toLowerCase())
     .filter(Boolean);
 
-  if (searchTerms.length === 0) return;
+  const allTerms = [...filterTerms, ...skillTerms];
+
+  if (allTerms.length === 0) return;
 
   // loop all skill divs and mark those containing the search term
   document.querySelectorAll('.card .skill').forEach(skillEl => {
-    const text = skillEl.textContent.toLowerCase();
-    if (searchTerms.some(term => text.includes(term))) {
+    const text = normalizeSkill(skillEl.textContent);
+    if (allTerms.some(term => text.includes(term))) {
       skillEl.classList.add('highlighted');
     }
   });
 }
+
 
 
 /* ------------- FILTER BUILDING & MATCHING ------------- */
@@ -620,36 +644,39 @@ function filterCardsWithRules(cards,filters){
 }
 
 /* ------------- Rendering sections & pagination ------------- */
-function renderSections(){
+function renderSections() {
   cardSections.innerHTML='';
-  const filters={
-    racecourse: document.getElementById('racecourse').value||'',
-    length: document.getElementById('length').value||'',
-    direction: document.getElementById('direction').value||'',
-    track: document.getElementById('track').value||'',
-    season: document.getElementById('season').value||'',
-    weather: document.getElementById('weather').value||'',
-    strategy: document.getElementById('strategy').value||''
-  };
-  const anyActive = Object.values(filters).some(v => v);
 
-  if(!anyActive){
+  const filters = {
+    racecourse: document.getElementById('racecourse').value || '',
+    length: document.getElementById('length').value || '',
+    direction: document.getElementById('direction').value || '',
+    track: document.getElementById('track').value || '',
+    season: document.getElementById('season').value || '',
+    weather: document.getElementById('weather').value || '',
+    strategy: document.getElementById('strategy').value || ''
+  };
+
+  const anyDropdownActive = Object.values(filters).some(v => v);
+  const anySkillActive = SKILL_SEARCH_KEYS.some(key => document.getElementById(key)?.value.trim());
+
+  if(!anyDropdownActive && !anySkillActive) {
     const section = document.createElement('div');
     section.className = 'card-section';
     const msg = document.createElement('div');
     msg.style.opacity = '0.7';
     msg.style.padding = '0px';
-    msg.textContent = 'Pick a label on the left to show matching cards.';
+    msg.textContent = 'Pick a label on the left or type a skill to show matching cards.';
     section.appendChild(msg);
     cardSections.appendChild(section);
     return;
   }
 
-  const filterOrder=['racecourse','length','direction','track','season','weather','strategy'];
-    filterOrder.forEach(catId => {
+  // Render dropdown filter rows
+  const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
+  filterOrder.forEach(catId => {
     if (!filters[catId]) return;
 
-    // handle length separately
     if (catId === 'length') {
       const dist = parseInt(filters.length);
       const label = getLengthCategory(dist);
@@ -663,53 +690,27 @@ function renderSections(){
 
     } else if (catId === 'strategy') {
       const strat = filters.strategy;
-
-      // Only these three rows: Corners, Straightaways, Savvy
       const stratRows = [
         { title: `${strat} Corners`, term: `${strat} Corners` },
         { title: `${strat} Straightaways`, term: `${strat} Straightaways` },
         { title: `${strat} Savvy`, term: `${strat} Savvy` }
       ];
-
-      stratRows.forEach((row, idx) => {
-        renderFilterRow(catId, row.title, [row.term], idx);
-      });
+      stratRows.forEach((row, idx) => renderFilterRow(catId, row.title, [row.term], idx));
 
     } else {
       let rowTerms = [], headerText = '';
-
       switch (catId) {
-        case 'racecourse':
-          rowTerms.push(`${filters.racecourse} Racecourse`);
-          headerText = `${filters.racecourse} Racecourse`;
-          break;
-        case 'direction':
-          const dir = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
-          rowTerms.push(dir);
-          headerText = dir;
-          break;
-        case 'track':
-          const trackLabel = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions';
-          rowTerms.push(trackLabel);
-          headerText = trackLabel;
-          break;
-        case 'season':
-          const seasonLabel = `${filters.season} Runner`;
-          rowTerms.push(seasonLabel);
-          headerText = seasonLabel;
-          break;
-        case 'weather':
-          const weatherLabel = `${capitalize(filters.weather)} Days`;
-          rowTerms.push(weatherLabel);
-          headerText = weatherLabel;
-          break;
+        case 'racecourse': rowTerms.push(`${filters.racecourse} Racecourse`); headerText = `${filters.racecourse} Racecourse`; break;
+        case 'direction': const dir = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed'; rowTerms.push(dir); headerText = dir; break;
+        case 'track': const trackLabel = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions'; rowTerms.push(trackLabel); headerText = trackLabel; break;
+        case 'season': rowTerms.push(`${filters.season} Runner`); headerText = `${filters.season} Runner`; break;
+        case 'weather': rowTerms.push(`${capitalize(filters.weather)} Days`); headerText = `${capitalize(filters.weather)} Days`; break;
       }
-
       renderFilterRow(catId, headerText, rowTerms, 0);
     }
   });
 
-  // --- Append Skill Search rows AFTER all filters ---
+  // Render Skill Search rows independently
   SKILL_SEARCH_KEYS.forEach((key, i) => {
     const val = document.getElementById(key)?.value.trim();
     if (!val) return;
@@ -723,7 +724,10 @@ function renderSections(){
     const header = `Skill Search ${i + 1}: "${val}"`;
     renderSkillSearchRow(key, header, matches, i);
   });
+
+  highlightSkillsInCards(); // reapply highlight after rendering
 }
+
 
   function renderFilterRow(catId,headerText,termList,rowIndex){
     const section = document.createElement('div');
