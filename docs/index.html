@@ -67,9 +67,64 @@ body {
 }
 
 /* ---------- HIGHLIGHT STYLES ---------- */
+.skill.highlighted {
+  /* Orange outline removed - only colored background remains */
+}
+
 .skill.search-highlighted {
   background: #ff4444 !important;
   color: white !important;
+}
+
+/* ---------- PAGINATION CONTROLS ---------- */
+.card-section {
+  position: relative;
+  width: 100%;
+}
+
+.card-section-header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.card-section-header h2 {
+  margin: 0;
+  flex-grow: 1;
+}
+
+.page-controls {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.page-controls button {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  min-width: 32px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-controls button:hover:not(:disabled) {
+  background: #f5f5f5;
+}
+
+.page-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 
@@ -229,52 +284,6 @@ body {
   width: 100%;
   gap: 20px;
 }
-
-/* ---------- PAGINATION CONTROLS ---------- */
-.page-controls {
-  position: absolute;
-  top: -40px; /* Adjust this value to align with your header */
-  right: 0;
-  display: flex;
-  gap: 4px;
-  z-index: 10;
-}
-
-.page-controls button {
-  border: 1px solid #ddd;
-  background: #fff;
-  color: #111;
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  min-width: 32px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.page-controls button:hover:not(:disabled) {
-  background: #f5f5f5;
-}
-
-.page-controls button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.card-section {
-  position: relative;
-  width: 100%;
-}
-
-.card-grid-wrapper {
-  position: relative;
-  width: 100%;
-}
-
 </style>
 
 </head>
@@ -730,7 +739,7 @@ function highlightSkills() {
       return; // Search terms take precedence
     }
     
-    // Check dropdown filter terms (orange outline)
+    // Check dropdown filter terms (colored background)
     for (const { term, color } of dropdownTerms) {
       if (skillText === normalizeSkill(term)) {
         skill.style.background = color;
@@ -862,18 +871,12 @@ function renderSections() {
     const section = document.createElement('div');
     section.className = 'card-section';
 
+    const headerContainer = document.createElement('div');
+    headerContainer.className = 'card-section-header';
+
     const header = document.createElement('h2');
     header.textContent = headerText;
-    section.appendChild(header);
-
-    // create wrapper
-    const wrapper = document.createElement('div');
-    wrapper.className = 'card-grid-wrapper'; // new class
-    wrapper.style.position = 'relative'; // ensure absolute positioning works
-
-    const grid = document.createElement('div');
-    grid.className = 'cards';
-    wrapper.appendChild(grid);
+    headerContainer.appendChild(header);
 
     // pagination controls
     const controls = document.createElement('div');
@@ -887,10 +890,17 @@ function renderSections() {
     controls.appendChild(leftBtn);
     controls.appendChild(rightBtn);
 
-    // append controls to wrapper instead of section
-    wrapper.appendChild(controls);
+    headerContainer.appendChild(controls);
+    section.appendChild(headerContainer);
 
-    // finally append wrapper to section
+    // create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.className = 'card-grid-wrapper';
+    const grid = document.createElement('div');
+    grid.className = 'cards';
+    wrapper.appendChild(grid);
+
+    // append wrapper to section
     section.appendChild(wrapper);
 
     // normalize filter terms
@@ -958,21 +968,15 @@ function renderSections() {
   const section = document.createElement('div');
   section.className = 'card-section';
 
-  // Header (highlighted red)
+  const headerContainer = document.createElement('div');
+  headerContainer.className = 'card-section-header';
+
   const header = document.createElement('h2');
   header.className = 'skill-search-header';
   header.textContent = headerText;
-  section.appendChild(header);
+  headerContainer.appendChild(header);
 
-  // Wrapper + grid
-  const wrapper = document.createElement('div');
-  wrapper.className = 'card-grid-wrapper';
-  wrapper.style.position = 'relative';
-
-  const grid = document.createElement('div');
-  grid.className = 'cards';
-  wrapper.appendChild(grid);
-
+  // pagination controls
   const controls = document.createElement('div');
   controls.className = 'page-controls';
   const leftBtn = document.createElement('button');
@@ -983,9 +987,18 @@ function renderSections() {
   rightBtn.disabled = true;
   controls.appendChild(leftBtn);
   controls.appendChild(rightBtn);
-  wrapper.appendChild(controls);
 
+  headerContainer.appendChild(controls);
+  section.appendChild(headerContainer);
+
+  // Wrapper + grid
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card-grid-wrapper';
+  const grid = document.createElement('div');
+  grid.className = 'cards';
+  wrapper.appendChild(grid);
   section.appendChild(wrapper);
+
   cardSections.appendChild(section);
 
   if (matches.length === 0) {
