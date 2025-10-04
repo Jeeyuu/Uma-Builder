@@ -297,6 +297,14 @@ body {
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="filter-group">
+        <label for="presets">Presets</label>
+        <select id="presets">
+          <option value="">-- Select --</option>
+          <!-- Options will be populated by JavaScript -->
+        </select>
+      </div>
+
+      <div class="filter-group">
         <label for="racecourse">Racecourse</label>
         <select id="racecourse">
           <option value="">-- Select --</option>
@@ -477,6 +485,7 @@ fetch(JSON_FILE)
 
     setupFilterPersistence();  // restore filters first
     setupSkillSearchPersistence();
+    setupPresets(); // Initialize presets
     loadSlotsFromLocalStorage(); // restore slots next
     renderSections();
   })
@@ -484,6 +493,91 @@ fetch(JSON_FILE)
     console.error('Could not load JSON:', err);
     cardSections.innerHTML='<div style="opacity:0.7;padding:12px;">Error loading data. Check JSON file path and content in console.</div>';
   });
+
+/* ------------- PRESETS ------------- */
+const PRESETS_JSON_FILE = "champions_meeting.json";
+
+// Function to format date for display
+function formatPresetDate(dateString) {
+  const date = new Date(dateString);
+  const month = date.toLocaleString('en-US', { month: 'short' });
+  const year = date.getFullYear();
+  return `${month} ${year}`;
+}
+
+// Function to create shortened preset label
+function createPresetLabel(cup) {
+  const date = formatPresetDate(cup.start_date);
+  const distance = cup.distance === "Mile" ? "MILE" : cup.distance;
+  const trackType = cup.aptitude === "Turf" ? "Turf" : "Dirt";
+  
+  return `${date} — ${cup.title} — ${cup.racecourse} ${trackType} ${cup.length} ${cup.track_conditions}`;
+}
+
+// Fetch and populate presets
+function setupPresets() {
+  const presetsSelect = document.getElementById('presets');
+  if (!presetsSelect) return;
+
+  fetch(PRESETS_JSON_FILE)
+    .then(response => {
+      if (!response.ok) throw new Error('Failed to fetch presets JSON');
+      return response.json();
+    })
+    .then(data => {
+      // Clear existing options except the first one
+      presetsSelect.innerHTML = '<option value="">-- Select --</option>';
+      
+      // Add each cup as an option
+      data.cups.forEach(cup => {
+        const option = document.createElement('option');
+        option.value = JSON.stringify(cup); // Store full cup data as value
+        option.textContent = createPresetLabel(cup);
+        presetsSelect.appendChild(option);
+      });
+      
+      // Add event listener for preset selection
+      presetsSelect.addEventListener('change', function() {
+        if (this.value) {
+          const cup = JSON.parse(this.value);
+          applyPreset(cup);
+        }
+      });
+    })
+    .catch(err => {
+      console.error('Could not load presets:', err);
+      const option = document.createElement('option');
+      option.textContent = 'Error loading presets';
+      option.disabled = true;
+      presetsSelect.appendChild(option);
+    });
+}
+
+// Function to apply preset to all filters
+function applyPreset(cup) {
+  // Map cup data to filter values
+  document.getElementById('racecourse').value = cup.racecourse;
+  document.getElementById('length').value = cup.length.replace(' m', '');
+  document.getElementById('direction').value = cup.direction;
+  document.getElementById('track').value = cup.track_conditions;
+  document.getElementById('season').value = cup.season;
+  document.getElementById('weather').value = cup.weather;
+  document.getElementById('strategy').value = ''; // Reset strategy as it's not in preset
+  
+  // Save to localStorage and trigger re-render
+  FILTER_KEYS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value) {
+      localStorage.setItem('filter_' + id, el.value);
+    }
+  });
+  
+  sectionPages.clear();
+  renderSections();
+}
+
+// Add presets to filter keys for persistence
+FILTER_KEYS.push('presets');
 
 /* ------------- Card creation ------------- */
 function createCardElement(card){
@@ -628,8 +722,11 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('filter_' + id);
   });
 
+  // Also clear the presets dropdown
+  const presetsSelect = document.getElementById('presets');
+  if (presetsSelect) presetsSelect.value = '';
+
   // Do NOT clear Skill Search inputs
-  // Re-render sections to reflect only dropdown clearing
   sectionPages.clear();
   renderSections();
 });
@@ -638,10 +735,10 @@ clearFiltersBtn.addEventListener('click', () => {
 /* ------------- Filter persistence ------------- */
 function setupFilterPersistence(){
   FILTER_KEYS.forEach(id=>{
-    const sel=document.getElementById(id); if(!sel)return;
-    const saved=localStorage.getItem('filter_'+id); if(saved) sel.value=saved;
-    sel.addEventListener('change', ()=>{
-      localStorage.setItem('filter_'+id, sel.value);
+    const el=document.getElementById(id); if(!el)return;
+    const saved=localStorage.getItem('filter_'+id); if(saved) el.value=saved;
+    el.addEventListener('change', ()=>{
+      localStorage.setItem('filter_'+id, el.value);
       sectionPages.clear();
       renderSections();
     });
