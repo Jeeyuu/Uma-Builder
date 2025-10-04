@@ -740,20 +740,20 @@ function renderSections(){
     cardSections.appendChild(section);
   }
 
-  /* ---------------- HIGHLIGHT SKILLS BASED ON FILTER (matches your filter logic) ---------------- */
+  /* ---------------- HIGHLIGHT SKILLS BASED ON FILTER (custom colors + black text) ---------------- */
 (function(){
-  const textColorMap = {
-    red: '#fff',
-    orange: '#fff',
-    yellow: '#000', // keep black on yellow for readability
-    green: '#fff',
-    blue: '#fff',
-    purple: '#fff',
-    pink: '#000'    // pink can be light, use black
+  const colorMap = {
+    racecourse: '#ff7792',
+    length: '#ffae77',
+    direction: '#ffff77',
+    track: '#77ff92',
+    season: '#77c9ff',
+    weather: '#c977ff',
+    strategy: '#ff77e4'
   };
 
   function highlightSkills(filters) {
-    // reset all skills to default appearance
+    // Reset all skill backgrounds
     document.querySelectorAll('.skill').forEach(skill => {
       skill.style.background = '#eef2ff';
       skill.style.color = '#000';
@@ -761,92 +761,90 @@ function renderSections(){
 
     const rules = [];
 
-    // RACECOURSE -> "Tokyo Racecourse", etc. (RED)
+    // RACECOURSE
     if (filters.racecourse) {
       rules.push({
-        color: 'red',
+        color: colorMap.racecourse,
         terms: [`${filters.racecourse} Racecourse`]
       });
     }
 
-    // LENGTH -> e.g. "Mile Corners", "Mile Straightaways", "Standard Distance" (ORANGE)
+    // LENGTH
     if (filters.length) {
       const dist = parseInt(filters.length, 10);
-      const label = getLengthCategory(dist); // uses your existing function
+      const label = getLengthCategory(dist);
       const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
       rules.push({
-        color: 'orange',
+        color: colorMap.length,
         terms: [`${label} Corners`, `${label} Straightaways`, distType]
       });
     }
 
-    // DIRECTION -> Right-Handed / Left-Handed (YELLOW)
+    // DIRECTION
     if (filters.direction) {
       const dirTerm = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
       rules.push({
-        color: 'yellow',
+        color: colorMap.direction,
         terms: [dirTerm]
       });
     }
 
-    // TRACK CONDITIONS -> Firm Conditions / Wet Conditions (GREEN)
+    // TRACK CONDITIONS
     if (filters.track) {
       const trackTerm = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions';
       rules.push({
-        color: 'green',
+        color: colorMap.track,
         terms: [trackTerm]
       });
     }
 
-    // SEASON -> "Spring Runner", "Summer Runner", ... (BLUE)
+    // SEASON
     if (filters.season) {
       rules.push({
-        color: 'blue',
+        color: colorMap.season,
         terms: [`${filters.season} Runner`]
       });
     }
 
-    // WEATHER -> "Sunny Days", "Cloudy Days", ... (PURPLE)
+    // WEATHER
     if (filters.weather) {
       rules.push({
-        color: 'purple',
+        color: colorMap.weather,
         terms: [`${capitalize(filters.weather)} Days`]
       });
     }
 
-    // STRATEGY -> "Front Runner Corners", "Front Runner Straightaways", "Front Runner Savvy" (PINK)
+    // STRATEGY
     if (filters.strategy) {
       const s = filters.strategy;
       rules.push({
-        color: 'pink',
+        color: colorMap.strategy,
         terms: [`${s} Corners`, `${s} Straightaways`, `${s} Savvy`]
       });
     }
 
-    // normalize rule terms once
+    // Normalize and apply highlights
     const normalizedRules = rules.map(r => ({
       color: r.color,
       terms: r.terms.map(normalizeSkill)
     }));
 
-    // apply highlights with rule order priority (earlier rule wins)
     document.querySelectorAll('.skill').forEach(skill => {
       const txt = normalizeSkill(skill.textContent || '');
       for (const r of normalizedRules) {
         if (r.terms.includes(txt)) {
           skill.style.background = r.color;
-          skill.style.color = textColorMap[r.color] || '#fff';
-          break; // stop at first matched rule to avoid overwrite
+          skill.style.color = '#000';
+          break;
         }
       }
     });
   }
 
-  // Patch renderSections to run highlight after rendering (keeps existing behavior intact)
+  // Patch renderSections to reapply highlighting after rendering
   const _origRenderSections = window.renderSections;
   window.renderSections = function() {
     _origRenderSections.apply(this, arguments);
-
     const filters = {
       racecourse: document.getElementById('racecourse').value || '',
       length: document.getElementById('length').value || '',
@@ -856,12 +854,9 @@ function renderSections(){
       weather: document.getElementById('weather').value || '',
       strategy: document.getElementById('strategy').value || ''
     };
-
     highlightSkills(filters);
   };
 })();
-
-
 
 // Auto-update whenever a filter dropdown changes
 ['racecourse','length','direction','track','season','weather','strategy']
