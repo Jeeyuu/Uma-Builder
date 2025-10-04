@@ -795,23 +795,8 @@ function renderSections() {
       const startIdx = page * CARDS_PER_PAGE;
       const endIdx = startIdx + CARDS_PER_PAGE;
       const pageCards = matches.slice(startIdx, endIdx);
-pageCards.forEach(card => grid.appendChild(createCardElement(card)));
-
-// Apply skill search highlights
-highlightSkillsInCards();
-
-// Apply dropdown filter highlights
-const filters = {
-  racecourse: document.getElementById('racecourse').value || '',
-  length: document.getElementById('length').value || '',
-  direction: document.getElementById('direction').value || '',
-  track: document.getElementById('track').value || '',
-  season: document.getElementById('season').value || '',
-  weather: document.getElementById('weather').value || '',
-  strategy: document.getElementById('strategy').value || ''
-};
-highlightSkills(filters);
-
+      pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+      highlightSkillsInCards();
 
       const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
 
@@ -887,20 +872,8 @@ highlightSkills(filters);
     grid.innerHTML = '';
     const startIdx = page * CARDS_PER_PAGE;
     const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
-pageCards.forEach(card => grid.appendChild(createCardElement(card)));
-highlightSkillsInCards();
-
-const filters = {
-  racecourse: document.getElementById('racecourse').value || '',
-  length: document.getElementById('length').value || '',
-  direction: document.getElementById('direction').value || '',
-  track: document.getElementById('track').value || '',
-  season: document.getElementById('season').value || '',
-  weather: document.getElementById('weather').value || '',
-  strategy: document.getElementById('strategy').value || ''
-};
-highlightSkills(filters);
-
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+    highlightSkillsInCards();
 
     const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
     leftBtn.style.opacity = page > 0 ? '1' : '0.4';
