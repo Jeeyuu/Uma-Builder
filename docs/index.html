@@ -229,6 +229,52 @@ body {
   width: 100%;
   gap: 20px;
 }
+
+/* ---------- PAGINATION CONTROLS ---------- */
+.page-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+
+.page-controls button {
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #111;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  min-width: 32px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-controls button:hover:not(:disabled) {
+  background: #f5f5f5;
+}
+
+.page-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.card-section {
+  position: relative;
+  width: 100%;
+}
+
+.card-grid-wrapper {
+  position: relative;
+  width: 100%;
+}
+
 </style>
 
 </head>
@@ -832,17 +878,12 @@ function renderSections() {
     // pagination controls
     const controls = document.createElement('div');
     controls.className = 'page-controls';
-    const leftBtn = document.createElement('button'); leftBtn.textContent = '<';
-    const rightBtn = document.createElement('button'); rightBtn.textContent = '>';
-    [leftBtn, rightBtn].forEach(b => {
-      b.style.border = 'none';
-      b.style.borderRadius = '6px';
-      b.style.background = '#444';
-      b.style.color = '#fff';
-      b.style.padding = '2px 12px';
-      b.style.opacity = '0.4';
-      b.style.pointerEvents = 'none';
-    });
+    const leftBtn = document.createElement('button'); 
+    leftBtn.textContent = '◀';
+    leftBtn.disabled = true;
+    const rightBtn = document.createElement('button'); 
+    rightBtn.textContent = '▶';
+    rightBtn.disabled = true;
     controls.appendChild(leftBtn);
     controls.appendChild(rightBtn);
 
@@ -890,12 +931,10 @@ function renderSections() {
 
       const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
 
-      leftBtn.style.display = totalPages > 1 ? 'inline-block' : 'none';
-      rightBtn.style.display = totalPages > 1 ? 'inline-block' : 'none';
-      leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-      leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-      rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-      rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
+      leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+      rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+      leftBtn.disabled = page === 0;
+      rightBtn.disabled = page >= totalPages - 1;
 
       leftBtn.onclick = ()=>{ 
         renderPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
@@ -939,7 +978,9 @@ function renderSections() {
   const leftBtn = document.createElement('button');
   const rightBtn = document.createElement('button');
   leftBtn.textContent = '◀';
+  leftBtn.disabled = true;
   rightBtn.textContent = '▶';
+  rightBtn.disabled = true;
   controls.appendChild(leftBtn);
   controls.appendChild(rightBtn);
   wrapper.appendChild(controls);
@@ -968,10 +1009,10 @@ function renderSections() {
     pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
     const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-    leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-    rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-    leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-    rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
+    leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+    rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+    leftBtn.disabled = page === 0;
+    rightBtn.disabled = page >= totalPages - 1;
     
     highlightSkills(); // Apply highlights after rendering the page
   }
