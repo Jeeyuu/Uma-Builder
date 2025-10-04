@@ -79,22 +79,23 @@ body {
 
 .card-section-header {
   position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: block; /* Change from flex to block */
   margin-bottom: 16px;
   width: 100%;
 }
 
 .card-section-header h2 {
   margin: 0;
-  flex-grow: 1;
 }
 
 .page-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
   display: flex;
   gap: 4px;
-  margin-left: auto;
+  width: calc(var(--card-w) * 6 + var(--gap) * 5); /* Match the card grid width */
+  justify-content: flex-end;
 }
 
 .page-controls button {
