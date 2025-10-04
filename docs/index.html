@@ -254,6 +254,10 @@ select {
   font-weight: bold;
 }
 
+.skill.highlighted {
+  background: #b30000 !important;
+  color: #fff !important;
+}
 
 @media (max-width: 1100px) {
   :root { --card-w: 100px; }
@@ -563,6 +567,27 @@ function setupSkillSearchPersistence(){
   });
 }
 
+/* ------------- Highlight skills inside cards when searching ------------- */
+function highlightSkillsInCards() {
+  // remove old highlights
+  document.querySelectorAll('.skill.highlighted').forEach(el => el.classList.remove('highlighted'));
+
+  // gather search terms
+  const searchTerms = SKILL_SEARCH_KEYS
+    .map(id => document.getElementById(id)?.value.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (searchTerms.length === 0) return;
+
+  // loop all skill divs and mark those containing the search term
+  document.querySelectorAll('.card .skill').forEach(skillEl => {
+    const text = skillEl.textContent.toLowerCase();
+    if (searchTerms.some(term => text.includes(term))) {
+      skillEl.classList.add('highlighted');
+    }
+  });
+}
+
 
 /* ------------- FILTER BUILDING & MATCHING ------------- */
 function buildFilterTerms(filters){
@@ -791,6 +816,7 @@ function renderSections(){
 
     renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
     cardSections.appendChild(section);
+    highlightSkillsInCards();
   }
 
   function renderSkillSearchRow(key, headerText, matches, rowIndex) {
