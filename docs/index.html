@@ -926,7 +926,7 @@ function renderSections() {
   });
 }
 
-/* ---------------- HIGHLIGHT SKILLS BASED ON FILTER (custom colors + black text) ---------------- */
+  /* ---------------- HIGHLIGHT SKILLS BASED ON FILTER (custom colors + black text) ---------------- */
 (function(){
   const colorMap = {
     racecourse: '#ff7792',
@@ -941,32 +941,79 @@ function renderSections() {
   function highlightSkills(filters) {
     // Reset all skill backgrounds
     document.querySelectorAll('.skill, .slot .skill').forEach(skill => {
-      skill.style.background = '#eef2ff';
-      skill.style.color = '#000';
+      const txt = normalizeSkill(skill.textContent || '');
+      for (const r of normalizedRules) {
+        if (r.terms.includes(txt)) {
+          skill.style.background = r.color;
+          skill.style.color = '#000';
+          break;
+        }
+      }
     });
+
 
     const rules = [];
 
-    if (filters.racecourse) rules.push({ color: colorMap.racecourse, terms: [`${filters.racecourse} Racecourse`] });
+    // RACECOURSE
+    if (filters.racecourse) {
+      rules.push({
+        color: colorMap.racecourse,
+        terms: [`${filters.racecourse} Racecourse`]
+      });
+    }
+
+    // LENGTH
     if (filters.length) {
       const dist = parseInt(filters.length, 10);
       const label = getLengthCategory(dist);
       const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
-      rules.push({ color: colorMap.length, terms: [`${label} Corners`, `${label} Straightaways`, distType] });
+      rules.push({
+        color: colorMap.length,
+        terms: [`${label} Corners`, `${label} Straightaways`, distType]
+      });
     }
+
+    // DIRECTION
     if (filters.direction) {
       const dirTerm = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
-      rules.push({ color: colorMap.direction, terms: [dirTerm] });
+      rules.push({
+        color: colorMap.direction,
+        terms: [dirTerm]
+      });
     }
+
+    // TRACK CONDITIONS
     if (filters.track) {
       const trackTerm = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions';
-      rules.push({ color: colorMap.track, terms: [trackTerm] });
+      rules.push({
+        color: colorMap.track,
+        terms: [trackTerm]
+      });
     }
-    if (filters.season) rules.push({ color: colorMap.season, terms: [`${filters.season} Runner`] });
-    if (filters.weather) rules.push({ color: colorMap.weather, terms: [`${capitalize(filters.weather)} Days`] });
+
+    // SEASON
+    if (filters.season) {
+      rules.push({
+        color: colorMap.season,
+        terms: [`${filters.season} Runner`]
+      });
+    }
+
+    // WEATHER
+    if (filters.weather) {
+      rules.push({
+        color: colorMap.weather,
+        terms: [`${capitalize(filters.weather)} Days`]
+      });
+    }
+
+    // STRATEGY
     if (filters.strategy) {
       const s = filters.strategy;
-      rules.push({ color: colorMap.strategy, terms: [`${s} Corners`, `${s} Straightaways`, `${s} Savvy`] });
+      rules.push({
+        color: colorMap.strategy,
+        terms: [`${s} Corners`, `${s} Straightaways`, `${s} Savvy`]
+      });
     }
 
     // Normalize and apply highlights
@@ -975,7 +1022,7 @@ function renderSections() {
       terms: r.terms.map(normalizeSkill)
     }));
 
-    document.querySelectorAll('.skill, .slot .skill').forEach(skill => {
+    document.querySelectorAll('.skill').forEach(skill => {
       const txt = normalizeSkill(skill.textContent || '');
       for (const r of normalizedRules) {
         if (r.terms.includes(txt)) {
@@ -1002,11 +1049,13 @@ function renderSections() {
     };
     highlightSkills(filters);
   };
-
-  // Auto-update whenever a filter dropdown changes
-  ['racecourse','length','direction','track','season','weather','strategy']
-    .forEach(id => document.getElementById(id).addEventListener('change', renderSections));
 })();
+
+// Auto-update whenever a filter dropdown changes
+['racecourse','length','direction','track','season','weather','strategy']
+  .forEach(id => {
+    document.getElementById(id).addEventListener('change', renderSections);
+  });
 
 // Re-run filters with remembered dropdowns on reload
 document.addEventListener('DOMContentLoaded', () => {
