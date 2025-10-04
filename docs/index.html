@@ -613,9 +613,8 @@ function createCardElement(card){
   if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
 
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
-  if(!HIDE.char_id) nameHtml += `<div style="font-size:10px;opacity:0.6;">ID: ${card.char_id}</div>`;
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
-
+if(!HIDE.char_id) nameHtml += `<div style="font-size:10px;opacity:0.6;margin-bottom: 8px;">ID: ${card.char_id}</div>`;
+if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
   // Base card content
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
