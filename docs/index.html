@@ -38,6 +38,41 @@ body {
   overflow-y: auto;
 }
 
+/* ---------- SIDEBAR IMPROVEMENTS ---------- */
+.sidebar .filter-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px; /* consistent gap */
+}
+
+.sidebar .filter-group label {
+  margin-bottom: 4px; /* one line above select */
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.sidebar select, .sidebar .skill-search {
+  width: 100%;
+  max-width: 180px; /* consistent width similar to skill-search */
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+/* ---------- SKILLS FONT SIZE ---------- */
+.slot .skill, .card .skill {
+  font-size: 9px; /* revert to previous smaller size */
+  padding: 3px 6px;
+}
+
+/* ---------- HIGHLIGHT STYLE ---------- */
+.skill.highlighted {
+  outline: 2px solid #ff9900;
+  outline-offset: -2px;
+}
+
+
 /* Hide scrollbar but allow scrolling */
 .sidebar::-webkit-scrollbar { width: 0; background: transparent; }
 .sidebar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -576,38 +611,21 @@ function highlightSkillsInCards() {
   // remove old highlights
   document.querySelectorAll('.skill.highlighted').forEach(el => el.classList.remove('highlighted'));
 
-  // gather dropdown search terms
-  const filters = {
-    racecourse: document.getElementById('racecourse').value || '',
-    length: document.getElementById('length').value || '',
-    direction: document.getElementById('direction').value || '',
-    track: document.getElementById('track').value || '',
-    season: document.getElementById('season').value || '',
-    weather: document.getElementById('weather').value || '',
-    strategy: document.getElementById('strategy').value || ''
-  };
-
-  const filterTerms = buildFilterTerms(filters).map(normalizeSkill);
-
   // gather Skill Search terms
   const skillTerms = SKILL_SEARCH_KEYS
     .map(id => document.getElementById(id)?.value.trim().toLowerCase())
     .filter(Boolean);
 
-  const allTerms = [...filterTerms, ...skillTerms];
+  if(skillTerms.length === 0) return;
 
-  if (allTerms.length === 0) return;
-
-  // loop all skill divs and mark those containing the search term
+  // loop all skill divs and mark those containing any search term
   document.querySelectorAll('.card .skill').forEach(skillEl => {
     const text = normalizeSkill(skillEl.textContent);
-    if (allTerms.some(term => text.includes(term))) {
+    if(skillTerms.some(term => text.includes(term))) {
       skillEl.classList.add('highlighted');
     }
   });
 }
-
-
 
 /* ------------- FILTER BUILDING & MATCHING ------------- */
 function buildFilterTerms(filters){
