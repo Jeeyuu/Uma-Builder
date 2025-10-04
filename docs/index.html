@@ -21,11 +21,13 @@ body {
   color: #111;
 }
 
+/* ---------- CONTAINER & SIDEBAR ---------- */
 .container {
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: 100vh; /* full viewport height */
+  height: 100vh;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -33,25 +35,37 @@ body {
   width: 200px;
   position: sticky;
   top: 0;
-  align-self: flex-start;
-  height: 100vh; /* fills viewport height */
-  overflow-y: auto; /* scroll if filters overflow */
+  height: 100vh;
   padding: 24px 12px;
   box-sizing: border-box;
   background: #f9f9f9;
+  overflow-y: auto;
 }
 
+/* Hide scrollbar but allow scrolling */
+.sidebar::-webkit-scrollbar { width: 0; background: transparent; }
+.sidebar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ---------- MAIN CONTENT ---------- */
 .main-content {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  overflow-y: auto; /* scrollable content */
+  align-items: center; /* center horizontally */
+  justify-content: flex-start;
+  overflow-y: auto;
   padding: 24px;
   box-sizing: border-box;
-  width: calc((var(--card-w) + var(--gap)) * 6 + 48px); /* enough for grid + padding */
+  width: 100%; /* full remaining space */
 }
 
+/* Optional: wrapper to constrain cards + slots in middle */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: calc((var(--card-w) + var(--gap)) * 6); /* fit 6 cards in a row */
+}
 
 .filter-group label {
   font-weight: 700;
@@ -333,10 +347,14 @@ select {
 </div>
 
 
-  <div class="main-content">
+<div class="main-content">
+  <div class="content-wrapper">
+    <!-- Slots header and clear button -->
     <div class="slots-header">
       <button class="clear-all" id="clearAllBtn">Clear All</button>
     </div>
+
+    <!-- Slots grid -->
     <div class="slots" id="slots">
       <div class="slot" data-slot="0"><div class="placeholder">Empty</div></div>
       <div class="slot" data-slot="1"><div class="placeholder">Empty</div></div>
@@ -345,6 +363,8 @@ select {
       <div class="slot" data-slot="4"><div class="placeholder">Empty</div></div>
       <div class="slot" data-slot="5"><div class="placeholder">Empty</div></div>
     </div>
+
+    <!-- Card sections -->
     <div id="cardSections" class="card-sections"></div>
   </div>
 </div>
