@@ -5,8 +5,8 @@
 <title>Uma Builder — Card Picker</title>
 <style>
 :root {
-  --card-w: 118px;
-  --gap: 10px;
+  --card-w: 100px;  /* Balanced size */
+  --gap: 8px;       /* Reduced gap */
 }
 
 html, body {
@@ -41,7 +41,7 @@ body {
 /* Right sidebar for slots */
 .right-sidebar {
   flex-shrink: 0;
-  width: 280px; /* Wider to accommodate slots */
+  width: 240px; /* Balanced width */
   padding: 24px 12px;
   box-sizing: border-box;
   background: #f5f5f5;
@@ -49,67 +49,199 @@ body {
   border-left: 1px solid #ddd;
 }
 
-/* Right sidebar specific styles */
-.right-sidebar .slots-header {
-  margin-bottom: 16px;
+/* ---------- MAIN CONTENT (BALANCED SIZING) ---------- */
+.main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-.right-sidebar .slot .placeholder {
-  font-size: 11px;
-  color: #888;
-}
-
-.right-sidebar .slot.has-card {
-  min-height: 220px; /* Slightly taller when has card */
-}
-
-/* Ensure cards in slots are properly sized */
-.right-sidebar .slot img {
-  max-width: 80px;
-  max-height: 80px;
-}
-
-.right-sidebar .slot .name {
-  font-size: 11px;
-  margin: 6px 0 4px 0;
-}
-
-.right-sidebar .slot .skill {
-  font-size: 8px;
-  padding: 2px 4px;
+/* Wrapper to center cards */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: calc(var(--card-w) * 6 + var(--gap) * 5);
+  margin: 0 auto;
 }
 
 /* ---------- SIDEBAR IMPROVEMENTS ---------- */
 .sidebar .filter-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px; /* consistent gap */
+  margin-bottom: 16px;
 }
 
 .sidebar .filter-group label {
-  margin-bottom: 4px; /* one line above select */
+  margin-bottom: 4px;
   font-weight: 600;
   font-size: 13px;
 }
 
 .sidebar select, .sidebar .skill-search {
   width: 100%;
-  max-width: 180px; /* consistent width similar to skill-search */
+  max-width: 180px;
   padding: 6px 8px;
   border-radius: 4px;
   border: 1px solid #ccc;
   box-sizing: border-box;
 }
 
-/* ---------- SKILLS FONT SIZE ---------- */
-.slot .skill, .card .skill {
-  font-size: 9px; /* revert to previous smaller size */
-  padding: 3px 6px;
+/* ---------- SLOTS STYLING ---------- */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--gap);
+  margin-bottom: 20px;
+  width: 100%;
 }
 
+/* SLOT STYLES - Square when empty, expands when filled */
+.slot {
+  border: 1px solid #ddd;
+  padding: 8px;
+  box-sizing: border-box;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  width: 100%;
+  min-height: 100px; /* Square when empty */
+  position: relative;
+  transition: min-height 0.3s ease;
+}
+
+/* Square placeholder for empty slots */
+.slot:not(.has-card) {
+  border: 2px dashed #ccc;
+  background: #fafafa;
+  aspect-ratio: 1; /* Perfect square */
+  min-height: 100px;
+  height: 100px;
+}
+
+/* Expanded slot when it has a card */
+.slot.has-card {
+  min-height: 220px; /* Expanded height */
+  aspect-ratio: auto; /* Remove square ratio */
+  height: auto;
+}
+
+.slot .placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  font-size: 11px;
+}
+
+/* ---------- CARDS STYLING ---------- */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(6, var(--card-w));
+  gap: var(--gap);
+  width: calc(var(--card-w) * 6 + var(--gap) * 5);
+}
+
+/* Card styles for both main content and slots */
+.card, .slot.has-card {
+  border: 1px solid #ddd;
+  padding: 6px;
+  box-sizing: border-box;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--card-w);
+  min-height: 180px;
+  position: relative;
+}
+
+.card .name, .slot.has-card .name {
+  margin: 6px 0 4px 0;
+  font-weight: 700;
+  text-align: center;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card img, .slot.has-card img {
+  max-width: 80px;
+  max-height: 80px;
+  object-fit: contain;
+}
+
+.card .skills, .slot.has-card .skills,
+.card .skills-group, .slot.has-card .skills-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  align-items: center;
+}
+
+.card .skill, .slot.has-card .skill {
+  width: 100%;
+  background: #eef2ff;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 8px;
+  word-break: break-word;
+  white-space: normal;
+  text-align: center;
+}
+
+/* TYPE ICON */
+.card .type-icon, .slot.has-card .type-icon {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 3px;
+  overflow: hidden;
+  text-align: center;
+  font-size: 8px;
+  line-height: 14px;
+  font-weight: bold;
+}
+
+.card .type-icon img, .slot.has-card .type-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ---------- SKILLS & HIGHLIGHTING ---------- */
 .skill.search-highlighted {
   background: #ff4444 !important;
   color: white !important;
+}
+
+/* ---------- SKILLS HEADER STYLES ---------- */
+.skills-header {
+  font-size: 9px;
+  font-weight: bold;
+  margin-bottom: 3px;
+  text-align: center;
+  background: #000000;
+  color: #ffffff;
+  padding: 3px 4px;
+  border-radius: 0;
+  width: 100%;
 }
 
 /* ---------- PAGINATION CONTROLS ---------- */
@@ -120,7 +252,7 @@ body {
 
 .card-section-header {
   position: relative;
-  display: block; /* Change from flex to block */
+  display: block;
   margin-top: 20px;
   margin-bottom: 10px;
   width: 100%;
@@ -163,167 +295,6 @@ body {
   cursor: not-allowed;
 }
 
-/* ---------- SKILLS HEADER STYLES ---------- */
-.skills-header {
-  font-size: 10px;
-  font-weight: bold;
-  margin-bottom: 4px;
-  text-align: center;
-  background: #000000; /* Pure black */
-  color: #ffffff; /* White text */
-  padding: 4px 6px;
-  border-radius: 0; /* Remove rounding */
-  width: 100%;
-}
-
-/* Hide scrollbar but allow scrolling */
-.sidebar::-webkit-scrollbar { width: 0; background: transparent; }
-.sidebar { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* ---------- MAIN CONTENT (SHRUNK) ---------- */
-.main-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  overflow-y: auto;
-  padding: 24px;
-  box-sizing: border-box;
-  transform: scale(0.75);
-  transform-origin: top center;
-  width: 133.33%; /* Counteract the scale to maintain layout */
-  margin-left: -16.67%; /* Center the scaled content */
-}
-
-/* Wrapper to center slots + cards */
-.content-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  width: calc(var(--card-w) * 6 + var(--gap) * 5); /* exact width: 6 cards + 5 gaps */
-  margin: 0 auto; /* center horizontally */
-}
-
-.slots {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2 columns for right sidebar */
-  gap: 10px;
-  margin-bottom: 20px;
-  width: 100%;
-}
-
-.slot {
-  border: 1px solid #ddd;
-  padding: 8px;
-  box-sizing: border-box;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  width: 100%;
-  min-height: 200px; /* Smaller height for sidebar */
-  position: relative;
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(6, var(--card-w));
-  gap: var(--gap);
-  width: calc(var(--card-w) * 6 + var(--gap) * 5);
-}
-
-/* SLOT & CARD BLOCK */
-.slot, .card {
-  border: 1px solid #ddd;
-  padding: 8px;
-  box-sizing: border-box;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  width: var(--card-w);
-  min-height: 490px;
-  position: relative;
-}
-
-.slot:not(.has-card) {
-  border: 2px dashed #ccc;
-  background: #fafafa;
-}
-
-.slot .placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ccc;
-  font-size: 12px;
-}
-
-.slot .name, .card .name {
-  margin: 8px 0 6px 0;
-  font-weight: 700;
-  text-align: center;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.slot .skills, .card .skills,
-.slot .skills-group, .card .skills-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 100%;
-  align-items: center;
-}
-
-.slot .skill, .card .skill {
-  width: 100%;
-  background: #eef2ff;
-  border-radius: 6px;
-  padding: 4px 6px;
-  font-size: 10px;
-  word-break: break-word;
-  white-space: normal;
-  text-align: center;
-}
-
-.slot img, .card img {
-  max-width: 100%;
-  max-height: 100px;
-  object-fit: contain;
-}
-
-/* TYPE ICON */
-.slot .type-icon, .card .type-icon {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 20px;
-  height: 20px;
-  border: 1px solid #ccc;
-  background: #fff;
-  border-radius: 4px;
-  overflow: hidden;
-  text-align: center;
-  font-size: 10px;
-  line-height: 18px;
-  font-weight: bold;
-}
-
-.slot .type-icon img, .card .type-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
 /* Hide duplicates */
 .card.disabled {
   opacity: 0.45;
@@ -348,15 +319,17 @@ body {
   width: 100%;
   gap: 0px;
 }
-</style>
 
+/* Hide scrollbar but allow scrolling */
+.sidebar::-webkit-scrollbar { width: 0; background: transparent; }
+.sidebar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
 </head>
 
 <body>
   <div class="container">
     <!-- Left Sidebar (Filters) -->
     <div class="sidebar">
-      <!-- Your existing filter groups here -->
       <div class="filter-group">
         <label for="presets">Presets</label>
         <select id="presets">
@@ -467,7 +440,6 @@ body {
         </select>
       </div>
 
-      <!-- Clear Filters Button -->
       <button id="clearFiltersBtn" class="clear-all mb-2">Clear Filters</button>
 
       <div id="skillSearchGroup">
@@ -480,7 +452,7 @@ body {
       </div>
     </div>
 
-    <!-- Main Content (Scaled to 75%) -->
+    <!-- Main Content -->
     <div class="main-content">
       <div class="content-wrapper">
         <div id="cardSections" class="card-sections"></div>
@@ -505,7 +477,6 @@ body {
   </div>
 </body>
 
-
 <script>
 /* ------------- CONFIG ------------- */
 const JSON_FILE = "transformed_supports.json";
@@ -514,12 +485,11 @@ const HIDE = { char_id: false, url_name: true };
 /* ------------- STATE ------------- */
 let cardsData = [];
 const cardSections = document.getElementById('cardSections');
-// Update this line to select slots from the right sidebar
 const slots = Array.from(document.querySelectorAll('.right-sidebar .slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
-const sectionPages = new Map(); // pagination per section
+const sectionPages = new Map();
 const slotListeners = new Map();
 const SLOT_KEY = 'saved_slots';
 const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
@@ -546,10 +516,10 @@ fetch(JSON_FILE)
       type: (card.type || '').toLowerCase()
     }));
 
-    setupFilterPersistence();  // restore filters first
+    setupFilterPersistence();
     setupSkillSearchPersistence();
-    setupPresets(); // Initialize presets
-    loadSlotsFromLocalStorage(); // restore slots next
+    setupPresets();
+    loadSlotsFromLocalStorage();
     renderSections();
   })
   .catch(err=>{
@@ -560,7 +530,6 @@ fetch(JSON_FILE)
 /* ------------- PRESETS ------------- */
 const PRESETS_JSON_FILE = "champions_meeting.json";
 
-// Function to format date for display
 function formatPresetDate(dateString) {
   const date = new Date(dateString);
   const month = date.toLocaleString('en-US', { month: 'short' });
@@ -568,22 +537,19 @@ function formatPresetDate(dateString) {
   return `${month} ${year}`;
 }
 
-// Function to create shortened preset label
 function createPresetLabel(cup) {
   const date = formatPresetDate(cup.start_date);
   const distance = cup.distance === "Mile" ? "MILE" : cup.distance;
   const trackType = cup.aptitude === "Turf" ? "Turf" : "Dirt";
-  const length = cup.length.replace(/\s*m/g, 'm'); // Remove space before 'm'
+  const length = cup.length.replace(/\s*m/g, 'm');
   
   return `${date} — ${cup.title} — ${cup.racecourse} ${trackType} ${length} ${cup.track_conditions}`;
 }
 
-// Fetch and populate presets
 function setupPresets() {
   const presetsSelect = document.getElementById('presets');
   if (!presetsSelect) return;
 
-  // Get saved preset before populating options
   const savedPreset = localStorage.getItem('filter_presets');
 
   fetch(PRESETS_JSON_FILE)
@@ -592,34 +558,26 @@ function setupPresets() {
       return response.json();
     })
     .then(data => {
-      // Clear existing options except the first one
       presetsSelect.innerHTML = '<option value="">-- Select --</option>';
       
-      // Add each cup as an option
       data.cups.forEach(cup => {
         const option = document.createElement('option');
-        option.value = cup.title; // Use title as value for reliable matching
+        option.value = cup.title;
         option.textContent = createPresetLabel(cup);
-        option.dataset.cupData = JSON.stringify(cup); // Store full data in dataset
+        option.dataset.cupData = JSON.stringify(cup);
         presetsSelect.appendChild(option);
       });
       
-      // Restore saved selection after populating options
-      if (savedPreset) {
-        presetsSelect.value = savedPreset;
-      }
+      if (savedPreset) presetsSelect.value = savedPreset;
       
-      // Add event listener for preset selection
       presetsSelect.addEventListener('change', function() {
         localStorage.setItem('filter_presets', this.value);
         
         if (this.value) {
-          // Find the selected option and get the full cup data
           const selectedOption = this.options[this.selectedIndex];
           const cup = JSON.parse(selectedOption.dataset.cupData);
           applyPreset(cup);
         } else {
-          // If "-- Select --" is chosen, just clear the persistence
           sectionPages.clear();
           renderSections();
         }
@@ -634,30 +592,24 @@ function setupPresets() {
     });
 }
 
-// Function to apply preset to all filters
 function applyPreset(cup) {
-  // Map cup data to filter values
   document.getElementById('racecourse').value = cup.racecourse;
   document.getElementById('length').value = cup.length.replace(' m', '');
   document.getElementById('direction').value = cup.direction;
   document.getElementById('track').value = cup.track_conditions;
   document.getElementById('season').value = cup.season;
   document.getElementById('weather').value = cup.weather;
-  document.getElementById('strategy').value = ''; // Reset strategy as it's not in preset
+  document.getElementById('strategy').value = '';
   
-  // Save to localStorage and trigger re-render
   FILTER_KEYS.forEach(id => {
     const el = document.getElementById(id);
-    if (el && el.value) {
-      localStorage.setItem('filter_' + id, el.value);
-    }
+    if (el && el.value) localStorage.setItem('filter_' + id, el.value);
   });
   
   sectionPages.clear();
   renderSections();
 }
 
-// Add presets to filter keys for persistence
 FILTER_KEYS.push('presets');
 
 /* ------------- Card creation ------------- */
@@ -676,9 +628,9 @@ function createCardElement(card){
   if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
 
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
-if(!HIDE.char_id) nameHtml += `<div style="font-size:10px;opacity:0.6;margin-bottom: 8px;">ID: ${card.char_id}</div>`;
-if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
-  // Base card content
+  if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 6px;">ID: ${card.char_id}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
     <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
@@ -686,17 +638,14 @@ if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opac
     <div class="skills">${skillsHTML}</div>
   `;
 
-  // Handle click
   el.addEventListener('click', ()=> {
     const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
     if(slot) removeFromSlot(slot, card);
     else addToSlot(card);
   });
 
-  // Duplicate support label at the top
   if(selectedCardIds.has(card.char_id)){
     el.classList.add('disabled');
-
     const dupLabel = document.createElement('div');
     dupLabel.textContent = 'Duplicate Support';
     dupLabel.style.position = 'absolute';
@@ -705,12 +654,12 @@ if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opac
     dupLabel.style.width = '100%';
     dupLabel.style.background = 'red';
     dupLabel.style.color = 'white';
-    dupLabel.style.fontSize = '10px';
+    dupLabel.style.fontSize = '9px';
     dupLabel.style.fontWeight = 'bold';
     dupLabel.style.textAlign = 'center';
     dupLabel.style.padding = '2px 0';
-    dupLabel.style.borderTopLeftRadius = '6px';
-    dupLabel.style.borderTopRightRadius = '6px';
+    dupLabel.style.borderTopLeftRadius = '4px';
+    dupLabel.style.borderTopRightRadius = '4px';
     el.appendChild(dupLabel);
   }
 
@@ -719,7 +668,6 @@ if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opac
 
 /* ------------- Slot handling & persistence ------------- */
 function saveSlotsToLocalStorage() {
-  // Save support_id for each slot instead of just char_id
   const slotData = slots.map(s => s.dataset.supportId || null);
   localStorage.setItem(SLOT_KEY, JSON.stringify(slotData));
 }
@@ -731,9 +679,8 @@ function loadSlotsFromLocalStorage() {
 
   slotData.forEach((supportId, index) => {
     if (supportId) {
-      // Find card by support_id (unique)
       const card = cardsData.find(c => String(c.support_id) === String(supportId));
-      if (card) addToSlot(card, slots[index], false); // false = don't save again
+      if (card) addToSlot(card, slots[index], false);
     }
   });
 }
@@ -752,9 +699,16 @@ function addToSlot(card, targetSlot = null, save = true){
   if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
 
   freeSlot.dataset.cardId = card.char_id;
-  freeSlot.dataset.supportId = card.support_id; // <--- save unique identifier
+  freeSlot.dataset.supportId = card.support_id;
   freeSlot.classList.add('has-card');
-  freeSlot.innerHTML = `<div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div><img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}"><div class="name">${escapeHtml(card.char_name)}</div><div class="skills">${skillsHTML}</div>`;
+  
+  // Use compact styling for slots
+  freeSlot.innerHTML = `
+    <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div>
+    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+    <div class="name">${escapeHtml(card.char_name)}</div>
+    <div class="skills">${skillsHTML}</div>
+  `;
 
   function slotClickHandler(){ removeFromSlot(freeSlot, card); }
   freeSlot.addEventListener('click', slotClickHandler);
@@ -764,7 +718,6 @@ function addToSlot(card, targetSlot = null, save = true){
   if(save) saveSlotsToLocalStorage();
   renderSections();
 }
-
 
 function removeFromSlot(slotEl, card){
   if(slotListeners.has(slotEl)){
@@ -801,16 +754,11 @@ clearFiltersBtn.addEventListener('click', () => {
     if (el) el.value = '';
     localStorage.removeItem('filter_' + id);
   });
-
-  // Also clear the presets dropdown
   const presetsSelect = document.getElementById('presets');
   if (presetsSelect) presetsSelect.value = '';
-
-  // Do NOT clear Skill Search inputs
   sectionPages.clear();
   renderSections();
 });
-
 
 /* ------------- Filter persistence ------------- */
 function setupFilterPersistence(){
@@ -830,10 +778,8 @@ function setupSkillSearchPersistence(){
   SKILL_SEARCH_KEYS.forEach(id=>{
     const input = document.getElementById(id);
     if(!input) return;
-
     const saved = localStorage.getItem('filter_'+id);
     if(saved) input.value = saved;
-
     input.addEventListener('input', ()=>{
       localStorage.setItem('filter_'+id, input.value);
       sectionPages.clear();
@@ -844,14 +790,12 @@ function setupSkillSearchPersistence(){
 
 /* ------------- CONCISE HIGHLIGHTING LOGIC ------------- */
 function highlightSkills() {
-  // Reset all highlights
   document.querySelectorAll('.skill').forEach(skill => {
     skill.classList.remove('highlighted', 'search-highlighted');
     skill.style.background = '#eef2ff';
     skill.style.color = '#000';
   });
 
-  // Gather dropdown filter terms
   const filters = {
     racecourse: document.getElementById('racecourse').value || '',
     length: document.getElementById('length').value || '',
@@ -862,23 +806,15 @@ function highlightSkills() {
     strategy: document.getElementById('strategy').value || ''
   };
 
-  // Gather search terms
   const searchTerms = SKILL_SEARCH_KEYS
     .map(id => document.getElementById(id)?.value.trim().toLowerCase())
     .filter(Boolean);
 
-  // Color mapping for dropdown filters
   const colorMap = {
-    racecourse: '#ff7792',
-    length: '#ffae77',
-    direction: '#ffff77',
-    track: '#77ff92',
-    season: '#77c9ff',
-    weather: '#c977ff',
-    strategy: '#ff77e4'
+    racecourse: '#ff7792', length: '#ffae77', direction: '#ffff77',
+    track: '#77ff92', season: '#77c9ff', weather: '#c977ff', strategy: '#ff77e4'
   };
 
-  // Build dropdown filter terms
   const dropdownTerms = [];
   if (filters.racecourse) dropdownTerms.push({ term: `${filters.racecourse} Racecourse`, color: colorMap.racecourse });
   if (filters.direction) {
@@ -910,17 +846,14 @@ function highlightSkills() {
     );
   }
 
-  // Apply highlights
   document.querySelectorAll('.skill').forEach(skill => {
     const skillText = normalizeSkill(skill.textContent || '');
     
-    // Check search terms first (highest priority - red background)
     if (searchTerms.some(term => skillText.includes(term))) {
       skill.classList.add('search-highlighted');
-      return; // Search terms take precedence
+      return;
     }
     
-    // Check dropdown filter terms (colored background)
     for (const { term, color } of dropdownTerms) {
       if (skillText === normalizeSkill(term)) {
         skill.style.background = color;
@@ -951,6 +884,7 @@ function buildFilterTerms(filters){
   }
   return terms;
 }
+
 function filterCardsWithRules(cards,filters){
   const terms=buildFilterTerms(filters).map(normalizeSkill);
   const strictDistanceKeys=['standard distance','non-standard distance'];
@@ -991,7 +925,6 @@ function renderSections() {
     return;
   }
 
-  // Render dropdown filter rows
   const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
   filterOrder.forEach(catId => {
     if (!filters[catId]) return;
@@ -1029,7 +962,6 @@ function renderSections() {
     }
   });
 
-  // Render Skill Search rows independently
   SKILL_SEARCH_KEYS.forEach((key, i) => {
     const val = document.getElementById(key)?.value.trim();
     if (!val) return;
@@ -1044,108 +976,99 @@ function renderSections() {
     renderSkillSearchRow(key, header, matches, i);
   });
 
-  highlightSkills(); // Apply the new concise highlighting logic
+  highlightSkills();
 }
 
+function renderFilterRow(catId,headerText,termList,rowIndex){
+  const section = document.createElement('div');
+  section.className = 'card-section';
 
-  function renderFilterRow(catId,headerText,termList,rowIndex){
-    const section = document.createElement('div');
-    section.className = 'card-section';
+  const headerContainer = document.createElement('div');
+  headerContainer.className = 'card-section-header';
 
-    const headerContainer = document.createElement('div');
-    headerContainer.className = 'card-section-header';
+  const header = document.createElement('h2');
+  header.textContent = headerText;
+  headerContainer.appendChild(header);
 
-    const header = document.createElement('h2');
-    header.textContent = headerText;
-    headerContainer.appendChild(header);
+  const controls = document.createElement('div');
+  controls.className = 'page-controls';
+  const leftBtn = document.createElement('button'); 
+  leftBtn.textContent = '◀';
+  leftBtn.disabled = true;
+  const rightBtn = document.createElement('button'); 
+  rightBtn.textContent = '▶';
+  rightBtn.disabled = true;
+  controls.appendChild(leftBtn);
+  controls.appendChild(rightBtn);
 
-    // pagination controls
-    const controls = document.createElement('div');
-    controls.className = 'page-controls';
-    const leftBtn = document.createElement('button'); 
-    leftBtn.textContent = '◀';
-    leftBtn.disabled = true;
-    const rightBtn = document.createElement('button'); 
-    rightBtn.textContent = '▶';
-    rightBtn.disabled = true;
-    controls.appendChild(leftBtn);
-    controls.appendChild(rightBtn);
+  headerContainer.appendChild(controls);
+  section.appendChild(headerContainer);
 
-    headerContainer.appendChild(controls);
-    section.appendChild(headerContainer);
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card-grid-wrapper';
+  const grid = document.createElement('div');
+  grid.className = 'cards';
+  wrapper.appendChild(grid);
+  section.appendChild(wrapper);
 
-    // create wrapper
-    const wrapper = document.createElement('div');
-    wrapper.className = 'card-grid-wrapper';
-    const grid = document.createElement('div');
-    grid.className = 'cards';
-    wrapper.appendChild(grid);
+  const termsNormalized = termList.map(normalizeSkill);
+  const strictDistanceKeys = ['standard distance','non-standard distance'];
+  const strictTerms = termsNormalized.filter(t => strictDistanceKeys.includes(t));
+  const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
 
-    // append wrapper to section
-    section.appendChild(wrapper);
+  const matches = cardsData.filter(card => {
+    const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
+    return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
+  });
 
-    // normalize filter terms
-    const termsNormalized = termList.map(normalizeSkill);
-    const strictDistanceKeys = ['standard distance','non-standard distance'];
-    const strictTerms = termsNormalized.filter(t => strictDistanceKeys.includes(t));
-    const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
-
-    // get matching cards
-    const matches = cardsData.filter(card => {
-      const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-      return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
-    });
-
-    if(matches.length === 0){
-      const noMsg = document.createElement('div');
-      noMsg.style.opacity = '0.6';
-      noMsg.textContent = '(No matching cards)';
-      grid.appendChild(noMsg);
-      cardSections.appendChild(section);
-      return;
-    }
-
-    // current page
-    const pageKey = `${catId}-${rowIndex}`;
-    const currentPage = sectionPages.get(pageKey) || 0;
-    sectionPages.set(pageKey, currentPage);
-
-
-    const CARDS_PER_PAGE = 6;
-
-    function renderPage(page, matches, grid, leftBtn, rightBtn, pageKey){
-      grid.innerHTML = '';
-      const startIdx = page * CARDS_PER_PAGE;
-      const endIdx = startIdx + CARDS_PER_PAGE;
-      const pageCards = matches.slice(startIdx, endIdx);
-      pageCards.forEach(card => grid.appendChild(createCardElement(card)));
-
-      const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-
-      leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-      rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-      leftBtn.disabled = page === 0;
-      rightBtn.disabled = page >= totalPages - 1;
-
-      leftBtn.onclick = ()=>{ 
-        renderPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
-        sectionPages.set(pageKey,page-1);
-        highlightSkills(); // Reapply highlights after page change
-      };
-      rightBtn.onclick = ()=>{ 
-        renderPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
-        sectionPages.set(pageKey,page+1);
-        highlightSkills(); // Reapply highlights after page change
-      };
-      
-      highlightSkills(); // Apply highlights after rendering the page
-    }
-
-    renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
+  if(matches.length === 0){
+    const noMsg = document.createElement('div');
+    noMsg.style.opacity = '0.6';
+    noMsg.textContent = '(No matching cards)';
+    grid.appendChild(noMsg);
     cardSections.appendChild(section);
+    return;
   }
 
-  function renderSkillSearchRow(key, headerText, matches, rowIndex) {
+  const pageKey = `${catId}-${rowIndex}`;
+  const currentPage = sectionPages.get(pageKey) || 0;
+  sectionPages.set(pageKey, currentPage);
+
+  const CARDS_PER_PAGE = 6;
+
+  function renderPage(page, matches, grid, leftBtn, rightBtn, pageKey){
+    grid.innerHTML = '';
+    const startIdx = page * CARDS_PER_PAGE;
+    const endIdx = startIdx + CARDS_PER_PAGE;
+    const pageCards = matches.slice(startIdx, endIdx);
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+
+    leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+    rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+    leftBtn.disabled = page === 0;
+    rightBtn.disabled = page >= totalPages - 1;
+
+    leftBtn.onclick = ()=>{ 
+      renderPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
+      sectionPages.set(pageKey,page-1);
+      highlightSkills();
+    };
+    rightBtn.onclick = ()=>{ 
+      renderPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
+      sectionPages.set(pageKey,page+1);
+      highlightSkills();
+    };
+    
+    highlightSkills();
+  }
+
+  renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
+  cardSections.appendChild(section);
+}
+
+function renderSkillSearchRow(key, headerText, matches, rowIndex) {
   const section = document.createElement('div');
   section.className = 'card-section';
 
@@ -1157,7 +1080,6 @@ function renderSections() {
   header.textContent = headerText;
   headerContainer.appendChild(header);
 
-  // pagination controls
   const controls = document.createElement('div');
   controls.className = 'page-controls';
   const leftBtn = document.createElement('button');
@@ -1172,7 +1094,6 @@ function renderSections() {
   headerContainer.appendChild(controls);
   section.appendChild(headerContainer);
 
-  // Wrapper + grid
   const wrapper = document.createElement('div');
   wrapper.className = 'card-grid-wrapper';
   const grid = document.createElement('div');
@@ -1208,7 +1129,7 @@ function renderSections() {
     leftBtn.disabled = page === 0;
     rightBtn.disabled = page >= totalPages - 1;
     
-    highlightSkills(); // Apply highlights after rendering the page
+    highlightSkills();
   }
 
   renderPage(currentPage);
@@ -1218,7 +1139,7 @@ function renderSections() {
     if (newPage >= 0) {
       sectionPages.set(pageKey, newPage);
       renderPage(newPage);
-      highlightSkills(); // Reapply highlights after page change
+      highlightSkills();
     }
   });
 
@@ -1228,7 +1149,7 @@ function renderSections() {
     if (newPage < totalPages) {
       sectionPages.set(pageKey, newPage);
       renderPage(newPage);
-      highlightSkills(); // Reapply highlights after page change
+      highlightSkills();
     }
   });
 }
@@ -1239,15 +1160,11 @@ function renderSections() {
     document.getElementById(id).addEventListener('change', renderSections);
   });
 
-// Re-run filters with remembered dropdowns on reload
 document.addEventListener('DOMContentLoaded', () => {
   renderSections();
 });
 
-// Recalculate pagination on resize
 window.addEventListener('resize', renderSections);
-
 </script>
-
 </body>
 </html>
