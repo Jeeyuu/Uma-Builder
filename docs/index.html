@@ -515,9 +515,13 @@ function createPresetLabel(cup) {
 }
 
 // Fetch and populate presets
+// Fetch and populate presets
 function setupPresets() {
   const presetsSelect = document.getElementById('presets');
   if (!presetsSelect) return;
+
+  // Get saved preset before populating options
+  const savedPreset = localStorage.getItem('filter_presets');
 
   fetch(PRESETS_JSON_FILE)
     .then(response => {
@@ -531,16 +535,30 @@ function setupPresets() {
       // Add each cup as an option
       data.cups.forEach(cup => {
         const option = document.createElement('option');
-        option.value = JSON.stringify(cup); // Store full cup data as value
+        option.value = cup.title; // Use title as value for reliable matching
         option.textContent = createPresetLabel(cup);
+        option.dataset.cupData = JSON.stringify(cup); // Store full data in dataset
         presetsSelect.appendChild(option);
       });
       
+      // Restore saved selection after populating options
+      if (savedPreset) {
+        presetsSelect.value = savedPreset;
+      }
+      
       // Add event listener for preset selection
       presetsSelect.addEventListener('change', function() {
+        localStorage.setItem('filter_presets', this.value);
+        
         if (this.value) {
-          const cup = JSON.parse(this.value);
+          // Find the selected option and get the full cup data
+          const selectedOption = this.options[this.selectedIndex];
+          const cup = JSON.parse(selectedOption.dataset.cupData);
           applyPreset(cup);
+        } else {
+          // If "-- Select --" is chosen, just clear the persistence
+          sectionPages.clear();
+          renderSections();
         }
       });
     })
