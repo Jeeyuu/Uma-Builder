@@ -572,100 +572,7 @@ function highlightSkillsInCards() {
   // remove old highlights everywhere
   document.querySelectorAll('.skill.highlighted').forEach(el => el.classList.remove('highlighted'));
 
-  // gather search termsfunction renderSkillSearchRow(key, headerText, matches, rowIndex) {
-  const section = document.createElement('div');
-  section.className = 'card-section';
-
-  // Header (highlighted red)
-  const header = document.createElement('h2');
-  header.className = 'skill-search-header';
-  header.textContent = headerText;
-  section.appendChild(header);
-
-  // Wrapper + grid
-  const wrapper = document.createElement('div');
-  wrapper.className = 'card-grid-wrapper';
-  wrapper.style.position = 'relative';
-
-  const grid = document.createElement('div');
-  grid.className = 'cards';
-  wrapper.appendChild(grid);
-
-  const controls = document.createElement('div');
-  controls.className = 'page-controls';
-  const leftBtn = document.createElement('button');
-  const rightBtn = document.createElement('button');
-  leftBtn.textContent = '◀';
-  rightBtn.textContent = '▶';
-  controls.appendChild(leftBtn);
-  controls.appendChild(rightBtn);
-  wrapper.appendChild(controls);
-
-  section.appendChild(wrapper);
-  cardSections.appendChild(section);
-
-  if (matches.length === 0) {
-    const noMsg = document.createElement('div');
-    noMsg.style.opacity = '0.6';
-    noMsg.textContent = '(No matching cards)';
-    grid.appendChild(noMsg);
-    return;
-  }
-
-  const pageKey = `${key}-${rowIndex}`;
-  const currentPage = sectionPages.get(pageKey) || 0;
-  sectionPages.set(pageKey, currentPage);
-
-  const CARDS_PER_PAGE = 6;
-
-  function renderPage(page) {
-    grid.innerHTML = '';
-    const startIdx = page * CARDS_PER_PAGE;
-    const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
-    pageCards.forEach(card => {
-      const cardEl = createCardElement(card);
-      
-      // --- HIGHLIGHT search term in this card ---
-      const searchTerm = document.getElementById(key)?.value.trim().toLowerCase();
-      if (searchTerm) {
-        cardEl.querySelectorAll('.skill').forEach(skillEl => {
-          if ((skillEl.textContent || '').toLowerCase().includes(searchTerm)) {
-            skillEl.style.background = '#b30000';
-            skillEl.style.color = '#fff';
-          }
-        });
-      }
-
-      grid.appendChild(cardEl);
-    });
-
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-    leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-    rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-    leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-    rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
-  }
-
-  renderPage(currentPage);
-
-  leftBtn.addEventListener('click', () => {
-    const newPage = sectionPages.get(pageKey) - 1;
-    if (newPage >= 0) {
-      sectionPages.set(pageKey, newPage);
-      renderPage(newPage);
-    }
-  });
-
-  rightBtn.addEventListener('click', () => {
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-    const newPage = sectionPages.get(pageKey) + 1;
-    if (newPage < totalPages) {
-      sectionPages.set(pageKey, newPage);
-      renderPage(newPage);
-    }
-  });
-}
-
+  // gather search terms
   const searchTerms = SKILL_SEARCH_KEYS
     .map(id => document.getElementById(id)?.value.trim().toLowerCase())
     .filter(Boolean);
@@ -679,6 +586,7 @@ function highlightSkillsInCards() {
       skillEl.classList.add('highlighted');
     }
   });
+}
 
 
 /* ------------- FILTER BUILDING & MATCHING ------------- */
@@ -961,22 +869,7 @@ function renderSections(){
     grid.innerHTML = '';
     const startIdx = page * CARDS_PER_PAGE;
     const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
-    pageCards.forEach(card => {
-      const cardEl = createCardElement(card);
-      
-      // --- HIGHLIGHT search term in this card ---
-      const searchTerm = document.getElementById(key)?.value.trim().toLowerCase();
-      if (searchTerm) {
-        cardEl.querySelectorAll('.skill').forEach(skillEl => {
-          if ((skillEl.textContent || '').toLowerCase().includes(searchTerm)) {
-            skillEl.style.background = '#b30000';
-            skillEl.style.color = '#fff';
-          }
-        });
-      }
-
-      grid.appendChild(cardEl);
-    });
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
     const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
     leftBtn.style.opacity = page > 0 ? '1' : '0.4';
@@ -1004,7 +897,6 @@ function renderSections(){
     }
   });
 }
-
 
   /* ---------------- HIGHLIGHT SKILLS BASED ON FILTER (custom colors + black text) ---------------- */
 (function(){
