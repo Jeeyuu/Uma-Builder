@@ -378,61 +378,60 @@ body {
 
 
 <script>
-/* ------------- CONFIG ------------- */
+/* ---------------- CONFIG ---------------- */
 const JSON_FILE = "transformed_supports.json";
 const HIDE = { char_id: false, url_name: true };
+const SLOT_KEY = 'saved_slots';
+const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
+const SKILL_SEARCH_KEYS = ['skillSearch1','skillSearch2','skillSearch3','skillSearch4','skillSearch5'];
+const CARDS_PER_PAGE = 6;
 
-/* ------------- STATE ------------- */
 let cardsData = [];
+let sectionPages = new Map();
+let slotListeners = new Map();
+let selectedCardIds = new Set();
+
 const cardSections = document.getElementById('cardSections');
 const slots = Array.from(document.querySelectorAll('.slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-const selectedCardIds = new Set();
-const sectionPages = new Map(); // pagination per section
-const slotListeners = new Map();
-const SLOT_KEY = 'saved_slots';
-const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
-const SKILL_SEARCH_KEYS = ['skillSearch1','skillSearch2','skillSearch3','skillSearch4','skillSearch5'];
 
-/* ------------- UTIL ------------- */
-function normalizeSkill(s){ return String(s||'').replace(/[◎○]/g,'').trim().toLowerCase(); }
-function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
-function getLengthCategory(distance){ if(distance<=1400)return'Sprint'; if(distance<=1800)return'Mile'; if(distance<=2400)return'Medium'; return'Long'; }
-function isStandardDistance(distance){ return distance%400===0; }
+/* ---------------- UTILS ---------------- */
+const normalize = s => String(s||'').replace(/[◎○]/g,'').trim().toLowerCase();
+const capitalize = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+const isStandardDistance = d => d % 400 === 0;
+const getLengthCategory = d => d<=1400?'Sprint':d<=1800?'Mile':d<=2400?'Medium':'Long';
+const escapeHtml = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------------- TYPE ICON MAP ---------------- */
 const typeMap = { "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","support":"05","group":"06" };
-function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-/* ------------- Fetch JSON ------------- */
+/* ---------------- FETCH JSON ---------------- */
 fetch(JSON_FILE)
-  .then(r=>{ if(!r.ok) throw new Error('Failed to fetch JSON: '+r.status); return r.json(); })
-  .then(data=>{
-    cardsData = data.map(card=>({
-      ...card,
-      char_id: card.char_id,
-      char_name: card.char_name,
-      hint_skills: card.hint_skills || [],
-      event_skills: card.event_skills || [],
-      type: (card.type || '').toLowerCase()
+  .then(r => r.ok ? r.json() : Promise.reject(`Failed: ${r.status}`))
+  .then(data => {
+    cardsData = data.map(c=>({
+      ...c,
+      type: (c.type||'').toLowerCase(),
+      hint_skills: c.hint_skills||[],
+      event_skills: c.event_skills||[]
     }));
-
-    setupFilterPersistence();  // restore filters first
-    setupSkillSearchPersistence();
-    loadSlotsFromLocalStorage(); // restore slots next
+    setupFilterPersistence();
+    setupSkillPersistence();
+    loadSlotsFromLocalStorage();
     renderSections();
   })
-  .catch(err=>{
-    console.error('Could not load JSON:', err);
-    cardSections.innerHTML='<div style="opacity:0.7;padding:12px;">Error loading data. Check JSON file path and content in console.</div>';
+  .catch(err => {
+    console.error(err);
+    cardSections.innerHTML='<div style="opacity:0.7;padding:12px;">Error loading data.</div>';
   });
 
-/* ------------- Card creation ------------- */
+/* ---------------- SLOT HANDLING ---------------- */
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
   el.dataset.id = card.char_id;
   el.dataset.supportId = card.support_id;
-  el.dataset.name = card.char_name;
 
   const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
   const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
@@ -445,71 +444,39 @@ function createCardElement(card){
   if(!HIDE.char_id) nameHtml += `<div style="font-size:10px;opacity:0.6;">ID: ${card.char_id}</div>`;
   if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
-  el.innerHTML = `
-    <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
-    <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
-    ${nameHtml}
-    <div class="skills">${skillsHTML}</div>
-  `;
+  el.innerHTML = `<div class="type-icon"><img src="${typeImg}"></div><img src="${imgSrc}">${nameHtml}<div class="skills">${skillsHTML}</div>`;
 
-  el.addEventListener('click', ()=> {
+  el.addEventListener('click', ()=>{
     const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
-    if(slot) removeFromSlot(slot, card);
-    else addToSlot(card);
+    slot ? removeFromSlot(slot, card) : addToSlot(card);
   });
 
-  return el; // <-- crucial fix: return the element
+  return el;
 }
 
-
-/* ------------- Slot handling & persistence ------------- */
-function saveSlotsToLocalStorage() {
-  // Save support_id for each slot instead of just char_id
-  const slotData = slots.map(s => s.dataset.supportId || null);
-  localStorage.setItem(SLOT_KEY, JSON.stringify(slotData));
-}
-
-function loadSlotsFromLocalStorage() {
-  const saved = localStorage.getItem(SLOT_KEY);
-  if (!saved) return;
-  const slotData = JSON.parse(saved);
-
-  slotData.forEach((supportId, index) => {
-    if (supportId) {
-      // Find card by support_id (unique)
-      const card = cardsData.find(c => String(c.support_id) === String(supportId));
-      if (card) addToSlot(card, slots[index], false); // false = don't save again
-    }
-  });
-}
-
-function addToSlot(card, targetSlot = null, save = true){
+function addToSlot(card, targetSlot=null, save=true){
   const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
   if(!freeSlot) return;
 
-  if(slotListeners.has(freeSlot)){
+  if(slotListeners.has(freeSlot)) {
     freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
     slotListeners.delete(freeSlot);
   }
 
-  let skillsHTML = '';
-  if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-  if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('')}</div>`;
-
+  const skillsHTML = [...card.hint_skills, ...card.event_skills].map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('');
   freeSlot.dataset.cardId = card.char_id;
-  freeSlot.dataset.supportId = card.support_id; // <--- save unique identifier
+  freeSlot.dataset.supportId = card.support_id;
   freeSlot.classList.add('has-card');
-  freeSlot.innerHTML = `<div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div><img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}"><div class="name">${escapeHtml(card.char_name)}</div><div class="skills">${skillsHTML}</div>`;
+  freeSlot.innerHTML = `<div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png"></div><img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png"><div class="name">${escapeHtml(card.char_name)}</div><div class="skills">${skillsHTML}</div>`;
 
-  function slotClickHandler(){ removeFromSlot(freeSlot, card); }
-  freeSlot.addEventListener('click', slotClickHandler);
-  slotListeners.set(freeSlot, slotClickHandler);
+  const handler = () => removeFromSlot(freeSlot, card);
+  freeSlot.addEventListener('click', handler);
+  slotListeners.set(freeSlot, handler);
 
   selectedCardIds.add(card.char_id);
   if(save) saveSlotsToLocalStorage();
   renderSections();
 }
-
 
 function removeFromSlot(slotEl, card){
   if(slotListeners.has(slotEl)){
@@ -524,502 +491,211 @@ function removeFromSlot(slotEl, card){
   renderSections();
 }
 
-/* ------------- Clear buttons ------------- */
+function saveSlotsToLocalStorage(){
+  const data = slots.map(s=>s.dataset.supportId||null);
+  localStorage.setItem(SLOT_KEY, JSON.stringify(data));
+}
+
+function loadSlotsFromLocalStorage(){
+  const saved = JSON.parse(localStorage.getItem(SLOT_KEY)||'[]');
+  saved.forEach((supportId, idx)=>{
+    if(supportId){
+      const card = cardsData.find(c=>String(c.support_id)===String(supportId));
+      if(card) addToSlot(card, slots[idx], false);
+    }
+  });
+}
+
+/* ---------------- CLEAR BUTTONS ---------------- */
 clearAllBtn.addEventListener('click', ()=>{
   selectedCardIds.clear();
-  slots.forEach(slot=>{
-    if(slotListeners.has(slot)){
-      slot.removeEventListener('click', slotListeners.get(slot));
-      slotListeners.delete(slot);
+  slots.forEach(s=>{
+    if(slotListeners.has(s)){
+      s.removeEventListener('click', slotListeners.get(s));
+      slotListeners.delete(s);
     }
-    slot.classList.remove('has-card');
-    delete slot.dataset.cardId;
-    slot.innerHTML='<div class="placeholder">Empty</div>';
+    s.classList.remove('has-card');
+    delete s.dataset.cardId;
+    s.innerHTML='<div class="placeholder">Empty</div>';
   });
   localStorage.removeItem(SLOT_KEY);
   renderSections();
 });
 
-clearFiltersBtn.addEventListener('click', () => {
-  FILTER_KEYS.forEach(id => {
+clearFiltersBtn.addEventListener('click', ()=>{
+  FILTER_KEYS.forEach(id=>{
     const el = document.getElementById(id);
-    if (el) el.value = '';
-    localStorage.removeItem('filter_' + id);
+    if(el) el.value = '';
+    localStorage.removeItem('filter_'+id);
   });
-
-  // Do NOT clear Skill Search inputs
-  // Re-render sections to reflect only dropdown clearing
   sectionPages.clear();
   renderSections();
 });
 
-
-/* ------------- Filter persistence ------------- */
+/* ---------------- FILTER & SKILL PERSISTENCE ---------------- */
 function setupFilterPersistence(){
   FILTER_KEYS.forEach(id=>{
-    const sel=document.getElementById(id); if(!sel)return;
-    const saved=localStorage.getItem('filter_'+id); if(saved) sel.value=saved;
-    sel.addEventListener('change', ()=>{
-      localStorage.setItem('filter_'+id, sel.value);
-      sectionPages.clear();
-      renderSections();
-    });
-  });
-}
-
-/* ------------- Skill Search persistence + rendering ------------- */
-function setupSkillSearchPersistence(){
-  SKILL_SEARCH_KEYS.forEach(id=>{
-    const input = document.getElementById(id);
-    if(!input) return;
-
+    const el = document.getElementById(id);
+    if(!el) return;
     const saved = localStorage.getItem('filter_'+id);
-    if(saved) input.value = saved;
-
-    input.addEventListener('input', ()=>{
-      localStorage.setItem('filter_'+id, input.value);
+    if(saved) el.value = saved;
+    el.addEventListener('change', ()=>{
+      localStorage.setItem('filter_'+id, el.value);
       sectionPages.clear();
       renderSections();
     });
   });
 }
 
-/* ------------- Highlight skills inside cards when searching ------------- */
-function highlightSkillsInCards() {
-  // remove old highlights
-  document.querySelectorAll('.card .skill, .slot .skill').forEach(el => {
-    el.classList.remove('highlighted');
+function setupSkillPersistence(){
+  SKILL_SEARCH_KEYS.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const saved = localStorage.getItem('filter_'+id);
+    if(saved) el.value = saved;
+    el.addEventListener('input', ()=>{
+      localStorage.setItem('filter_'+id, el.value);
+      sectionPages.clear();
+      renderSections();
+    });
+  });
+}
+
+/* ---------------- HIGHLIGHT SKILLS ---------------- */
+const filterColors = {
+  racecourse:'#ff7792', length:'#ffae77', direction:'#ffff77',
+  track:'#77ff92', season:'#77c9ff', weather:'#c977ff', strategy:'#ff77e4'
+};
+
+function highlightSkills(filters){
+  document.querySelectorAll('.skill').forEach(s=>{
+    s.style.background='#eef2ff';
+    s.style.color='#000';
   });
 
-  // gather Skill Search terms
-  const skillTerms = SKILL_SEARCH_KEYS
-    .map(id => document.getElementById(id)?.value.trim().toLowerCase())
-    .filter(Boolean);
+  const rules = [];
+  if(filters.racecourse) rules.push({color:filterColors.racecourse, terms:[`${filters.racecourse} Racecourse`]});
+  if(filters.length){
+    const d = parseInt(filters.length);
+    const cat = getLengthCategory(d);
+    const distType = isStandardDistance(d)?'Standard Distance':'Non-Standard Distance';
+    rules.push({color:filterColors.length, terms:[`${cat} Corners`, `${cat} Straightaways`, distType]});
+  }
+  if(filters.direction) rules.push({color:filterColors.direction, terms:[filters.direction==='Clockwise'?'Right-Handed':'Left-Handed']});
+  if(filters.track) rules.push({color:filterColors.track, terms:[filters.track==='Firm'?'Firm Conditions':'Wet Conditions']});
+  if(filters.season) rules.push({color:filterColors.season, terms:[`${filters.season} Runner`]});
+  if(filters.weather) rules.push({color:filterColors.weather, terms:[`${capitalize(filters.weather)} Days`]});
+  if(filters.strategy){
+    const s = filters.strategy;
+    rules.push({color:filterColors.strategy, terms:[`${s} Corners`, `${s} Straightaways`, `${s} Savvy`]});
+  }
 
-  if(skillTerms.length === 0) return;
-
-  document.querySelectorAll('.card .skill, .slot .skill').forEach(skillEl => {
-    const text = normalizeSkill(skillEl.textContent);
-    if(skillTerms.some(term => text.includes(term))) {
-      skillEl.classList.add('highlighted');
+  const normalizedRules = rules.map(r=>({color:r.color, terms:r.terms.map(normalize)}));
+  document.querySelectorAll('.skill').forEach(skill=>{
+    const t = normalize(skill.textContent||'');
+    for(const r of normalizedRules){
+      if(r.terms.includes(t)){
+        skill.style.background=r.color;
+        skill.style.color='#000';
+        break;
+      }
     }
   });
 }
 
-
-/* ------------- FILTER BUILDING & MATCHING ------------- */
+/* ---------------- FILTERING ---------------- */
 function buildFilterTerms(filters){
-  const terms=[];
+  const terms = [];
   if(filters.racecourse) terms.push(`${filters.racecourse} Racecourse`);
   if(filters.direction) terms.push(filters.direction==='Clockwise'?'Right-Handed':'Left-Handed');
   if(filters.track) terms.push(filters.track==='Firm'?'Firm Conditions':'Wet Conditions');
   if(filters.season) terms.push(`${filters.season} Runner`);
   if(filters.weather) terms.push(`${capitalize(filters.weather)} Days`);
-  if(filters.strategy){
-    const s=filters.strategy;
-    terms.push(`${s} Corners`,`${s} Straightaways`,`${s} Savvy`);
-  }
+  if(filters.strategy) terms.push(filters.strategy);
   if(filters.length){
-    const dist=parseInt(filters.length);
-    const label=getLengthCategory(dist);
-    terms.push(`${label} Corners`,`${label} Straightaways`,isStandardDistance(dist)?'Standard Distance':'Non-Standard Distance');
+    const d = parseInt(filters.length);
+    const cat = getLengthCategory(d);
+    terms.push(`${cat} Corners`);
+    terms.push(`${cat} Straightaways`);
+    terms.push(isStandardDistance(d)?'Standard Distance':'Non-Standard Distance');
   }
   return terms;
 }
-function filterCardsWithRules(cards,filters){
-  const terms=buildFilterTerms(filters).map(normalizeSkill);
-  const strictDistanceKeys=['standard distance','non-standard distance'];
-  const strictTerms=terms.filter(t=>strictDistanceKeys.includes(t));
-  const looseTerms=terms.filter(t=>!strictDistanceKeys.includes(t));
-  return cards.filter(card=>{
-    const skills=[...card.hint_skills,...card.event_skills].map(normalizeSkill);
-    return strictTerms.every(t=>skills.includes(t)) && looseTerms.every(term=>skills.some(s=>s.includes(term)));
+
+function getFilteredCards(){
+  const filters = FILTER_KEYS.reduce((acc, key)=>{
+    const val = document.getElementById(key)?.value||'';
+    if(val) acc[key]=val;
+    return acc;
+  }, {});
+  const skillTerms = SKILL_SEARCH_KEYS
+    .map(id=>document.getElementById(id)?.value.trim().toLowerCase())
+    .filter(Boolean);
+
+  return cardsData.filter(card=>{
+    const skills = [...card.hint_skills, ...card.event_skills].map(normalize);
+
+    // dropdown matching
+    const dropdownTerms = buildFilterTerms(filters).map(normalize);
+    const strictKeys = ['standard distance','non-standard distance'];
+    const strictTerms = dropdownTerms.filter(t=>strictKeys.includes(t));
+    const looseTerms = dropdownTerms.filter(t=>!strictKeys.includes(t));
+    const dropdownMatch = strictTerms.every(t=>skills.includes(t)) &&
+                          looseTerms.every(t=>skills.some(s=>s.includes(t)));
+
+    // skill search
+    const skillMatch = skillTerms.every(t=>skills.some(s=>s.includes(t)));
+
+    // exclude already selected card
+    const notSelected = !selectedCardIds.has(card.char_id) || slots.some(s=>Number(s.dataset.cardId)===card.char_id);
+
+    return dropdownMatch && skillMatch && notSelected;
   });
 }
 
-/* ------------- Rendering sections & pagination ------------- */
-function renderSections() {
-  cardSections.innerHTML='';
+/* ---------------- RENDER SECTIONS ---------------- */
+function renderSections(){
+  const filteredCards = getFilteredCards();
+  const totalPages = Math.ceil(filteredCards.length/CARDS_PER_PAGE) || 1;
+  let currentPage = sectionPages.get('all')||1;
+  if(currentPage>totalPages) currentPage = totalPages;
+  sectionPages.set('all', currentPage);
 
-  const filters = {
-    racecourse: document.getElementById('racecourse').value || '',
-    length: document.getElementById('length').value || '',
-    direction: document.getElementById('direction').value || '',
-    track: document.getElementById('track').value || '',
-    season: document.getElementById('season').value || '',
-    weather: document.getElementById('weather').value || '',
-    strategy: document.getElementById('strategy').value || ''
-  };
+  const start = (currentPage-1)*CARDS_PER_PAGE;
+  const end = start+CARDS_PER_PAGE;
 
-  const anyDropdownActive = Object.values(filters).some(v => v);
-  const anySkillActive = SKILL_SEARCH_KEYS.some(key => document.getElementById(key)?.value.trim());
-
-  if(!anyDropdownActive && !anySkillActive) {
-    const section = document.createElement('div');
-    section.className = 'card-section';
-    const msg = document.createElement('div');
-    msg.style.opacity = '0.7';
-    msg.style.padding = '0px';
-    msg.textContent = 'Pick a label on the left or type a skill to show matching cards.';
-    section.appendChild(msg);
-    cardSections.appendChild(section);
+  cardSections.innerHTML = '';
+  if(filteredCards.length===0){
+    cardSections.innerHTML='<div style="opacity:0.7;padding:12px;">No cards found.</div>';
     return;
   }
 
-  // Render dropdown filter rows
-  const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
-  filterOrder.forEach(catId => {
-    if (!filters[catId]) return;
+  const pageCards = filteredCards.slice(start,end);
+  pageCards.forEach(c=>cardSections.appendChild(createCardElement(c)));
 
-    if (catId === 'length') {
-      const dist = parseInt(filters.length);
-      const label = getLengthCategory(dist);
-      const distanceType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
+  // pagination
+  const pag = document.createElement('div');
+  pag.className='pagination';
+  if(currentPage>1){
+    const prev = document.createElement('button');
+    prev.textContent='Prev';
+    prev.addEventListener('click',()=>{sectionPages.set('all',currentPage-1); renderSections();});
+    pag.appendChild(prev);
+  }
+  if(currentPage<totalPages){
+    const next = document.createElement('button');
+    next.textContent='Next';
+    next.addEventListener('click',()=>{sectionPages.set('all',currentPage+1); renderSections();});
+    pag.appendChild(next);
+  }
+  cardSections.appendChild(pag);
 
-      [
-        { title: `${label} Corners`, terms: [`${label} Corners`] },
-        { title: `${label} Straightaways`, terms: [`${label} Straightaways`] },
-        { title: distanceType, terms: [distanceType] }
-      ].forEach((row, idx) => renderFilterRow(catId, row.title, row.terms, idx));
-
-    } else if (catId === 'strategy') {
-      const strat = filters.strategy;
-      const stratRows = [
-        { title: `${strat} Corners`, term: `${strat} Corners` },
-        { title: `${strat} Straightaways`, term: `${strat} Straightaways` },
-        { title: `${strat} Savvy`, term: `${strat} Savvy` }
-      ];
-      stratRows.forEach((row, idx) => renderFilterRow(catId, row.title, [row.term], idx));
-
-    } else {
-      let rowTerms = [], headerText = '';
-      switch (catId) {
-        case 'racecourse': rowTerms.push(`${filters.racecourse} Racecourse`); headerText = `${filters.racecourse} Racecourse`; break;
-        case 'direction': const dir = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed'; rowTerms.push(dir); headerText = dir; break;
-        case 'track': const trackLabel = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions'; rowTerms.push(trackLabel); headerText = trackLabel; break;
-        case 'season': rowTerms.push(`${filters.season} Runner`); headerText = `${filters.season} Runner`; break;
-        case 'weather': rowTerms.push(`${capitalize(filters.weather)} Days`); headerText = `${capitalize(filters.weather)} Days`; break;
-      }
-      renderFilterRow(catId, headerText, rowTerms, 0);
-    }
-  });
-
-  // Render Skill Search rows independently
-  SKILL_SEARCH_KEYS.forEach((key, i) => {
-    const val = document.getElementById(key)?.value.trim();
-    if (!val) return;
-
-    const normalized = normalizeSkill(val);
-    const matches = cardsData.filter(card => {
-      const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-      return skills.some(s => s.includes(normalized));
-    });
-
-    const header = `Skill Search ${i + 1}: "${val}"`;
-    renderSkillSearchRow(key, header, matches, i);
-  });
+  // highlight filtered skills
+  const filters = FILTER_KEYS.reduce((acc,key)=>{acc[key]=document.getElementById(key)?.value||'';return acc;}, {});
+  highlightSkills(filters);
 }
-
-
-  function renderFilterRow(catId,headerText,termList,rowIndex){
-    const section = document.createElement('div');
-    section.className = 'card-section';
-
-    const header = document.createElement('h2');
-    header.textContent = headerText;
-    section.appendChild(header);
-
-    // create wrapper
-    const wrapper = document.createElement('div');
-    wrapper.className = 'card-grid-wrapper'; // new class
-    wrapper.style.position = 'relative'; // ensure absolute positioning works
-
-    const grid = document.createElement('div');
-    grid.className = 'cards';
-    wrapper.appendChild(grid);
-
-    // pagination controls
-    const controls = document.createElement('div');
-    controls.className = 'page-controls';
-    const leftBtn = document.createElement('button'); leftBtn.textContent = '<';
-    const rightBtn = document.createElement('button'); rightBtn.textContent = '>';
-    [leftBtn, rightBtn].forEach(b => {
-      b.style.border = 'none';
-      b.style.borderRadius = '6px';
-      b.style.background = '#444';
-      b.style.color = '#fff';
-      b.style.padding = '2px 12px';
-      b.style.opacity = '0.4';
-      b.style.pointerEvents = 'none';
-    });
-    controls.appendChild(leftBtn);
-    controls.appendChild(rightBtn);
-
-    // append controls to wrapper instead of section
-    wrapper.appendChild(controls);
-
-    // finally append wrapper to section
-    section.appendChild(wrapper);
-
-    // normalize filter terms
-    const termsNormalized = termList.map(normalizeSkill);
-    const strictDistanceKeys = ['standard distance','non-standard distance'];
-    const strictTerms = termsNormalized.filter(t => strictDistanceKeys.includes(t));
-    const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
-
-    // get matching cards
-    const matches = cardsData.filter(card => {
-      const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-      return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
-    });
-
-    if(matches.length === 0){
-      const noMsg = document.createElement('div');
-      noMsg.style.opacity = '0.6';
-      noMsg.textContent = '(No matching cards)';
-      grid.appendChild(noMsg);
-      cardSections.appendChild(section);
-      return;
-    }
-
-    // current page
-    const pageKey = `${catId}-${rowIndex}`;
-    const currentPage = sectionPages.get(pageKey) || 0;
-    sectionPages.set(pageKey, currentPage);
-
-
-    const CARDS_PER_PAGE = 6;
-
-    function renderPage(page, matches, grid, leftBtn, rightBtn, pageKey){
-      grid.innerHTML = '';
-      const startIdx = page * CARDS_PER_PAGE;
-      const endIdx = startIdx + CARDS_PER_PAGE;
-      const pageCards = matches.slice(startIdx, endIdx);
-pageCards.forEach(card => grid.appendChild(createCardElement(card)));
-
-// Apply skill search highlights
-highlightSkillsInCards();
-
-// Apply dropdown filter highlights
-const filters = {
-  racecourse: document.getElementById('racecourse').value || '',
-  length: document.getElementById('length').value || '',
-  direction: document.getElementById('direction').value || '',
-  track: document.getElementById('track').value || '',
-  season: document.getElementById('season').value || '',
-  weather: document.getElementById('weather').value || '',
-  strategy: document.getElementById('strategy').value || ''
-};
-highlightSkills(filters);
-
-
-      const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-
-      leftBtn.style.display = totalPages > 1 ? 'inline-block' : 'none';
-      rightBtn.style.display = totalPages > 1 ? 'inline-block' : 'none';
-      leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-      leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-      rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-      rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
-
-      leftBtn.onclick = ()=>{ renderPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); sectionPages.set(pageKey,page-1); };
-      rightBtn.onclick = ()=>{ renderPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); sectionPages.set(pageKey,page+1); };
-    }
-
-    renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
-    cardSections.appendChild(section);
-    highlightSkillsInCards();
-  }
-
-  function renderSkillSearchRow(key, headerText, matches, rowIndex) {
-  const section = document.createElement('div');
-  section.className = 'card-section';
-
-  // Header (highlighted red)
-  const header = document.createElement('h2');
-  header.className = 'skill-search-header';
-  header.textContent = headerText;
-  header.style.background = '#8B0000'; // dark red
-  header.style.color = '#fff'; // white text
-  header.style.padding = '4px 8px';
-  header.style.borderRadius = '6px';
-  header.style.marginBottom = '8px';
-  section.appendChild(header);
-
-
-  // Wrapper + grid
-  const wrapper = document.createElement('div');
-  wrapper.className = 'card-grid-wrapper';
-  wrapper.style.position = 'relative';
-
-  const grid = document.createElement('div');
-  grid.className = 'cards';
-  wrapper.appendChild(grid);
-
-  const controls = document.createElement('div');
-  controls.className = 'page-controls';
-  const leftBtn = document.createElement('button');
-  const rightBtn = document.createElement('button');
-  leftBtn.textContent = '◀';
-  rightBtn.textContent = '▶';
-  controls.appendChild(leftBtn);
-  controls.appendChild(rightBtn);
-  wrapper.appendChild(controls);
-
-  section.appendChild(wrapper);
-  cardSections.appendChild(section);
-
-  if (matches.length === 0) {
-    const noMsg = document.createElement('div');
-    noMsg.style.opacity = '0.6';
-    noMsg.textContent = '(No matching cards)';
-    grid.appendChild(noMsg);
-    return;
-  }
-
-  const pageKey = `${key}-${rowIndex}`;
-  const currentPage = sectionPages.get(pageKey) || 0;
-  sectionPages.set(pageKey, currentPage);
-
-  const CARDS_PER_PAGE = 6;
-
-  function renderPage(page) {
-    grid.innerHTML = '';
-    const startIdx = page * CARDS_PER_PAGE;
-    const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
-pageCards.forEach(card => grid.appendChild(createCardElement(card)));
-highlightSkillsInCards();
-
-const filters = {
-  racecourse: document.getElementById('racecourse').value || '',
-  length: document.getElementById('length').value || '',
-  direction: document.getElementById('direction').value || '',
-  track: document.getElementById('track').value || '',
-  season: document.getElementById('season').value || '',
-  weather: document.getElementById('weather').value || '',
-  strategy: document.getElementById('strategy').value || ''
-};
-highlightSkills(filters);
-
-
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-    leftBtn.style.opacity = page > 0 ? '1' : '0.4';
-    rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
-    leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
-    rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
-  }
-
-  renderPage(currentPage);
-
-  leftBtn.addEventListener('click', () => {
-    const newPage = sectionPages.get(pageKey) - 1;
-    if (newPage >= 0) {
-      sectionPages.set(pageKey, newPage);
-      renderPage(newPage);
-    }
-  });
-
-  rightBtn.addEventListener('click', () => {
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-    const newPage = sectionPages.get(pageKey) + 1;
-    if (newPage < totalPages) {
-      sectionPages.set(pageKey, newPage);
-      renderPage(newPage);
-    }
-  });
-}
-
-/* ---------------- HIGHLIGHT SKILLS BASED ON FILTER (custom colors + black text) ---------------- */
-(function(){
-  const colorMap = {
-    racecourse: '#ff7792',
-    length: '#ffae77',
-    direction: '#ffff77',
-    track: '#77ff92',
-    season: '#77c9ff',
-    weather: '#c977ff',
-    strategy: '#ff77e4'
-  };
-
-  function highlightSkills(filters) {
-    // Reset all skill backgrounds
-    document.querySelectorAll('.skill, .slot .skill').forEach(skill => {
-      skill.style.background = '#eef2ff';
-      skill.style.color = '#000';
-    });
-
-    const rules = [];
-
-    if (filters.racecourse) rules.push({ color: colorMap.racecourse, terms: [`${filters.racecourse} Racecourse`] });
-    if (filters.length) {
-      const dist = parseInt(filters.length, 10);
-      const label = getLengthCategory(dist);
-      const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
-      rules.push({ color: colorMap.length, terms: [`${label} Corners`, `${label} Straightaways`, distType] });
-    }
-    if (filters.direction) {
-      const dirTerm = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
-      rules.push({ color: colorMap.direction, terms: [dirTerm] });
-    }
-    if (filters.track) {
-      const trackTerm = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions';
-      rules.push({ color: colorMap.track, terms: [trackTerm] });
-    }
-    if (filters.season) rules.push({ color: colorMap.season, terms: [`${filters.season} Runner`] });
-    if (filters.weather) rules.push({ color: colorMap.weather, terms: [`${capitalize(filters.weather)} Days`] });
-    if (filters.strategy) {
-      const s = filters.strategy;
-      rules.push({ color: colorMap.strategy, terms: [`${s} Corners`, `${s} Straightaways`, `${s} Savvy`] });
-    }
-
-    // Normalize and apply highlights
-    const normalizedRules = rules.map(r => ({
-      color: r.color,
-      terms: r.terms.map(normalizeSkill)
-    }));
-
-    document.querySelectorAll('.skill, .slot .skill').forEach(skill => {
-      const txt = normalizeSkill(skill.textContent || '');
-      for (const r of normalizedRules) {
-        if (r.terms.includes(txt)) {
-          skill.style.background = r.color;
-          skill.style.color = '#000';
-          break;
-        }
-      }
-    });
-  }
-
-  // Patch renderSections to reapply highlighting after rendering
-  const _origRenderSections = window.renderSections;
-  window.renderSections = function() {
-    _origRenderSections.apply(this, arguments);
-    const filters = {
-      racecourse: document.getElementById('racecourse').value || '',
-      length: document.getElementById('length').value || '',
-      direction: document.getElementById('direction').value || '',
-      track: document.getElementById('track').value || '',
-      season: document.getElementById('season').value || '',
-      weather: document.getElementById('weather').value || '',
-      strategy: document.getElementById('strategy').value || ''
-    };
-    highlightSkills(filters);
-  };
-
-  // Auto-update whenever a filter dropdown changes
-  ['racecourse','length','direction','track','season','weather','strategy']
-    .forEach(id => document.getElementById(id).addEventListener('change', renderSections));
-})();
-
-// Re-run filters with remembered dropdowns on reload
-document.addEventListener('DOMContentLoaded', () => {
-  renderSections();
-});
-
-// Recalculate pagination on resize
-window.addEventListener('resize', renderSections);
-
 </script>
+
 
 </body>
 </html>
