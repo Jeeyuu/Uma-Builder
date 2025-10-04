@@ -459,29 +459,6 @@ function createCardElement(card){
     if(slot) removeFromSlot(slot, card);
     else addToSlot(card);
   });
-
-  // Duplicate support label at the top
-  if(selectedCardIds.has(card.char_id)){
-    el.classList.add('disabled');
-
-    const dupLabel = document.createElement('div');
-    dupLabel.textContent = 'Duplicate Support';
-    dupLabel.style.position = 'absolute';
-    dupLabel.style.top = '0';
-    dupLabel.style.left = '0';
-    dupLabel.style.width = '100%';
-    dupLabel.style.background = 'red';
-    dupLabel.style.color = 'white';
-    dupLabel.style.fontSize = '10px';
-    dupLabel.style.fontWeight = 'bold';
-    dupLabel.style.textAlign = 'center';
-    dupLabel.style.padding = '2px 0';
-    dupLabel.style.borderTopLeftRadius = '6px';
-    dupLabel.style.borderTopRightRadius = '6px';
-    el.appendChild(dupLabel);
-  }
-
-  return el;
 }
 
 /* ------------- Slot handling & persistence ------------- */
@@ -740,8 +717,6 @@ function renderSections() {
     const header = `Skill Search ${i + 1}: "${val}"`;
     renderSkillSearchRow(key, header, matches, i);
   });
-
-  highlightSkillsInCards(); // reapply highlight after rendering
 }
 
 
