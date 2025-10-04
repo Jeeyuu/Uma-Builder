@@ -5,7 +5,7 @@
 <title>Uma Builder — Card Picker</title>
 <style>
 :root {
-  --card-w: 100px;  /* Balanced size */
+  --card-w: 120px;  /* Balanced size */
   --gap: 8px;       /* Reduced gap */
 }
 
@@ -46,6 +46,9 @@ body {
   background: #f5f5f5;
   overflow-y: auto;
   border-left: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the slots grid */
 }
 
 /* Right sidebar specific styles */
@@ -103,10 +106,10 @@ body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--gap);
-  width: 100%;
+  width: calc(var(--card-w) * 2 + var(--gap) * 1);
+  margin: 0 auto;
 }
 
-/* SLOT STYLES - Square when empty, expands when filled */
 .slot {
   border: 1px solid #ddd;
   padding: 8px;
@@ -116,25 +119,23 @@ body {
   flex-direction: column;
   align-items: center;
   cursor: pointer;
-  width: 100%;
-  min-height: 100px; /* Square when empty */
+  width: var(--card-w);
+  min-height: var(--card-w);
   position: relative;
   transition: min-height 0.3s ease;
 }
 
-/* Square placeholder for empty slots */
 .slot:not(.has-card) {
   border: 2px dashed #ccc;
   background: #fafafa;
-  aspect-ratio: 1; /* Perfect square */
-  min-height: 100px;
-  height: 100px;
+  aspect-ratio: 1;
+  min-height: var(--card-w);
+  height: var(--card-w);
 }
 
-/* Expanded slot when it has a card */
 .slot.has-card {
-  min-height: 220px; /* Expanded height */
-  aspect-ratio: auto; /* Remove square ratio */
+  min-height: calc(var(--card-w) * 2.2);
+  aspect-ratio: auto;
   height: auto;
 }
 
@@ -174,15 +175,15 @@ body {
   margin: 6px 0 4px 0;
   font-weight: 700;
   text-align: center;
-  font-size: 11px;
+  font-size: calc(11px * (var(--card-w) / 100)); /* Scale with card size */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .card img, .slot.has-card img {
-  max-width: 80px;
-  max-height: 80px;
+  max-width: calc(var(--card-w) * 0.8); /* 80% of card width */
+  max-height: calc(var(--card-w) * 0.8); /* 80% of card height */
   object-fit: contain;
 }
 
@@ -200,7 +201,7 @@ body {
   background: #eef2ff;
   border-radius: 4px;
   padding: 2px 4px;
-  font-size: 8px;
+  font-size: calc(8px * (var(--card-w) / 100)); /* Scale with card size */
   word-break: break-word;
   white-space: normal;
   text-align: center;
