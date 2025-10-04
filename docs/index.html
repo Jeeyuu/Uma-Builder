@@ -918,17 +918,24 @@ function renderSections() {
   const anyDropdownActive = Object.values(filters).some(v => v);
   const anySkillActive = SKILL_SEARCH_KEYS.some(key => document.getElementById(key)?.value.trim());
 
-  if(!anyDropdownActive && !anySkillActive) {
-    const section = document.createElement('div');
-    section.className = 'card-section';
-    const msg = document.createElement('div');
-    msg.style.opacity = '0.7';
-    msg.style.padding = '0px';
-    msg.textContent = 'Pick a label on the left or type a skill to show matching cards.';
-    section.appendChild(msg);
-    cardSections.appendChild(section);
-    return;
-  }
+if(!anyDropdownActive && !anySkillActive) {
+  const section = document.createElement('div');
+  section.className = 'card-section';
+  section.style.display = 'flex';
+  section.style.flexDirection = 'column';
+  section.style.alignItems = 'center';
+  section.style.justifyContent = 'center';
+  const msg = document.createElement('div');
+  msg.style.opacity = '0.7';
+  msg.style.padding = '0px';
+  msg.style.marginTop = '20px';
+  msg.style.marginBottom = '10px';
+  msg.style.textAlign = 'center';
+  msg.textContent = 'Pick a label on the left or type a skill to show matching cards.';
+  section.appendChild(msg);
+  cardSections.appendChild(section);
+  return;
+}
 
   const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
   filterOrder.forEach(catId => {
