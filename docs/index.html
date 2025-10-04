@@ -300,6 +300,15 @@ select {
         <option>Front Runner</option><option>Pace Chaser</option><option>Late Surger</option><option>End Closer</option>
       </select>
     </div>
+        <!-- Skill Search Bars -->
+    <div id="skillSearchGroup">
+      <label style="font-weight:700; margin-bottom:4px;">Skill Search</label>
+      <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill 1">
+      <input type="text" id="skillSearch2" class="skill-search" placeholder="Search skill 2">
+      <input type="text" id="skillSearch3" class="skill-search" placeholder="Search skill 3">
+      <input type="text" id="skillSearch4" class="skill-search" placeholder="Search skill 4">
+      <input type="text" id="skillSearch5" class="skill-search" placeholder="Search skill 5">
+    </div>
     <button id="clearFiltersBtn" class="clear-all" style="margin-top:auto;">Clear Filters</button>
   </div>
 
@@ -335,6 +344,7 @@ const sectionPages = new Map(); // pagination per section
 const slotListeners = new Map();
 const SLOT_KEY = 'saved_slots';
 const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
+const SKILL_SEARCH_KEYS = ['skillSearch1','skillSearch2','skillSearch3','skillSearch4','skillSearch5'];
 
 /* ------------- UTIL ------------- */
 function normalizeSkill(s){ return String(s||'').replace(/[◎○]/g,'').trim().toLowerCase(); }
@@ -358,6 +368,7 @@ fetch(JSON_FILE)
     }));
 
     setupFilterPersistence();  // restore filters first
+    setupSkillSearchPersistence();
     loadSlotsFromLocalStorage(); // restore slots next
     renderSections();
   })
@@ -524,6 +535,24 @@ function setupFilterPersistence(){
   });
 }
 
+/* ------------- Skill Search persistence + rendering ------------- */
+function setupSkillSearchPersistence(){
+  SKILL_SEARCH_KEYS.forEach(id=>{
+    const input = document.getElementById(id);
+    if(!input) return;
+
+    const saved = localStorage.getItem('filter_'+id);
+    if(saved) input.value = saved;
+
+    input.addEventListener('input', ()=>{
+      localStorage.setItem('filter_'+id, input.value);
+      sectionPages.clear();
+      renderSections();
+    });
+  });
+}
+
+
 /* ------------- FILTER BUILDING & MATCHING ------------- */
 function buildFilterTerms(filters){
   const terms=[];
@@ -583,6 +612,22 @@ function renderSections(){
   const filterOrder=['racecourse','length','direction','track','season','weather','strategy'];
   filterOrder.forEach(catId=>{
     if(!filters[catId]) return;
+
+    // Skill Search Rows
+    SKILL_SEARCH_KEYS.forEach((key, i) => {
+      const val = document.getElementById(key)?.value.trim();
+      if(!val) return;
+
+      const normalized = normalizeSkill(val);
+      const matches = cardsData.filter(card => {
+        const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
+        return skills.some(s => s.includes(normalized));
+      });
+
+      const header = `Skill Search ${i+1}: "${val}"`;
+      renderSkillSearchRow(key, header, matches, i);
+    });
+
 
     // handle length separately
     if(catId==='length'){
@@ -740,6 +785,79 @@ function renderSections(){
     cardSections.appendChild(section);
   }
 
+  function renderSkillSearchRow(key, headerText, matches, rowIndex){
+  const section = document.createElement('div');
+  section.className = 'card-section';
+
+  const header = document.createElement('h2');
+  header.textContent = headerText;
+  section.appendChild(header);
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card-grid-wrapper';
+  wrapper.style.position = 'relative';
+
+  const grid = document.createElement('div');
+  grid.className = 'cards';
+  wrapper.appendChild(grid);
+
+  const controls = document.createElement('div');
+  controls.className = 'page-controls';
+  const leftBtn = document.createElement('button'); leftBtn.textContent = '<';
+  const rightBtn = document.createElement('button'); rightBtn.textContent = '>';
+  controls.appendChild(leftBtn);
+  controls.appendChild(rightBtn);
+  wrapper.appendChild(controls);
+
+  section.appendChild(wrapper);
+  cardSections.appendChild(section);
+
+  if(matches.length === 0){
+    const noMsg = document.createElement('div');
+    noMsg.style.opacity = '0.6';
+    noMsg.textContent = '(No matching cards)';
+    grid.appendChild(noMsg);
+    return;
+  }
+
+  const pageKey = `${key}-${rowIndex}`;
+  const currentPage = sectionPages.get(pageKey) || 0;
+  sectionPages.set(pageKey, currentPage);
+
+  const CARDS_PER_PAGE = 6;
+
+  function renderPage(page){
+    grid.innerHTML = '';
+    const startIdx = page * CARDS_PER_PAGE;
+    const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    leftBtn.style.opacity = page > 0 ? '1' : '0.4';
+    rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
+    leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
+    rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
+  }
+
+  renderPage(currentPage);
+
+  leftBtn.addEventListener('click', ()=>{
+    if(currentPage > 0){
+      sectionPages.set(pageKey, currentPage - 1);
+      renderPage(currentPage - 1);
+    }
+  });
+
+  rightBtn.addEventListener('click', ()=>{
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    if(currentPage < totalPages - 1){
+      sectionPages.set(pageKey, currentPage + 1);
+      renderPage(currentPage + 1);
+    }
+  });
+}
+
+  
   /* ---------------- HIGHLIGHT SKILLS BASED ON FILTER (custom colors + black text) ---------------- */
 (function(){
   const colorMap = {
