@@ -445,6 +445,7 @@ function createCardElement(card){
   if(!HIDE.char_id) nameHtml += `<div style="font-size:10px;opacity:0.6;">ID: ${card.char_id}</div>`;
   if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:10px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
+  // Base card content
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
     <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
@@ -452,15 +453,13 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
+  // Handle click
   el.addEventListener('click', ()=> {
     const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
     if(slot) removeFromSlot(slot, card);
     else addToSlot(card);
   });
-
-  return el; // <-- crucial fix: return the element
 }
-
 
 /* ------------- Slot handling & persistence ------------- */
 function saveSlotsToLocalStorage() {
