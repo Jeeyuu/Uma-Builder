@@ -94,8 +94,6 @@ body {
   right: 0;
   display: flex;
   gap: 4px;
-  width: calc(var(--card-w) * 6 + var(--gap) * 5); /* Match the card grid width */
-  justify-content: flex-end;
 }
 
 .page-controls button {
@@ -146,25 +144,23 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 100%;
-  max-width: calc((var(--card-w) + var(--gap)) * 6); /* constrain max width */
+  width: calc(var(--card-w) * 6 + var(--gap) * 5); /* exact width: 6 cards + 5 gaps */
   margin: 0 auto; /* center horizontally */
 }
 
-/* SLOTS GRID */
 .slots {
   display: grid;
   grid-template-columns: repeat(6, var(--card-w));
   gap: var(--gap);
   margin-bottom: 24px;
-  width: 100%;
+  width: calc(var(--card-w) * 6 + var(--gap) * 5);
 }
 
-/* CARD GRID */
 .cards {
   display: grid;
   grid-template-columns: repeat(6, var(--card-w));
   gap: var(--gap);
+  width: calc(var(--card-w) * 6 + var(--gap) * 5);
 }
 
 /* SLOT & CARD BLOCK */
