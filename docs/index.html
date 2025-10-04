@@ -66,10 +66,15 @@ body {
   padding: 3px 6px;
 }
 
-/* ---------- HIGHLIGHT STYLE ---------- */
+/* ---------- HIGHLIGHT STYLES ---------- */
 .skill.highlighted {
   outline: 2px solid #ff9900;
   outline-offset: -2px;
+}
+
+.skill.search-highlighted {
+  background: #ff4444 !important;
+  color: white !important;
 }
 
 
@@ -606,23 +611,92 @@ function setupSkillSearchPersistence(){
   });
 }
 
-/* ------------- Highlight skills inside cards when searching ------------- */
-function highlightSkillsInCards() {
-  // remove old highlights
-  document.querySelectorAll('.skill.highlighted').forEach(el => el.classList.remove('highlighted'));
+/* ------------- CONCISE HIGHLIGHTING LOGIC ------------- */
+function highlightSkills() {
+  // Reset all highlights
+  document.querySelectorAll('.skill').forEach(skill => {
+    skill.classList.remove('highlighted', 'search-highlighted');
+    skill.style.background = '#eef2ff';
+    skill.style.color = '#000';
+  });
 
-  // gather Skill Search terms
-  const skillTerms = SKILL_SEARCH_KEYS
+  // Gather dropdown filter terms
+  const filters = {
+    racecourse: document.getElementById('racecourse').value || '',
+    length: document.getElementById('length').value || '',
+    direction: document.getElementById('direction').value || '',
+    track: document.getElementById('track').value || '',
+    season: document.getElementById('season').value || '',
+    weather: document.getElementById('weather').value || '',
+    strategy: document.getElementById('strategy').value || ''
+  };
+
+  // Gather search terms
+  const searchTerms = SKILL_SEARCH_KEYS
     .map(id => document.getElementById(id)?.value.trim().toLowerCase())
     .filter(Boolean);
 
-  if(skillTerms.length === 0) return;
+  // Color mapping for dropdown filters
+  const colorMap = {
+    racecourse: '#ff7792',
+    length: '#ffae77',
+    direction: '#ffff77',
+    track: '#77ff92',
+    season: '#77c9ff',
+    weather: '#c977ff',
+    strategy: '#ff77e4'
+  };
 
-  // loop all skill divs and mark those containing any search term
-  document.querySelectorAll('.card .skill').forEach(skillEl => {
-    const text = normalizeSkill(skillEl.textContent);
-    if(skillTerms.some(term => text.includes(term))) {
-      skillEl.classList.add('highlighted');
+  // Build dropdown filter terms
+  const dropdownTerms = [];
+  if (filters.racecourse) dropdownTerms.push({ term: `${filters.racecourse} Racecourse`, color: colorMap.racecourse });
+  if (filters.direction) {
+    const dirTerm = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
+    dropdownTerms.push({ term: dirTerm, color: colorMap.direction });
+  }
+  if (filters.track) {
+    const trackTerm = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions';
+    dropdownTerms.push({ term: trackTerm, color: colorMap.track });
+  }
+  if (filters.season) dropdownTerms.push({ term: `${filters.season} Runner`, color: colorMap.season });
+  if (filters.weather) dropdownTerms.push({ term: `${capitalize(filters.weather)} Days`, color: colorMap.weather });
+  if (filters.strategy) {
+    const s = filters.strategy;
+    dropdownTerms.push(
+      { term: `${s} Corners`, color: colorMap.strategy },
+      { term: `${s} Straightaways`, color: colorMap.strategy },
+      { term: `${s} Savvy`, color: colorMap.strategy }
+    );
+  }
+  if (filters.length) {
+    const dist = parseInt(filters.length, 10);
+    const label = getLengthCategory(dist);
+    const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
+    dropdownTerms.push(
+      { term: `${label} Corners`, color: colorMap.length },
+      { term: `${label} Straightaways`, color: colorMap.length },
+      { term: distType, color: colorMap.length }
+    );
+  }
+
+  // Apply highlights
+  document.querySelectorAll('.skill').forEach(skill => {
+    const skillText = normalizeSkill(skill.textContent || '');
+    
+    // Check search terms first (highest priority - red background)
+    if (searchTerms.some(term => skillText.includes(term))) {
+      skill.classList.add('search-highlighted');
+      return; // Search terms take precedence
+    }
+    
+    // Check dropdown filter terms (orange outline)
+    for (const { term, color } of dropdownTerms) {
+      if (skillText === normalizeSkill(term)) {
+        skill.style.background = color;
+        skill.style.color = '#000';
+        skill.classList.add('highlighted');
+        break;
+      }
     }
   });
 }
@@ -739,7 +813,7 @@ function renderSections() {
     renderSkillSearchRow(key, header, matches, i);
   });
 
-  highlightSkillsInCards(); // reapply highlight after rendering
+  highlightSkills(); // Apply the new concise highlighting logic
 }
 
 
@@ -834,7 +908,6 @@ function renderSections() {
 
     renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
     cardSections.appendChild(section);
-    highlightSkillsInCards();
   }
 
   function renderSkillSearchRow(key, headerText, matches, rowIndex) {
@@ -915,124 +988,6 @@ function renderSections() {
     }
   });
 }
-
-  /* ---------------- HIGHLIGHT SKILLS BASED ON FILTER (custom colors + black text) ---------------- */
-(function(){
-  const colorMap = {
-    racecourse: '#ff7792',
-    length: '#ffae77',
-    direction: '#ffff77',
-    track: '#77ff92',
-    season: '#77c9ff',
-    weather: '#c977ff',
-    strategy: '#ff77e4'
-  };
-
-  function highlightSkills(filters) {
-    // Reset all skill backgrounds
-    document.querySelectorAll('.skill').forEach(skill => {
-      skill.style.background = '#eef2ff';
-      skill.style.color = '#000';
-    });
-
-    const rules = [];
-
-    // RACECOURSE
-    if (filters.racecourse) {
-      rules.push({
-        color: colorMap.racecourse,
-        terms: [`${filters.racecourse} Racecourse`]
-      });
-    }
-
-    // LENGTH
-    if (filters.length) {
-      const dist = parseInt(filters.length, 10);
-      const label = getLengthCategory(dist);
-      const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
-      rules.push({
-        color: colorMap.length,
-        terms: [`${label} Corners`, `${label} Straightaways`, distType]
-      });
-    }
-
-    // DIRECTION
-    if (filters.direction) {
-      const dirTerm = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
-      rules.push({
-        color: colorMap.direction,
-        terms: [dirTerm]
-      });
-    }
-
-    // TRACK CONDITIONS
-    if (filters.track) {
-      const trackTerm = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions';
-      rules.push({
-        color: colorMap.track,
-        terms: [trackTerm]
-      });
-    }
-
-    // SEASON
-    if (filters.season) {
-      rules.push({
-        color: colorMap.season,
-        terms: [`${filters.season} Runner`]
-      });
-    }
-
-    // WEATHER
-    if (filters.weather) {
-      rules.push({
-        color: colorMap.weather,
-        terms: [`${capitalize(filters.weather)} Days`]
-      });
-    }
-
-    // STRATEGY
-    if (filters.strategy) {
-      const s = filters.strategy;
-      rules.push({
-        color: colorMap.strategy,
-        terms: [`${s} Corners`, `${s} Straightaways`, `${s} Savvy`]
-      });
-    }
-
-    // Normalize and apply highlights
-    const normalizedRules = rules.map(r => ({
-      color: r.color,
-      terms: r.terms.map(normalizeSkill)
-    }));
-
-    document.querySelectorAll('.skill').forEach(skill => {
-      const txt = normalizeSkill(skill.textContent || '');
-      for (const r of normalizedRules) {
-        if (r.terms.includes(txt)) {
-          skill.style.background = r.color;
-          skill.style.color = '#000';
-          break;
-        }
-      }
-    });
-  }
-
-  // Patch renderSections to reapply highlighting after rendering
-  const _origRenderSections = window.renderSections;
-  window.renderSections = function() {
-    _origRenderSections.apply(this, arguments);
-    const filters = {
-      racecourse: document.getElementById('racecourse').value || '',
-      length: document.getElementById('length').value || '',
-      direction: document.getElementById('direction').value || '',
-      track: document.getElementById('track').value || '',
-      season: document.getElementById('season').value || '',
-      weather: document.getElementById('weather').value || '',
-      strategy: document.getElementById('strategy').value || ''
-    };
-    highlightSkills(filters);
-  };
-})();
 
 // Auto-update whenever a filter dropdown changes
 ['racecourse','length','direction','track','season','weather','strategy']
