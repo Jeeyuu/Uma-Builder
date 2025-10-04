@@ -67,11 +67,6 @@ body {
 }
 
 /* ---------- HIGHLIGHT STYLES ---------- */
-.skill.highlighted {
-  outline: 2px solid #ff9900;
-  outline-offset: -2px;
-}
-
 .skill.search-highlighted {
   background: #ff4444 !important;
   color: white !important;
@@ -902,8 +897,18 @@ function renderSections() {
       rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
       rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
 
-      leftBtn.onclick = ()=>{ renderPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); sectionPages.set(pageKey,page-1); };
-      rightBtn.onclick = ()=>{ renderPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); sectionPages.set(pageKey,page+1); };
+      leftBtn.onclick = ()=>{ 
+        renderPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
+        sectionPages.set(pageKey,page-1);
+        highlightSkills(); // Reapply highlights after page change
+      };
+      rightBtn.onclick = ()=>{ 
+        renderPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
+        sectionPages.set(pageKey,page+1);
+        highlightSkills(); // Reapply highlights after page change
+      };
+      
+      highlightSkills(); // Apply highlights after rendering the page
     }
 
     renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
@@ -967,6 +972,8 @@ function renderSections() {
     rightBtn.style.opacity = page < totalPages - 1 ? '1' : '0.4';
     leftBtn.style.pointerEvents = page > 0 ? 'auto' : 'none';
     rightBtn.style.pointerEvents = page < totalPages - 1 ? 'auto' : 'none';
+    
+    highlightSkills(); // Apply highlights after rendering the page
   }
 
   renderPage(currentPage);
@@ -976,6 +983,7 @@ function renderSections() {
     if (newPage >= 0) {
       sectionPages.set(pageKey, newPage);
       renderPage(newPage);
+      highlightSkills(); // Reapply highlights after page change
     }
   });
 
@@ -985,6 +993,7 @@ function renderSections() {
     if (newPage < totalPages) {
       sectionPages.set(pageKey, newPage);
       renderPage(newPage);
+      highlightSkills(); // Reapply highlights after page change
     }
   });
 }
