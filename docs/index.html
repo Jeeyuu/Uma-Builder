@@ -609,7 +609,9 @@ function setupSkillSearchPersistence(){
 /* ------------- Highlight skills inside cards when searching ------------- */
 function highlightSkillsInCards() {
   // remove old highlights
-  document.querySelectorAll('.skill.highlighted').forEach(el => el.classList.remove('highlighted'));
+  document.querySelectorAll('.card .skill, .slot .skill').forEach(el => {
+    el.classList.remove('highlighted');
+  });
 
   // gather Skill Search terms
   const skillTerms = SKILL_SEARCH_KEYS
@@ -618,14 +620,14 @@ function highlightSkillsInCards() {
 
   if(skillTerms.length === 0) return;
 
-  // loop all skill divs and mark those containing any search term
-  document.querySelectorAll('.card .skill').forEach(skillEl => {
+  document.querySelectorAll('.card .skill, .slot .skill').forEach(skillEl => {
     const text = normalizeSkill(skillEl.textContent);
     if(skillTerms.some(term => text.includes(term))) {
       skillEl.classList.add('highlighted');
     }
   });
 }
+
 
 /* ------------- FILTER BUILDING & MATCHING ------------- */
 function buildFilterTerms(filters){
@@ -818,6 +820,7 @@ function renderSections() {
       const endIdx = startIdx + CARDS_PER_PAGE;
       const pageCards = matches.slice(startIdx, endIdx);
       pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+      highlightSkillsInCards();
 
       const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
 
@@ -845,7 +848,13 @@ function renderSections() {
   const header = document.createElement('h2');
   header.className = 'skill-search-header';
   header.textContent = headerText;
+  header.style.background = '#8B0000'; // dark red
+  header.style.color = '#fff'; // white text
+  header.style.padding = '4px 8px';
+  header.style.borderRadius = '6px';
+  header.style.marginBottom = '8px';
   section.appendChild(header);
+
 
   // Wrapper + grid
   const wrapper = document.createElement('div');
@@ -888,6 +897,7 @@ function renderSections() {
     const startIdx = page * CARDS_PER_PAGE;
     const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
     pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+    highlightSkillsInCards();
 
     const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
     leftBtn.style.opacity = page > 0 ? '1' : '0.4';
@@ -930,10 +940,17 @@ function renderSections() {
 
   function highlightSkills(filters) {
     // Reset all skill backgrounds
-    document.querySelectorAll('.skill').forEach(skill => {
-      skill.style.background = '#eef2ff';
-      skill.style.color = '#000';
+    document.querySelectorAll('.skill, .slot .skill').forEach(skill => {
+      const txt = normalizeSkill(skill.textContent || '');
+      for (const r of normalizedRules) {
+        if (r.terms.includes(txt)) {
+          skill.style.background = r.color;
+          skill.style.color = '#000';
+          break;
+        }
+      }
     });
+
 
     const rules = [];
 
