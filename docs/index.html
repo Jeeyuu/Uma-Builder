@@ -203,15 +203,15 @@ body {
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 2px solid #ccc;
+  border: none; /* Remove border by default */
 }
 
 .toggle-button:hover {
-  border-color: #999;
+  background: #f0f0f0; /* Light gray background on hover */
 }
 
 .toggle-button.active {
-  background: #444;
+  background: none; /* Remove background when active */
 }
 
 /* Rarity buttons - full width, no border radius */
@@ -224,23 +224,27 @@ body {
   flex: 1;
   height: 28px;
   border-radius: 0;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid #ccc; /* Keep dividers between buttons */
 }
 
 .rarity-buttons .toggle-button:last-child {
-  border-right: 2px solid #ccc;
+  border-right: none; /* Remove border from last button */
 }
 
 .rarity-buttons .toggle-button img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: grayscale(100%);
+  filter: grayscale(100%) opacity(0.6); /* Gray and semi-transparent when inactive */
   transition: filter 0.2s ease;
 }
 
 .rarity-buttons .toggle-button.active img {
-  filter: grayscale(0%);
+  filter: grayscale(0%) opacity(1); /* Full color and opacity when active */
+}
+
+.rarity-buttons .toggle-button:hover img {
+  filter: grayscale(100%) opacity(0.8); /* Slightly less gray on hover */
 }
 
 /* Type buttons - no border, minimal gap, square aspect ratio */
@@ -262,12 +266,16 @@ body {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: grayscale(100%);
+  filter: grayscale(100%) opacity(0.6); /* Gray and semi-transparent when inactive */
   transition: filter 0.2s ease;
 }
 
 .type-buttons .toggle-button.active img {
-  filter: grayscale(0%);
+  filter: grayscale(0%) opacity(1); /* Full color and opacity when active */
+}
+
+.type-buttons .toggle-button:hover img {
+  filter: grayscale(100%) opacity(0.8); /* Slightly less gray on hover */
 }
 
 /* Ensure images maintain aspect ratio */
