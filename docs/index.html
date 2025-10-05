@@ -625,6 +625,7 @@ body {
   justify-content: center;
   font-size: 16px;
   transition: all 0.2s ease;
+  margin-top: 20px; /* Align with select */
 }
 
 .sort-order-btn:hover {
@@ -700,8 +701,9 @@ body {
     </div>
   </div>
 
-  <!-- ADD SORTING CONTROLS HERE -->
-  <div class="filter-group">
+<!-- ADD SORTING CONTROLS HERE -->
+<div class="filter-group" style="display: flex; gap: 8px; align-items: center;">
+  <div style="flex: 1;">
     <label for="sortBy">Sort By</label>
     <select id="sortBy">
       <option value="rarity">Rarity</option>
@@ -711,21 +713,18 @@ body {
       <option value="support_id">Game ID Number</option>
     </select>
   </div>
+  <button id="sortOrder" class="sort-order-btn ascending" style="margin-top: 20px; width: 40px; height: 32px; border: 1px solid #ccc; background: #444; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+    ↑
+  </button>
+</div>
 
-  <div class="filter-group" style="display: flex; gap: 8px; align-items: center;">
-    <label for="sortOrder" style="flex: 1;">Order</label>
-    <button id="sortOrder" class="sort-order-btn" style="width: 40px; height: 32px; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;">
-      ↓
-    </button>
-  </div>
-
-  <div class="filter-group">
-    <label for="region">Region</label>
-    <select id="region">
-      <option value="global">Global</option>
-      <option value="japan">Japan</option>
-    </select>
-  </div>
+<div class="filter-group">
+  <label for="region">Region</label>
+  <select id="region">
+    <option value="global">Global</option>
+    <option value="japan">Japan</option>
+  </select>
+</div>
 
   <!-- ADD THIS DIVIDER -->
   <div class="skill-search-divider"></div>
@@ -1159,8 +1158,8 @@ FILTER_KEYS.push('presets');
 
 /* ------------- NEW STATE VARIABLES ------------- */
 let sortBy = 'rarity';
-let sortOrder = 'descending'; // 'ascending' or 'descending'
-let region = 'global';
+let sortOrder = 'ascending'; // CHANGED TO ASCENDING
+let region = 'global'; // CHANGED TO GLOBAL
 
 /* ------------- SETUP NEW CONTROLS ------------- */
 function setupSortingControls() {
@@ -1181,10 +1180,17 @@ function setupSortingControls() {
     sortOrder = savedSortOrder;
     sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
     sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
+  } else {
+    // SET DEFAULT TO ASCENDING
+    sortOrderBtn.textContent = '↑';
+    sortOrderBtn.classList.add('ascending');
   }
   if (savedRegion) {
     region = savedRegion;
     regionSelect.value = savedRegion;
+  } else {
+    // SET DEFAULT TO GLOBAL
+    regionSelect.value = 'global';
   }
 
   // Event listeners
@@ -1212,7 +1218,6 @@ function setupSortingControls() {
   });
 }
 
-/* ------------- Card creation ------------- */
 /* ------------- UPDATED CARD CREATION WITH REGION SUPPORT ------------- */
 function createCardElement(card){
   const el = document.createElement('div');
@@ -1373,18 +1378,19 @@ clearFiltersBtn.addEventListener('click', () => {
     button.classList.remove('active');
   });
   
+  // Clear sorting and region controls
   sortBy = 'rarity';
-  sortOrder = 'descending';
-  region = 'global';
+  sortOrder = 'ascending'; // CHANGED TO ASCENDING
+  region = 'global'; // CHANGED TO GLOBAL
   
   document.getElementById('sortBy').value = 'rarity';
-  document.getElementById('sortOrder').textContent = '↓';
-  document.getElementById('sortOrder').classList.remove('ascending');
-  document.getElementById('region').value = 'global';
+  document.getElementById('sortOrder').textContent = '↑'; // CHANGED TO UP ARROW
+  document.getElementById('sortOrder').classList.add('ascending');
+  document.getElementById('region').value = 'global'; // CHANGED TO GLOBAL
   
   localStorage.setItem('sortBy', 'rarity');
-  localStorage.setItem('sortOrder', 'descending');
-  localStorage.setItem('region', 'global');
+  localStorage.setItem('sortOrder', 'ascending'); // CHANGED TO ASCENDING
+  localStorage.setItem('region', 'global'); // CHANGED TO GLOBAL
 
   // Remove all but the first search box
   const skillSearchGroup = document.getElementById('skillSearchGroup');
@@ -1644,7 +1650,7 @@ function sortCards(cards, sortBy, order) {
   });
   
   // REVERSE THE ARRAY SO HIGHEST PRIORITY CARDS APPEAR IN TOP-LEFT POSITIONS
-  // This ensures SSR/newest cards appear first in the grid (top-left)
+  // With ascending default, this will put SSR cards first
   return sortedCards.reverse();
 }
 
