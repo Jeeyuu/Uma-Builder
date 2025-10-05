@@ -1045,33 +1045,26 @@ function setupRemoveButton(searchId) {
   });
 }
 
-function removeSearchBox(searchId) {
-  // REMOVED: Don't remove the first search box restriction
-  // if (searchId === 'skillSearch1') return;
-
-  const searchContainer = document.querySelector(`.search-input-container input#${searchId}`)?.parentNode;
-  if (!searchContainer) return;
-
-  // Remove from DOM
-  searchContainer.remove();
-
-  // Remove from arrays and localStorage
-  const index = SKILL_SEARCH_KEYS.indexOf(searchId);
-  if (index > -1) {
-    SKILL_SEARCH_KEYS.splice(index, 1);
+function removeFromSlot(slotEl, card){
+  if(slotListeners.has(slotEl)){
+    slotEl.removeEventListener('click', slotListeners.get(slotEl));
+    slotListeners.delete(slotEl);
   }
-  localStorage.removeItem('filter_' + searchId);
-
-  // Update search counter
-  searchCounter = SKILL_SEARCH_KEYS.length;
-
-  // If all search boxes are deleted, add back the first one
-  if (SKILL_SEARCH_KEYS.length === 0) {
-    addSearchBox(); // This will add skillSearch1 back
+  
+  slotEl.classList.remove('has-card');
+  delete slotEl.dataset.cardId;
+  delete slotEl.dataset.supportId;
+  slotEl.innerHTML='<div class="placeholder">Empty</div>';
+  
+  // Remove from selectedCardIds using the actual card's char_id
+  if (card && card.char_id) {
+    selectedCardIds.delete(Number(card.char_id));
+  } else if (slotEl.dataset.cardId) {
+    // Fallback: try to get char_id from slot data
+    selectedCardIds.delete(Number(slotEl.dataset.cardId));
   }
-
-  // Re-render sections
-  sectionPages.clear();
+  
+  saveSlotsToLocalStorage();
   renderSections();
 }
 
@@ -1449,9 +1442,11 @@ function addToSlot(card, targetSlot = null, save = true){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  // Create and attach the click handler
+  // Create and attach the click handler - store the actual card object
+  const slotCard = {...card}; // Create a copy to avoid reference issues
+  
   function slotClickHandler(){ 
-    removeFromSlot(freeSlot, card); 
+    removeFromSlot(freeSlot, slotCard); 
   }
   
   // Attach the event listener to the slot element
