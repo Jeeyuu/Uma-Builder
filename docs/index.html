@@ -669,6 +669,28 @@ body {
   display: none;
 }
 
+/* Fix gap when skills groups are hidden */
+.skills-group.hidden-skill {
+  display: none;
+}
+
+/* Adjust spacing for skills groups to remove gaps when headers are hidden */
+.skills-group:not(.hidden-skill) + .skills-group:not(.hidden-skill) {
+  margin-top: 8px; /* Add spacing only between visible groups */
+}
+
+/* Ensure the skills container properly collapses when groups are hidden */
+.skills:empty,
+.skills:has(.skills-group.hidden-skill:only-child),
+.skills:has(.skills-group.hidden-skill:first-child + .skills-group.hidden-skill:last-child) {
+  display: none;
+}
+
+/* Remove margin from the first visible skills group */
+.skills-group:not(.hidden-skill):first-child {
+  margin-top: 0;
+}
+
 </style>
 </head>
 
@@ -1830,7 +1852,7 @@ function updateSkillVisibility() {
     }
   });
   
-  // Hide empty headers when hiding uncolored skills - process ALL skills groups
+  // Hide empty headers AND entire groups when hiding uncolored skills
   document.querySelectorAll('.skills-group').forEach(group => {
     const skills = group.querySelectorAll('.skill');
     const visibleSkills = Array.from(skills).filter(skill => !skill.classList.contains('hidden-skill'));
@@ -1839,21 +1861,20 @@ function updateSkillVisibility() {
     if (header) {
       if (shouldHide && visibleSkills.length === 0) {
         header.classList.add('hidden-skill');
+        group.classList.add('hidden-skill'); // Hide the entire group
       } else {
         header.classList.remove('hidden-skill');
+        group.classList.remove('hidden-skill'); // Show the entire group
       }
     }
   });
   
   // Also handle the case where there are no skills groups but skills are directly under .skills
   document.querySelectorAll('.skills').forEach(skillsContainer => {
-    // Check if this .skills container has direct .skill children (not in groups)
     const directSkills = skillsContainer.querySelectorAll(':scope > .skill');
     if (directSkills.length > 0) {
       const visibleDirectSkills = Array.from(directSkills).filter(skill => !skill.classList.contains('hidden-skill'));
-      
-      // If all direct skills are hidden and we're in hide mode, we might want to hide the container
-      // But for now, we'll just ensure the container itself doesn't get hidden as it might contain other elements
+      // Handle direct skills if needed
     }
   });
 }
