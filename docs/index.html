@@ -1488,27 +1488,17 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.setItem('filter_' + id, '');
   });
   
-  // Clear toggle buttons
+  // Clear toggle buttons (rarity and type)
   selectedRarities.clear();
   selectedTypes.clear();
   document.querySelectorAll('.toggle-button').forEach(button => {
     button.classList.remove('active');
   });
   
-  // Clear sorting and region controls
-  sortBy = 'rarity';
-  sortOrder = 'ascending'; // CHANGED TO ASCENDING
-  region = 'global'; // CHANGED TO GLOBAL
+  // DO NOT clear sorting and region controls - keep them as they are
+  // sortBy and region variables remain unchanged
+  // localStorage for sortBy, sortOrder, and region remain unchanged
   
-  document.getElementById('sortBy').value = 'rarity';
-  document.getElementById('sortOrder').textContent = '↑'; // CHANGED TO UP ARROW
-  document.getElementById('sortOrder').classList.add('ascending');
-  document.getElementById('region').value = 'global'; // CHANGED TO GLOBAL
-  
-  localStorage.setItem('sortBy', 'rarity');
-  localStorage.setItem('sortOrder', 'ascending'); // CHANGED TO ASCENDING
-  localStorage.setItem('region', 'global'); // CHANGED TO GLOBAL
-
   // Remove all but the first search box
   const skillSearchGroup = document.getElementById('skillSearchGroup');
   const searchContainers = skillSearchGroup.querySelectorAll('.search-input-container');
