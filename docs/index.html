@@ -214,21 +214,17 @@ body {
   background: none; /* Remove background when active */
 }
 
-/* Rarity buttons - full width, no border radius */
+/* Rarity buttons - full width, no border radius, with gaps */
 .rarity-buttons .toggle-buttons-row {
   width: 100%;
-  gap: 0;
+  gap: 2px; /* Add 2px gap between buttons */
 }
 
 .rarity-buttons .toggle-button {
   flex: 1;
   height: 28px;
   border-radius: 0;
-  border-right: 1px solid #ccc; /* Keep dividers between buttons */
-}
-
-.rarity-buttons .toggle-button:last-child {
-  border-right: none; /* Remove border from last button */
+  border-right: none; /* Remove vertical dividers */
 }
 
 .rarity-buttons .toggle-button img {
