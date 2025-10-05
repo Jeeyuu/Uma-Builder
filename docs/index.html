@@ -172,6 +172,19 @@ body {
   box-sizing: border-box;
 }
 
+/* Clear Filters Button - Top of sidebar */
+.clear-filters-top {
+  width: 100%;
+  max-width: 180px;
+  margin-bottom: 16px;
+}
+
+/* Clear All Button - Right sidebar */
+.slots-header .clear-all {
+  width: calc(var(--card-w) * 2 + var(--gap) * 1); /* Same width as two slots */
+  margin-bottom: 12px;
+}
+
 /* ---------- SLOTS STYLING ---------- */
 .slots {
   display: grid;
@@ -415,6 +428,9 @@ body {
   <div class="container">
     <!-- Left Sidebar (Filters) -->
     <div class="sidebar">
+      <!-- Clear Filters Button at top -->
+      <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
+
       <div class="filter-group">
         <label for="presets">Presets</label>
         <select id="presets">
