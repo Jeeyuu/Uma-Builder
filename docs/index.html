@@ -451,16 +451,17 @@ body {
   background: #444;
   color: #fff;
   border-radius: 6px;
-  padding: 4px 8px; /* Keep current padding */
+  padding: 8px 12px; /* Match Clear All button padding */
   font-size: 12px;
   font-weight: bold;
   cursor: pointer;
-  min-width: 32px; /* Keep current width */
-  height: 30px; /* Match Clear All button height (30px instead of 32px) */
+  min-width: 32px;
+  height: auto; /* Let height be determined by padding + content */
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s;
+  line-height: 1; /* Ensure consistent line height */
 }
 
 .page-controls button:hover:not(:disabled) {
