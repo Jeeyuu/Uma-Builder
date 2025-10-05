@@ -1310,7 +1310,7 @@ function setupSortingControls() {
   });
 }
 
-/* ------------- UPDATED CARD CREATION WITH ENGLISH SKILLS PREFERENCE ------------- */
+/* ------------- UPDATED CARD CREATION WITH BETTER ERROR HANDLING ------------- */
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -1326,8 +1326,24 @@ function createCardElement(card){
   const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
   let skillsHTML = '';
-  if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
-  if(eventSkillsToUse.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsToUse.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
+  
+  // FIX: Handle hint_skills with safe string conversion
+  if(card.hint_skills && card.hint_skills.length) {
+    const hintSkillsHTML = card.hint_skills.map(s => {
+      const skillText = String(s || ''); // Ensure it's a string
+      return `<div class="skill">${escapeHtml(skillText.replace(/○\s*/g, ''))}</div>`;
+    }).join('');
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
+  }
+  
+  // FIX: Handle event skills with safe string conversion
+  if(eventSkillsToUse && eventSkillsToUse.length) {
+    const eventSkillsHTML = eventSkillsToUse.map(s => {
+      const skillText = String(s || ''); // Ensure it's a string
+      return `<div class="skill">${escapeHtml(skillText.replace(/○\s*/g, ''))}</div>`;
+    }).join('');
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
+  }
   
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
   if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 6px;">ID: ${card.char_id}</div>`;
@@ -1401,8 +1417,24 @@ function addToSlot(card, targetSlot = null, save = true){
   const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
   let skillsHTML = '';
-  if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
-  if(eventSkillsToUse.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsToUse.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
+  
+  // FIX: Handle hint_skills with safe string conversion
+  if(card.hint_skills && card.hint_skills.length) {
+    const hintSkillsHTML = card.hint_skills.map(s => {
+      const skillText = String(s || '');
+      return `<div class="skill">${escapeHtml(skillText.replace(/○\s*/g, ''))}</div>`;
+    }).join('');
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
+  }
+  
+  // FIX: Handle event skills with safe string conversion
+  if(eventSkillsToUse && eventSkillsToUse.length) {
+    const eventSkillsHTML = eventSkillsToUse.map(s => {
+      const skillText = String(s || '');
+      return `<div class="skill">${escapeHtml(skillText.replace(/○\s*/g, ''))}</div>`;
+    }).join('');
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
+  }
 
   freeSlot.dataset.cardId = card.char_id;
   freeSlot.dataset.supportId = card.support_id;
@@ -1422,19 +1454,6 @@ function addToSlot(card, targetSlot = null, save = true){
 
   selectedCardIds.add(card.char_id);
   if(save) saveSlotsToLocalStorage();
-  renderSections();
-}
-
-function removeFromSlot(slotEl, card){
-  if(slotListeners.has(slotEl)){
-    slotEl.removeEventListener('click', slotListeners.get(slotEl));
-    slotListeners.delete(slotEl);
-  }
-  slotEl.classList.remove('has-card');
-  delete slotEl.dataset.cardId;
-  slotEl.innerHTML='<div class="placeholder">Empty</div>';
-  selectedCardIds.delete(Number(card.char_id));
-  saveSlotsToLocalStorage();
   renderSections();
 }
 
