@@ -1169,6 +1169,8 @@ fetch(JSON_FILE)
 /* ------------- PRESETS ------------- */
 const PRESETS_JSON_FILE = "champions_meeting.json";
 
+let presetRaceNumbers = new Map(); // Store race numbers by title
+
 function formatPresetDate(dateString) {
   const date = new Date(dateString);
   const month = date.toLocaleString('en-US', { month: 'short' });
@@ -1176,13 +1178,15 @@ function formatPresetDate(dateString) {
   return `${month} ${year}`;
 }
 
-function createPresetLabel(cup) {
-  const date = formatPresetDate(cup.start_date);
+function createPresetLabel(cup, index) {
   const distance = cup.distance === "Mile" ? "MILE" : cup.distance;
   const trackType = cup.aptitude === "Turf" ? "Turf" : "Dirt";
   const length = cup.length.replace(/\s*m/g, 'm');
   
-  return `${date} — ${cup.title} — ${cup.racecourse} ${trackType} ${length} ${cup.track_conditions}`;
+  // Store the race number for this cup title
+  presetRaceNumbers.set(cup.title, index + 1);
+  
+  return `${index + 1}. ${cup.title} — ${cup.racecourse} ${trackType} ${length} ${cup.track_conditions}`;
 }
 
 function setupPresets() {
@@ -1199,10 +1203,13 @@ function setupPresets() {
     .then(data => {
       presetsSelect.innerHTML = '<option value="">-- Select --</option>';
       
-      data.cups.forEach(cup => {
+      // Sort cups by start_date to ensure proper numbering
+      const sortedCups = data.cups.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+      
+      sortedCups.forEach((cup, index) => {
         const option = document.createElement('option');
         option.value = cup.title;
-        option.textContent = createPresetLabel(cup);
+        option.textContent = createPresetLabel(cup, index);
         option.dataset.cupData = JSON.stringify(cup);
         presetsSelect.appendChild(option);
       });
