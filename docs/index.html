@@ -1924,100 +1924,125 @@ function filterCardsWithRules(cards,filters){
 /* ------------- UPDATED RENDER SECTIONS WITH SORTING AND REGION FILTERING ------------- */
 function renderSections() {
   // Clear previous content
-cardSections.innerHTML = '';
+  cardSections.innerHTML = '';
 
-// First, check if we have ANY active filters that should trigger a search
-const hasActiveFilters = anyDropdownActive || anySkillActive || anyRarityActive || anyTypeActive;
+  const filters = {
+    racecourse: document.getElementById('racecourse').value || '',
+    length: document.getElementById('length').value || '',
+    direction: document.getElementById('direction').value || '',
+    track: document.getElementById('track').value || '',
+    season: document.getElementById('season').value || '',
+    weather: document.getElementById('weather').value || '',
+    strategy: document.getElementById('strategy').value || ''
+  };
 
-// If no filters are active at all, show the initial message
-if (!hasActiveFilters) {
-  const section = document.createElement('div');
-  section.className = 'card-section';
-  section.style.display = 'flex';
-  section.style.flexDirection = 'column';
-  section.style.alignItems = 'center';
-  section.style.justifyContent = 'center';
-  section.style.minHeight = '200px'; // Ensure minimum height
-  const msg = document.createElement('div');
-  msg.style.opacity = '0.7';
-  msg.style.padding = '0px';
-  msg.style.marginTop = '20px';
-  msg.style.marginBottom = '10px';
-  msg.textContent = 'Pick a label on the left or type a skill to show matching cards.';
-  section.appendChild(msg);
-  cardSections.appendChild(section);
-  return;
-}
+  const anyDropdownActive = Object.values(filters).some(v => v);
+  const anySkillActive = SKILL_SEARCH_KEYS.some(key => document.getElementById(key)?.value.trim());
+  const anyRarityActive = selectedRarities.size > 0;
+  const anyTypeActive = selectedTypes.size > 0;
 
-// Apply region filter first
-let filteredCards = cardsData.filter(card => {
-  if (region === 'global') {
-    return card.release_en && card.release_en !== '';
-  } else {
-    return true;
-  }
-});
+  // First, check if we have ANY active filters that should trigger a search
+  const hasActiveFilters = anyDropdownActive || anySkillActive || anyRarityActive || anyTypeActive;
 
-// Apply rarity and type filters to check if we have any matches
-if (anyRarityActive) {
-  filteredCards = filteredCards.filter(card => {
-    if (selectedRarities.has('R') && card.rarity === 1) return true;
-    if (selectedRarities.has('SR') && card.rarity === 2) return true;
-    if (selectedRarities.has('SSR') && card.rarity === 3) return true;
-    return false;
-  });
-}
-
-if (anyTypeActive) {
-  filteredCards = filteredCards.filter(card => {
-    return selectedTypes.has(card.type);
-  });
-}
-
-// Apply dropdown filters to check if we have any matches
-const filters = {
-  racecourse: document.getElementById('racecourse').value || '',
-  length: document.getElementById('length').value || '',
-  direction: document.getElementById('direction').value || '',
-  track: document.getElementById('track').value || '',
-  season: document.getElementById('season').value || '',
-  weather: document.getElementById('weather').value || '',
-  strategy: document.getElementById('strategy').value || ''
-};
-
-// Check if dropdown filters would yield any results
-if (anyDropdownActive) {
-  const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
-  let hasDropdownMatches = false;
-  
-  for (const catId of filterOrder) {
-    if (!filters[catId]) continue;
-    
-    const terms = buildFilterTerms({ [catId]: filters[catId] }).map(normalizeSkill);
-    const strictDistanceKeys = ['standard distance','non-standard distance'];
-    const strictTerms = terms.filter(t => strictDistanceKeys.includes(t));
-    const looseTerms = terms.filter(t => !strictDistanceKeys.includes(t));
-
-    const hasMatches = filteredCards.some(card => {
-      const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-      return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
-    });
-    
-    if (hasMatches) {
-      hasDropdownMatches = true;
-      break;
-    }
-  }
-  
-  // If dropdown filters are active but yield no matches, show no results message
-  if (!hasDropdownMatches && filteredCards.length > 0) {
+  // If no filters are active at all, show the initial message
+  if (!hasActiveFilters) {
     const section = document.createElement('div');
     section.className = 'card-section';
     section.style.display = 'flex';
     section.style.flexDirection = 'column';
     section.style.alignItems = 'center';
     section.style.justifyContent = 'center';
-    section.style.minHeight = '200px'; // Ensure minimum height
+    section.style.minHeight = '18px'; // Set to 18px as requested
+    const msg = document.createElement('div');
+    msg.style.opacity = '0.7';
+    msg.style.padding = '0px';
+    msg.style.marginTop = '20px';
+    msg.style.marginBottom = '10px';
+    msg.textContent = 'Pick a label on the left or type a skill to show matching cards.';
+    section.appendChild(msg);
+    cardSections.appendChild(section);
+    return;
+  }
+
+  // Apply region filter first
+  let filteredCards = cardsData.filter(card => {
+    if (region === 'global') {
+      return card.release_en && card.release_en !== '';
+    } else {
+      return true;
+    }
+  });
+
+  // Apply rarity and type filters to check if we have any matches
+  if (anyRarityActive) {
+    filteredCards = filteredCards.filter(card => {
+      if (selectedRarities.has('R') && card.rarity === 1) return true;
+      if (selectedRarities.has('SR') && card.rarity === 2) return true;
+      if (selectedRarities.has('SSR') && card.rarity === 3) return true;
+      return false;
+    });
+  }
+
+  if (anyTypeActive) {
+    filteredCards = filteredCards.filter(card => {
+      return selectedTypes.has(card.type);
+    });
+  }
+
+  // Check if dropdown filters would yield any results
+  if (anyDropdownActive) {
+    const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
+    let hasDropdownMatches = false;
+    
+    for (const catId of filterOrder) {
+      if (!filters[catId]) continue;
+      
+      const terms = buildFilterTerms({ [catId]: filters[catId] }).map(normalizeSkill);
+      const strictDistanceKeys = ['standard distance','non-standard distance'];
+      const strictTerms = terms.filter(t => strictDistanceKeys.includes(t));
+      const looseTerms = terms.filter(t => !strictDistanceKeys.includes(t));
+
+      const hasMatches = filteredCards.some(card => {
+        const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
+        return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
+      });
+      
+      if (hasMatches) {
+        hasDropdownMatches = true;
+        break;
+      }
+    }
+    
+    // If dropdown filters are active but yield no matches, show no results message
+    if (!hasDropdownMatches && filteredCards.length > 0) {
+      const section = document.createElement('div');
+      section.className = 'card-section';
+      section.style.display = 'flex';
+      section.style.flexDirection = 'column';
+      section.style.alignItems = 'center';
+      section.style.justifyContent = 'center';
+      section.style.minHeight = '18px'; // Set to 18px as requested
+      const msg = document.createElement('div');
+      msg.style.opacity = '0.7';
+      msg.style.padding = '0px';
+      msg.style.marginTop = '20px';
+      msg.style.marginBottom = '10px';
+      msg.textContent = 'No cards match the selected filters. Try different filters or search terms.';
+      section.appendChild(msg);
+      cardSections.appendChild(section);
+      return;
+    }
+  }
+
+  // If after all filters we have NO cards, show the no results message
+  if (filteredCards.length === 0) {
+    const section = document.createElement('div');
+    section.className = 'card-section';
+    section.style.display = 'flex';
+    section.style.flexDirection = 'column';
+    section.style.alignItems = 'center';
+    section.style.justifyContent = 'center';
+    section.style.minHeight = '18px'; // Set to 18px as requested
     const msg = document.createElement('div');
     msg.style.opacity = '0.7';
     msg.style.padding = '0px';
@@ -2028,40 +2053,19 @@ if (anyDropdownActive) {
     cardSections.appendChild(section);
     return;
   }
-}
 
-// If after all filters we have NO cards, show the no results message
-if (filteredCards.length === 0) {
-  const section = document.createElement('div');
-  section.className = 'card-section';
-  section.style.display = 'flex';
-  section.style.flexDirection = 'column';
-  section.style.alignItems = 'center';
-  section.style.justifyContent = 'center';
-  section.style.minHeight = '200px'; // Ensure minimum height
-  const msg = document.createElement('div');
-  msg.style.opacity = '0.7';
-  msg.style.padding = '0px';
-  msg.style.marginTop = '20px';
-  msg.style.marginBottom = '10px';
-  msg.textContent = 'No cards match the selected filters. Try different filters or search terms.';
-  section.appendChild(msg);
-  cardSections.appendChild(section);
-  return;
-}
-
-// If we get here, we have active filters AND matching cards, so proceed with rendering sections
-// Apply region filter first - CORRECTED
-let baseFilteredCards = cardsData.filter(card => {
-  if (region === 'global') {
-    // For Global, only show cards that have release_en date (released globally)
-    return card.release_en && card.release_en !== '';
-  } else { // japan
-    // For Japan, show ALL cards (including those not released globally)
-    return true;
-  }
-});
-  
+  // If we get here, we have active filters AND matching cards, so proceed with rendering sections
+  // Apply region filter first - CORRECTED
+  let baseFilteredCards = cardsData.filter(card => {
+    if (region === 'global') {
+      // For Global, only show cards that have release_en date (released globally)
+      return card.release_en && card.release_en !== '';
+    } else { // japan
+      // For Japan, show ALL cards (including those not released globally)
+      return true;
+    }
+  });
+    
   // Apply rarity and type filters to base cards
   if (anyRarityActive) {
     baseFilteredCards = baseFilteredCards.filter(card => {
@@ -2071,7 +2075,7 @@ let baseFilteredCards = cardsData.filter(card => {
       return false;
     });
   }
-  
+    
   if (anyTypeActive) {
     baseFilteredCards = baseFilteredCards.filter(card => {
       return selectedTypes.has(card.type);
