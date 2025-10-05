@@ -1515,6 +1515,21 @@ function renderSections() {
 }
 
 function renderFilterRow(catId,headerText,termList,rowIndex, baseCards){
+  const termsNormalized = termList.map(normalizeSkill);
+  const strictDistanceKeys = ['standard distance','non-standard distance'];
+  const strictTerms = termsNormalized.filter(t => strictDistanceKeys.includes(t));
+  const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
+
+  const matches = baseCards.filter(card => {
+    const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
+    return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
+  });
+
+  // COMPLETELY HIDE SECTION IF NO MATCHES
+  if(matches.length === 0){
+    return; // Don't create any section at all
+  }
+
   const section = document.createElement('div');
   section.className = 'card-section';
 
@@ -1545,25 +1560,6 @@ function renderFilterRow(catId,headerText,termList,rowIndex, baseCards){
   grid.className = 'cards';
   wrapper.appendChild(grid);
   section.appendChild(wrapper);
-
-  const termsNormalized = termList.map(normalizeSkill);
-  const strictDistanceKeys = ['standard distance','non-standard distance'];
-  const strictTerms = termsNormalized.filter(t => strictDistanceKeys.includes(t));
-  const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
-
-  const matches = baseCards.filter(card => {
-    const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-    return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
-  });
-
-  if(matches.length === 0){
-    const noMsg = document.createElement('div');
-    noMsg.style.opacity = '0.6';
-    noMsg.textContent = '(No matching cards)';
-    grid.appendChild(noMsg);
-    cardSections.appendChild(section);
-    return;
-  }
 
   const pageKey = `${catId}-${rowIndex}`;
   const currentPage = sectionPages.get(pageKey) || 0;
@@ -1604,6 +1600,11 @@ function renderFilterRow(catId,headerText,termList,rowIndex, baseCards){
 }
 
 function renderSkillSearchRow(key, headerText, matches, rowIndex) {
+  // COMPLETELY HIDE SECTION IF NO MATCHES
+  if (matches.length === 0) {
+    return; // Don't create any section at all
+  }
+
   const section = document.createElement('div');
   section.className = 'card-section';
 
@@ -1637,14 +1638,6 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
   section.appendChild(wrapper);
 
   cardSections.appendChild(section);
-
-  if (matches.length === 0) {
-    const noMsg = document.createElement('div');
-    noMsg.style.opacity = '0.6';
-    noMsg.textContent = '(No matching cards)';
-    grid.appendChild(noMsg);
-    return;
-  }
 
   const pageKey = `${key}-${rowIndex}`;
   const currentPage = sectionPages.get(pageKey) || 0;
