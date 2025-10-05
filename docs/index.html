@@ -1742,6 +1742,91 @@ function renderSections() {
   highlightSkills();
 }
 
+function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
+  const termsNormalized = termList.map(normalizeSkill);
+  const strictDistanceKeys = ['standard distance','non-standard distance'];
+  const strictTerms = termsNormalized.filter(t => strictDistanceKeys.includes(t));
+  const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
+
+  const matches = baseCards.filter(card => {
+    const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
+    return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
+  });
+
+  // COMPLETELY HIDE SECTION IF NO MATCHES
+  if(matches.length === 0){
+    return; // Don't create any section at all
+  }
+
+  const section = document.createElement('div');
+  section.className = 'card-section';
+
+  const headerContainer = document.createElement('div');
+  headerContainer.className = 'card-section-header';
+
+  const header = document.createElement('h2');
+  header.textContent = headerText;
+  headerContainer.appendChild(header);
+
+  const controls = document.createElement('div');
+  controls.className = 'page-controls';
+  const leftBtn = document.createElement('button'); 
+  leftBtn.textContent = '◀';
+  leftBtn.disabled = true;
+  const rightBtn = document.createElement('button'); 
+  rightBtn.textContent = '▶';
+  rightBtn.disabled = true;
+  controls.appendChild(leftBtn);
+  controls.appendChild(rightBtn);
+
+  headerContainer.appendChild(controls);
+  section.appendChild(headerContainer);
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card-grid-wrapper';
+  const grid = document.createElement('div');
+  grid.className = 'cards';
+  wrapper.appendChild(grid);
+  section.appendChild(wrapper);
+
+  const pageKey = `${catId}-${rowIndex}`;
+  const currentPage = sectionPages.get(pageKey) || 0;
+  sectionPages.set(pageKey, currentPage);
+
+  const CARDS_PER_PAGE = 6;
+
+  function renderPage(page, matches, grid, leftBtn, rightBtn, pageKey){
+    grid.innerHTML = '';
+    const startIdx = page * CARDS_PER_PAGE;
+    const endIdx = startIdx + CARDS_PER_PAGE;
+    const pageCards = matches.slice(startIdx, endIdx);
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+
+    leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+    rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+    leftBtn.disabled = page === 0;
+    rightBtn.disabled = page >= totalPages - 1;
+
+    leftBtn.onclick = ()=>{ 
+      renderPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
+      sectionPages.set(pageKey,page-1);
+      highlightSkills();
+    };
+    rightBtn.onclick = ()=>{ 
+      renderPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
+      sectionPages.set(pageKey,page+1);
+      highlightSkills();
+    };
+    
+    highlightSkills();
+  }
+
+  renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
+  cardSections.appendChild(section);
+}
+
 function renderSkillSearchRow(key, headerText, matches, rowIndex) {
   // COMPLETELY HIDE SECTION IF NO MATCHES
   if (matches.length === 0) {
