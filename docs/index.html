@@ -2024,27 +2024,20 @@ let baseFilteredCards = cardsData.filter(card => {
     }
   });
 
-// Render skill search sections (separated as before)
-SKILL_SEARCH_KEYS.forEach((key, i) => {
-  const val = document.getElementById(key)?.value.trim();
-  if (!val) return;
+  // Render skill search sections (separated as before)
+  SKILL_SEARCH_KEYS.forEach((key, i) => {
+    const val = document.getElementById(key)?.value.trim();
+    if (!val) return;
 
-  const normalized = normalizeSkill(val);
-  const matches = baseFilteredCards.filter(card => {
-    const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-    const hasMatch = skills.some(s => s.includes(normalized));
-    
-    // Debug for the specific card and search term
-    if (card.char_name === 'Yaeno Muteki' && normalized === 'hesitant') {
-      debugSkillSearch(val, card);
-    }
-    
-    return hasMatch;
+    const normalized = normalizeSkill(val);
+    const matches = baseFilteredCards.filter(card => {
+      const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
+      return skills.some(s => s.includes(normalized));
+    });
+
+    const header = `Skill Search ${i + 1}: "${val}"`;
+    renderSkillSearchRow(key, header, matches, i);
   });
-
-  const header = `Skill Search ${i + 1}: "${val}"`;
-  renderSkillSearchRow(key, header, matches, i);
-});
 
   highlightSkills();
 }
@@ -2215,24 +2208,6 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
       highlightSkills();
     }
   });
-}
-
-function debugSkillSearch(searchTerm, card) {
-  console.log('=== DEBUG SEARCH ===');
-  console.log('Search term:', searchTerm);
-  console.log('Card:', card.char_name);
-  console.log('All skills:', [...card.hint_skills, ...card.event_skills]);
-  
-  const normalizedSearch = normalizeSkill(searchTerm);
-  const allSkills = [...card.hint_skills, ...card.event_skills];
-  const normalizedSkills = allSkills.map(normalizeSkill);
-  
-  console.log('Normalized search:', normalizedSearch);
-  console.log('Normalized skills:', normalizedSkills);
-  
-  const matches = normalizedSkills.some(skill => skill.includes(normalizedSearch));
-  console.log('Matches found:', matches);
-  console.log('====================');
 }
 
 // Initialize the hide uncolored checkbox
