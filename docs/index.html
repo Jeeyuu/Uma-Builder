@@ -613,6 +613,31 @@ body {
   width: 100%;
   gap: 10px;
 }
+
+/* Sort Order Button */
+.sort-order-btn {
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.sort-order-btn:hover {
+  background: #e5e5e5;
+  border-color: #999;
+}
+
+.sort-order-btn.ascending {
+  background: #444;
+  color: #fff;
+  border-color: #444;
+}
+
 </style>
 </head>
 
@@ -675,13 +700,39 @@ body {
     </div>
   </div>
 
+  <!-- ADD SORTING CONTROLS HERE -->
+  <div class="filter-group">
+    <label for="sortBy">Sort By</label>
+    <select id="sortBy">
+      <option value="rarity">Rarity</option>
+      <option value="name">Name</option>
+      <option value="type">Type</option>
+      <option value="release">Release Date</option>
+      <option value="support_id">Game ID Number</option>
+    </select>
+  </div>
+
+  <div class="filter-group" style="display: flex; gap: 8px; align-items: center;">
+    <label for="sortOrder" style="flex: 1;">Order</label>
+    <button id="sortOrder" class="sort-order-btn" style="width: 40px; height: 32px; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+      ↓
+    </button>
+  </div>
+
+  <div class="filter-group">
+    <label for="region">Region</label>
+    <select id="region">
+      <option value="global">Global</option>
+      <option value="japan">Japan</option>
+    </select>
+  </div>
+
   <!-- ADD THIS DIVIDER -->
   <div class="skill-search-divider"></div>
 
   <!-- Clear Filters Button at top -->
   <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
 
-  <!-- Rest of your filter groups continue below... -->
   <div class="filter-group">
     <label for="presets">Presets</label>
     <select id="presets">
@@ -1004,12 +1055,14 @@ fetch(JSON_FILE)
       char_name: card.char_name,
       hint_skills: card.hint_skills || [],
       event_skills: card.event_skills || [],
+      event_skills_en: card.event_skills_en || [], // Add this line
       type: (card.type || '').toLowerCase()
     }));
 
     setupFilterPersistence();
-    setupToggleButtons(); // Add this line
-    setupDynamicSkillSearch(); // Replace setupSkillSearchPersistence with this
+    setupToggleButtons();
+    setupSortingControls(); // ADD THIS LINE
+    setupDynamicSkillSearch();
     setupPresets();
     loadSlotsFromLocalStorage();
     renderSections();
@@ -1104,7 +1157,63 @@ function applyPreset(cup) {
 
 FILTER_KEYS.push('presets');
 
+/* ------------- NEW STATE VARIABLES ------------- */
+let sortBy = 'rarity';
+let sortOrder = 'descending'; // 'ascending' or 'descending'
+let region = 'global';
+
+/* ------------- SETUP NEW CONTROLS ------------- */
+function setupSortingControls() {
+  const sortBySelect = document.getElementById('sortBy');
+  const sortOrderBtn = document.getElementById('sortOrder');
+  const regionSelect = document.getElementById('region');
+
+  // Load saved values
+  const savedSortBy = localStorage.getItem('sortBy');
+  const savedSortOrder = localStorage.getItem('sortOrder');
+  const savedRegion = localStorage.getItem('region');
+
+  if (savedSortBy) {
+    sortBy = savedSortBy;
+    sortBySelect.value = savedSortBy;
+  }
+  if (savedSortOrder) {
+    sortOrder = savedSortOrder;
+    sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
+    sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
+  }
+  if (savedRegion) {
+    region = savedRegion;
+    regionSelect.value = savedRegion;
+  }
+
+  // Event listeners
+  sortBySelect.addEventListener('change', (e) => {
+    sortBy = e.target.value;
+    localStorage.setItem('sortBy', sortBy);
+    sectionPages.clear();
+    renderSections();
+  });
+
+  sortOrderBtn.addEventListener('click', () => {
+    sortOrder = sortOrder === 'ascending' ? 'descending' : 'ascending';
+    sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
+    sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
+    localStorage.setItem('sortOrder', sortOrder);
+    sectionPages.clear();
+    renderSections();
+  });
+
+  regionSelect.addEventListener('change', (e) => {
+    region = e.target.value;
+    localStorage.setItem('region', region);
+    sectionPages.clear();
+    renderSections();
+  });
+}
+
 /* ------------- Card creation ------------- */
+/* ------------- UPDATED CARD CREATION WITH REGION SUPPORT ------------- */
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -1115,9 +1224,13 @@ function createCardElement(card){
   const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
   const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
 
+  // USE ENGLISH SKILLS FOR GLOBAL REGION
+  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+
   let skillsHTML = '';
   if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
-  if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
+  if(eventSkillsToUse.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsToUse.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
   
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
   if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 6px;">ID: ${card.char_id}</div>`;
@@ -1260,6 +1373,19 @@ clearFiltersBtn.addEventListener('click', () => {
     button.classList.remove('active');
   });
   
+  sortBy = 'rarity';
+  sortOrder = 'descending';
+  region = 'global';
+  
+  document.getElementById('sortBy').value = 'rarity';
+  document.getElementById('sortOrder').textContent = '↓';
+  document.getElementById('sortOrder').classList.remove('ascending');
+  document.getElementById('region').value = 'global';
+  
+  localStorage.setItem('sortBy', 'rarity');
+  localStorage.setItem('sortOrder', 'descending');
+  localStorage.setItem('region', 'global');
+
   // Remove all but the first search box
   const skillSearchGroup = document.getElementById('skillSearchGroup');
   const searchContainers = skillSearchGroup.querySelectorAll('.search-input-container');
@@ -1402,6 +1528,7 @@ function filterCardsWithRules(cards,filters){
 }
 
 /* ------------- Rendering sections & pagination ------------- */
+/* ------------- UPDATED RENDER SECTIONS WITH SORTING AND REGION FILTERING ------------- */
 function renderSections() {
   cardSections.innerHTML='';
 
@@ -1438,13 +1565,18 @@ function renderSections() {
     return;
   }
 
-  // Apply rarity and type filters to all cards first
-  let filteredCards = cardsData;
+  // Apply region filter first
+  let filteredCards = cardsData.filter(card => {
+    if (region === 'global') {
+      return card.release_en && card.release_en !== '';
+    } else { // japan
+      return card.release && card.release !== '';
+    }
+  });
   
-  // Apply rarity filter - UPDATED
+  // Apply rarity and type filters
   if (anyRarityActive) {
     filteredCards = filteredCards.filter(card => {
-      // Use the actual rarity property from JSON (1=R, 2=SR, 3=SSR)
       if (selectedRarities.has('R') && card.rarity === 1) return true;
       if (selectedRarities.has('SR') && card.rarity === 2) return true;
       if (selectedRarities.has('SSR') && card.rarity === 3) return true;
@@ -1452,12 +1584,70 @@ function renderSections() {
     });
   }
   
-  // Apply type filter
   if (anyTypeActive) {
     filteredCards = filteredCards.filter(card => {
       return selectedTypes.has(card.type);
     });
   }
+
+/* ------------- SORTING FUNCTION ------------- */
+function sortCards(cards, sortBy, order) {
+  const sortedCards = [...cards];
+  
+  sortedCards.sort((a, b) => {
+    let aValue, bValue;
+    
+    switch (sortBy) {
+      case 'rarity':
+        // Sort by rarity (3=SSR, 2=SR, 1=R), then by release date
+        if (a.rarity !== b.rarity) {
+          return order === 'ascending' ? a.rarity - b.rarity : b.rarity - a.rarity;
+        }
+        // If same rarity, sort by release date
+        aValue = region === 'global' ? a.release_en : a.release;
+        bValue = region === 'global' ? b.release_en : b.release;
+        break;
+        
+      case 'name':
+        aValue = a.char_name.toLowerCase();
+        bValue = b.char_name.toLowerCase();
+        break;
+        
+      case 'type':
+        aValue = a.type;
+        bValue = b.type;
+        break;
+        
+      case 'release':
+        aValue = region === 'global' ? a.release_en : a.release;
+        bValue = region === 'global' ? b.release_en : b.release;
+        break;
+        
+      case 'support_id':
+        aValue = a.support_id;
+        bValue = b.support_id;
+        break;
+        
+      default:
+        return 0;
+    }
+    
+    // Handle empty values
+    if (!aValue && bValue) return order === 'ascending' ? -1 : 1;
+    if (aValue && !bValue) return order === 'ascending' ? 1 : -1;
+    if (!aValue && !bValue) return 0;
+    
+    // Compare values
+    if (aValue < bValue) return order === 'ascending' ? -1 : 1;
+    if (aValue > bValue) return order === 'ascending' ? 1 : -1;
+    return 0;
+  });
+  
+  return sortedCards;
+}
+
+  // APPLY SORTING
+  filteredCards = sortCards(filteredCards, sortBy, sortOrder);
 
   // ... rest of the function remains the same
   const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
