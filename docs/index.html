@@ -701,6 +701,23 @@ body {
   margin-bottom: 0; /* Remove bottom margin since we use gap */
 }
 
+/* Sidebar section hiding for preset cards toggle */
+.sidebar-filters-section {
+  transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+.sidebar-filters-section.hidden {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Ensure smooth transitions for all filter elements */
+.filter-group, .toggle-button-group {
+  transition: opacity 0.3s ease;
+}
+
 </style>
 </head>
 
@@ -719,6 +736,8 @@ body {
   <div class="container">
 <!-- Left Sidebar (Filters) -->
 <div class="sidebar">
+  <!-- Wrap the entire filter section that should be hidden -->
+<div class="sidebar-filters-section" id="sidebarFiltersSection">
   <!-- Rarity Toggle Buttons -->
   <div class="toggle-button-group rarity-buttons">
     <label>Rarity</label>
@@ -763,44 +782,41 @@ body {
     </div>
   </div>
 
-<!-- ADD SORTING CONTROLS HERE -->
-<div class="filter-group">
-  <label for="sortBy">Sort By</label>
-  <div style="display: flex; gap: 6px; align-items: center;">
-    <select id="sortBy" style="flex: 1;">
-      <option value="rarity">Rarity</option>
-      <option value="name">Name</option>
-      <option value="type">Type</option>
-      <option value="release">Release Date</option>
-      <option value="support_id">Game ID Number</option>
-    </select>
-    <button id="sortOrder" class="sort-order-btn ascending" style="width: 32px; height: 32px; border: 1px solid #ccc; background: #444; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 4px; flex-shrink: 0;">
-      ↑
-    </button>
+  <!-- ADD SORTING CONTROLS HERE -->
+  <div class="filter-group">
+    <label for="sortBy">Sort By</label>
+    <div style="display: flex; gap: 6px; align-items: center;">
+      <select id="sortBy" style="flex: 1;">
+        <option value="rarity">Rarity</option>
+        <option value="name">Name</option>
+        <option value="type">Type</option>
+        <option value="release">Release Date</option>
+        <option value="support_id">Game ID Number</option>
+      </select>
+      <button id="sortOrder" class="sort-order-btn ascending" style="width: 32px; height: 32px; border: 1px solid #ccc; background: #444; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 4px; flex-shrink: 0;">
+        ↑
+      </button>
+    </div>
   </div>
-</div>
 
-<div class="filter-group">
-  <label for="region">Region</label>
-  <select id="region">
-    <option value="global">Global</option>
-    <option value="japan">Japan</option>
-  </select>
-</div>
+  <div class="filter-group">
+    <label for="region">Region</label>
+    <select id="region">
+      <option value="global">Global</option>
+      <option value="japan">Japan</option>
+    </select>
+  </div>
 
-<!-- ADD THIS CHECKBOX -->
-<div class="filter-group">
-  <label class="checkbox-label">
-    <input type="checkbox" id="hideUncolored">
-    Hide Uncoloured Skills
-  </label>
-</div>
+  <!-- ADD THIS CHECKBOX -->
+  <div class="filter-group">
+    <label class="checkbox-label">
+      <input type="checkbox" id="hideUncolored">
+      Hide Uncoloured Skills
+    </label>
+  </div>
 
   <!-- ADD THIS DIVIDER -->
   <div class="skill-search-divider"></div>
-
-  <!-- Add this right after the Clear Filters button -->
-<button id="togglePresetCardsBtn" class="clear-all">Toggle Preset Cards</button>
 
   <!-- Clear Filters Button at top -->
   <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
@@ -812,114 +828,115 @@ body {
     </select>
   </div>
 
-      <div class="filter-group">
-        <label for="racecourse">Racecourse</label>
-        <select id="racecourse">
-          <option value="">-- Select --</option>
-          <option value="Sapporo">Sapporo</option>
-          <option value="Hakodate">Hakodate</option>
-          <option value="Niigata">Niigata</option>
-          <option value="Fukushima">Fukushima</option>
-          <option value="Nakayama">Nakayama</option>
-          <option value="Tokyo">Tokyo</option>
-          <option value="Chukyo">Chukyo</option>
-          <option value="Kyoto">Kyoto</option>
-          <option value="Hanshin">Hanshin</option>
-          <option value="Kokura">Kokura</option>
-          <option value="Oi">Oi</option>
-          <option value="Kawasaki">Kawasaki</option>
-          <option value="Funabashi">Funabashi</option>
-          <option value="Morioka">Morioka</option>
-          <option value="Longchamp">Longchamp</option>
-        </select>
-      </div>
+  <div class="filter-group">
+    <label for="racecourse">Racecourse</label>
+    <select id="racecourse">
+      <option value="">-- Select --</option>
+      <option value="Sapporo">Sapporo</option>
+      <option value="Hakodate">Hakodate</option>
+      <option value="Niigata">Niigata</option>
+      <option value="Fukushima">Fukushima</option>
+      <option value="Nakayama">Nakayama</option>
+      <option value="Tokyo">Tokyo</option>
+      <option value="Chukyo">Chukyo</option>
+      <option value="Kyoto">Kyoto</option>
+      <option value="Hanshin">Hanshin</option>
+      <option value="Kokura">Kokura</option>
+      <option value="Oi">Oi</option>
+      <option value="Kawasaki">Kawasaki</option>
+      <option value="Funabashi">Funabashi</option>
+      <option value="Morioka">Morioka</option>
+      <option value="Longchamp">Longchamp</option>
+    </select>
+  </div>
 
-      <div class="filter-group">
-        <label for="length">Length</label>
-        <select id="length">
-          <option value="">-- Select --</option>
-          <option value="1000">1000m</option>
-          <option value="1150">1150m</option>
-          <option value="1200">1200m</option>
-          <option value="1300">1300m</option>
-          <option value="1400">1400m</option>
-          <option value="1500">1500m</option>
-          <option value="1600">1600m</option>
-          <option value="1700">1700m</option>
-          <option value="1800">1800m</option>
-          <option value="1900">1900m</option>
-          <option value="2000">2000m</option>
-          <option value="2100">2100m</option>
-          <option value="2200">2200m</option>
-          <option value="2300">2300m</option>
-          <option value="2400">2400m</option>
-          <option value="2500">2500m</option>
-          <option value="2600">2600m</option>
-          <option value="3000">3000m</option>
-          <option value="3200">3200m</option>
-          <option value="3400">3400m</option>
-          <option value="3600">3600m</option>
-        </select>
-      </div>
+  <div class="filter-group">
+    <label for="length">Length</label>
+    <select id="length">
+      <option value="">-- Select --</option>
+      <option value="1000">1000m</option>
+      <option value="1150">1150m</option>
+      <option value="1200">1200m</option>
+      <option value="1300">1300m</option>
+      <option value="1400">1400m</option>
+      <option value="1500">1500m</option>
+      <option value="1600">1600m</option>
+      <option value="1700">1700m</option>
+      <option value="1800">1800m</option>
+      <option value="1900">1900m</option>
+      <option value="2000">2000m</option>
+      <option value="2100">2100m</option>
+      <option value="2200">2200m</option>
+      <option value="2300">2300m</option>
+      <option value="2400">2400m</option>
+      <option value="2500">2500m</option>
+      <option value="2600">2600m</option>
+      <option value="3000">3000m</option>
+      <option value="3200">3200m</option>
+      <option value="3400">3400m</option>
+      <option value="3600">3600m</option>
+    </select>
+  </div>
 
-      <div class="filter-group">
-        <label for="direction">Direction</label>
-        <select id="direction">
-          <option value="">-- Select --</option>
-          <option value="Clockwise">Clockwise</option>
-          <option value="Counterclockwise">Counterclockwise</option>
-        </select>
-      </div>
+  <div class="filter-group">
+    <label for="direction">Direction</label>
+    <select id="direction">
+      <option value="">-- Select --</option>
+      <option value="Clockwise">Clockwise</option>
+      <option value="Counterclockwise">Counterclockwise</option>
+    </select>
+  </div>
 
-      <div class="filter-group">
-        <label for="track">Track Conditions</label>
-        <select id="track">
-          <option value="">-- Select --</option>
-          <option value="Firm">Firm</option>
-          <option value="Good">Good</option>
-          <option value="Soft">Soft</option>
-          <option value="Heavy">Heavy</option>
-        </select>
-      </div>
+  <div class="filter-group">
+    <label for="track">Track Conditions</label>
+    <select id="track">
+      <option value="">-- Select --</option>
+      <option value="Firm">Firm</option>
+      <option value="Good">Good</option>
+      <option value="Soft">Soft</option>
+      <option value="Heavy">Heavy</option>
+    </select>
+  </div>
 
-      <div class="filter-group">
-        <label for="season">Season</label>
-        <select id="season">
-          <option value="">-- Select --</option>
-          <option value="Spring">Spring</option>
-          <option value="Summer">Summer</option>
-          <option value="Fall">Autumn</option>
-          <option value="Winter">Winter</option>
-        </select>
-      </div>
+  <div class="filter-group">
+    <label for="season">Season</label>
+    <select id="season">
+      <option value="">-- Select --</option>
+      <option value="Spring">Spring</option>
+      <option value="Summer">Summer</option>
+      <option value="Fall">Autumn</option>
+      <option value="Winter">Winter</option>
+    </select>
+  </div>
 
-      <div class="filter-group">
-        <label for="weather">Weather</label>
-        <select id="weather">
-          <option value="">-- Select --</option>
-          <option value="Sunny">Sunny</option>
-          <option value="Cloudy">Cloudy</option>
-          <option value="Rainy">Rain</option>
-          <option value="Snowy">Snow</option>
-        </select>
-      </div>
+  <div class="filter-group">
+    <label for="weather">Weather</label>
+    <select id="weather">
+      <option value="">-- Select --</option>
+      <option value="Sunny">Sunny</option>
+      <option value="Cloudy">Cloudy</option>
+      <option value="Rainy">Rain</option>
+      <option value="Snowy">Snow</option>
+    </select>
+  </div>
 
-      <div class="filter-group">
-        <label for="strategy">Strategy</label>
-        <select id="strategy">
-          <option value="">-- Select --</option>
-          <option value="Front Runner">Front Runner</option>
-          <option value="Pace Chaser">Pace Chaser</option>
-          <option value="Late Surger">Late Surger</option>
-          <option value="End Closer">End Closer</option>
-        </select>
-      </div>
+  <div class="filter-group">
+    <label for="strategy">Strategy</label>
+    <select id="strategy">
+      <option value="">-- Select --</option>
+      <option value="Front Runner">Front Runner</option>
+      <option value="Pace Chaser">Pace Chaser</option>
+      <option value="Late Surger">Late Surger</option>
+      <option value="End Closer">End Closer</option>
+    </select>
+  </div>
+</div> <!-- End of sidebar-filters-section -->
 
-      <!-- Thin divider -->
-      <div class="skill-search-divider"></div>
+<!-- Thin divider -->
+<div class="skill-search-divider"></div>
 
-      <!-- Skill Search Section -->
-      <div id="skillSearchGroup">
+<!-- Skill Search Section -->
+<div id="skillSearchGroup">
         <div class="skill-search-header">
           <label for="skillSearch1">Skill Search</label>
           <button class="add-search-btn" id="addSearchBtn">Add</button>
@@ -1708,15 +1725,7 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('filter_' + id);
   });
 
-  // REMOVE THIS SECTION - Don't clear the hide uncolored checkbox
-  // hideUncolored = false;
-  // const hideUncoloredCheckbox = document.getElementById('hideUncolored');
-  // if (hideUncoloredCheckbox) {
-  //   hideUncoloredCheckbox.checked = false;
-  // }
-  // localStorage.removeItem('hideUncolored');
-
-  // FIXED: Clear skill searches - ONLY clear the values, don't reset the structure
+  // Clear skill searches - ONLY clear the values, don't reset the structure
   const searchInputs = document.querySelectorAll('.skill-search');
   searchInputs.forEach(input => {
     input.value = ''; // Clear the input value
@@ -1730,15 +1739,19 @@ clearFiltersBtn.addEventListener('click', () => {
     button.classList.remove('active');
   });
 
+  // Reset preset cards to visible state when clearing filters
+  showPresetCards = true;
+  localStorage.setItem('showPresetCards', 'true');
+  updateTogglePresetCardsButton();
+  updateSidebarFiltersVisibility(); // ADD THIS
+
   // DO NOT clear sorting and region controls - keep them as they are
-  // sortBy and region variables remain unchanged
-  // localStorage for sortBy, sortOrder, and region remain unchanged
   
   const presetsSelect = document.getElementById('presets');
   if (presetsSelect) presetsSelect.value = '';
   sectionPages.clear();
   renderSections();
-  updateSkillVisibility(); // Still update visibility to reflect cleared filters
+  updateSkillVisibility();
 });
 
 /* ------------- Filter persistence ------------- */
@@ -2233,22 +2246,43 @@ function setupTogglePresetCards() {
   if (savedState !== null) {
     showPresetCards = savedState === 'true';
     updateTogglePresetCardsButton();
+    updateSidebarFiltersVisibility(); // ADD THIS
   }
 
   togglePresetCardsBtn.addEventListener('click', () => {
     showPresetCards = !showPresetCards;
     localStorage.setItem('showPresetCards', showPresetCards);
     updateTogglePresetCardsButton();
+    updateSidebarFiltersVisibility(); // ADD THIS
     renderSections();
   });
 }
 
 function updateTogglePresetCardsButton() {
   togglePresetCardsBtn.textContent = showPresetCards ? 
-    'Hide Default Cards' : 
-    'Show Default Cards';
+    'Hide Preset Cards' : 
+    'Show Preset Cards';
 }
 
+// ADD THIS NEW FUNCTION
+function updateSidebarFiltersVisibility() {
+  const sidebarFiltersSection = document.getElementById('sidebarFiltersSection');
+  if (sidebarFiltersSection) {
+    if (showPresetCards) {
+      sidebarFiltersSection.classList.remove('hidden');
+    } else {
+      sidebarFiltersSection.classList.add('hidden');
+    }
+  }
+}
+
+function shouldShowFilterSection(catId) {
+  // If we're hiding preset cards, only show skill search sections
+  if (!showPresetCards) {
+    return false; // Hide all filter-based sections (racecourse, length, etc.)
+  }
+  return true; // Show all sections when preset cards are visible
+}
 function shouldShowFilterSection(catId) {
   // If we're hiding preset cards, only show skill search sections
   if (!showPresetCards) {
