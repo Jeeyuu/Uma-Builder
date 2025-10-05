@@ -74,23 +74,41 @@ body {
   overflow-y: auto;
 }
 
+/* Hide sidebar scrollbars */
+.sidebar::-webkit-scrollbar {
+  display: none;
+}
+.sidebar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 /* Right sidebar for slots */
 .right-sidebar {
   flex-shrink: 0;
   padding: 12px 12px;
   box-sizing: border-box;
   background: #f5f5f5;
-  overflow-y: auto;
+  overflow-y: auto; /* Keep auto for scrolling if needed */
   border-left: 1px solid #ddd;
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center the slots grid */
+  align-items: center;
+}
+
+/* Hide right sidebar scrollbars */
+.right-sidebar::-webkit-scrollbar {
+  display: none;
+}
+.right-sidebar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* Right sidebar specific styles */
 .right-sidebar .slots-header {
-  margin-top: 16px;    /* Add this if you want top margin */
-  margin-bottom: 12px; /* Adjust this if needed */
+  margin-top: 16px;
+  margin-bottom: 12px;
 }
 
 /* ---------- MAIN CONTENT (BALANCED SIZING) ---------- */
@@ -120,14 +138,6 @@ body {
 /* Hide scrollbar for IE/Edge */
 .main-content {
   -ms-overflow-style: none;
-}
-
-/* Ensure no body scroll */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
 }
 
 /* Wrapper to center cards */
@@ -198,6 +208,8 @@ html, body {
   min-height: calc(var(--card-w) * 2.2);
   aspect-ratio: auto;
   height: auto;
+  /* Allow card to grow naturally with skills */
+  max-height: none;
 }
 
 .slot .placeholder {
@@ -385,10 +397,6 @@ html, body {
   width: 100%;
   gap: 0px;
 }
-
-/* Hide scrollbar but allow scrolling */
-.sidebar::-webkit-scrollbar { width: 0; background: transparent; }
-.sidebar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 </head>
 
