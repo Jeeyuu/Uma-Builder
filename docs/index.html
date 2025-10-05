@@ -1643,7 +1643,9 @@ function sortCards(cards, sortBy, order) {
     return 0;
   });
   
-  return sortedCards;
+  // REVERSE THE ARRAY SO HIGHEST PRIORITY CARDS APPEAR IN TOP-LEFT POSITIONS
+  // This ensures SSR/newest cards appear first in the grid (top-left)
+  return sortedCards.reverse();
 }
 
   // APPLY SORTING
