@@ -1970,6 +1970,26 @@ function updateSkillVisibility() {
       skill.classList.remove('hidden-skill');
     }
   });
+  
+  // NEW: Hide empty headers when hiding uncolored skills
+  if (shouldHide) {
+    document.querySelectorAll('.skills-group').forEach(group => {
+      const skills = group.querySelectorAll('.skill');
+      const visibleSkills = Array.from(skills).filter(skill => !skill.classList.contains('hidden-skill'));
+      
+      const header = group.querySelector('.skills-header');
+      if (header && visibleSkills.length === 0) {
+        header.classList.add('hidden-skill');
+      } else if (header) {
+        header.classList.remove('hidden-skill');
+      }
+    });
+  } else {
+    // Show all headers when not hiding uncolored skills
+    document.querySelectorAll('.skills-header').forEach(header => {
+      header.classList.remove('hidden-skill');
+    });
+  }
 }
 
 function renderSkillSearchRow(key, headerText, matches, rowIndex) {
