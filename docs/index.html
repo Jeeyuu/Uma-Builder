@@ -625,7 +625,9 @@ body {
   justify-content: center;
   font-size: 16px;
   transition: all 0.2s ease;
-  margin-top: 20px; /* Align with select */
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
 }
 
 .sort-order-btn:hover {
@@ -702,20 +704,20 @@ body {
   </div>
 
 <!-- ADD SORTING CONTROLS HERE -->
-<div class="filter-group" style="display: flex; gap: 8px; align-items: center;">
-  <div style="flex: 1;">
-    <label for="sortBy">Sort By</label>
-    <select id="sortBy">
+<div class="filter-group">
+  <label for="sortBy">Sort By</label>
+  <div style="display: flex; gap: 6px; align-items: center;">
+    <select id="sortBy" style="flex: 1;">
       <option value="rarity">Rarity</option>
       <option value="name">Name</option>
       <option value="type">Type</option>
       <option value="release">Release Date</option>
       <option value="support_id">Game ID Number</option>
     </select>
+    <button id="sortOrder" class="sort-order-btn ascending" style="width: 32px; height: 32px; border: 1px solid #ccc; background: #444; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 4px; flex-shrink: 0;">
+      ↑
+    </button>
   </div>
-  <button id="sortOrder" class="sort-order-btn ascending" style="margin-top: 20px; width: 40px; height: 32px; border: 1px solid #ccc; background: #444; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px;">
-    ↑
-  </button>
 </div>
 
 <div class="filter-group">
