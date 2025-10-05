@@ -1242,14 +1242,8 @@ function setupToggleButtons() {
 }
 
 /* ------------- UTIL ------------- */
-function normalizeSkill(s){ 
-  return String(s||'')
-    .replace(/[◎○]/g,'')
-    .trim()
-    .toLowerCase()
-    .normalize('NFD') // Normalize unicode characters
-    .replace(/[\u0300-\u036f]/g, ''); // Remove diacritics
-}function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
+function normalizeSkill(s){ return String(s||'').replace(/[◎○]/g,'').trim().toLowerCase(); }
+function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
 function getLengthCategory(distance){ if(distance<=1400)return'Sprint'; if(distance<=1800)return'Mile'; if(distance<=2400)return'Medium'; return'Long'; }
 function isStandardDistance(distance){ return distance%400===0; }
 const typeMap = { "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","support":"05","group":"06" };
