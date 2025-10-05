@@ -192,12 +192,10 @@ body {
 
 .toggle-buttons-row {
   display: flex;
-  gap: 6px;
   justify-content: flex-start;
 }
 
 .toggle-button {
-  border: 2px solid #ccc;
   background: #fff;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -205,6 +203,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 0;
+  border: 2px solid #ccc;
 }
 
 .toggle-button:hover {
@@ -212,15 +211,24 @@ body {
 }
 
 .toggle-button.active {
-  border-color: #444;
   background: #444;
 }
 
-/* Rarity buttons (53x22) */
+/* Rarity buttons - full width, no border radius */
+.rarity-buttons .toggle-buttons-row {
+  width: 100%;
+  gap: 0;
+}
+
 .rarity-buttons .toggle-button {
-  width: 53px;
-  height: 22px;
-  border-radius: 4px;
+  flex: 1;
+  height: 28px;
+  border-radius: 0;
+  border-right: 1px solid #ccc;
+}
+
+.rarity-buttons .toggle-button:last-child {
+  border-right: 2px solid #ccc;
 }
 
 .rarity-buttons .toggle-button img {
@@ -235,11 +243,19 @@ body {
   filter: grayscale(0%);
 }
 
-/* Type buttons (32x32) */
+/* Type buttons - no border, minimal gap, square aspect ratio */
+.type-buttons .toggle-buttons-row {
+  width: 100%;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
 .type-buttons .toggle-button {
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  aspect-ratio: 1; /* Makes it square */
+  min-width: 0; /* Allows flex items to shrink below content size */
 }
 
 .type-buttons .toggle-button img {
