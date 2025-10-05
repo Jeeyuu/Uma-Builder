@@ -938,6 +938,12 @@ let SKILL_SEARCH_KEYS = ['skillSearch1']; // Initialize as let so it can be upda
 const selectedRarities = new Set();
 const selectedTypes = new Set();
 
+/* ------------- NEW STATE VARIABLES ------------- */
+let hideUncolored = false;
+let sortBy = 'rarity';
+let sortOrder = 'descending'; // CHANGED TO DESCENDING
+let region = 'global';
+
 /* ------------- SORTING FUNCTION ------------- */
 function sortCards(cards, sortBy, order) {
   const sortedCards = [...cards];
@@ -1087,6 +1093,25 @@ function setupRemoveButton(searchId) {
   removeBtn.addEventListener('click', () => {
     removeSearchBox(searchId);
   });
+}
+
+function removeSearchBox(searchId) {
+  if (searchId === 'skillSearch1') return; // Don't remove the first one
+
+  const container = document.querySelector(`.search-input-container input[id="${searchId}"]`)?.parentElement;
+  if (container) {
+    container.remove();
+  }
+
+  // Remove from SKILL_SEARCH_KEYS array
+  SKILL_SEARCH_KEYS = SKILL_SEARCH_KEYS.filter(id => id !== searchId);
+  searchCounter = SKILL_SEARCH_KEYS.length;
+
+  // Remove from localStorage
+  localStorage.removeItem('filter_' + searchId);
+
+  sectionPages.clear();
+  renderSections();
 }
 
 function removeFromSlot(slotEl, card){
@@ -1309,12 +1334,6 @@ function applyPreset(cup) {
 
 FILTER_KEYS.push('presets');
 
-/* ------------- NEW STATE VARIABLES ------------- */
-let hideUncolored = false;
-let sortBy = 'rarity';
-let sortOrder = 'descending'; // CHANGED TO DESCENDING
-let region = 'global';
-
 /* ------------- SETUP NEW CONTROLS ------------- */
 function setupSortingControls() {
   const sortBySelect = document.getElementById('sortBy');
@@ -1379,19 +1398,21 @@ function setupSortingControls() {
 }
 
 // Setup Hide Uncolored checkbox
-const hideUncoloredCheckbox = document.getElementById('hideUncolored');
-const savedHideUncolored = localStorage.getItem('hideUncolored');
+function setupHideUncoloredCheckbox() {
+  const hideUncoloredCheckbox = document.getElementById('hideUncolored');
+  const savedHideUncolored = localStorage.getItem('hideUncolored');
 
-if (savedHideUncolored) {
-  hideUncolored = savedHideUncolored === 'true';
-  hideUncoloredCheckbox.checked = hideUncolored;
+  if (savedHideUncolored) {
+    hideUncolored = savedHideUncolored === 'true';
+    hideUncoloredCheckbox.checked = hideUncolored;
+  }
+
+  hideUncoloredCheckbox.addEventListener('change', (e) => {
+    hideUncolored = e.target.checked;
+    localStorage.setItem('hideUncolored', hideUncolored);
+    updateSkillVisibility(); // Update visibility when checkbox changes
+  });
 }
-
-hideUncoloredCheckbox.addEventListener('change', (e) => {
-  hideUncolored = e.target.checked;
-  localStorage.setItem('hideUncolored', hideUncolored);
-  updateSkillVisibility(); // Update visibility when checkbox changes
-});
 
 /* ------------- UPDATED CARD CREATION WITH BETTER ERROR HANDLING ------------- */
 function createCardElement(card){
@@ -1484,6 +1505,9 @@ function loadSlotsFromLocalStorage() {
       if (card) addToSlot(card, slots[index], false);
     }
   });
+  
+  // NEW: Apply highlighting to all loaded slot skills
+  highlightSkills();
 }
 
 function addToSlot(card, targetSlot = null, save = true){
@@ -1545,6 +1569,9 @@ function addToSlot(card, targetSlot = null, save = true){
 
   selectedCardIds.add(card.char_id);
   if(save) saveSlotsToLocalStorage();
+  
+  // NEW: Apply highlighting to the slot skills immediately
+  highlightSkills();
   renderSections();
 }
 
@@ -1615,7 +1642,6 @@ clearFiltersBtn.addEventListener('click', () => {
   sectionPages.clear();
   renderSections();
   updateSkillVisibility();
-
 });
 
 /* ------------- Filter persistence ------------- */
@@ -1633,11 +1659,11 @@ function setupFilterPersistence(){
 
 /* ------------- CONCISE HIGHLIGHTING LOGIC ------------- */
 function highlightSkills() {
+  // Process ALL skills (both in main content and slots)
   document.querySelectorAll('.skill').forEach(skill => {
     skill.classList.remove('highlighted', 'search-highlighted');
     skill.style.background = '#eef2ff';
     skill.style.color = '#000';
-      updateSkillVisibility();
   });
 
   const filters = {
@@ -1707,6 +1733,44 @@ function highlightSkills() {
       }
     }
   });
+
+  // NEW: Update skill visibility for ALL skills (main content and slots)
+  updateSkillVisibility();
+}
+
+function updateSkillVisibility() {
+  const shouldHide = hideUncolored;
+  
+  document.querySelectorAll('.skill').forEach(skill => {
+    const isHighlighted = skill.classList.contains('highlighted') || 
+                         skill.classList.contains('search-highlighted');
+    
+    if (shouldHide && !isHighlighted) {
+      skill.classList.add('hidden-skill');
+    } else {
+      skill.classList.remove('hidden-skill');
+    }
+  });
+  
+  // Hide empty headers when hiding uncolored skills
+  if (shouldHide) {
+    document.querySelectorAll('.skills-group').forEach(group => {
+      const skills = group.querySelectorAll('.skill');
+      const visibleSkills = Array.from(skills).filter(skill => !skill.classList.contains('hidden-skill'));
+      
+      const header = group.querySelector('.skills-header');
+      if (header && visibleSkills.length === 0) {
+        header.classList.add('hidden-skill');
+      } else if (header) {
+        header.classList.remove('hidden-skill');
+      }
+    });
+  } else {
+    // Show all headers when not hiding uncolored skills
+    document.querySelectorAll('.skills-header').forEach(header => {
+      header.classList.remove('hidden-skill');
+    });
+  }
 }
 
 /* ------------- FILTER BUILDING & MATCHING ------------- */
@@ -1957,41 +2021,6 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   cardSections.appendChild(section);
 }
 
-function updateSkillVisibility() {
-  const shouldHide = hideUncolored;
-  
-  document.querySelectorAll('.skill').forEach(skill => {
-    const isHighlighted = skill.classList.contains('highlighted') || 
-                         skill.classList.contains('search-highlighted');
-    
-    if (shouldHide && !isHighlighted) {
-      skill.classList.add('hidden-skill');
-    } else {
-      skill.classList.remove('hidden-skill');
-    }
-  });
-  
-  // NEW: Hide empty headers when hiding uncolored skills
-  if (shouldHide) {
-    document.querySelectorAll('.skills-group').forEach(group => {
-      const skills = group.querySelectorAll('.skill');
-      const visibleSkills = Array.from(skills).filter(skill => !skill.classList.contains('hidden-skill'));
-      
-      const header = group.querySelector('.skills-header');
-      if (header && visibleSkills.length === 0) {
-        header.classList.add('hidden-skill');
-      } else if (header) {
-        header.classList.remove('hidden-skill');
-      }
-    });
-  } else {
-    // Show all headers when not hiding uncolored skills
-    document.querySelectorAll('.skills-header').forEach(header => {
-      header.classList.remove('hidden-skill');
-    });
-  }
-}
-
 function renderSkillSearchRow(key, headerText, matches, rowIndex) {
   // COMPLETELY HIDE SECTION IF NO MATCHES
   if (matches.length === 0) {
@@ -2074,6 +2103,9 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
     }
   });
 }
+
+// Initialize the hide uncolored checkbox
+setupHideUncoloredCheckbox();
 
 // Auto-update whenever a filter dropdown changes
 ['racecourse','length','direction','track','season','weather','strategy']
