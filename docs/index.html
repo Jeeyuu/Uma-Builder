@@ -1940,30 +1940,23 @@ function renderSections() {
   const anyRarityActive = selectedRarities.size > 0;
   const anyTypeActive = selectedTypes.size > 0;
 
-  // Check if we should show the "no filters" message
-const shouldShowNoFiltersMessage = 
-  !anyDropdownActive && 
-  !anySkillActive && 
-  (!anyRarityActive || selectedRarities.size === 0) && 
-  (!anyTypeActive || selectedTypes.size === 0);
-
-if(shouldShowNoFiltersMessage) {
-  const section = document.createElement('div');
-  section.className = 'card-section';
-  section.style.display = 'flex';
-  section.style.flexDirection = 'column';
-  section.style.alignItems = 'center';
-  section.style.justifyContent = 'center';
-  const msg = document.createElement('div');
-  msg.style.opacity = '0.7';
-  msg.style.padding = '0px';
-  msg.style.marginTop = '20px';
-  msg.style.marginBottom = '10px';
-  msg.textContent = 'Pick a label on the left or type a skill to show matching cards.';
-  section.appendChild(msg);
-  cardSections.appendChild(section);
-  return;
-}
+  if(!anyDropdownActive && !anySkillActive && !anyRarityActive && !anyTypeActive) {
+    const section = document.createElement('div');
+    section.className = 'card-section';
+    section.style.display = 'flex';
+    section.style.flexDirection = 'column';
+    section.style.alignItems = 'center';
+    section.style.justifyContent = 'center';
+    const msg = document.createElement('div');
+    msg.style.opacity = '0.7';
+    msg.style.padding = '0px';
+    msg.style.marginTop = '20px';
+    msg.style.marginBottom = '10px';
+    msg.textContent = 'Pick a label on the left or type a skill to show matching cards.';
+    section.appendChild(msg);
+    cardSections.appendChild(section);
+    return;
+  }
 
 // Apply region filter first - CORRECTED
 let baseFilteredCards = cardsData.filter(card => {
