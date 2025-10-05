@@ -1708,47 +1708,31 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('filter_' + id);
   });
 
-  // Reset toggle preset cards to default (show all)
-  showPresetCards = true;
-  localStorage.setItem('showPresetCards', 'true');
-  updateTogglePresetCardsButton();
+  // REMOVE THIS SECTION - Don't clear the hide uncolored checkbox
+  // hideUncolored = false;
+  // const hideUncoloredCheckbox = document.getElementById('hideUncolored');
+  // if (hideUncoloredCheckbox) {
+  //   hideUncoloredCheckbox.checked = false;
+  // }
+  // localStorage.removeItem('hideUncolored');
 
-  // Clear skill searches - completely reset to just one clean search box
-const skillSearchGroup = document.getElementById('skillSearchGroup');
-const searchContainers = skillSearchGroup.querySelectorAll('.search-input-container');
+  // FIXED: Clear skill searches - ONLY clear the values, don't reset the structure
+  const searchInputs = document.querySelectorAll('.skill-search');
+  searchInputs.forEach(input => {
+    input.value = ''; // Clear the input value
+    localStorage.setItem('filter_' + input.id, ''); // Clear from storage
+  });
 
-// Remove ALL existing search containers
-searchContainers.forEach(container => container.remove());
+  // Clear toggle buttons (rarity and type)
+  selectedRarities.clear();
+  selectedTypes.clear();
+  document.querySelectorAll('.toggle-button').forEach(button => {
+    button.classList.remove('active');
+  });
 
-// Reset to just the first search box with fresh setup
-SKILL_SEARCH_KEYS = ['skillSearch1'];
-searchCounter = 2;
-
-// Create a fresh first search box
-const firstSearchContainer = document.createElement('div');
-firstSearchContainer.className = 'search-input-container';
-firstSearchContainer.innerHTML = `
-  <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
-  <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
-`;
-
-skillSearchGroup.appendChild(firstSearchContainer);
-
-// Set up the fresh search box
-setupSearchInput('skillSearch1');
-setupRemoveButton('skillSearch1');
-localStorage.setItem('filter_skillSearch1', '');
-
-// Clear toggle buttons (rarity and type)
-selectedRarities.clear();
-selectedTypes.clear();
-document.querySelectorAll('.toggle-button').forEach(button => {
-  button.classList.remove('active');
-});
-
-// DO NOT clear sorting and region controls - keep them as they are
-// sortBy and region variables remain unchanged
-// localStorage for sortBy, sortOrder, and region remain unchanged
+  // DO NOT clear sorting and region controls - keep them as they are
+  // sortBy and region variables remain unchanged
+  // localStorage for sortBy, sortOrder, and region remain unchanged
   
   const presetsSelect = document.getElementById('presets');
   if (presetsSelect) presetsSelect.value = '';
