@@ -330,17 +330,23 @@ body {
 }
 
 .add-search-btn {
-  padding: 4px 8px;
-  font-size: 11px;
+  padding: 8px 12px; /* Match Clear Filters button padding */
+  font-size: 12px; /* Match Clear Filters button font size */
   cursor: pointer;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: #f5f5f5;
-  color: #333;
+  border: none; /* Match Clear Filters button border */
+  border-radius: 6px; /* Match Clear Filters button border radius */
+  background: #444; /* Match Clear Filters button background */
+  color: #fff; /* Match Clear Filters button text color */
+  transition: background-color 0.2s; /* Match Clear Filters button transition */
+  height: auto; /* Let height be determined by padding + content */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1; /* Ensure consistent line height */
 }
 
 .add-search-btn:hover {
-  background: #e5e5e5;
+  background: #333; /* Match Clear Filters button hover */
 }
 
 /* Individual search input container */
@@ -1093,9 +1099,11 @@ function setupRemoveButton(searchId) {
   if (!removeBtn) return;
 
   removeBtn.addEventListener('click', () => {
-    // Don't allow removing the first search box
-    if (searchId === 'skillSearch1') {
-      // Instead of removing, just clear the input
+    // Allow removing any search box, including the first one
+    const currentSearchCount = document.querySelectorAll('.search-input-container').length;
+    
+    if (currentSearchCount === 1) {
+      // If this is the last search box, clear it instead of removing
       const input = document.getElementById(searchId);
       if (input) {
         input.value = '';
@@ -1103,18 +1111,21 @@ function setupRemoveButton(searchId) {
         sectionPages.clear();
         renderSections();
       }
-      return;
+    } else {
+      // Remove the search box if there are others
+      removeSearchBox(searchId);
+      
+      // If we just removed the last search box, add a new empty one
+      const remainingCount = document.querySelectorAll('.search-input-container').length;
+      if (remainingCount === 0) {
+        addSearchBox(); // This will create a new search box
+      }
     }
-    removeSearchBox(searchId);
   });
 }
 
 function removeSearchBox(searchId) {
-  // Don't allow removing the first search box
-  if (searchId === 'skillSearch1') {
-    return;
-  }
-
+  // Allow removing any search box now
   const container = document.querySelector(`.search-input-container input[id="${searchId}"]`)?.parentElement;
   if (container) {
     container.remove();
