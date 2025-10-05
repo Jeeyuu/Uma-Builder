@@ -1260,8 +1260,8 @@ FILTER_KEYS.push('presets');
 
 /* ------------- NEW STATE VARIABLES ------------- */
 let sortBy = 'rarity';
-let sortOrder = 'ascending'; // CHANGED TO ASCENDING
-let region = 'global'; // CHANGED TO GLOBAL
+let sortOrder = 'descending'; // CHANGED TO DESCENDING
+let region = 'global';
 
 /* ------------- SETUP NEW CONTROLS ------------- */
 function setupSortingControls() {
@@ -1277,16 +1277,22 @@ function setupSortingControls() {
   if (savedSortBy) {
     sortBy = savedSortBy;
     sortBySelect.value = savedSortBy;
+  } else {
+    // SET DEFAULT TO RARITY
+    sortBySelect.value = 'rarity';
   }
+  
   if (savedSortOrder) {
     sortOrder = savedSortOrder;
     sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
     sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
   } else {
-    // SET DEFAULT TO ASCENDING
-    sortOrderBtn.textContent = '↑';
-    sortOrderBtn.classList.add('ascending');
+    // SET DEFAULT TO DESCENDING
+    sortOrder = 'descending';
+    sortOrderBtn.textContent = '↓';
+    sortOrderBtn.classList.remove('ascending');
   }
+  
   if (savedRegion) {
     region = savedRegion;
     regionSelect.value = savedRegion;
