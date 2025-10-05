@@ -698,7 +698,7 @@ let SKILL_SEARCH_KEYS = ['skillSearch1']; // Initialize as let so it can be upda
 
 /* ------------- DYNAMIC SKILL SEARCH ------------- */
 let searchCounter = 1;
-const maxSearches = 5;
+const maxSearches = 15; // Changed from 5 to 15
 
 function setupDynamicSkillSearch() {
   const addSearchBtn = document.getElementById('addSearchBtn');
@@ -710,44 +710,34 @@ function setupDynamicSkillSearch() {
   addSearchBtn.addEventListener('click', addSearchBox);
 }
 
-function addSearchBox() {
-  if (searchCounter >= maxSearches) return;
+function removeSearchBox(searchId) {
+  // REMOVED: Don't remove the first search box restriction
+  // if (searchId === 'skillSearch1') return;
 
-  searchCounter++;
-  const searchId = `skillSearch${searchCounter}`;
-  SKILL_SEARCH_KEYS.push(searchId);
+  const searchContainer = document.querySelector(`.search-input-container input#${searchId}`)?.parentNode;
+  if (!searchContainer) return;
 
-  const searchContainer = document.createElement('div');
-  searchContainer.className = 'search-input-container';
-  searchContainer.innerHTML = `
-    <input type="text" id="${searchId}" class="skill-search" placeholder="Search skill">
-    <button class="remove-search-btn" data-search-id="${searchId}">×</button>
-  `;
+  // Remove from DOM
+  searchContainer.remove();
 
-  const skillSearchGroup = document.getElementById('skillSearchGroup');
-  skillSearchGroup.appendChild(searchContainer);
+  // Remove from arrays and localStorage
+  const index = SKILL_SEARCH_KEYS.indexOf(searchId);
+  if (index > -1) {
+    SKILL_SEARCH_KEYS.splice(index, 1);
+  }
+  localStorage.removeItem('filter_' + searchId);
 
-  setupSearchInput(searchId);
-  setupRemoveButton(searchId);
+  // Update search counter
+  searchCounter = SKILL_SEARCH_KEYS.length;
 
-  // Update localStorage with empty value for new search
-  localStorage.setItem('filter_' + searchId, '');
-}
+  // If all search boxes are deleted, add back the first one
+  if (SKILL_SEARCH_KEYS.length === 0) {
+    addSearchBox(); // This will add skillSearch1 back
+  }
 
-function setupSearchInput(searchId) {
-  const input = document.getElementById(searchId);
-  if (!input) return;
-
-  // Load saved value
-  const saved = localStorage.getItem('filter_' + searchId);
-  if (saved) input.value = saved;
-
-  // Set up input event
-  input.addEventListener('input', () => {
-    localStorage.setItem('filter_' + searchId, input.value);
-    sectionPages.clear();
-    renderSections();
-  });
+  // Re-render sections
+  sectionPages.clear();
+  renderSections();
 }
 
 function setupRemoveButton(searchId) {
@@ -1043,12 +1033,26 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('filter_' + id);
   });
   
-  // Clear skill searches
+  // Clear skill searches but keep the first one
   SKILL_SEARCH_KEYS.forEach(id => {
     const input = document.getElementById(id);
     if (input) input.value = '';
-    localStorage.removeItem('filter_' + id);
+    localStorage.setItem('filter_' + id, '');
   });
+  
+  // Remove all but the first search box
+  const skillSearchGroup = document.getElementById('skillSearchGroup');
+  const searchContainers = skillSearchGroup.querySelectorAll('.search-input-container');
+  
+  // Keep only the first search container
+  for (let i = 1; i < searchContainers.length; i++) {
+    searchContainers[i].remove();
+  }
+  
+  // Reset the SKILL_SEARCH_KEYS array to only contain the first one
+  const firstSearchId = SKILL_SEARCH_KEYS[0];
+  SKILL_SEARCH_KEYS = [firstSearchId];
+  searchCounter = 1;
   
   const presetsSelect = document.getElementById('presets');
   if (presetsSelect) presetsSelect.value = '';
