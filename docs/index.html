@@ -516,17 +516,17 @@ body {
 </div>
 
   <div class="container">
-<!-- Left Sidebar (Filters) -->
-<div class="sidebar">
-  <!-- Clear Filters Button at top -->
-  <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
+    <!-- Left Sidebar (Filters) -->
+    <div class="sidebar">
+      <!-- Clear Filters Button at top -->
+      <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
 
-  <div class="filter-group">
-    <label for="presets">Presets</label>
-    <select id="presets">
-      <option value="">-- Select --</option>
-    </select>
-  </div>
+      <div class="filter-group">
+        <label for="presets">Presets</label>
+        <select id="presets">
+          <option value="">-- Select --</option>
+        </select>
+      </div>
 
       <div class="filter-group">
         <label for="racecourse">Racecourse</label>
@@ -620,37 +620,60 @@ body {
         </select>
       </div>
 
-        <div class="filter-group">
-          <label for="strategy">Strategy</label>
-          <select id="strategy">
-            <option value="">-- Select --</option>
-            <option value="Front Runner">Front Runner</option>
-            <option value="Pace Chaser">Pace Chaser</option>
-            <option value="Late Surger">Late Surger</option>
-            <option value="End Closer">End Closer</option>
-          </select>
-        </div>
-
-        <!-- Thin divider -->
-        <div class="skill-search-divider"></div>
-
-        <!-- Skill Search Section -->
-        <div id="skillSearchGroup">
-          <div class="skill-search-header">
-            <label for="skillSearch1">Skill Search</label>
-            <button class="add-search-btn" id="addSearchBtn">Add</button>
-          </div>
-          
-          <!-- Default search box -->
-          <div class="search-input-container">
-            <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
-            <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
-          </div>
-          
-          <!-- Additional search boxes will be added here dynamically -->
-        </div>
+      <div class="filter-group">
+        <label for="strategy">Strategy</label>
+        <select id="strategy">
+          <option value="">-- Select --</option>
+          <option value="Front Runner">Front Runner</option>
+          <option value="Pace Chaser">Pace Chaser</option>
+          <option value="Late Surger">Late Surger</option>
+          <option value="End Closer">End Closer</option>
+        </select>
       </div>
-</body>
+
+      <!-- Thin divider -->
+      <div class="skill-search-divider"></div>
+
+      <!-- Skill Search Section -->
+      <div id="skillSearchGroup">
+        <div class="skill-search-header">
+          <label for="skillSearch1">Skill Search</label>
+          <button class="add-search-btn" id="addSearchBtn">Add</button>
+        </div>
+        
+        <!-- Default search box -->
+        <div class="search-input-container">
+          <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
+          <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
+        </div>
+        
+        <!-- Additional search boxes will be added here dynamically -->
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <div id="cardSections" class="card-sections"></div>
+      </div>
+    </div>
+
+    <!-- Right Sidebar (Slots) -->
+    <div class="right-sidebar">
+      <div class="slots-header">
+        <button class="clear-all" id="clearAllBtn">Clear All</button>
+      </div>
+
+      <div class="slots" id="slots">
+        <div class="slot" data-slot="0"><div class="placeholder">Empty</div></div>
+        <div class="slot" data-slot="1"><div class="placeholder">Empty</div></div>
+        <div class="slot" data-slot="2"><div class="placeholder">Empty</div></div>
+        <div class="slot" data-slot="3"><div class="placeholder">Empty</div></div>
+        <div class="slot" data-slot="4"><div class="placeholder">Empty</div></div>
+        <div class="slot" data-slot="5"><div class="placeholder">Empty</div></div>
+      </div>
+    </div>
+  </div>
 
 <script>
 /* ------------- CONFIG ------------- */
@@ -668,6 +691,95 @@ const sectionPages = new Map();
 const slotListeners = new Map();
 const SLOT_KEY = 'saved_slots';
 const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
+let SKILL_SEARCH_KEYS = ['skillSearch1']; // Initialize as let so it can be updated
+
+/* ------------- DYNAMIC SKILL SEARCH ------------- */
+let searchCounter = 1;
+const maxSearches = 5;
+
+function setupDynamicSkillSearch() {
+  const addSearchBtn = document.getElementById('addSearchBtn');
+  
+  // Set up the first search box
+  setupSearchInput('skillSearch1');
+  setupRemoveButton('skillSearch1');
+  
+  addSearchBtn.addEventListener('click', addSearchBox);
+}
+
+function addSearchBox() {
+  if (searchCounter >= maxSearches) return;
+
+  searchCounter++;
+  const searchId = `skillSearch${searchCounter}`;
+  SKILL_SEARCH_KEYS.push(searchId);
+
+  const searchContainer = document.createElement('div');
+  searchContainer.className = 'search-input-container';
+  searchContainer.innerHTML = `
+    <input type="text" id="${searchId}" class="skill-search" placeholder="Search skill">
+    <button class="remove-search-btn" data-search-id="${searchId}">×</button>
+  `;
+
+  const skillSearchGroup = document.getElementById('skillSearchGroup');
+  skillSearchGroup.appendChild(searchContainer);
+
+  setupSearchInput(searchId);
+  setupRemoveButton(searchId);
+
+  // Update localStorage with empty value for new search
+  localStorage.setItem('filter_' + searchId, '');
+}
+
+function setupSearchInput(searchId) {
+  const input = document.getElementById(searchId);
+  if (!input) return;
+
+  // Load saved value
+  const saved = localStorage.getItem('filter_' + searchId);
+  if (saved) input.value = saved;
+
+  // Set up input event
+  input.addEventListener('input', () => {
+    localStorage.setItem('filter_' + searchId, input.value);
+    sectionPages.clear();
+    renderSections();
+  });
+}
+
+function setupRemoveButton(searchId) {
+  const removeBtn = document.querySelector(`.remove-search-btn[data-search-id="${searchId}"]`);
+  if (!removeBtn) return;
+
+  removeBtn.addEventListener('click', () => {
+    removeSearchBox(searchId);
+  });
+}
+
+function removeSearchBox(searchId) {
+  // Don't remove the first search box
+  if (searchId === 'skillSearch1') return;
+
+  const searchContainer = document.querySelector(`.search-input-container input#${searchId}`)?.parentNode;
+  if (!searchContainer) return;
+
+  // Remove from DOM
+  searchContainer.remove();
+
+  // Remove from arrays and localStorage
+  const index = SKILL_SEARCH_KEYS.indexOf(searchId);
+  if (index > -1) {
+    SKILL_SEARCH_KEYS.splice(index, 1);
+  }
+  localStorage.removeItem('filter_' + searchId);
+
+  // Update search counter
+  searchCounter = SKILL_SEARCH_KEYS.length;
+
+  // Re-render sections
+  sectionPages.clear();
+  renderSections();
+}
 
 /* ------------- UTIL ------------- */
 function normalizeSkill(s){ return String(s||'').replace(/[◎○]/g,'').trim().toLowerCase(); }
@@ -927,6 +1039,14 @@ clearFiltersBtn.addEventListener('click', () => {
     if (el) el.value = '';
     localStorage.removeItem('filter_' + id);
   });
+  
+  // Clear skill searches
+  SKILL_SEARCH_KEYS.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.value = '';
+    localStorage.removeItem('filter_' + id);
+  });
+  
   const presetsSelect = document.getElementById('presets');
   if (presetsSelect) presetsSelect.value = '';
   sectionPages.clear();
@@ -940,21 +1060,6 @@ function setupFilterPersistence(){
     const saved=localStorage.getItem('filter_'+id); if(saved) el.value=saved;
     el.addEventListener('change', ()=>{
       localStorage.setItem('filter_'+id, el.value);
-      sectionPages.clear();
-      renderSections();
-    });
-  });
-}
-
-/* ------------- Skill Search persistence + rendering ------------- */
-function setupSkillSearchPersistence(){
-  SKILL_SEARCH_KEYS.forEach(id=>{
-    const input = document.getElementById(id);
-    if(!input) return;
-    const saved = localStorage.getItem('filter_'+id);
-    if(saved) input.value = saved;
-    input.addEventListener('input', ()=>{
-      localStorage.setItem('filter_'+id, input.value);
       sectionPages.clear();
       renderSections();
     });
@@ -1333,107 +1438,13 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
   });
 }
 
-/* ------------- DYNAMIC SKILL SEARCH ------------- */
-let searchCounter = 1;
-const maxSearches = 5;
-const SKILL_SEARCH_KEYS = ['skillSearch1']; // Start with just one
-
-function setupDynamicSkillSearch() {
-  const addSearchBtn = document.getElementById('addSearchBtn');
-  const skillSearchGroup = document.getElementById('skillSearchGroup');
-
-  addSearchBtn.addEventListener('click', addSearchBox);
-
-  // Set up event listener for the default search box
-  setupSearchInput('skillSearch1');
-}
-
-function addSearchBox() {
-  if (searchCounter >= maxSearches) return;
-
-  searchCounter++;
-  const searchId = `skillSearch${searchCounter}`;
-  SKILL_SEARCH_KEYS.push(searchId);
-
-  const searchContainer = document.createElement('div');
-  searchContainer.className = 'search-input-container';
-  searchContainer.innerHTML = `
-    <input type="text" id="${searchId}" class="skill-search" placeholder="Search skill">
-    <button class="remove-search-btn" data-search-id="${searchId}">×</button>
-  `;
-
-  const skillSearchGroup = document.getElementById('skillSearchGroup');
-  skillSearchGroup.appendChild(searchContainer);
-
-  setupSearchInput(searchId);
-  setupRemoveButton(searchId);
-
-  // Update localStorage with empty value for new search
-  localStorage.setItem('filter_' + searchId, '');
-}
-
-function setupSearchInput(searchId) {
-  const input = document.getElementById(searchId);
-  if (!input) return;
-
-  // Load saved value
-  const saved = localStorage.getItem('filter_' + searchId);
-  if (saved) input.value = saved;
-
-  // Set up input event
-  input.addEventListener('input', () => {
-    localStorage.setItem('filter_' + searchId, input.value);
-    sectionPages.clear();
-    renderSections();
-  });
-}
-
-function setupRemoveButton(searchId) {
-  const removeBtn = document.querySelector(`.remove-search-btn[data-search-id="${searchId}"]`);
-  if (!removeBtn) return;
-
-  removeBtn.addEventListener('click', () => {
-    removeSearchBox(searchId);
-  });
-}
-
-function removeSearchBox(searchId) {
-  // Don't remove the first search box
-  if (searchId === 'skillSearch1') return;
-
-  const searchContainer = document.querySelector(`.search-input-container input#${searchId}`)?.parentNode;
-  if (!searchContainer) return;
-
-  // Remove from DOM
-  searchContainer.remove();
-
-  // Remove from arrays and localStorage
-  const index = SKILL_SEARCH_KEYS.indexOf(searchId);
-  if (index > -1) {
-    SKILL_SEARCH_KEYS.splice(index, 1);
-  }
-  localStorage.removeItem('filter_' + searchId);
-
-  // Update search counter
-  searchCounter = SKILL_SEARCH_KEYS.length;
-
-  // Re-render sections
-  sectionPages.clear();
-  renderSections();
-}
-
-// Update the existing skill search persistence to handle dynamic inputs
-function setupSkillSearchPersistence() {
-  // This is now handled by setupDynamicSkillSearch and setupSearchInput
-}
-
-// Update the highlightSkills function to work with dynamic search boxes
-// (it should already work since it uses SKILL_SEARCH_KEYS array)
-
 // Auto-update whenever a filter dropdown changes
 ['racecourse','length','direction','track','season','weather','strategy']
   .forEach(id => {
-    document.getElementById(id).addEventListener('change', renderSections);
+    const element = document.getElementById(id);
+    if (element) {
+      element.addEventListener('change', renderSections);
+    }
   });
 
 document.addEventListener('DOMContentLoaded', () => {
