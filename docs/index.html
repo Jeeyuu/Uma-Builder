@@ -1091,12 +1091,27 @@ function setupRemoveButton(searchId) {
   if (!removeBtn) return;
 
   removeBtn.addEventListener('click', () => {
+    // Don't allow removing the first search box
+    if (searchId === 'skillSearch1') {
+      // Instead of removing, just clear the input
+      const input = document.getElementById(searchId);
+      if (input) {
+        input.value = '';
+        localStorage.setItem('filter_' + searchId, '');
+        sectionPages.clear();
+        renderSections();
+      }
+      return;
+    }
     removeSearchBox(searchId);
   });
 }
 
 function removeSearchBox(searchId) {
-  if (searchId === 'skillSearch1') return; // Don't remove the first one
+  // Don't allow removing the first search box
+  if (searchId === 'skillSearch1') {
+    return;
+  }
 
   const container = document.querySelector(`.search-input-container input[id="${searchId}"]`)?.parentElement;
   if (container) {
@@ -1526,7 +1541,7 @@ function addToSlot(card, targetSlot = null, save = true){
 
   let skillsHTML = '';
   
-  // FIX: Handle hint_skills with safe string conversion
+  // Only add skills groups if there are skills to show
   if(card.hint_skills && card.hint_skills.length) {
     const hintSkillsHTML = card.hint_skills.map(s => {
       const skillText = String(s || '');
@@ -1535,7 +1550,6 @@ function addToSlot(card, targetSlot = null, save = true){
     skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
   }
   
-  // FIX: Handle event skills with safe string conversion
   if(eventSkillsToUse && eventSkillsToUse.length) {
     const eventSkillsHTML = eventSkillsToUse.map(s => {
       const skillText = String(s || '');
@@ -1741,6 +1755,7 @@ function highlightSkills() {
 function updateSkillVisibility() {
   const shouldHide = hideUncolored;
   
+  // Process ALL skills (both in main content and slots)
   document.querySelectorAll('.skill').forEach(skill => {
     const isHighlighted = skill.classList.contains('highlighted') || 
                          skill.classList.contains('search-highlighted');
@@ -1752,25 +1767,32 @@ function updateSkillVisibility() {
     }
   });
   
-  // Hide empty headers when hiding uncolored skills
-  if (shouldHide) {
-    document.querySelectorAll('.skills-group').forEach(group => {
-      const skills = group.querySelectorAll('.skill');
-      const visibleSkills = Array.from(skills).filter(skill => !skill.classList.contains('hidden-skill'));
-      
-      const header = group.querySelector('.skills-header');
-      if (header && visibleSkills.length === 0) {
+  // Hide empty headers when hiding uncolored skills - process ALL skills groups
+  document.querySelectorAll('.skills-group').forEach(group => {
+    const skills = group.querySelectorAll('.skill');
+    const visibleSkills = Array.from(skills).filter(skill => !skill.classList.contains('hidden-skill'));
+    
+    const header = group.querySelector('.skills-header');
+    if (header) {
+      if (shouldHide && visibleSkills.length === 0) {
         header.classList.add('hidden-skill');
-      } else if (header) {
+      } else {
         header.classList.remove('hidden-skill');
       }
-    });
-  } else {
-    // Show all headers when not hiding uncolored skills
-    document.querySelectorAll('.skills-header').forEach(header => {
-      header.classList.remove('hidden-skill');
-    });
-  }
+    }
+  });
+  
+  // Also handle the case where there are no skills groups but skills are directly under .skills
+  document.querySelectorAll('.skills').forEach(skillsContainer => {
+    // Check if this .skills container has direct .skill children (not in groups)
+    const directSkills = skillsContainer.querySelectorAll(':scope > .skill');
+    if (directSkills.length > 0) {
+      const visibleDirectSkills = Array.from(directSkills).filter(skill => !skill.classList.contains('hidden-skill'));
+      
+      // If all direct skills are hidden and we're in hide mode, we might want to hide the container
+      // But for now, we'll just ensure the container itself doesn't get hidden as it might contain other elements
+    }
+  });
 }
 
 /* ------------- FILTER BUILDING & MATCHING ------------- */
