@@ -1519,8 +1519,9 @@ function createCardElement(card){
   const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
   const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
 
-  // ALWAYS USE ENGLISH SKILLS IF AVAILABLE, REGARDLESS OF REGION
-  const useEnglishSkills = card.event_skills_en && card.event_skills_en.length > 0;
+  // Use English skills for Global region, Japanese skills for Japan region
+  // Fall back to Japanese skills if English skills are empty
+  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
   const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
   let skillsHTML = '';
@@ -1614,8 +1615,9 @@ function addToSlot(card, targetSlot = null, save = true){
     slotListeners.delete(freeSlot);
   }
 
-  // ALWAYS USE ENGLISH SKILLS IF AVAILABLE, REGARDLESS OF REGION
-  const useEnglishSkills = card.event_skills_en && card.event_skills_en.length > 0;
+  // Use English skills for Global region, Japanese skills for Japan region
+  // Fall back to Japanese skills if English skills are empty
+  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
   const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
   let skillsHTML = '';
@@ -2024,20 +2026,35 @@ let baseFilteredCards = cardsData.filter(card => {
     }
   });
 
-  // Render skill search sections (separated as before)
-  SKILL_SEARCH_KEYS.forEach((key, i) => {
-    const val = document.getElementById(key)?.value.trim();
-    if (!val) return;
+// Render skill search sections (separated as before)
+SKILL_SEARCH_KEYS.forEach((key, i) => {
+  const val = document.getElementById(key)?.value.trim();
+  if (!val) return;
 
-    const normalized = normalizeSkill(val);
-    const matches = baseFilteredCards.filter(card => {
-      const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-      return skills.some(s => s.includes(normalized));
-    });
-
-    const header = `Skill Search ${i + 1}: "${val}"`;
-    renderSkillSearchRow(key, header, matches, i);
+  const normalized = normalizeSkill(val);
+  
+  // Use a Set to track unique cards by support_id to avoid duplicates
+  const uniqueMatches = new Set();
+  const matches = [];
+  
+  baseFilteredCards.forEach(card => {
+    // Use English skills for Global region, Japanese skills for Japan region
+    // Fall back to Japanese skills if English skills are empty
+    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+    
+    const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
+    const hasMatch = skills.some(s => s.includes(normalized));
+    
+    if (hasMatch && !uniqueMatches.has(card.support_id)) {
+      uniqueMatches.add(card.support_id);
+      matches.push(card);
+    }
   });
+
+  const header = `Skill Search ${i + 1}: "${val}"`;
+  renderSkillSearchRow(key, header, matches, i);
+});
 
   highlightSkills();
 }
