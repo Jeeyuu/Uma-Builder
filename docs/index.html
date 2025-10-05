@@ -9,10 +9,12 @@
   --gap: 8px;       /* Reduced gap */
 }
 
+/* Remove vertical scrollbar for entire page */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden; /* Prevent body scrollbar */
 }
 
 body {
@@ -51,29 +53,16 @@ body {
 }
 
 .header-nav {
-  display: flex;
-  align-items: center;
-  gap: 25px;
-}
-
-.header-nav a {
-  color: #555;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: color 0.3s;
-}
-
-.header-nav a:hover {
-  color: #000;
+  display: none; /* Hide nav links for now */
 }
 
 /* ---------- CONTAINER & SIDEBARS ---------- */
+/* Adjust container to account for header */
 .container {
   display: flex;
   width: 100%;
   height: calc(100vh - 70px);
-  overflow: hidden;
+  overflow: hidden; /* Ensure no scrollbar in container */
 }
 
 .sidebar {
@@ -105,13 +94,15 @@ body {
 }
 
 /* ---------- MAIN CONTENT (BALANCED SIZING) ---------- */
+
+/* Ensure main content doesn't create scrollbar */
 .main-content {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  overflow-y: auto;
+  overflow-y: auto; /* Keep scrollbar only for main content */
   padding: 20px;
   box-sizing: border-box;
 }
@@ -379,19 +370,16 @@ body {
 </head>
 
 <body>
-    <!-- Header -->
-  <div class="header">
-    <div class="header-left">
-      <img src="your-logo.png" alt="Logo" class="header-logo">
-      <div class="header-title">Uma Builder</div>
-    </div>
-    <div class="header-nav">
-      <a href="#">Guides</a>
-      <a href="#">Tier List</a>
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-    </div>
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <img src="your-logo.png" alt="Logo" class="header-logo">
+    <div class="header-title">Uma Builder</div>
   </div>
+  <div class="header-nav">
+    <!-- Navigation links are hidden -->
+  </div>
+</div>
 
   <div class="container">
     <!-- Left Sidebar (Filters) -->
