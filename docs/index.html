@@ -1228,6 +1228,7 @@ fetch(JSON_FILE)
     setupSortingControls();
     setupDynamicSkillSearch();
     setupPresets();
+    setupPresetReset(); // ADD THIS LINE
     loadSlotsFromLocalStorage();
     renderSections();
   })
@@ -2091,6 +2092,30 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
   sectionPages.set(pageKey, currentPage);
 
   const CARDS_PER_PAGE = 6;
+
+  /* ------------- AUTO-RESET PRESETS ------------- */
+  function setupPresetReset() {
+    // Get all filter elements that should reset presets
+    const resetFilters = [
+      'racecourse', 'length', 'direction', 'track', 'season', 'weather'
+    ];
+    
+    resetFilters.forEach(filterId => {
+      const element = document.getElementById(filterId);
+      if (element) {
+        element.addEventListener('change', () => {
+          // Only reset if the filter actually has a value selected
+          if (element.value) {
+            const presetsSelect = document.getElementById('presets');
+            if (presetsSelect && presetsSelect.value) {
+              presetsSelect.value = '';
+              localStorage.removeItem('filter_presets');
+            }
+          }
+        });
+      }
+    });
+  }
 
   function renderPage(page) {
     grid.innerHTML = '';
