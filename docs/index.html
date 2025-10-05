@@ -922,6 +922,7 @@ function sortCards(cards, sortBy, order) {
         if (a.rarity !== b.rarity) {
           return order === 'ascending' ? a.rarity - b.rarity : b.rarity - a.rarity;
         }
+        // If same rarity, sort by appropriate release date
         aValue = region === 'global' ? a.release_en : a.release;
         bValue = region === 'global' ? b.release_en : b.release;
         break;
@@ -937,6 +938,7 @@ function sortCards(cards, sortBy, order) {
         break;
         
       case 'release':
+        // Use appropriate release date based on region
         aValue = region === 'global' ? a.release_en : a.release;
         bValue = region === 'global' ? b.release_en : b.release;
         break;
@@ -950,10 +952,12 @@ function sortCards(cards, sortBy, order) {
         return 0;
     }
     
+    // Handle empty values
     if (!aValue && bValue) return order === 'ascending' ? -1 : 1;
     if (aValue && !bValue) return order === 'ascending' ? 1 : -1;
     if (!aValue && !bValue) return 0;
     
+    // For dates, convert to timestamps for proper comparison
     if (sortBy === 'release' || (sortBy === 'rarity' && a.rarity === b.rarity)) {
       try {
         const aDate = new Date(aValue);
@@ -969,6 +973,7 @@ function sortCards(cards, sortBy, order) {
       }
     }
     
+    // Compare values
     if (aValue < bValue) return order === 'ascending' ? -1 : 1;
     if (aValue > bValue) return order === 'ascending' ? 1 : -1;
     return 0;
@@ -1305,7 +1310,7 @@ function setupSortingControls() {
   });
 }
 
-/* ------------- UPDATED CARD CREATION WITH REGION SUPPORT ------------- */
+/* ------------- UPDATED CARD CREATION WITH ENGLISH SKILLS PREFERENCE ------------- */
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -1316,8 +1321,8 @@ function createCardElement(card){
   const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
   const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
 
-  // USE ENGLISH SKILLS FOR GLOBAL REGION
-  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+  // ALWAYS USE ENGLISH SKILLS IF AVAILABLE, REGARDLESS OF REGION
+  const useEnglishSkills = card.event_skills_en && card.event_skills_en.length > 0;
   const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
   let skillsHTML = '';
@@ -1391,9 +1396,14 @@ function addToSlot(card, targetSlot = null, save = true){
     slotListeners.delete(freeSlot);
   }
 
-let skillsHTML = '';
-if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
-if(card.event_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${card.event_skills.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
+  // ALWAYS USE ENGLISH SKILLS IF AVAILABLE, REGARDLESS OF REGION
+  const useEnglishSkills = card.event_skills_en && card.event_skills_en.length > 0;
+  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+
+  let skillsHTML = '';
+  if(card.hint_skills.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${card.hint_skills.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
+  if(eventSkillsToUse.length) skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsToUse.map(s=>`<div class="skill">${escapeHtml(s.replace(/○\s*/g, ''))}</div>`).join('')}</div>`;
+
   freeSlot.dataset.cardId = card.char_id;
   freeSlot.dataset.supportId = card.support_id;
   freeSlot.classList.add('has-card');
@@ -1658,14 +1668,16 @@ function renderSections() {
     return;
   }
 
-  // Apply region filter first - FIXED
-  let baseFilteredCards = cardsData.filter(card => {
-    if (region === 'global') {
-      return card.release_en && card.release_en !== '';
-    } else { // japan
-      return true; // Show all cards for Japan
-    }
-  });
+// Apply region filter first - CORRECTED
+let baseFilteredCards = cardsData.filter(card => {
+  if (region === 'global') {
+    // For Global, only show cards that have release_en date (released globally)
+    return card.release_en && card.release_en !== '';
+  } else { // japan
+    // For Japan, show ALL cards (including those not released globally)
+    return true;
+  }
+});
   
   // Apply rarity and type filters to base cards
   if (anyRarityActive) {
