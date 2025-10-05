@@ -225,6 +225,7 @@ body {
   height: 28px;
   border-radius: 0;
   border-right: none; /* Remove vertical dividers */
+  background: none; /* Remove white background */
 }
 
 .rarity-buttons .toggle-button img {
@@ -237,6 +238,10 @@ body {
 
 .rarity-buttons .toggle-button.active img {
   filter: grayscale(0%) opacity(1); /* Full color and opacity when active */
+}
+
+.rarity-buttons .toggle-button:hover {
+  background: #f0f0f0; /* Light gray background only on hover */
 }
 
 .rarity-buttons .toggle-button:hover img {
