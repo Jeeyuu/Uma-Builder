@@ -1407,6 +1407,7 @@ function addToSlot(card, targetSlot = null, save = true){
   const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
   if(!freeSlot) return;
 
+  // Remove existing listener if any
   if(slotListeners.has(freeSlot)){
     freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
     slotListeners.delete(freeSlot);
@@ -1448,7 +1449,12 @@ function addToSlot(card, targetSlot = null, save = true){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  function slotClickHandler(){ removeFromSlot(freeSlot, card); }
+  // Create and attach the click handler
+  function slotClickHandler(){ 
+    removeFromSlot(freeSlot, card); 
+  }
+  
+  // Attach the event listener to the slot element
   freeSlot.addEventListener('click', slotClickHandler);
   slotListeners.set(freeSlot, slotClickHandler);
 
