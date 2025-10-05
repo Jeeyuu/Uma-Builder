@@ -1621,9 +1621,9 @@ function filterCardsWithRules(cards,filters){
 }
 
 /* ------------- UPDATED RENDER SECTIONS WITH SORTING AND REGION FILTERING ------------- */
-/* ------------- UPDATED RENDER SECTIONS WITH PROPER COMBINED FILTERING ------------- */
+/* ------------- UPDATED RENDER SECTIONS WITH SORTING AND REGION FILTERING ------------- */
 function renderSections() {
-  cardSections.innerHTML = '';
+  cardSections.innerHTML='';
 
   const filters = {
     racecourse: document.getElementById('racecourse').value || '',
@@ -1640,7 +1640,7 @@ function renderSections() {
   const anyRarityActive = selectedRarities.size > 0;
   const anyTypeActive = selectedTypes.size > 0;
 
-  if (!anyDropdownActive && !anySkillActive && !anyRarityActive && !anyTypeActive) {
+  if(!anyDropdownActive && !anySkillActive && !anyRarityActive && !anyTypeActive) {
     const section = document.createElement('div');
     section.className = 'card-section';
     section.style.display = 'flex';
@@ -1658,160 +1658,88 @@ function renderSections() {
     return;
   }
 
-  // Start with all cards and apply filters sequentially
-  let filteredCards = [...cardsData];
-
-  // 1. Apply region filter
-  filteredCards = filteredCards.filter(card => {
+  // Apply region filter first - FIXED
+  let baseFilteredCards = cardsData.filter(card => {
     if (region === 'global') {
       return card.release_en && card.release_en !== '';
     } else { // japan
       return true; // Show all cards for Japan
     }
   });
-
-  // 2. Apply rarity filter
+  
+  // Apply rarity and type filters to base cards
   if (anyRarityActive) {
-    filteredCards = filteredCards.filter(card => {
+    baseFilteredCards = baseFilteredCards.filter(card => {
       if (selectedRarities.has('R') && card.rarity === 1) return true;
       if (selectedRarities.has('SR') && card.rarity === 2) return true;
       if (selectedRarities.has('SSR') && card.rarity === 3) return true;
       return false;
     });
   }
-
-  // 3. Apply type filter
+  
   if (anyTypeActive) {
-    filteredCards = filteredCards.filter(card => {
+    baseFilteredCards = baseFilteredCards.filter(card => {
       return selectedTypes.has(card.type);
     });
   }
 
-  // 4. Apply skill search filters (COMBINED with other filters)
-  const searchTerms = SKILL_SEARCH_KEYS
-    .map(id => document.getElementById(id)?.value.trim().toLowerCase())
-    .filter(Boolean);
+  // APPLY SORTING to base cards
+  baseFilteredCards = sortCards(baseFilteredCards, sortBy, sortOrder);
 
-  if (searchTerms.length > 0) {
-    filteredCards = filteredCards.filter(card => {
+  // Render dropdown filter sections (separated as before)
+  const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
+  filterOrder.forEach(catId => {
+    if (!filters[catId]) return;
+
+    if (catId === 'length') {
+      const dist = parseInt(filters.length);
+      const label = getLengthCategory(dist);
+      const distanceType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
+
+      [
+        { title: `${label} Corners`, terms: [`${label} Corners`] },
+        { title: `${label} Straightaways`, terms: [`${label} Straightaways`] },
+        { title: distanceType, terms: [distanceType] }
+      ].forEach((row, idx) => renderFilterRow(catId, row.title, row.terms, idx, baseFilteredCards));
+
+    } else if (catId === 'strategy') {
+      const strat = filters.strategy;
+      const stratRows = [
+        { title: `${strat} Corners`, term: `${strat} Corners` },
+        { title: `${strat} Straightaways`, term: `${strat} Straightaways` },
+        { title: `${strat} Savvy`, term: `${strat} Savvy` }
+      ];
+      stratRows.forEach((row, idx) => renderFilterRow(catId, row.title, [row.term], idx, baseFilteredCards));
+
+    } else {
+      let rowTerms = [], headerText = '';
+      switch (catId) {
+        case 'racecourse': rowTerms.push(`${filters.racecourse} Racecourse`); headerText = `${filters.racecourse} Racecourse`; break;
+        case 'direction': const dir = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed'; rowTerms.push(dir); headerText = dir; break;
+        case 'track': const trackLabel = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions'; rowTerms.push(trackLabel); headerText = trackLabel; break;
+        case 'season': rowTerms.push(`${filters.season} Runner`); headerText = `${filters.season} Runner`; break;
+        case 'weather': rowTerms.push(`${capitalize(filters.weather)} Days`); headerText = `${capitalize(filters.weather)} Days`; break;
+      }
+      renderFilterRow(catId, headerText, rowTerms, 0, baseFilteredCards);
+    }
+  });
+
+  // Render skill search sections (separated as before)
+  SKILL_SEARCH_KEYS.forEach((key, i) => {
+    const val = document.getElementById(key)?.value.trim();
+    if (!val) return;
+
+    const normalized = normalizeSkill(val);
+    const matches = baseFilteredCards.filter(card => {
       const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-      return searchTerms.every(term => skills.some(s => s.includes(term)));
+      return skills.some(s => s.includes(normalized));
     });
-  }
 
-  // 5. Apply dropdown filters (COMBINED with other filters)
-  if (anyDropdownActive) {
-    const dropdownTerms = buildFilterTerms(filters).map(normalizeSkill);
-    const strictDistanceKeys = ['standard distance', 'non-standard distance'];
-    const strictTerms = dropdownTerms.filter(t => strictDistanceKeys.includes(t));
-    const looseTerms = dropdownTerms.filter(t => !strictDistanceKeys.includes(t));
+    const header = `Skill Search ${i + 1}: "${val}"`;
+    renderSkillSearchRow(key, header, matches, i);
+  });
 
-    if (dropdownTerms.length > 0) {
-      filteredCards = filteredCards.filter(card => {
-        const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-        return strictTerms.every(t => skills.includes(t)) && 
-               looseTerms.every(term => skills.some(s => s.includes(term)));
-      });
-    }
-  }
-
-  // APPLY SORTING
-  filteredCards = sortCards(filteredCards, sortBy, sortOrder);
-
-  // If we have any filters active, show the combined results in a single section
-  if (filteredCards.length > 0) {
-    const section = document.createElement('div');
-    section.className = 'card-section';
-
-    const headerContainer = document.createElement('div');
-    headerContainer.className = 'card-section-header';
-
-    // Create a descriptive header
-    const header = document.createElement('h2');
-    const filterParts = [];
-    
-    if (anyDropdownActive) filterParts.push('Race Filters');
-    if (anySkillActive) filterParts.push('Skill Search');
-    if (anyRarityActive) filterParts.push('Rarity');
-    if (anyTypeActive) filterParts.push('Type');
-    
-    header.textContent = `Matching Cards (${filteredCards.length}) - ${filterParts.join(' + ')}`;
-    headerContainer.appendChild(header);
-
-    const controls = document.createElement('div');
-    controls.className = 'page-controls';
-    const leftBtn = document.createElement('button');
-    leftBtn.textContent = '◀';
-    leftBtn.disabled = true;
-    const rightBtn = document.createElement('button');
-    rightBtn.textContent = '▶';
-    rightBtn.disabled = true;
-    controls.appendChild(leftBtn);
-    controls.appendChild(rightBtn);
-
-    headerContainer.appendChild(controls);
-    section.appendChild(headerContainer);
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'card-grid-wrapper';
-    const grid = document.createElement('div');
-    grid.className = 'cards';
-    wrapper.appendChild(grid);
-    section.appendChild(wrapper);
-
-    const pageKey = 'combined-results';
-    const currentPage = sectionPages.get(pageKey) || 0;
-    sectionPages.set(pageKey, currentPage);
-
-    const CARDS_PER_PAGE = 6;
-
-    function renderPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
-      grid.innerHTML = '';
-      const startIdx = page * CARDS_PER_PAGE;
-      const endIdx = startIdx + CARDS_PER_PAGE;
-      const pageCards = matches.slice(startIdx, endIdx);
-      pageCards.forEach(card => grid.appendChild(createCardElement(card)));
-
-      const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-
-      leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-      rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-      leftBtn.disabled = page === 0;
-      rightBtn.disabled = page >= totalPages - 1;
-
-      leftBtn.onclick = () => {
-        renderPage(page - 1, matches, grid, leftBtn, rightBtn, pageKey);
-        sectionPages.set(pageKey, page - 1);
-        highlightSkills();
-      };
-      rightBtn.onclick = () => {
-        renderPage(page + 1, matches, grid, leftBtn, rightBtn, pageKey);
-        sectionPages.set(pageKey, page + 1);
-        highlightSkills();
-      };
-
-      highlightSkills();
-    }
-
-    renderPage(currentPage, filteredCards, grid, leftBtn, rightBtn, pageKey);
-    cardSections.appendChild(section);
-  } else {
-    // No cards match all filters
-    const section = document.createElement('div');
-    section.className = 'card-section';
-    section.style.display = 'flex';
-    section.style.flexDirection = 'column';
-    section.style.alignItems = 'center';
-    section.style.justifyContent = 'center';
-    const msg = document.createElement('div');
-    msg.style.opacity = '0.7';
-    msg.style.padding = '0px';
-    msg.style.marginTop = '20px';
-    msg.style.marginBottom = '10px';
-    msg.textContent = 'No cards match all the selected filters. Try adjusting your criteria.';
-    section.appendChild(msg);
-    cardSections.appendChild(section);
-  }
+  highlightSkills();
 }
 
 function renderSkillSearchRow(key, headerText, matches, rowIndex) {
