@@ -931,23 +931,27 @@ function sortCards(cards, sortBy, order) {
         aValue = a.char_name.toLowerCase();
         bValue = b.char_name.toLowerCase();
         
-        // If names are the same, sort by rarity (higher rarity first)
-        if (aValue === bValue) {
-          // Always prioritize higher rarity regardless of primary sort direction
-          return b.rarity - a.rarity; // SSR first, then SR, then R
+        // First, compare by name based on the sort order
+        if (aValue !== bValue) {
+          if (aValue < bValue) return order === 'ascending' ? -1 : 1;
+          if (aValue > bValue) return order === 'ascending' ? 1 : -1;
         }
-        break;
+        
+        // If names are exactly the same, ALWAYS sort by rarity descending (SSR first)
+        return b.rarity - a.rarity; // SSR > SR > R always
         
       case 'type':
         aValue = a.type;
         bValue = b.type;
         
-        // If types are the same, sort by rarity (higher rarity first)
-        if (aValue === bValue) {
-          // Always prioritize higher rarity regardless of primary sort direction
-          return b.rarity - a.rarity; // SSR first, then SR, then R
+        // First, compare by type based on the sort order
+        if (aValue !== bValue) {
+          if (aValue < bValue) return order === 'ascending' ? -1 : 1;
+          if (aValue > bValue) return order === 'ascending' ? 1 : -1;
         }
-        break;
+        
+        // If types are exactly the same, ALWAYS sort by rarity descending (SSR first)
+        return b.rarity - a.rarity; // SSR > SR > R always
         
       case 'release':
         // Use appropriate release date based on region
