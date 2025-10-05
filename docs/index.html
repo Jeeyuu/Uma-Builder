@@ -694,6 +694,35 @@ body {
   margin-top: 0;
 }
 
+/* NEW STYLES FOR BASIC SEARCH TOGGLE */
+.basic-search-toggle {
+  width: 100%;
+  max-width: 180px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background: #444;
+  color: #fff;
+  transition: background-color 0.2s;
+  font-weight: bold;
+}
+
+.basic-search-toggle:hover {
+  background: #333;
+}
+
+/* Hide basic search sections when toggled off */
+.basic-search-hidden .basic-search-section {
+  display: none;
+}
+
+/* Ensure the divider is hidden when basic search is hidden */
+.basic-search-hidden .basic-search-divider {
+  display: none;
+}
 </style>
 </head>
 
@@ -711,7 +740,7 @@ body {
 
   <div class="container">
 <!-- Left Sidebar (Filters) -->
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
   <!-- Rarity Toggle Buttons -->
   <div class="toggle-button-group rarity-buttons">
     <label>Rarity</label>
@@ -792,138 +821,147 @@ body {
   <!-- ADD THIS DIVIDER -->
   <div class="skill-search-divider"></div>
 
+  <!-- NEW TOGGLE BUTTON FOR BASIC SEARCH -->
+  <button id="basicSearchToggle" class="basic-search-toggle">Hide Basic Search</button>
+
   <!-- Clear Filters Button at top -->
   <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
 
-  <div class="filter-group">
-    <label for="presets">Presets</label>
-    <select id="presets">
-      <option value="">-- Select --</option>
-    </select>
+  <!-- BASIC SEARCH SECTIONS - WRAPPED IN A DIV FOR TOGGLING -->
+  <div class="basic-search-sections">
+    <!-- ADD DIVIDER TO SEPARATE BASIC SEARCH FROM SKILL SEARCH -->
+    <div class="basic-search-divider" style="min-height: 1px; background: #333; margin: 4px 0; width: 100%;"></div>
+
+    <div class="filter-group basic-search-section">
+      <label for="presets">Presets</label>
+      <select id="presets">
+        <option value="">-- Select --</option>
+      </select>
+    </div>
+
+    <div class="filter-group basic-search-section">
+      <label for="racecourse">Racecourse</label>
+      <select id="racecourse">
+        <option value="">-- Select --</option>
+        <option value="Sapporo">Sapporo</option>
+        <option value="Hakodate">Hakodate</option>
+        <option value="Niigata">Niigata</option>
+        <option value="Fukushima">Fukushima</option>
+        <option value="Nakayama">Nakayama</option>
+        <option value="Tokyo">Tokyo</option>
+        <option value="Chukyo">Chukyo</option>
+        <option value="Kyoto">Kyoto</option>
+        <option value="Hanshin">Hanshin</option>
+        <option value="Kokura">Kokura</option>
+        <option value="Oi">Oi</option>
+        <option value="Kawasaki">Kawasaki</option>
+        <option value="Funabashi">Funabashi</option>
+        <option value="Morioka">Morioka</option>
+        <option value="Longchamp">Longchamp</option>
+      </select>
+    </div>
+
+    <div class="filter-group basic-search-section">
+      <label for="length">Length</label>
+      <select id="length">
+        <option value="">-- Select --</option>
+        <option value="1000">1000m</option>
+        <option value="1150">1150m</option>
+        <option value="1200">1200m</option>
+        <option value="1300">1300m</option>
+        <option value="1400">1400m</option>
+        <option value="1500">1500m</option>
+        <option value="1600">1600m</option>
+        <option value="1700">1700m</option>
+        <option value="1800">1800m</option>
+        <option value="1900">1900m</option>
+        <option value="2000">2000m</option>
+        <option value="2100">2100m</option>
+        <option value="2200">2200m</option>
+        <option value="2300">2300m</option>
+        <option value="2400">2400m</option>
+        <option value="2500">2500m</option>
+        <option value="2600">2600m</option>
+        <option value="3000">3000m</option>
+        <option value="3200">3200m</option>
+        <option value="3400">3400m</option>
+        <option value="3600">3600m</option>
+      </select>
+    </div>
+
+    <div class="filter-group basic-search-section">
+      <label for="direction">Direction</label>
+      <select id="direction">
+        <option value="">-- Select --</option>
+        <option value="Clockwise">Clockwise</option>
+        <option value="Counterclockwise">Counterclockwise</option>
+      </select>
+    </div>
+
+    <div class="filter-group basic-search-section">
+      <label for="track">Track Conditions</label>
+      <select id="track">
+        <option value="">-- Select --</option>
+        <option value="Firm">Firm</option>
+        <option value="Good">Good</option>
+        <option value="Soft">Soft</option>
+        <option value="Heavy">Heavy</option>
+      </select>
+    </div>
+
+    <div class="filter-group basic-search-section">
+      <label for="season">Season</label>
+      <select id="season">
+        <option value="">-- Select --</option>
+        <option value="Spring">Spring</option>
+        <option value="Summer">Summer</option>
+        <option value="Fall">Autumn</option>
+        <option value="Winter">Winter</option>
+      </select>
+    </div>
+
+    <div class="filter-group basic-search-section">
+      <label for="weather">Weather</label>
+      <select id="weather">
+        <option value="">-- Select --</option>
+        <option value="Sunny">Sunny</option>
+        <option value="Cloudy">Cloudy</option>
+        <option value="Rainy">Rain</option>
+        <option value="Snowy">Snow</option>
+      </select>
+    </div>
+
+    <div class="filter-group basic-search-section">
+      <label for="strategy">Strategy</label>
+      <select id="strategy">
+        <option value="">-- Select --</option>
+        <option value="Front Runner">Front Runner</option>
+        <option value="Pace Chaser">Pace Chaser</option>
+        <option value="Late Surger">Late Surger</option>
+        <option value="End Closer">End Closer</option>
+      </select>
+    </div>
   </div>
 
-      <div class="filter-group">
-        <label for="racecourse">Racecourse</label>
-        <select id="racecourse">
-          <option value="">-- Select --</option>
-          <option value="Sapporo">Sapporo</option>
-          <option value="Hakodate">Hakodate</option>
-          <option value="Niigata">Niigata</option>
-          <option value="Fukushima">Fukushima</option>
-          <option value="Nakayama">Nakayama</option>
-          <option value="Tokyo">Tokyo</option>
-          <option value="Chukyo">Chukyo</option>
-          <option value="Kyoto">Kyoto</option>
-          <option value="Hanshin">Hanshin</option>
-          <option value="Kokura">Kokura</option>
-          <option value="Oi">Oi</option>
-          <option value="Kawasaki">Kawasaki</option>
-          <option value="Funabashi">Funabashi</option>
-          <option value="Morioka">Morioka</option>
-          <option value="Longchamp">Longchamp</option>
-        </select>
-      </div>
+  <!-- Thin divider -->
+  <div class="skill-search-divider"></div>
 
-      <div class="filter-group">
-        <label for="length">Length</label>
-        <select id="length">
-          <option value="">-- Select --</option>
-          <option value="1000">1000m</option>
-          <option value="1150">1150m</option>
-          <option value="1200">1200m</option>
-          <option value="1300">1300m</option>
-          <option value="1400">1400m</option>
-          <option value="1500">1500m</option>
-          <option value="1600">1600m</option>
-          <option value="1700">1700m</option>
-          <option value="1800">1800m</option>
-          <option value="1900">1900m</option>
-          <option value="2000">2000m</option>
-          <option value="2100">2100m</option>
-          <option value="2200">2200m</option>
-          <option value="2300">2300m</option>
-          <option value="2400">2400m</option>
-          <option value="2500">2500m</option>
-          <option value="2600">2600m</option>
-          <option value="3000">3000m</option>
-          <option value="3200">3200m</option>
-          <option value="3400">3400m</option>
-          <option value="3600">3600m</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="direction">Direction</label>
-        <select id="direction">
-          <option value="">-- Select --</option>
-          <option value="Clockwise">Clockwise</option>
-          <option value="Counterclockwise">Counterclockwise</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="track">Track Conditions</label>
-        <select id="track">
-          <option value="">-- Select --</option>
-          <option value="Firm">Firm</option>
-          <option value="Good">Good</option>
-          <option value="Soft">Soft</option>
-          <option value="Heavy">Heavy</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="season">Season</label>
-        <select id="season">
-          <option value="">-- Select --</option>
-          <option value="Spring">Spring</option>
-          <option value="Summer">Summer</option>
-          <option value="Fall">Autumn</option>
-          <option value="Winter">Winter</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="weather">Weather</label>
-        <select id="weather">
-          <option value="">-- Select --</option>
-          <option value="Sunny">Sunny</option>
-          <option value="Cloudy">Cloudy</option>
-          <option value="Rainy">Rain</option>
-          <option value="Snowy">Snow</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="strategy">Strategy</label>
-        <select id="strategy">
-          <option value="">-- Select --</option>
-          <option value="Front Runner">Front Runner</option>
-          <option value="Pace Chaser">Pace Chaser</option>
-          <option value="Late Surger">Late Surger</option>
-          <option value="End Closer">End Closer</option>
-        </select>
-      </div>
-
-      <!-- Thin divider -->
-      <div class="skill-search-divider"></div>
-
-      <!-- Skill Search Section -->
-      <div id="skillSearchGroup">
-        <div class="skill-search-header">
-          <label for="skillSearch1">Skill Search</label>
-          <button class="add-search-btn" id="addSearchBtn">Add</button>
-        </div>
-        
-        <!-- Default search box -->
-        <div class="search-input-container">
-          <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
-          <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
-        </div>
-        
-        <!-- Additional search boxes will be added here dynamically -->
-      </div>
+  <!-- Skill Search Section -->
+  <div id="skillSearchGroup">
+    <div class="skill-search-header">
+      <label for="skillSearch1">Skill Search</label>
+      <button class="add-search-btn" id="addSearchBtn">Add</button>
     </div>
+    
+    <!-- Default search box -->
+    <div class="search-input-container">
+      <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
+      <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
+    </div>
+    
+    <!-- Additional search boxes will be added here dynamically -->
+  </div>
+</div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -976,6 +1014,42 @@ let hideUncolored = false;
 let sortBy = 'rarity';
 let sortOrder = 'descending'; // CHANGED TO DESCENDING
 let region = 'global';
+
+/* ------------- BASIC SEARCH TOGGLE STATE ------------- */
+let basicSearchHidden = false;
+
+/* ------------- BASIC SEARCH TOGGLE FUNCTIONALITY ------------- */
+function setupBasicSearchToggle() {
+  const toggleButton = document.getElementById('basicSearchToggle');
+  const savedState = localStorage.getItem('basicSearchHidden');
+  
+  // Load saved state
+  if (savedState === 'true') {
+    basicSearchHidden = true;
+    toggleButton.textContent = 'Show Basic Search';
+    document.getElementById('sidebar').classList.add('basic-search-hidden');
+  } else {
+    basicSearchHidden = false;
+    toggleButton.textContent = 'Hide Basic Search';
+    document.getElementById('sidebar').classList.remove('basic-search-hidden');
+  }
+  
+  // Set up click handler
+  toggleButton.addEventListener('click', () => {
+    basicSearchHidden = !basicSearchHidden;
+    
+    if (basicSearchHidden) {
+      toggleButton.textContent = 'Show Basic Search';
+      document.getElementById('sidebar').classList.add('basic-search-hidden');
+    } else {
+      toggleButton.textContent = 'Hide Basic Search';
+      document.getElementById('sidebar').classList.remove('basic-search-hidden');
+    }
+    
+    // Save state to localStorage
+    localStorage.setItem('basicSearchHidden', basicSearchHidden);
+  });
+}
 
 /* ------------- SORTING FUNCTION ------------- */
 function sortCards(cards, sortBy, order) {
@@ -1308,6 +1382,7 @@ fetch(JSON_FILE)
     setupDynamicSkillSearch();
     setupPresets();
     setupPresetReset(); // Now this will work
+    setupBasicSearchToggle(); // NEW: Setup the basic search toggle
     loadSlotsFromLocalStorage();
     renderSections();
   })
@@ -1695,14 +1770,6 @@ clearFiltersBtn.addEventListener('click', () => {
     if (el) el.value = '';
     localStorage.removeItem('filter_' + id);
   });
-
-  // REMOVE THIS SECTION - Don't clear the hide uncolored checkbox
-  // hideUncolored = false;
-  // const hideUncoloredCheckbox = document.getElementById('hideUncolored');
-  // if (hideUncoloredCheckbox) {
-  //   hideUncoloredCheckbox.checked = false;
-  // }
-  // localStorage.removeItem('hideUncolored');
 
   // Clear skill searches - completely reset to just one clean search box
 const skillSearchGroup = document.getElementById('skillSearchGroup');
