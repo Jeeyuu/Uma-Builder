@@ -930,11 +930,21 @@ function sortCards(cards, sortBy, order) {
       case 'name':
         aValue = a.char_name.toLowerCase();
         bValue = b.char_name.toLowerCase();
+        
+        // If names are the same, sort by rarity (SSR first)
+        if (aValue === bValue) {
+          return order === 'ascending' ? b.rarity - a.rarity : a.rarity - b.rarity;
+        }
         break;
         
       case 'type':
         aValue = a.type;
         bValue = b.type;
+        
+        // If types are the same, sort by rarity (SSR first)
+        if (aValue === bValue) {
+          return order === 'ascending' ? b.rarity - a.rarity : a.rarity - b.rarity;
+        }
         break;
         
       case 'release':
