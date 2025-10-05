@@ -1613,13 +1613,14 @@ clearFiltersBtn.addEventListener('click', () => {
     if (el) el.value = '';
     localStorage.removeItem('filter_' + id);
   });
-  
-  hideUncolored = false;
-  const hideUncoloredCheckbox = document.getElementById('hideUncolored');
-  if (hideUncoloredCheckbox) {
-    hideUncoloredCheckbox.checked = false;
-  }
-  localStorage.removeItem('hideUncolored');
+
+  // REMOVE THIS SECTION - Don't clear the hide uncolored checkbox
+  // hideUncolored = false;
+  // const hideUncoloredCheckbox = document.getElementById('hideUncolored');
+  // if (hideUncoloredCheckbox) {
+  //   hideUncoloredCheckbox.checked = false;
+  // }
+  // localStorage.removeItem('hideUncolored');
 
   // Clear skill searches but keep the first one
   SKILL_SEARCH_KEYS.forEach(id => {
@@ -1657,7 +1658,7 @@ clearFiltersBtn.addEventListener('click', () => {
   if (presetsSelect) presetsSelect.value = '';
   sectionPages.clear();
   renderSections();
-  updateSkillVisibility();
+  updateSkillVisibility(); // Still update visibility to reflect cleared filters
 });
 
 /* ------------- Filter persistence ------------- */
