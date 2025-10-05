@@ -1923,13 +1923,28 @@ function filterCardsWithRules(cards,filters){
 
 /* ------------- UPDATED RENDER SECTIONS WITH SORTING AND REGION FILTERING ------------- */
 function renderSections() {
-  // Clear previous content
-cardSections.innerHTML = '';
+  cardSections.innerHTML='';
 
+  const filters = {
+    racecourse: document.getElementById('racecourse').value || '',
+    length: document.getElementById('length').value || '',
+    direction: document.getElementById('direction').value || '',
+    track: document.getElementById('track').value || '',
+    season: document.getElementById('season').value || '',
+    weather: document.getElementById('weather').value || '',
+    strategy: document.getElementById('strategy').value || ''
+  };
+
+  const anyDropdownActive = Object.values(filters).some(v => v);
+  const anySkillActive = SKILL_SEARCH_KEYS.some(key => document.getElementById(key)?.value.trim());
+  const anyRarityActive = selectedRarities.size > 0;
+  const anyTypeActive = selectedTypes.size > 0;
+
+  // Check if we should show the "no filters" message
 // First, check if we have ANY active filters that should trigger a search
 const hasActiveFilters = anyDropdownActive || anySkillActive || anyRarityActive || anyTypeActive;
 
-// If no filters are active at all, show the initial message
+// If no filters are active at all, show the message
 if (!hasActiveFilters) {
   const section = document.createElement('div');
   section.className = 'card-section';
@@ -1937,7 +1952,6 @@ if (!hasActiveFilters) {
   section.style.flexDirection = 'column';
   section.style.alignItems = 'center';
   section.style.justifyContent = 'center';
-  section.style.minHeight = '200px'; // Ensure minimum height
   const msg = document.createElement('div');
   msg.style.opacity = '0.7';
   msg.style.padding = '0px';
@@ -1949,6 +1963,7 @@ if (!hasActiveFilters) {
   return;
 }
 
+// If we have active filters but they result in NO cards, also show the message
 // Apply region filter first
 let filteredCards = cardsData.filter(card => {
   if (region === 'global') {
@@ -1974,63 +1989,7 @@ if (anyTypeActive) {
   });
 }
 
-// Apply dropdown filters to check if we have any matches
-const filters = {
-  racecourse: document.getElementById('racecourse').value || '',
-  length: document.getElementById('length').value || '',
-  direction: document.getElementById('direction').value || '',
-  track: document.getElementById('track').value || '',
-  season: document.getElementById('season').value || '',
-  weather: document.getElementById('weather').value || '',
-  strategy: document.getElementById('strategy').value || ''
-};
-
-// Check if dropdown filters would yield any results
-if (anyDropdownActive) {
-  const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
-  let hasDropdownMatches = false;
-  
-  for (const catId of filterOrder) {
-    if (!filters[catId]) continue;
-    
-    const terms = buildFilterTerms({ [catId]: filters[catId] }).map(normalizeSkill);
-    const strictDistanceKeys = ['standard distance','non-standard distance'];
-    const strictTerms = terms.filter(t => strictDistanceKeys.includes(t));
-    const looseTerms = terms.filter(t => !strictDistanceKeys.includes(t));
-
-    const hasMatches = filteredCards.some(card => {
-      const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-      return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
-    });
-    
-    if (hasMatches) {
-      hasDropdownMatches = true;
-      break;
-    }
-  }
-  
-  // If dropdown filters are active but yield no matches, show no results message
-  if (!hasDropdownMatches && filteredCards.length > 0) {
-    const section = document.createElement('div');
-    section.className = 'card-section';
-    section.style.display = 'flex';
-    section.style.flexDirection = 'column';
-    section.style.alignItems = 'center';
-    section.style.justifyContent = 'center';
-    section.style.minHeight = '200px'; // Ensure minimum height
-    const msg = document.createElement('div');
-    msg.style.opacity = '0.7';
-    msg.style.padding = '0px';
-    msg.style.marginTop = '20px';
-    msg.style.marginBottom = '10px';
-    msg.textContent = 'No cards match the selected filters. Try different filters or search terms.';
-    section.appendChild(msg);
-    cardSections.appendChild(section);
-    return;
-  }
-}
-
-// If after all filters we have NO cards, show the no results message
+// If after all filters we have NO cards, show the message
 if (filteredCards.length === 0) {
   const section = document.createElement('div');
   section.className = 'card-section';
@@ -2038,7 +1997,6 @@ if (filteredCards.length === 0) {
   section.style.flexDirection = 'column';
   section.style.alignItems = 'center';
   section.style.justifyContent = 'center';
-  section.style.minHeight = '200px'; // Ensure minimum height
   const msg = document.createElement('div');
   msg.style.opacity = '0.7';
   msg.style.padding = '0px';
@@ -2051,6 +2009,7 @@ if (filteredCards.length === 0) {
 }
 
 // If we get here, we have active filters AND matching cards, so proceed with rendering sections
+
 // Apply region filter first - CORRECTED
 let baseFilteredCards = cardsData.filter(card => {
   if (region === 'global') {
