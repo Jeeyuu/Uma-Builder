@@ -176,6 +176,64 @@ body {
   box-sizing: border-box;
 }
 
+/* ---------- TOGGLE BUTTON STYLES ---------- */
+.toggle-button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.toggle-button-group label {
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.toggle-buttons-row {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+.toggle-button {
+  border: 2px solid #ccc;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #333;
+}
+
+.toggle-button:hover {
+  border-color: #999;
+}
+
+.toggle-button.active {
+  border-color: #444;
+  background: #444;
+  color: #fff;
+}
+
+/* Rarity buttons (53x22) */
+.rarity-buttons .toggle-button {
+  width: 53px;
+  height: 22px;
+  font-size: 11px;
+  border-radius: 4px;
+}
+
+/* Type buttons (32x32) */
+.type-buttons .toggle-button {
+  width: 32px;
+  height: 32px;
+  font-size: 10px;
+  border-radius: 4px;
+}
+
 /* Clear Filters Button - Top of sidebar */
 #clearFiltersBtn {
   width: 100%;
@@ -521,6 +579,30 @@ body {
   <div class="container">
     <!-- Left Sidebar (Filters) -->
     <div class="sidebar">
+      <!-- Rarity Toggle Buttons -->
+      <div class="toggle-button-group rarity-buttons">
+        <label>Rarity</label>
+        <div class="toggle-buttons-row">
+          <button class="toggle-button" data-rarity="SSR">SSR</button>
+          <button class="toggle-button" data-rarity="SR">SR</button>
+          <button class="toggle-button" data-rarity="R">R</button>
+        </div>
+      </div>
+
+      <!-- Type Toggle Buttons -->
+      <div class="toggle-button-group type-buttons">
+        <label>Type</label>
+        <div class="toggle-buttons-row">
+          <button class="toggle-button" data-type="speed">Spd</button>
+          <button class="toggle-button" data-type="stamina">Stm</button>
+          <button class="toggle-button" data-type="power">Pow</button>
+          <button class="toggle-button" data-type="guts">Gut</button>
+          <button class="toggle-button" data-type="intelligence">Int</button>
+          <button class="toggle-button" data-type="support">Sup</button>
+          <button class="toggle-button" data-type="group">Grp</button>
+        </div>
+      </div>
+
       <!-- Clear Filters Button at top -->
       <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
 
@@ -696,6 +778,10 @@ const SLOT_KEY = 'saved_slots';
 const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
 let SKILL_SEARCH_KEYS = ['skillSearch1']; // Initialize as let so it can be updated
 
+/* ------------- TOGGLE BUTTON STATE ------------- */
+const selectedRarities = new Set();
+const selectedTypes = new Set();
+
 /* ------------- DYNAMIC SKILL SEARCH ------------- */
 let searchCounter = 1;
 const maxSearches = 15; // Changed from 5 to 15
@@ -789,6 +875,41 @@ function removeSearchBox(searchId) {
   renderSections();
 }
 
+/* ------------- TOGGLE BUTTON SETUP ------------- */
+function setupToggleButtons() {
+  // Rarity buttons
+  document.querySelectorAll('.rarity-buttons .toggle-button').forEach(button => {
+    button.addEventListener('click', () => {
+      const rarity = button.dataset.rarity;
+      if (selectedRarities.has(rarity)) {
+        selectedRarities.delete(rarity);
+        button.classList.remove('active');
+      } else {
+        selectedRarities.add(rarity);
+        button.classList.add('active');
+      }
+      sectionPages.clear();
+      renderSections();
+    });
+  });
+
+  // Type buttons
+  document.querySelectorAll('.type-buttons .toggle-button').forEach(button => {
+    button.addEventListener('click', () => {
+      const type = button.dataset.type;
+      if (selectedTypes.has(type)) {
+        selectedTypes.delete(type);
+        button.classList.remove('active');
+      } else {
+        selectedTypes.add(type);
+        button.classList.add('active');
+      }
+      sectionPages.clear();
+      renderSections();
+    });
+  });
+}
+
 /* ------------- UTIL ------------- */
 function normalizeSkill(s){ return String(s||'').replace(/[◎○]/g,'').trim().toLowerCase(); }
 function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
@@ -811,6 +932,7 @@ fetch(JSON_FILE)
     }));
 
     setupFilterPersistence();
+    setupToggleButtons(); // Add this line
     setupDynamicSkillSearch(); // Replace setupSkillSearchPersistence with this
     setupPresets();
     loadSlotsFromLocalStorage();
@@ -1055,6 +1177,13 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.setItem('filter_' + id, '');
   });
   
+  // Clear toggle buttons
+  selectedRarities.clear();
+  selectedTypes.clear();
+  document.querySelectorAll('.toggle-button').forEach(button => {
+    button.classList.remove('active');
+  });
+  
   // Remove all but the first search box
   const skillSearchGroup = document.getElementById('skillSearchGroup');
   const searchContainers = skillSearchGroup.querySelectorAll('.search-input-container');
@@ -1212,24 +1341,49 @@ function renderSections() {
 
   const anyDropdownActive = Object.values(filters).some(v => v);
   const anySkillActive = SKILL_SEARCH_KEYS.some(key => document.getElementById(key)?.value.trim());
+  const anyRarityActive = selectedRarities.size > 0;
+  const anyTypeActive = selectedTypes.size > 0;
 
-if(!anyDropdownActive && !anySkillActive) {
-  const section = document.createElement('div');
-  section.className = 'card-section';
-  section.style.display = 'flex';
-  section.style.flexDirection = 'column';
-  section.style.alignItems = 'center';
-  section.style.justifyContent = 'center';
-  const msg = document.createElement('div');
-  msg.style.opacity = '0.7';
-  msg.style.padding = '0px';
-  msg.style.marginTop = '20px';
-  msg.style.marginBottom = '10px';
-  msg.textContent = 'Pick a label on the left or type a skill to show matching cards.';
-  section.appendChild(msg);
-  cardSections.appendChild(section);
-  return;
-}
+  if(!anyDropdownActive && !anySkillActive && !anyRarityActive && !anyTypeActive) {
+    const section = document.createElement('div');
+    section.className = 'card-section';
+    section.style.display = 'flex';
+    section.style.flexDirection = 'column';
+    section.style.alignItems = 'center';
+    section.style.justifyContent = 'center';
+    const msg = document.createElement('div');
+    msg.style.opacity = '0.7';
+    msg.style.padding = '0px';
+    msg.style.marginTop = '20px';
+    msg.style.marginBottom = '10px';
+    msg.textContent = 'Pick a label on the left or type a skill to show matching cards.';
+    section.appendChild(msg);
+    cardSections.appendChild(section);
+    return;
+  }
+
+  // Apply rarity and type filters to all cards first
+  let filteredCards = cardsData;
+  
+  // Apply rarity filter
+  if (anyRarityActive) {
+    filteredCards = filteredCards.filter(card => {
+      // Extract rarity from support_id or other card property
+      // Assuming support_id format includes rarity information
+      const supportId = String(card.support_id);
+      if (selectedRarities.has('SSR') && supportId.startsWith('9')) return true;
+      if (selectedRarities.has('SR') && supportId.startsWith('3')) return true;
+      if (selectedRarities.has('R') && supportId.startsWith('1')) return true;
+      return false;
+    });
+  }
+  
+  // Apply type filter
+  if (anyTypeActive) {
+    filteredCards = filteredCards.filter(card => {
+      return selectedTypes.has(card.type);
+    });
+  }
 
   const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
   filterOrder.forEach(catId => {
@@ -1244,7 +1398,7 @@ if(!anyDropdownActive && !anySkillActive) {
         { title: `${label} Corners`, terms: [`${label} Corners`] },
         { title: `${label} Straightaways`, terms: [`${label} Straightaways`] },
         { title: distanceType, terms: [distanceType] }
-      ].forEach((row, idx) => renderFilterRow(catId, row.title, row.terms, idx));
+      ].forEach((row, idx) => renderFilterRow(catId, row.title, row.terms, idx, filteredCards));
 
     } else if (catId === 'strategy') {
       const strat = filters.strategy;
@@ -1253,7 +1407,7 @@ if(!anyDropdownActive && !anySkillActive) {
         { title: `${strat} Straightaways`, term: `${strat} Straightaways` },
         { title: `${strat} Savvy`, term: `${strat} Savvy` }
       ];
-      stratRows.forEach((row, idx) => renderFilterRow(catId, row.title, [row.term], idx));
+      stratRows.forEach((row, idx) => renderFilterRow(catId, row.title, [row.term], idx, filteredCards));
 
     } else {
       let rowTerms = [], headerText = '';
@@ -1264,7 +1418,7 @@ if(!anyDropdownActive && !anySkillActive) {
         case 'season': rowTerms.push(`${filters.season} Runner`); headerText = `${filters.season} Runner`; break;
         case 'weather': rowTerms.push(`${capitalize(filters.weather)} Days`); headerText = `${capitalize(filters.weather)} Days`; break;
       }
-      renderFilterRow(catId, headerText, rowTerms, 0);
+      renderFilterRow(catId, headerText, rowTerms, 0, filteredCards);
     }
   });
 
@@ -1273,7 +1427,7 @@ if(!anyDropdownActive && !anySkillActive) {
     if (!val) return;
 
     const normalized = normalizeSkill(val);
-    const matches = cardsData.filter(card => {
+    const matches = filteredCards.filter(card => {
       const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
       return skills.some(s => s.includes(normalized));
     });
@@ -1285,7 +1439,7 @@ if(!anyDropdownActive && !anySkillActive) {
   highlightSkills();
 }
 
-function renderFilterRow(catId,headerText,termList,rowIndex){
+function renderFilterRow(catId,headerText,termList,rowIndex, baseCards){
   const section = document.createElement('div');
   section.className = 'card-section';
 
@@ -1322,7 +1476,7 @@ function renderFilterRow(catId,headerText,termList,rowIndex){
   const strictTerms = termsNormalized.filter(t => strictDistanceKeys.includes(t));
   const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
 
-  const matches = cardsData.filter(card => {
+  const matches = baseCards.filter(card => {
     const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
     return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
   });
