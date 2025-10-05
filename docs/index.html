@@ -641,6 +641,26 @@ body {
   border-color: #444;
 }
 
+/* Checkbox styles */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Skill hiding styles */
+.skill.hidden-skill {
+  display: none;
+}
+
 </style>
 </head>
 
@@ -726,6 +746,14 @@ body {
     <option value="global">Global</option>
     <option value="japan">Japan</option>
   </select>
+</div>
+
+<!-- ADD THIS CHECKBOX -->
+<div class="filter-group">
+  <label class="checkbox-label">
+    <input type="checkbox" id="hideUncolored">
+    Hide Uncoloured Skills
+  </label>
 </div>
 
   <!-- ADD THIS DIVIDER -->
@@ -1282,6 +1310,7 @@ function applyPreset(cup) {
 FILTER_KEYS.push('presets');
 
 /* ------------- NEW STATE VARIABLES ------------- */
+let hideUncolored = false;
 let sortBy = 'rarity';
 let sortOrder = 'descending'; // CHANGED TO DESCENDING
 let region = 'global';
@@ -1348,6 +1377,21 @@ function setupSortingControls() {
     renderSections();
   });
 }
+
+// Setup Hide Uncolored checkbox
+const hideUncoloredCheckbox = document.getElementById('hideUncolored');
+const savedHideUncolored = localStorage.getItem('hideUncolored');
+
+if (savedHideUncolored) {
+  hideUncolored = savedHideUncolored === 'true';
+  hideUncoloredCheckbox.checked = hideUncolored;
+}
+
+hideUncoloredCheckbox.addEventListener('change', (e) => {
+  hideUncolored = e.target.checked;
+  localStorage.setItem('hideUncolored', hideUncolored);
+  updateSkillVisibility(); // Update visibility when checkbox changes
+});
 
 /* ------------- UPDATED CARD CREATION WITH BETTER ERROR HANDLING ------------- */
 function createCardElement(card){
@@ -1527,6 +1571,13 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('filter_' + id);
   });
   
+  hideUncolored = false;
+  const hideUncoloredCheckbox = document.getElementById('hideUncolored');
+  if (hideUncoloredCheckbox) {
+    hideUncoloredCheckbox.checked = false;
+  }
+  localStorage.removeItem('hideUncolored');
+
   // Clear skill searches but keep the first one
   SKILL_SEARCH_KEYS.forEach(id => {
     const input = document.getElementById(id);
@@ -1563,6 +1614,8 @@ clearFiltersBtn.addEventListener('click', () => {
   if (presetsSelect) presetsSelect.value = '';
   sectionPages.clear();
   renderSections();
+  updateSkillVisibility();
+
 });
 
 /* ------------- Filter persistence ------------- */
@@ -1584,6 +1637,7 @@ function highlightSkills() {
     skill.classList.remove('highlighted', 'search-highlighted');
     skill.style.background = '#eef2ff';
     skill.style.color = '#000';
+      updateSkillVisibility();
   });
 
   const filters = {
@@ -1901,6 +1955,21 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
 
   renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
   cardSections.appendChild(section);
+}
+
+function updateSkillVisibility() {
+  const shouldHide = hideUncolored;
+  
+  document.querySelectorAll('.skill').forEach(skill => {
+    const isHighlighted = skill.classList.contains('highlighted') || 
+                         skill.classList.contains('search-highlighted');
+    
+    if (shouldHide && !isHighlighted) {
+      skill.classList.add('hidden-skill');
+    } else {
+      skill.classList.remove('hidden-skill');
+    }
+  });
 }
 
 function renderSkillSearchRow(key, headerText, matches, rowIndex) {
