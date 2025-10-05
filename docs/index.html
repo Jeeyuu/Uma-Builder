@@ -1941,11 +1941,13 @@ function renderSections() {
   const anyTypeActive = selectedTypes.size > 0;
 
   // Check if we should show the "no filters" message
-// First, check if we have ANY active filters that should trigger a search
-const hasActiveFilters = anyDropdownActive || anySkillActive || anyRarityActive || anyTypeActive;
+const shouldShowNoFiltersMessage = 
+  !anyDropdownActive && 
+  !anySkillActive && 
+  (!anyRarityActive || selectedRarities.size === 0) && 
+  (!anyTypeActive || selectedTypes.size === 0);
 
-// If no filters are active at all, show the message
-if (!hasActiveFilters) {
+if(shouldShowNoFiltersMessage) {
   const section = document.createElement('div');
   section.className = 'card-section';
   section.style.display = 'flex';
@@ -1962,53 +1964,6 @@ if (!hasActiveFilters) {
   cardSections.appendChild(section);
   return;
 }
-
-// If we have active filters but they result in NO cards, also show the message
-// Apply region filter first
-let filteredCards = cardsData.filter(card => {
-  if (region === 'global') {
-    return card.release_en && card.release_en !== '';
-  } else {
-    return true;
-  }
-});
-
-// Apply rarity and type filters to check if we have any matches
-if (anyRarityActive) {
-  filteredCards = filteredCards.filter(card => {
-    if (selectedRarities.has('R') && card.rarity === 1) return true;
-    if (selectedRarities.has('SR') && card.rarity === 2) return true;
-    if (selectedRarities.has('SSR') && card.rarity === 3) return true;
-    return false;
-  });
-}
-
-if (anyTypeActive) {
-  filteredCards = filteredCards.filter(card => {
-    return selectedTypes.has(card.type);
-  });
-}
-
-// If after all filters we have NO cards, show the message
-if (filteredCards.length === 0) {
-  const section = document.createElement('div');
-  section.className = 'card-section';
-  section.style.display = 'flex';
-  section.style.flexDirection = 'column';
-  section.style.alignItems = 'center';
-  section.style.justifyContent = 'center';
-  const msg = document.createElement('div');
-  msg.style.opacity = '0.7';
-  msg.style.padding = '0px';
-  msg.style.marginTop = '20px';
-  msg.style.marginBottom = '10px';
-  msg.textContent = 'No cards match the selected filters. Try different filters or search terms.';
-  section.appendChild(msg);
-  cardSections.appendChild(section);
-  return;
-}
-
-// If we get here, we have active filters AND matching cards, so proceed with rendering sections
 
 // Apply region filter first - CORRECTED
 let baseFilteredCards = cardsData.filter(card => {
