@@ -1249,8 +1249,25 @@ function applyPreset(cup) {
   document.getElementById('length').value = cup.length.replace(' m', '');
   document.getElementById('direction').value = cup.direction;
   document.getElementById('track').value = cup.track_conditions;
-  document.getElementById('season').value = cup.season;
-  document.getElementById('weather').value = cup.weather;
+  
+  // Fix season mapping: JSON has "Autumn" but dropdown uses "Fall"
+  const seasonMap = {
+    'Autumn': 'Fall', // Map JSON "Autumn" to dropdown "Fall"
+    'Spring': 'Spring', 
+    'Summer': 'Summer',
+    'Winter': 'Winter'
+  };
+  document.getElementById('season').value = seasonMap[cup.season] || cup.season;
+  
+  // Fix weather mapping: JSON has "Rain"/"Snow" but dropdown uses "Rainy"/"Snowy"
+  const weatherMap = {
+    'Rain': 'Rainy', // Map JSON "Rain" to dropdown "Rainy"
+    'Snow': 'Snowy', // Map JSON "Snow" to dropdown "Snowy"
+    'Sunny': 'Sunny',
+    'Cloudy': 'Cloudy'
+  };
+  document.getElementById('weather').value = weatherMap[cup.weather] || cup.weather;
+  
   document.getElementById('strategy').value = '';
   
   FILTER_KEYS.forEach(id => {
@@ -1644,8 +1661,17 @@ function buildFilterTerms(filters){
   if(filters.racecourse) terms.push(`${filters.racecourse} Racecourse`);
   if(filters.direction) terms.push(filters.direction==='Clockwise'?'Right-Handed':'Left-Handed');
   if(filters.track) terms.push(filters.track==='Firm'?'Firm Conditions':'Wet Conditions');
-  if(filters.season) terms.push(`${filters.season} Runner`);
-  if(filters.weather) terms.push(`${capitalize(filters.weather)} Days`);
+  
+  // Handle season - dropdown uses "Fall" but skills use "Fall Runner"
+  if(filters.season) {
+    terms.push(`${filters.season} Runner`);
+  }
+  
+  // Handle weather - dropdown uses "Rainy"/"Snowy" but skills use "Rainy Days"/"Snowy Days"
+  if(filters.weather) {
+    terms.push(`${filters.weather} Days`);
+  }
+  
   if(filters.strategy){
     const s=filters.strategy;
     terms.push(`${s} Corners`,`${s} Straightaways`,`${s} Savvy`);
