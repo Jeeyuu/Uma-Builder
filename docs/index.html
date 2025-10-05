@@ -214,15 +214,15 @@ body {
   background: none; /* Remove background when active */
 }
 
-/* Rarity buttons - full width, no border radius, with gaps */
+/* Rarity buttons - full width, auto height based on aspect ratio */
 .rarity-buttons .toggle-buttons-row {
   width: 100%;
-  gap: 6px; /* Add 6px gap between buttons */
+  gap: 2px; /* Add 2px gap between buttons */
 }
 
 .rarity-buttons .toggle-button {
   flex: 1;
-  height: 28px;
+  aspect-ratio: 53 / 22; /* Maintain the original 53:22 aspect ratio */
   border-radius: 0;
   border-right: none; /* Remove vertical dividers */
   background: none; /* Remove white background */
