@@ -694,6 +694,13 @@ body {
   margin-top: 0;
 }
 
+/* Toggle Preset Cards Button */
+#togglePresetCardsBtn {
+  width: 100%;
+  max-width: 180px;
+  margin-bottom: 0; /* Remove bottom margin since we use gap */
+}
+
 </style>
 </head>
 
@@ -791,6 +798,9 @@ body {
 
   <!-- ADD THIS DIVIDER -->
   <div class="skill-search-divider"></div>
+
+  <!-- Add this right after the Clear Filters button -->
+<button id="togglePresetCardsBtn" class="clear-all">Toggle Preset Cards</button>
 
   <!-- Clear Filters Button at top -->
   <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
@@ -966,6 +976,7 @@ const slotListeners = new Map();
 const SLOT_KEY = 'saved_slots';
 const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
 let SKILL_SEARCH_KEYS = ['skillSearch1']; // Initialize as let so it can be updated
+let showPresetCards = true; // Start with preset cards visible
 
 /* ------------- TOGGLE BUTTON STATE ------------- */
 const selectedRarities = new Set();
@@ -1307,7 +1318,8 @@ fetch(JSON_FILE)
     setupSortingControls();
     setupDynamicSkillSearch();
     setupPresets();
-    setupPresetReset(); // Now this will work
+    setupPresetReset();
+    setupTogglePresetCards(); // ADD THIS LINE
     loadSlotsFromLocalStorage();
     renderSections();
   })
@@ -1696,13 +1708,10 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('filter_' + id);
   });
 
-  // REMOVE THIS SECTION - Don't clear the hide uncolored checkbox
-  // hideUncolored = false;
-  // const hideUncoloredCheckbox = document.getElementById('hideUncolored');
-  // if (hideUncoloredCheckbox) {
-  //   hideUncoloredCheckbox.checked = false;
-  // }
-  // localStorage.removeItem('hideUncolored');
+  // Reset toggle preset cards to default (show all)
+  showPresetCards = true;
+  localStorage.setItem('showPresetCards', 'true');
+  updateTogglePresetCardsButton();
 
   // Clear skill searches - completely reset to just one clean search box
 const skillSearchGroup = document.getElementById('skillSearchGroup');
@@ -1991,12 +2000,15 @@ let baseFilteredCards = cardsData.filter(card => {
   // APPLY SORTING to base cards
   baseFilteredCards = sortCards(baseFilteredCards, sortBy, sortOrder);
 
-  // Render dropdown filter sections (separated as before)
-  const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
-  filterOrder.forEach(catId => {
-    if (!filters[catId]) return;
+// Render dropdown filter sections (separated as before)
+const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
+filterOrder.forEach(catId => {
+  if (!filters[catId]) return;
 
-    if (catId === 'length') {
+  // ADD THIS CHECK - only render if preset cards should be shown
+  if (!shouldShowFilterSection(catId)) return;
+
+  if (catId === 'length') {
       const dist = parseInt(filters.length);
       const label = getLengthCategory(dist);
       const distanceType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
@@ -2228,6 +2240,37 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
       highlightSkills();
     }
   });
+}
+
+/* ------------- TOGGLE PRESET CARDS FUNCTIONALITY ------------- */
+function setupTogglePresetCards() {
+  // Load saved state
+  const savedState = localStorage.getItem('showPresetCards');
+  if (savedState !== null) {
+    showPresetCards = savedState === 'true';
+    updateTogglePresetCardsButton();
+  }
+
+  togglePresetCardsBtn.addEventListener('click', () => {
+    showPresetCards = !showPresetCards;
+    localStorage.setItem('showPresetCards', showPresetCards);
+    updateTogglePresetCardsButton();
+    renderSections();
+  });
+}
+
+function updateTogglePresetCardsButton() {
+  togglePresetCardsBtn.textContent = showPresetCards ? 
+    'Hide Preset Cards' : 
+    'Show Preset Cards';
+}
+
+function shouldShowFilterSection(catId) {
+  // If we're hiding preset cards, only show skill search sections
+  if (!showPresetCards) {
+    return false; // Hide all filter-based sections (racecourse, length, etc.)
+  }
+  return true; // Show all sections when preset cards are visible
 }
 
 // Initialize the hide uncolored checkbox
