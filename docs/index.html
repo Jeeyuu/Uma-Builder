@@ -931,9 +931,10 @@ function sortCards(cards, sortBy, order) {
         aValue = a.char_name.toLowerCase();
         bValue = b.char_name.toLowerCase();
         
-        // If names are the same, sort by rarity (SSR first)
+        // If names are the same, sort by rarity (higher rarity first)
         if (aValue === bValue) {
-          return order === 'ascending' ? b.rarity - a.rarity : a.rarity - b.rarity;
+          // Always prioritize higher rarity regardless of primary sort direction
+          return b.rarity - a.rarity; // SSR first, then SR, then R
         }
         break;
         
@@ -941,9 +942,10 @@ function sortCards(cards, sortBy, order) {
         aValue = a.type;
         bValue = b.type;
         
-        // If types are the same, sort by rarity (SSR first)
+        // If types are the same, sort by rarity (higher rarity first)
         if (aValue === bValue) {
-          return order === 'ascending' ? b.rarity - a.rarity : a.rarity - b.rarity;
+          // Always prioritize higher rarity regardless of primary sort direction
+          return b.rarity - a.rarity; // SSR first, then SR, then R
         }
         break;
         
