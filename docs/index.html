@@ -1452,12 +1452,41 @@ function setupSortingControls() {
     renderSections();
   });
 
-  regionSelect.addEventListener('change', (e) => {
-    region = e.target.value;
-    localStorage.setItem('region', region);
-    sectionPages.clear();
-    renderSections();
+regionSelect.addEventListener('change', (e) => {
+  region = e.target.value;
+  localStorage.setItem('region', region);
+  sectionPages.clear();
+  
+  // Update all slots with the new region's skills
+  updateSlotsForRegion();
+  renderSections();
+});
+
+function updateSlotsForRegion() {
+  slots.forEach(slot => {
+    if (slot.dataset.supportId) {
+      const supportId = slot.dataset.supportId;
+      const card = cardsData.find(c => String(c.support_id) === String(supportId));
+      
+      if (card) {
+        // Remove the existing slot content
+        if (slotListeners.has(slot)) {
+          slot.removeEventListener('click', slotListeners.get(slot));
+          slotListeners.delete(slot);
+        }
+        
+        // Re-add the card with updated skills for the current region
+        addToSlot(card, slot, false); // false to not trigger save (we'll do it once at the end)
+      }
+    }
   });
+  
+  // Save the updated slots
+  saveSlotsToLocalStorage();
+  
+  // Re-apply highlighting to show/hide skills based on new region
+  highlightSkills();
+  updateSkillVisibility();
 }
 
 // Setup Hide Uncolored checkbox
@@ -1584,10 +1613,10 @@ function addToSlot(card, targetSlot = null, save = true){
     slotListeners.delete(freeSlot);
   }
 
-  // Use English skills for Global region, Japanese skills for Japan region
-  // Fall back to Japanese skills if English skills are empty
-  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+// Use English skills for Global region, Japanese skills for Japan region
+// Fall back to Japanese skills if English skills are empty
+const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
   let skillsHTML = '';
   
