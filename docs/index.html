@@ -818,11 +818,8 @@ body {
   <!-- ADD THIS DIVIDER -->
   <div class="skill-search-divider"></div>
 
-<!-- Clear Filters Button at top -->
-<button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
-
-<!-- ADD THIS MISSING BUTTON -->
-<button id="togglePresetCardsBtn" class="clear-all">Toggle Preset Cards</button>
+  <!-- Clear Filters Button at top -->
+  <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
 
   <div class="filter-group">
     <label for="presets">Presets</label>
@@ -2286,6 +2283,14 @@ function shouldShowFilterSection(catId) {
   }
   return true; // Show all sections when preset cards are visible
 }
+function shouldShowFilterSection(catId) {
+  // If we're hiding preset cards, only show skill search sections
+  if (!showPresetCards) {
+    return false; // Hide all filter-based sections (racecourse, length, etc.)
+  }
+  return true; // Show all sections when preset cards are visible
+}
+
 // Initialize the hide uncolored checkbox
 setupHideUncoloredCheckbox();
 
