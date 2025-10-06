@@ -1461,7 +1461,16 @@ regionSelect.addEventListener('change', (e) => {
   updateSlotsForRegion();
   renderSections();
 });
+  
+  // Save the updated slots
+  saveSlotsToLocalStorage();
+  
+  // Re-apply highlighting to show/hide skills based on new region
+  highlightSkills();
+  updateSkillVisibility();
+}
 
+// Add updateSlotsForRegion function here
 function updateSlotsForRegion() {
   slots.forEach(slot => {
     if (slot.dataset.supportId) {
