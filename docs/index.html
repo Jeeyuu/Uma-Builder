@@ -1279,13 +1279,23 @@ function setupDynamicSkillSearch() {
     createSearchBox(search.id, search.value, index === 0); // First one can't be removed
   });
   
-  // Update SKILL_SEARCH_KEYS array
+  // CRITICAL FIX: Update SKILL_SEARCH_KEYS array with ACTUAL current values
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+  
+  // CRITICAL FIX: Also update the search values in the inputs
+  skillSearches.forEach(search => {
+    const input = document.getElementById(search.id);
+    if (input) {
+      input.value = search.value;
+    }
+  });
   
   addSearchBtn.addEventListener('click', addSearchBox);
   
-  // ADD THIS LINE - Setup color picker for initial search box
-  setupColorPicker('skillSearch1');
+  // Setup color picker for all search boxes
+  skillSearches.forEach(search => {
+    setupColorPicker(search.id);
+  });
 }
 
 function createSearchBox(searchId, value = '') {
@@ -1349,7 +1359,7 @@ function addSearchBox() {
   // Create the UI element
   createSearchBox(newId, '', false);
   
-  // Update the global array
+  // CRITICAL: Update the global array immediately
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
   sectionPages.clear();
@@ -1435,8 +1445,11 @@ function removeSearchBox(searchId) {
     container.remove();
   }
   
-  // REMOVE COLOR PICKER DATA FROM LOCALSTORAGE
+  // Remove color picker data from localStorage
   localStorage.removeItem(`color_${searchId}`);
+  
+  // CRITICAL: Update SKILL_SEARCH_KEYS after removal
+  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
   // If we removed the first search box and there are others, rename the remaining ones to maintain order
   reorganizeSearchBoxes();
