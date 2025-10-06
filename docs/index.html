@@ -622,23 +622,35 @@ body {
 
 /* ---------- SKILL HIDING ---------- */
 .skill.hidden-skill,
-.skills-header.hidden-skill,
-.skills-group.hidden-skill {
+.skills-header.hidden-skill {
   display: none;
 }
 
-.skills-group:not(.hidden-skill) + .skills-group:not(.hidden-skill) {
-  margin-top: 8px;
+/* Fix for skills groups - remove them from layout completely when hidden */
+.skills-group.hidden-skill {
+  display: none !important;
 }
 
+/* Remove the old gap adjustment rules since we're using display: none */
+/* .skills-group:not(.hidden-skill) + .skills-group:not(.hidden-skill) {
+  margin-top: 8px;
+} */
+
+/* Handle empty skills containers */
 .skills:empty,
 .skills:has(.skills-group.hidden-skill:only-child),
 .skills:has(.skills-group.hidden-skill:first-child + .skills-group.hidden-skill:last-child) {
   display: none;
 }
 
+/* Remove margin from the first visible skills group */
 .skills-group:not(.hidden-skill):first-child {
   margin-top: 0;
+}
+
+/* Add consistent gap between visible skills groups */
+.skills-group:not(.hidden-skill) + .skills-group:not(.hidden-skill) {
+  margin-top: 8px;
 }
 
 /* ---------- PRESET CARDS TOGGLE ---------- */
