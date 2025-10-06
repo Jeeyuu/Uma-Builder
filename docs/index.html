@@ -819,11 +819,11 @@ body {
   <!-- Toggle Preset Cards Button -->
   <button id="togglePresetCardsBtn" class="clear-all">Hide Preset Cards</button>
 
-  <!-- Clear Filters Button at top -->
-  <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
-
-  <!-- Wrap ONLY the section from Presets to Strategy that should be hidden -->
+  <!-- Wrap Clear Filters Button inside the hidden section so it gets hidden too -->
   <div class="sidebar-filters-section" id="sidebarFiltersSection">
+    <!-- Clear Filters Button at top -->
+    <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
+
     <div class="filter-group">
       <label for="presets">Presets</label>
       <select id="presets">
