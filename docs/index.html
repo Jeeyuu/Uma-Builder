@@ -759,6 +759,12 @@ body {
     </select>
   </div>
 
+  <!-- Card Name Search -->
+<div class="filter-group">
+  <label for="cardSearch">Search Card</label>
+  <input type="text" id="cardSearch" class="skill-search" placeholder="Search card name">
+</div>
+
   <!-- ADD THIS CHECKBOX -->
   <div class="filter-group">
     <label class="checkbox-label">
@@ -1274,6 +1280,7 @@ fetch(JSON_FILE)
     setupPresets();
     setupPresetReset();
     setupTogglePresetCards(); // ADD THIS LINE
+    setupCardSearch();
     loadSlotsFromLocalStorage();
     renderSections();
   })
@@ -1700,6 +1707,13 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('filter_' + id);
   });
 
+  const cardSearchInput = document.getElementById('cardSearch');
+  if (cardSearchInput) {
+    cardSearchInput.value = '';
+    cardSearchValue = '';
+    localStorage.removeItem('cardSearch');
+  }
+
   // Clear skill searches - ONLY clear the values, don't reset the structure
   const searchInputs = document.querySelectorAll('.skill-search');
   searchInputs.forEach(input => {
@@ -1919,12 +1933,13 @@ function renderSections() {
     strategy: document.getElementById('strategy').value || ''
   };
 
-  const anyDropdownActive = Object.values(filters).some(v => v);
-  const anySkillActive = SKILL_SEARCH_KEYS.some(key => document.getElementById(key)?.value.trim());
-  const anyRarityActive = selectedRarities.size > 0;
-  const anyTypeActive = selectedTypes.size > 0;
+const anyDropdownActive = Object.values(filters).some(v => v);
+const anySkillActive = SKILL_SEARCH_KEYS.some(key => document.getElementById(key)?.value.trim());
+const anyRarityActive = selectedRarities.size > 0;
+const anyTypeActive = selectedTypes.size > 0;
+const anyCardSearchActive = cardSearchValue.length > 0;
 
-  if(!anyDropdownActive && !anySkillActive && !anyRarityActive && !anyTypeActive) {
+  if(!anyDropdownActive && !anySkillActive && !anyRarityActive && !anyTypeActive && !anyCardSearchActive) {
     const section = document.createElement('div');
     section.className = 'card-section';
     section.style.display = 'flex';
@@ -2043,7 +2058,32 @@ SKILL_SEARCH_KEYS.forEach((key, i) => {
   renderSkillSearchRow(key, header, matches, i);
 });
 
+  // ADD THIS NEW SECTION - Render Card Name Search
+  if (anyCardSearchActive) {
+    renderCardSearchSection();
+  }
+
   highlightSkills();
+}
+
+/* ------------- CARD NAME SEARCH ------------- */
+let cardSearchValue = '';
+
+function setupCardSearch() {
+  const cardSearchInput = document.getElementById('cardSearch');
+  const savedCardSearch = localStorage.getItem('cardSearch');
+  
+  if (savedCardSearch) {
+    cardSearchValue = savedCardSearch;
+    cardSearchInput.value = savedCardSearch;
+  }
+  
+  cardSearchInput.addEventListener('input', (e) => {
+    cardSearchValue = e.target.value.trim().toLowerCase();
+    localStorage.setItem('cardSearch', cardSearchValue);
+    sectionPages.clear();
+    renderSections();
+  });
 }
 
 function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
@@ -2172,6 +2212,106 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
   cardSections.appendChild(section);
 
   const pageKey = `${key}-${rowIndex}`;
+  const currentPage = sectionPages.get(pageKey) || 0;
+  sectionPages.set(pageKey, currentPage);
+
+  const CARDS_PER_PAGE = 6;
+
+  function renderPage(page) {
+    grid.innerHTML = '';
+    const startIdx = page * CARDS_PER_PAGE;
+    const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+    rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+    leftBtn.disabled = page === 0;
+    rightBtn.disabled = page >= totalPages - 1;
+    
+    highlightSkills();
+  }
+
+  renderPage(currentPage);
+
+  leftBtn.addEventListener('click', () => {
+    const newPage = sectionPages.get(pageKey) - 1;
+    if (newPage >= 0) {
+      sectionPages.set(pageKey, newPage);
+      renderPage(newPage);
+      highlightSkills();
+    }
+  });
+
+  rightBtn.addEventListener('click', () => {
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    const newPage = sectionPages.get(pageKey) + 1;
+    if (newPage < totalPages) {
+      sectionPages.set(pageKey, newPage);
+      renderPage(newPage);
+      highlightSkills();
+    }
+  });
+}
+
+function renderCardSearchSection() {
+  const matches = baseFilteredCards.filter(card => {
+    const cardName = card.char_name.toLowerCase();
+    return cardName.includes(cardSearchValue);
+  });
+  
+  // Sort matches: SSR > SR > R, then by type order
+  const typeOrder = { 'speed': 0, 'stamina': 1, 'power': 2, 'guts': 3, 'intelligence': 4, 'friend': 5, 'group': 6 };
+  
+  matches.sort((a, b) => {
+    // First by rarity (SSR first)
+    if (a.rarity !== b.rarity) {
+      return b.rarity - a.rarity; // SSR (3) > SR (2) > R (1)
+    }
+    // Then by type order
+    return typeOrder[a.type] - typeOrder[b.type];
+  });
+
+  // COMPLETELY HIDE SECTION IF NO MATCHES
+  if (matches.length === 0) {
+    return; // Don't create any section at all
+  }
+
+  const section = document.createElement('div');
+  section.className = 'card-section';
+
+  const headerContainer = document.createElement('div');
+  headerContainer.className = 'card-section-header';
+
+  const header = document.createElement('h2');
+  header.className = 'card-search-header';
+  header.textContent = `Card Search: "${cardSearchValue}" (${matches.length} cards)`;
+  headerContainer.appendChild(header);
+
+  const controls = document.createElement('div');
+  controls.className = 'page-controls';
+  const leftBtn = document.createElement('button');
+  const rightBtn = document.createElement('button');
+  leftBtn.textContent = '◀';
+  leftBtn.disabled = true;
+  rightBtn.textContent = '▶';
+  rightBtn.disabled = true;
+  controls.appendChild(leftBtn);
+  controls.appendChild(rightBtn);
+
+  headerContainer.appendChild(controls);
+  section.appendChild(headerContainer);
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card-grid-wrapper';
+  const grid = document.createElement('div');
+  grid.className = 'cards';
+  wrapper.appendChild(grid);
+  section.appendChild(wrapper);
+
+  cardSections.appendChild(section);
+
+  const pageKey = `cardSearch-${cardSearchValue}`;
   const currentPage = sectionPages.get(pageKey) || 0;
   sectionPages.set(pageKey, currentPage);
 
@@ -2458,6 +2598,8 @@ function reorganizeSearchBoxes() {
   // Save the reorganized state
   saveSkillSearches();
 }
+
+
 
 // Initialize skill search persistence when the page loads
 document.addEventListener('DOMContentLoaded', () => {
