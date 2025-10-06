@@ -672,6 +672,30 @@ body {
 .filter-group, .toggle-button-group {
   transition: opacity 0.3s ease;
 }
+
+/* Skill warning badges */
+.skill-warning {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #ff4444;
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 2px 4px;
+  border-radius: 3px;
+  z-index: 10;
+  cursor: help;
+}
+
+.skill-warning.no-skills {
+  background: #888;
+}
+
+.skill-warning:hover {
+  opacity: 0.9;
+}
+
 </style>
 </head>
 
@@ -1456,6 +1480,10 @@ function setupSortingControls() {
     region = e.target.value;
     localStorage.setItem('region', region);
     sectionPages.clear();
+    
+    // Refresh all selected cards in slots to update their skills
+    refreshSelectedCardsSkills();
+    
     renderSections();
   });
 }
@@ -1589,6 +1617,26 @@ function addToSlot(card, targetSlot = null, save = true){
   const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
   const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
+  // Check skill availability for current region
+  const hasJapaneseSkills = card.event_skills && card.event_skills.length > 0;
+  const hasEnglishSkills = card.event_skills_en && card.event_skills_en.length > 0;
+  let warningHTML = '';
+
+  // Add warning badge if skills are not available in current region
+  if (region === 'global') {
+    if (!hasEnglishSkills && !hasJapaneseSkills) {
+      warningHTML = `<div class="skill-warning no-skills" title="This card has no event skills">No Skills</div>`;
+    } else if (!hasEnglishSkills && hasJapaneseSkills) {
+      warningHTML = `<div class="skill-warning" title="This card only has Japanese skills">JP Only</div>`;
+    }
+  } else { // japan region
+    if (!hasJapaneseSkills && !hasEnglishSkills) {
+      warningHTML = `<div class="skill-warning no-skills" title="This card has no event skills">No Skills</div>`;
+    } else if (!hasJapaneseSkills && hasEnglishSkills) {
+      warningHTML = `<div class="skill-warning" title="This card only has English skills">EN Only</div>`;
+    }
+  }
+
   let skillsHTML = '';
   
   // Only add skills groups if there are skills to show
@@ -1606,6 +1654,9 @@ function addToSlot(card, targetSlot = null, save = true){
       return `<div class="skill">${escapeHtml(skillText.replace(/○\s*/g, ''))}</div>`;
     }).join('');
     skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
+  } else if (!card.hint_skills || card.hint_skills.length === 0) {
+    // Only show "No Skills" if there are no hint skills either
+    skillsHTML += `<div class="skills-group"><div class="skills-header">No Skills Available</div></div>`;
   }
 
   freeSlot.dataset.cardId = card.char_id;
@@ -1615,7 +1666,10 @@ function addToSlot(card, targetSlot = null, save = true){
   // Use compact styling for slots
   freeSlot.innerHTML = `
     <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div>
-    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+    ${warningHTML}
+    <div class="image-container">
+      <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+    </div>
     <div class="name">${escapeHtml(card.char_name)}</div>
     <div class="skills">${skillsHTML}</div>
   `;
@@ -2419,6 +2473,140 @@ function reorganizeSearchBoxes() {
   
   // Save the reorganized state
   saveSkillSearches();
+}
+
+/* ========== REFRESH SELECTED CARDS SKILLS ========== */
+function refreshSelectedCardsSkills() {
+  slots.forEach(slot => {
+    if (slot.dataset.supportId) {
+      const supportId = slot.dataset.supportId;
+      const card = cardsData.find(c => String(c.support_id) === String(supportId));
+      
+      if (card) {
+        // Remove the card and re-add it to refresh the skills display
+        removeFromSlot(slot, card);
+        addToSlot(card, slot, true);
+      }
+    }
+  });
+  
+  // Update skill highlighting for the new region
+  highlightSkills();
+}
+
+/* ========== CHECK SKILL AVAILABILITY ========== */
+function checkCardSkillsAvailability(card) {
+  const hasJapaneseSkills = card.event_skills && card.event_skills.length > 0;
+  const hasEnglishSkills = card.event_skills_en && card.event_skills_en.length > 0;
+  
+  if (region === 'global') {
+    if (!hasEnglishSkills && !hasJapaneseSkills) {
+      return 'no-skills';
+    } else if (!hasEnglishSkills && hasJapaneseSkills) {
+      return 'japanese-only';
+    } else {
+      return 'english-available';
+    }
+  } else { // japan region
+    if (!hasJapaneseSkills && !hasEnglishSkills) {
+      return 'no-skills';
+    } else if (!hasJapaneseSkills && hasEnglishSkills) {
+      return 'english-only';
+    } else {
+      return 'japanese-available';
+    }
+  }
+}
+
+/* ========== ENHANCED CARD CREATION WITH SKILL WARNINGS ========== */
+function createCardElement(card){
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.dataset.id = card.char_id;
+  el.dataset.supportId = card.support_id;
+  el.dataset.name = card.char_name;
+
+  const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
+  const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
+
+  // Check skill availability for current region
+  const skillAvailability = checkCardSkillsAvailability(card);
+  
+  // Use appropriate skills based on region
+  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+
+  let skillsHTML = '';
+  let warningHTML = '';
+  
+  // Add warning badge if skills are not available in current region
+  if (skillAvailability === 'japanese-only' && region === 'global') {
+    warningHTML = `<div class="skill-warning" title="This card only has Japanese skills">JP Only</div>`;
+  } else if (skillAvailability === 'english-only' && region === 'japan') {
+    warningHTML = `<div class="skill-warning" title="This card only has English skills">EN Only</div>`;
+  } else if (skillAvailability === 'no-skills') {
+    warningHTML = `<div class="skill-warning no-skills" title="This card has no event skills">No Skills</div>`;
+  }
+  
+  // FIX: Handle hint_skills with safe string conversion
+  if(card.hint_skills && card.hint_skills.length) {
+    const hintSkillsHTML = card.hint_skills.map(s => {
+      const skillText = String(s || ''); // Ensure it's a string
+      return `<div class="skill">${escapeHtml(skillText.replace(/○\s*/g, ''))}</div>`;
+    }).join('');
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
+  }
+  
+  // FIX: Handle event skills with safe string conversion
+  if(eventSkillsToUse && eventSkillsToUse.length) {
+    const eventSkillsHTML = eventSkillsToUse.map(s => {
+      const skillText = String(s || ''); // Ensure it's a string
+      return `<div class="skill">${escapeHtml(skillText.replace(/○\s*/g, ''))}</div>`;
+    }).join('');
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
+  } else if (card.hint_skills && card.hint_skills.length === 0) {
+    // Only show "No Skills" if there are no hint skills either
+    skillsHTML += `<div class="skills-group"><div class="skills-header">No Skills Available</div></div>`;
+  }
+  
+  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
+  if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 6px;">ID: ${card.char_id}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+
+  el.innerHTML = `
+    <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
+    ${warningHTML}
+    <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
+    ${nameHtml}
+    <div class="skills">${skillsHTML}</div>
+  `;
+
+  el.addEventListener('click', ()=> {
+    const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
+    if(slot) removeFromSlot(slot, card);
+    else addToSlot(card);
+  });
+
+  if(selectedCardIds.has(card.char_id)){
+    el.classList.add('disabled');
+    const dupLabel = document.createElement('div');
+    dupLabel.textContent = 'Duplicate Support';
+    dupLabel.style.position = 'absolute';
+    dupLabel.style.top = '0';
+    dupLabel.style.left = '0';
+    dupLabel.style.width = '100%';
+    dupLabel.style.background = 'red';
+    dupLabel.style.color = 'white';
+    dupLabel.style.fontSize = '9px';
+    dupLabel.style.fontWeight = 'bold';
+    dupLabel.style.textAlign = 'center';
+    dupLabel.style.padding = '2px 0';
+    dupLabel.style.borderTopLeftRadius = '4px';
+    dupLabel.style.borderTopRightRadius = '4px';
+    el.appendChild(dupLabel);
+  }
+
+  return el;
 }
 
 // Initialize skill search persistence when the page loads
