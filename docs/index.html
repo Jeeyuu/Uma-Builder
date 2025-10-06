@@ -725,9 +725,9 @@ body {
       <button class="toggle-button" data-type="intelligence">
         <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_04.png" alt="Intelligence">
       </button>
-<button class="toggle-button" data-type="friend">
-  <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_05.png" alt="Friend">
-</button>
+      <button class="toggle-button" data-type="support">
+        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_05.png" alt="Support">
+      </button>
       <button class="toggle-button" data-type="group">
         <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_06.png" alt="Group">
       </button>
@@ -997,15 +997,15 @@ function sortCards(cards, sortBy, order) {
         // If names are exactly the same, ALWAYS sort by rarity descending (SSR first)
         return b.rarity - a.rarity; // SSR > SR > R always
         
-case 'type':
-  aValue = a.type === 'support' ? 'friend' : a.type; // Map support to friend
-  bValue = b.type === 'support' ? 'friend' : b.type;
-  
-  // First, compare by type based on the sort order
-  if (aValue !== bValue) {
-    if (aValue < bValue) return order === 'ascending' ? -1 : 1;
-    if (aValue > bValue) return order === 'ascending' ? 1 : -1;
-  }
+      case 'type':
+        aValue = a.type;
+        bValue = b.type;
+        
+        // First, compare by type based on the sort order
+        if (aValue !== bValue) {
+          if (aValue < bValue) return order === 'ascending' ? -1 : 1;
+          if (aValue > bValue) return order === 'ascending' ? 1 : -1;
+        }
         
         // If types are exactly the same, ALWAYS sort by rarity descending (SSR first)
         return b.rarity - a.rarity; // SSR > SR > R always
@@ -1057,6 +1057,34 @@ case 'type':
 
 /* ------------- DYNAMIC SKILL SEARCH ------------- */
 const maxSearches = 30;
+
+function setupDynamicSkillSearch() {
+  const addSearchBtn = document.getElementById('addSearchBtn');
+  
+  // Clear existing search boxes first
+  const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
+  existingContainers.forEach(container => container.remove());
+  
+  // Sort searches to maintain order
+  skillSearches.sort((a, b) => {
+    const aNum = parseInt(a.id.replace('skillSearch', '')) || 0;
+    const bNum = parseInt(b.id.replace('skillSearch', '')) || 0;
+    return aNum - bNum;
+  });
+  
+  // Recreate search boxes from saved state
+  skillSearches.forEach((search) => {
+    createSearchBox(search.id, search.value);
+  });
+  
+  // Update SKILL_SEARCH_KEYS array
+  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+  
+  // Update search counter
+  searchCounter = skillSearches.length + 1;
+  
+  addSearchBtn.addEventListener('click', addSearchBox);
+}
 
 function addSearchBox() {
   if (skillSearches.length >= 30) return;
@@ -1214,7 +1242,7 @@ function normalizeSkill(s){ return String(s||'').replace(/[◎○]/g,'').trim().
 function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
 function getLengthCategory(distance){ if(distance<=1400)return'Sprint'; if(distance<=1800)return'Mile'; if(distance<=2400)return'Medium'; return'Long'; }
 function isStandardDistance(distance){ return distance%400===0; }
-const typeMap = { "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","friend":"05","group":"06" };
+const typeMap = { "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","support":"05","group":"06" };
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 /* ------------- AUTO-RESET PRESETS ------------- */
@@ -1263,7 +1291,7 @@ fetch(JSON_FILE)
       release: card.release || '',
       release_en: card.release_en || '',
       support_id: card.support_id || 0,
-  type: (card.type || '').toLowerCase().replace('support', 'friend'), // ADD THIS LINE
+      type: (card.type || '').toLowerCase(),
       url_name: card.url_name || ''
     }));
 
@@ -1925,13 +1953,11 @@ let baseFilteredCards = cardsData.filter(card => {
     });
   }
   
-if (anyTypeActive) {
-  baseFilteredCards = baseFilteredCards.filter(card => {
-    // Map "support" to "friend" for filtering
-    const cardType = card.type === 'support' ? 'friend' : card.type;
-    return selectedTypes.has(cardType);
-  });
-}
+  if (anyTypeActive) {
+    baseFilteredCards = baseFilteredCards.filter(card => {
+      return selectedTypes.has(card.type);
+    });
+  }
 
   // APPLY SORTING to base cards
   baseFilteredCards = sortCards(baseFilteredCards, sortBy, sortOrder);
