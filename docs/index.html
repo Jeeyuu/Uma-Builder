@@ -2393,6 +2393,14 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
     return; // Don't create any section at all
   }
 
+  // Get the actual search value and convert to proper case for display
+  const input = document.getElementById(key);
+  const searchValue = input ? input.value.trim() : '';
+  const displaySearchValue = searchValue
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+
   const section = document.createElement('div');
   section.className = 'card-section';
 
@@ -2401,7 +2409,7 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
 
   const header = document.createElement('h2');
   header.className = 'skill-search-header';
-  header.textContent = headerText;
+  header.textContent = `Skill Search ${rowIndex + 1}: "${displaySearchValue}"`;
   headerContainer.appendChild(header);
 
   const controls = document.createElement('div');
