@@ -954,7 +954,7 @@ const sectionPages = new Map();
 const slotListeners = new Map();
 const SLOT_KEY = 'saved_slots';
 const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
-let SKILL_SEARCH_KEYS = ['skillSearch1']; // Initialize as let so it can be updated
+let SKILL_SEARCH_KEYS = []; // This will be populated from localStorage
 let showPresetCards = true; // Start with preset cards visible
 
 /* ------------- TOGGLE BUTTON STATE ------------- */
@@ -1056,7 +1056,6 @@ function sortCards(cards, sortBy, order) {
 }
 
 /* ------------- DYNAMIC SKILL SEARCH ------------- */
-let searchCounter = 1;
 const maxSearches = 30;
 
 function setupDynamicSkillSearch() {
@@ -2263,6 +2262,145 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('resize', renderSections);
+
+/* ========== SKILL SEARCH PERSISTENCE ========== */
+// Initialize skill search state
+let skillSearches = JSON.parse(localStorage.getItem('skillSearches')) || [{ id: 'skillSearch1', value: '' }];
+let searchCounter = skillSearches.length > 0 ? Math.max(...skillSearches.map(s => parseInt(s.id.replace('skillSearch', '')) || 0)) + 1 : 1;
+
+function setupDynamicSkillSearch() {
+  const addSearchBtn = document.getElementById('addSearchBtn');
+  
+  // Clear existing search boxes first
+  const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
+  existingContainers.forEach(container => container.remove());
+  
+  // Recreate search boxes from saved state
+  skillSearches.forEach((search, index) => {
+    createSearchBox(search.id, search.value, index === 0); // First one can't be removed
+  });
+  
+  // Update SKILL_SEARCH_KEYS array
+  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+  
+  addSearchBtn.addEventListener('click', addSearchBox);
+}
+
+function createSearchBox(searchId, value = '', isFirst = false) {
+  const searchContainer = document.createElement('div');
+  searchContainer.className = 'search-input-container';
+  searchContainer.innerHTML = `
+    <input type="text" id="${searchId}" class="skill-search" placeholder="Search skill" value="${value}">
+    ${!isFirst ? `<button class="remove-search-btn" data-search-id="${searchId}">×</button>` : ''}
+  `;
+
+  const skillSearchGroup = document.getElementById('skillSearchGroup');
+  skillSearchGroup.appendChild(searchContainer);
+
+  setupSearchInput(searchId);
+  if (!isFirst) {
+    setupRemoveButton(searchId);
+  }
+}
+
+function addSearchBox() {
+  if (skillSearches.length >= 30) return;
+
+  const newId = `skillSearch${searchCounter}`;
+  searchCounter++;
+  
+  // Add to our state
+  skillSearches.push({ id: newId, value: '' });
+  saveSkillSearches();
+  
+  // Create the UI element
+  createSearchBox(newId, '', false);
+  
+  // Update the global array
+  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+  
+  sectionPages.clear();
+  renderSections();
+}
+
+function saveSkillSearches() {
+  // Update values from current inputs before saving
+  skillSearches.forEach(search => {
+    const input = document.getElementById(search.id);
+    if (input) {
+      search.value = input.value;
+    }
+  });
+  localStorage.setItem('skillSearches', JSON.stringify(skillSearches));
+}
+
+// Modified setupSearchInput to use our persistence system
+function setupSearchInput(searchId) {
+  const input = document.getElementById(searchId);
+  if (!input) return;
+
+  // Find the saved value
+  const savedSearch = skillSearches.find(search => search.id === searchId);
+  if (savedSearch) {
+    input.value = savedSearch.value;
+  }
+
+  input.addEventListener('input', () => {
+    // Update our state
+    const search = skillSearches.find(s => s.id === searchId);
+    if (search) {
+      search.value = input.value;
+      saveSkillSearches();
+    }
+    
+    sectionPages.clear();
+    renderSections();
+  });
+}
+
+// Modified setupRemoveButton
+function setupRemoveButton(searchId) {
+  const removeBtn = document.querySelector(`.remove-search-btn[data-search-id="${searchId}"]`);
+  if (!removeBtn) return;
+
+  // Remove any existing listeners to prevent duplicates
+  const newRemoveBtn = removeBtn.cloneNode(true);
+  removeBtn.parentNode.replaceChild(newRemoveBtn, removeBtn);
+
+  newRemoveBtn.addEventListener('click', () => {
+    removeSearchBox(searchId);
+  });
+}
+
+// Update the existing removeSearchBox function to use our new system
+function removeSearchBox(searchId) {
+  // Don't remove the first search box
+  if (searchId === 'skillSearch1') return;
+  
+  // Remove from our state
+  skillSearches = skillSearches.filter(search => search.id !== searchId);
+  saveSkillSearches();
+  
+  // Remove from UI
+  const container = document.querySelector(`.search-input-container input[id="${searchId}"]`)?.parentElement;
+  if (container) {
+    container.remove();
+  }
+  
+  // Update the global array and search counter
+  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+  searchCounter = SKILL_SEARCH_KEYS.length > 0 ? 
+    Math.max(...SKILL_SEARCH_KEYS.map(id => parseInt(id.replace('skillSearch', '')) || 0)) + 1 : 1;
+  
+  sectionPages.clear();
+  renderSections();
+}
+
+// Initialize skill search persistence when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+  // This will be called by the existing DOMContentLoaded listener
+});
+
 </script>
 </body>
 </html>
