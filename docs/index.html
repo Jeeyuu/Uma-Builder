@@ -725,9 +725,9 @@ body {
       <button class="toggle-button" data-type="intelligence">
         <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_04.png" alt="Intelligence">
       </button>
-      <button class="toggle-button" data-type="support">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_05.png" alt="Support">
-      </button>
+<button class="toggle-button" data-type="friend">
+  <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_05.png" alt="Friend">
+</button>
       <button class="toggle-button" data-type="group">
         <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_06.png" alt="Group">
       </button>
@@ -1242,7 +1242,7 @@ function normalizeSkill(s){ return String(s||'').replace(/[◎○]/g,'').trim().
 function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
 function getLengthCategory(distance){ if(distance<=1400)return'Sprint'; if(distance<=1800)return'Mile'; if(distance<=2400)return'Medium'; return'Long'; }
 function isStandardDistance(distance){ return distance%400===0; }
-const typeMap = { "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","support":"05","group":"06" };
+const typeMap = { "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","friend":"05","group":"06" };
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
 /* ------------- AUTO-RESET PRESETS ------------- */
