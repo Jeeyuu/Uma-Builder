@@ -1106,7 +1106,8 @@ function renderCardSearchSection() {
       if (!hasRarity) return false;
     }
     
-        if (selectedTypes.size > 0 && !selectedTypes.has(card.type)) {
+    // Apply type filters
+    if (selectedTypes.size > 0 && !selectedTypes.has(card.type)) {
       return false;
     }
     
@@ -1136,6 +1137,12 @@ function renderCardSearchSection() {
     return; // Don't create any section at all
   }
 
+  // Convert search value to proper case for display
+  const displaySearchValue = cardSearchValue
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+
   const section = document.createElement('div');
   section.className = 'card-section';
 
@@ -1144,7 +1151,7 @@ function renderCardSearchSection() {
 
   const header = document.createElement('h2');
   header.className = 'card-search-header';
-  header.textContent = `Card Search: "${cardSearchValue}" (${matches.length} cards)`;
+  header.textContent = `Card Search: "${displaySearchValue}" (${matches.length} cards)`;
   headerContainer.appendChild(header);
 
   const controls = document.createElement('div');
