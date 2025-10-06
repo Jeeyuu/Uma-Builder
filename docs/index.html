@@ -822,14 +822,8 @@ body {
 <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
 
 <!-- ADD THIS MISSING BUTTON -->
-<!-- Toggle Preset Cards Button - ABOVE Clear Filters -->
-<button id="togglePresetCardsBtn" class="clear-all">Hide Preset Cards</button>
+<button id="togglePresetCardsBtn" class="clear-all">Toggle Preset Cards</button>
 
-<!-- Clear Filters Button -->
-<button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
-
-<!-- Wrap only the section from Presets to Strategy -->
-<div class="sidebar-filters-section" id="sidebarFiltersSection">
   <div class="filter-group">
     <label for="presets">Presets</label>
     <select id="presets">
@@ -1752,8 +1746,10 @@ clearFiltersBtn.addEventListener('click', () => {
   showPresetCards = true;
   localStorage.setItem('showPresetCards', 'true');
   updateTogglePresetCardsButton();
-  updateSidebarFiltersVisibility();
+  updateSidebarFiltersVisibility(); // ADD THIS
 
+  // DO NOT clear sorting and region controls - keep them as they are
+  
   const presetsSelect = document.getElementById('presets');
   if (presetsSelect) presetsSelect.value = '';
   sectionPages.clear();
