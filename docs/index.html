@@ -1058,34 +1058,6 @@ function sortCards(cards, sortBy, order) {
 /* ------------- DYNAMIC SKILL SEARCH ------------- */
 const maxSearches = 30;
 
-function setupDynamicSkillSearch() {
-  const addSearchBtn = document.getElementById('addSearchBtn');
-  
-  // Clear existing search boxes first
-  const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
-  existingContainers.forEach(container => container.remove());
-  
-  // Sort searches to maintain order
-  skillSearches.sort((a, b) => {
-    const aNum = parseInt(a.id.replace('skillSearch', '')) || 0;
-    const bNum = parseInt(b.id.replace('skillSearch', '')) || 0;
-    return aNum - bNum;
-  });
-  
-  // Recreate search boxes from saved state
-  skillSearches.forEach((search) => {
-    createSearchBox(search.id, search.value);
-  });
-  
-  // Update SKILL_SEARCH_KEYS array
-  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
-  
-  // Update search counter
-  searchCounter = skillSearches.length + 1;
-  
-  addSearchBtn.addEventListener('click', addSearchBox);
-}
-
 function addSearchBox() {
   if (skillSearches.length >= 30) return;
 
