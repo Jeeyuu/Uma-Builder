@@ -715,6 +715,85 @@ body {
 .color-picker.blue { background: #0044cc; }
 .color-picker.red { background: #cc0000; }
 
+/* ---------- SELECTED SKILLS LIST ---------- */
+.selected-skills-section {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.skills-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.skills-list-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.skills-count {
+  font-size: 12px;
+  color: #666;
+  font-weight: normal;
+}
+
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.skills-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.skills-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.skills-list::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.skills-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.skill-item {
+  background: #eef2ff;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+  word-break: break-word;
+  white-space: normal;
+  text-align: center;
+  transition: all 0.2s ease;
+  border: 1px solid #ddd;
+}
+
+.skill-item.highlighted {
+  background: #ffae77;
+  color: #000;
+}
+
+.skill-item.search-highlighted {
+  color: white;
+}
+
+.skill-item.hidden-skill {
+  display: none;
+}
+
 </style>
 </head>
 
@@ -969,23 +1048,35 @@ body {
     </div>
   </div>
 
-  <!-- Right Sidebar (Slots) -->
-  <div class="right-sidebar">
-    <div class="slots-header">
-      <button class="clear-all" id="clearAllBtn">Clear All</button>
-    </div>
+<!-- Right Sidebar (Slots) -->
+<div class="right-sidebar">
+  <div class="slots-header">
+    <button class="clear-all" id="clearAllBtn">Clear All</button>
+  </div>
 
-    <div class="slots" id="slots">
-      <div class="slot" data-slot="0"><div class="placeholder">Empty</div></div>
-      <div class="slot" data-slot="1"><div class="placeholder">Empty</div></div>
-      <div class="slot" data-slot="2"><div class="placeholder">Empty</div></div>
-      <div class="slot" data-slot="3"><div class="placeholder">Empty</div></div>
-      <div class="slot" data-slot="4"><div class="placeholder">Empty</div></div>
-      <div class="slot" data-slot="5"><div class="placeholder">Empty</div></div>
-    </div>
+  <div class="slots" id="slots">
+    <div class="slot" data-slot="0"><div class="placeholder">Empty</div></div>
+    <div class="slot" data-slot="1"><div class="placeholder">Empty</div></div>
+    <div class="slot" data-slot="2"><div class="placeholder">Empty</div></div>
+    <div class="slot" data-slot="3"><div class="placeholder">Empty</div></div>
+    <div class="slot" data-slot="4"><div class="placeholder">Empty</div></div>
+    <div class="slot" data-slot="5"><div class="placeholder">Empty</div></div>
+  </div>
 
-    <!-- ADD THIS DIVIDER -->
-      <div class="skill-search-divider"></div>
+  <!-- ADD THIS DIVIDER -->
+  <div class="skill-search-divider"></div>
+
+  <!-- ADD THIS NEW SKILLS LIST SECTION -->
+  <div class="selected-skills-section">
+    <div class="skills-list-header">
+      <h3>Selected Card Skills</h3>
+      <span class="skills-count">(<span id="skillsCount">0</span> unique skills)</span>
+    </div>
+    <div class="skills-list" id="selectedSkillsList">
+      <!-- Skills will be populated here dynamically -->
+    </div>
+  </div>
+</div>
   
   </div>
 
@@ -1513,6 +1604,10 @@ function removeFromSlot(slotEl, card){
   }
   
   saveSlotsToLocalStorage();
+  
+  // NEW: Update the skills list
+  updateSelectedSkillsList();
+  
   renderSections();
 }
 
@@ -1618,6 +1713,10 @@ fetch(JSON_FILE)
     setupTogglePresetCards();
     setupCardSearch();
     loadSlotsFromLocalStorage();
+    
+    // NEW: Initialize the skills list
+    updateSelectedSkillsList();
+    
     renderSections();
   })
   .catch(err => {
@@ -1802,6 +1901,10 @@ regionSelect.addEventListener('change', (e) => {
   
   // Update all slots with the new region's skills
   updateSlotsForRegion();
+  
+  // NEW: Update the skills list
+  updateSelectedSkillsList();
+  
   renderSections();
 });
 }
@@ -1834,7 +1937,7 @@ function updateSlotsForRegion() {
   updateSkillVisibility();
 }
 
-// Setup Hide Uncolored checkbox
+// In setupHideUncoloredCheckbox
 function setupHideUncoloredCheckbox() {
   const hideUncoloredCheckbox = document.getElementById('hideUncolored');
   const savedHideUncolored = localStorage.getItem('hideUncolored');
@@ -1848,8 +1951,10 @@ function setupHideUncoloredCheckbox() {
     hideUncolored = e.target.checked;
     localStorage.setItem('hideUncolored', hideUncolored);
     updateSkillVisibility(); // Update visibility when checkbox changes
+    updateSelectedSkillsVisibility(); // NEW: Also update selected skills visibility
   });
 }
+
 
 /* ------------- UPDATED CARD CREATION WITH BETTER ERROR HANDLING ------------- */
 function createCardElement(card){
@@ -2008,10 +2113,14 @@ const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_sk
   selectedCardIds.add(card.char_id);
   if(save) saveSlotsToLocalStorage();
   
+  // NEW: Update the skills list
+  updateSelectedSkillsList();
+  
   // NEW: Apply highlighting to the slot skills immediately
   highlightSkills();
   renderSections();
 }
+
 
 /* ------------- Clear buttons ------------- */
 clearAllBtn.addEventListener('click', ()=>{
@@ -2026,6 +2135,10 @@ clearAllBtn.addEventListener('click', ()=>{
     slot.innerHTML='<div class="placeholder">Empty</div>';
   });
   localStorage.removeItem(SLOT_KEY);
+  
+  // NEW: Update the skills list
+  updateSelectedSkillsList();
+  
   renderSections();
 });
 
@@ -2660,6 +2773,184 @@ function shouldShowFilterSection(catId) {
     return false; // Hide all filter-based sections (racecourse, length, etc.)
   }
   return true; // Show all sections when preset cards are visible
+}
+
+/* ------------- SELECTED SKILLS MANAGEMENT ------------- */
+function updateSelectedSkillsList() {
+  const skillsList = document.getElementById('selectedSkillsList');
+  const skillsCount = document.getElementById('skillsCount');
+  
+  if (!skillsList) return;
+  
+  // Get all unique skills from selected cards
+  const allSkills = getAllSkillsFromSelectedCards();
+  
+  // Clear current list
+  skillsList.innerHTML = '';
+  
+  // Create skill elements
+  allSkills.forEach(skill => {
+    const skillElement = document.createElement('div');
+    skillElement.className = 'skill-item';
+    skillElement.textContent = skill;
+    skillsList.appendChild(skillElement);
+  });
+  
+  // Update count
+  if (skillsCount) {
+    skillsCount.textContent = allSkills.length;
+  }
+  
+  // NEW: Also highlight selected skills
+  highlightSelectedSkills();
+  updateSelectedSkillsVisibility();
+}
+
+function getAllSkillsFromSelectedCards() {
+  const allSkills = new Set();
+  
+  // Iterate through all slots with cards
+  slots.forEach(slot => {
+    if (slot.dataset.supportId) {
+      const supportId = slot.dataset.supportId;
+      const card = cardsData.find(c => String(c.support_id) === String(supportId));
+      
+      if (card) {
+        // Use English skills for Global region, Japanese skills for Japan region
+        const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+        const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+        
+        // Add hint skills
+        if (card.hint_skills) {
+          card.hint_skills.forEach(skill => {
+            const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
+            if (cleanSkill) allSkills.add(properCaseSkill(cleanSkill));
+          });
+        }
+        
+        // Add event skills
+        if (eventSkillsToUse) {
+          eventSkillsToUse.forEach(skill => {
+            const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
+            if (cleanSkill) allSkills.add(properCaseSkill(cleanSkill));
+          });
+        }
+      }
+    }
+  });
+  
+  // Convert Set to Array and sort alphabetically
+  return Array.from(allSkills).sort();
+}
+
+function highlightSelectedSkills() {
+  const skillItems = document.querySelectorAll('.skill-item');
+  if (skillItems.length === 0) return;
+  
+  const filters = {
+    racecourse: document.getElementById('racecourse').value || '',
+    length: document.getElementById('length').value || '',
+    direction: document.getElementById('direction').value || '',
+    track: document.getElementById('track').value || '',
+    season: document.getElementById('season').value || '',
+    weather: document.getElementById('weather').value || '',
+    strategy: document.getElementById('strategy').value || ''
+  };
+  
+  const searchTerms = SKILL_SEARCH_KEYS
+    .map(id => {
+      const input = document.getElementById(id);
+      const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
+      const color = colorPicker ? colorPicker.dataset.color : 'red';
+      return {
+        term: input?.value.trim().toLowerCase(),
+        color: color
+      };
+    })
+    .filter(item => item.term);
+  
+  const colorMap = {
+    racecourse: '#ff7792', length: '#ffae77', direction: '#ffff77',
+    track: '#77ff92', season: '#77c9ff', weather: '#c977ff', strategy: '#ff77e4'
+  };
+  
+  const dropdownTerms = [];
+  if (filters.racecourse) dropdownTerms.push({ term: `${filters.racecourse} Racecourse`, color: colorMap.racecourse });
+  if (filters.direction) {
+    const dirTerm = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
+    dropdownTerms.push({ term: dirTerm, color: colorMap.direction });
+  }
+  if (filters.track) {
+    const trackTerm = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions';
+    dropdownTerms.push({ term: trackTerm, color: colorMap.track });
+  }
+  if (filters.season) dropdownTerms.push({ term: `${filters.season} Runner`, color: colorMap.season });
+  if (filters.weather) dropdownTerms.push({ term: `${capitalize(filters.weather)} Days`, color: colorMap.weather });
+  if (filters.strategy) {
+    const s = filters.strategy;
+    dropdownTerms.push(
+      { term: `${s} Corners`, color: colorMap.strategy },
+      { term: `${s} Straightaways`, color: colorMap.strategy },
+      { term: `${s} Savvy`, color: colorMap.strategy }
+    );
+  }
+  if (filters.length) {
+    const dist = parseInt(filters.length, 10);
+    const label = getLengthCategory(dist);
+    const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
+    dropdownTerms.push(
+      { term: `${label} Corners`, color: colorMap.length },
+      { term: `${label} Straightaways`, color: colorMap.length },
+      { term: distType, color: colorMap.length }
+    );
+  }
+  
+  skillItems.forEach(skillItem => {
+    skillItem.classList.remove('highlighted', 'search-highlighted');
+    skillItem.style.background = '#eef2ff';
+    skillItem.style.color = '#000';
+    
+    const skillText = normalizeSkill(skillItem.textContent || '');
+    
+    // Check search terms with custom colors
+    for (const { term, color } of searchTerms) {
+      if (skillText.includes(term)) {
+        const colorValue = getColorValue(color);
+        const textColor = getTextColor(color);
+        
+        skillItem.style.setProperty('background', colorValue, 'important');
+        skillItem.style.setProperty('color', textColor, 'important');
+        skillItem.classList.add('search-highlighted');
+        return; // Only highlight with first matching search term
+      }
+    }
+    
+    // Check dropdown terms
+    for (const { term, color } of dropdownTerms) {
+      if (skillText === normalizeSkill(term)) {
+        skillItem.style.background = color;
+        skillItem.style.color = '#000';
+        skillItem.classList.add('highlighted');
+        break;
+      }
+    }
+  });
+}
+
+function updateSelectedSkillsVisibility() {
+  const shouldHide = hideUncolored;
+  const skillItems = document.querySelectorAll('.skill-item');
+  
+  skillItems.forEach(skillItem => {
+    const isHighlighted = skillItem.classList.contains('highlighted') || 
+                         skillItem.classList.contains('search-highlighted');
+    
+    if (shouldHide && !isHighlighted) {
+      skillItem.classList.add('hidden-skill');
+    } else {
+      skillItem.classList.remove('hidden-skill');
+    }
+  });
 }
 
 // Initialize the hide uncolored checkbox
