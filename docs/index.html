@@ -687,14 +687,10 @@ body {
   transform: scale(1.1);
 }
 
-.color-picker.red { background: #ff4444; }
-.color-picker.blue { background: #4477ff; }
-.color-picker.green { background: #44ff44; }
-.color-picker.yellow { background: #ffff44; }
-.color-picker.orange { background: #ffaa44; }
-.color-picker.purple { background: #aa44ff; }
-.color-picker.pink { background: #ff44aa; }
-.color-picker.cyan { background: #44ffff; }
+.color-picker.yellow { background: #cc9900; }
+.color-picker.green { background: #008800; }
+.color-picker.blue { background: #0044cc; }
+.color-picker.red { background: #cc0000; }
 
 </style>
 </head>
@@ -934,7 +930,7 @@ body {
     
     <!-- Default search box -->
     <div class="search-input-container">
-      <div class="color-picker red" data-search-id="skillSearch1" data-color="red"></div>
+      <div class="color-picker yellow" data-search-id="skillSearch1" data-color="yellow"></div>
       <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
       <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
     </div>
@@ -1286,11 +1282,11 @@ function createSearchBox(searchId, value = '') {
 
   setupSearchInput(searchId);
   setupRemoveButton(searchId);
-  setupColorPicker(searchId); // ADD THIS LINE
+  setupColorPicker(searchId);
 }
 
 /* ------------- COLOR PICKER FUNCTIONALITY ------------- */
-const colorSequence = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'cyan'];
+const colorSequence = ['yellow', 'green', 'blue', 'red'];
 
 function setupColorPicker(searchId) {
   const colorPicker = document.querySelector(`.color-picker[data-search-id="${searchId}"]`);
@@ -2153,24 +2149,20 @@ function highlightSkills() {
 }
 
 // Helper functions for colors
+// Helper functions for colors
 function getColorValue(colorName) {
   const colorMap = {
-    red: '#ff4444',
-    blue: '#4477ff', 
-    green: '#44ff44',
-    yellow: '#ffff44',
-    orange: '#ffaa44',
-    purple: '#aa44ff',
-    pink: '#ff44aa',
-    cyan: '#44ffff'
+    red: '#cc0000',
+    blue: '#0044cc', 
+    green: '#008800',
+    yellow: '#cc9900'
   };
-  return colorMap[colorName] || '#ff4444';
+  return colorMap[colorName] || '#cc0000';
 }
 
 function getTextColor(colorName) {
-  // Use white text for darker colors, black for lighter ones
-  const lightColors = ['yellow', 'cyan'];
-  return lightColors.includes(colorName) ? '#000000' : '#ffffff';
+  // Always use white text for all colors
+  return '#ffffff';
 }
 
 function updateSkillVisibility() {
