@@ -491,8 +491,8 @@ body {
 
 /* ---------- SKILLS & HIGHLIGHTING ---------- */
 .skill.search-highlighted {
-  background: #ff4444 !important;
-  color: white !important;
+  background: #ff4444; /* REMOVED !important */
+  color: white; /* REMOVED !important */
 }
 
 .skills-header {
@@ -1416,6 +1416,9 @@ function removeSearchBox(searchId) {
     container.remove();
   }
   
+  // REMOVE COLOR PICKER DATA FROM LOCALSTORAGE
+  localStorage.removeItem(`color_${searchId}`);
+  
   // If we removed the first search box and there are others, rename the remaining ones to maintain order
   reorganizeSearchBoxes();
   
@@ -2123,8 +2126,12 @@ function highlightSkills() {
     // Check search terms with custom colors
     for (const { term, color } of searchTerms) {
       if (skillText.includes(term)) {
-        skill.style.background = getColorValue(color);
-        skill.style.color = getTextColor(color);
+        const colorValue = getColorValue(color);
+        const textColor = getTextColor(color);
+        
+        // Use !important in JavaScript to override any CSS
+        skill.style.setProperty('background', colorValue, 'important');
+        skill.style.setProperty('color', textColor, 'important');
         skill.classList.add('search-highlighted');
         return; // Only highlight with first matching search term
       }
@@ -2195,15 +2202,6 @@ function updateSkillVisibility() {
         header.classList.remove('hidden-skill');
         group.classList.remove('hidden-skill'); // Show the entire group
       }
-    }
-  });
-  
-  // Also handle the case where there are no skills groups but skills are directly under .skills
-  document.querySelectorAll('.skills').forEach(skillsContainer => {
-    const directSkills = skillsContainer.querySelectorAll(':scope > .skill');
-    if (directSkills.length > 0) {
-      const visibleDirectSkills = Array.from(directSkills).filter(skill => !skill.classList.contains('hidden-skill'));
-      // Handle direct skills if needed
     }
   });
 }
