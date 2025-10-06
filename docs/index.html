@@ -687,9 +687,17 @@ body {
   </div>
 </div>
 
-  <div class="container">
+<div class="container">
+
 <!-- Left Sidebar (Filters) -->
 <div class="sidebar">
+
+  <!-- Card Name Search -->
+  <div class="filter-group">
+    <label for="cardSearch">Search Card</label>
+    <input type="text" id="cardSearch" class="skill-search" placeholder="Search card name">
+  </div>
+
   <!-- Rarity Toggle Buttons -->
   <div class="toggle-button-group rarity-buttons">
     <label>Rarity</label>
@@ -734,6 +742,7 @@ body {
     </div>
   </div>
 
+  
   <!-- ADD SORTING CONTROLS HERE -->
   <div class="filter-group">
     <label for="sortBy">Sort By</label>
@@ -758,12 +767,6 @@ body {
       <option value="japan">Japan</option>
     </select>
   </div>
-
-  <!-- Card Name Search -->
-<div class="filter-group">
-  <label for="cardSearch">Search Card</label>
-  <input type="text" id="cardSearch" class="skill-search" placeholder="Search card name">
-</div>
 
   <!-- ADD THIS CHECKBOX -->
   <div class="filter-group">
@@ -2145,7 +2148,7 @@ function filterCardsWithRules(cards,filters){
   });
 }
 
-/* ------------- UPDATED RENDER SECTIONS WITH SORTING AND REGION FILTERING ------------- */
+/* ------------- UPDATED RENDER SECTIONS WITH CARD SEARCH AT TOP ------------- */
 function renderSections() {
   cardSections.innerHTML='';
 
@@ -2212,6 +2215,11 @@ let baseFilteredCards = cardsData.filter(card => {
 
   // APPLY SORTING to base cards
   baseFilteredCards = sortCards(baseFilteredCards, sortBy, sortOrder);
+
+  // ADD THIS NEW SECTION AT THE TOP - Render Card Name Search FIRST
+  if (anyCardSearchActive) {
+    renderCardSearchSection();
+  }
 
 // Render dropdown filter sections (separated as before)
 const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
@@ -2283,11 +2291,6 @@ SKILL_SEARCH_KEYS.forEach((key, i) => {
   const header = `Skill Search ${i + 1}: "${val}"`;
   renderSkillSearchRow(key, header, matches, i);
 });
-
-  // ADD THIS NEW SECTION - Render Card Name Search
-  if (anyCardSearchActive) {
-    renderCardSearchSection();
-  }
 
   highlightSkills();
 } // This closes the renderSections function
