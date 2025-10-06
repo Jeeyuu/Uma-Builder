@@ -963,6 +963,13 @@ const FILTER_KEYS = ['racecourse','length','direction','track','season','weather
 let SKILL_SEARCH_KEYS = []; // This will be populated from localStorage
 let showPresetCards = true; // Start with preset cards visible
 
+/* ------------- CARD SEARCH STATE ------------- */
+let cardSearchValue = '';
+
+/* ------------- SKILL SEARCH STATE ------------- */
+let skillSearches = JSON.parse(localStorage.getItem('skillSearches')) || [{ id: 'skillSearch1', value: '' }];
+let searchCounter = skillSearches.length + 1;
+
 /* ------------- TOGGLE BUTTON STATE ------------- */
 const selectedRarities = new Set();
 const selectedTypes = new Set();
@@ -1061,8 +1068,186 @@ function sortCards(cards, sortBy, order) {
   return sortedCards;
 }
 
+/* ------------- CARD NAME SEARCH ------------- */
+function setupCardSearch() {
+  const cardSearchInput = document.getElementById('cardSearch');
+  const savedCardSearch = localStorage.getItem('cardSearch');
+  
+  if (savedCardSearch) {
+    cardSearchValue = savedCardSearch;
+    cardSearchInput.value = savedCardSearch;
+  }
+  
+  cardSearchInput.addEventListener('input', (e) => {
+    cardSearchValue = e.target.value.trim().toLowerCase();
+    localStorage.setItem('cardSearch', cardSearchValue);
+    sectionPages.clear();
+    renderSections();
+  });
+}
+
+function renderCardSearchSection() {
+  // Get the current filtered cards based on all active filters
+  let filteredCards = cardsData.filter(card => {
+    if (region === 'global') {
+      // For Global, only show cards that have release_en date (released globally)
+      if (!card.release_en || card.release_en === '') return false;
+    }
+    
+    // Apply rarity filters
+    if (selectedRarities.size > 0) {
+      const hasRarity = 
+        (selectedRarities.has('R') && card.rarity === 1) ||
+        (selectedRarities.has('SR') && card.rarity === 2) ||
+        (selectedRarities.has('SSR') && card.rarity === 3);
+      if (!hasRarity) return false;
+    }
+    
+        if (selectedTypes.size > 0 && !selectedTypes.has(card.type)) {
+      return false;
+    }
+    
+    return true;
+  });
+  
+  // Filter by card name search
+  const matches = filteredCards.filter(card => {
+    const cardName = card.char_name.toLowerCase();
+    return cardName.includes(cardSearchValue);
+  });
+  
+  // Sort matches: SSR > SR > R, then by type order
+  const typeOrder = { 'speed': 0, 'stamina': 1, 'power': 2, 'guts': 3, 'intelligence': 4, 'friend': 5, 'group': 6 };
+  
+  matches.sort((a, b) => {
+    // First by rarity (SSR first)
+    if (a.rarity !== b.rarity) {
+      return b.rarity - a.rarity; // SSR (3) > SR (2) > R (1)
+    }
+    // Then by type order
+    return typeOrder[a.type] - typeOrder[b.type];
+  });
+
+  // COMPLETELY HIDE SECTION IF NO MATCHES
+  if (matches.length === 0) {
+    return; // Don't create any section at all
+  }
+
+  const section = document.createElement('div');
+  section.className = 'card-section';
+
+  const headerContainer = document.createElement('div');
+  headerContainer.className = 'card-section-header';
+
+  const header = document.createElement('h2');
+  header.className = 'card-search-header';
+  header.textContent = `Card Search: "${cardSearchValue}" (${matches.length} cards)`;
+  headerContainer.appendChild(header);
+
+  const controls = document.createElement('div');
+  controls.className = 'page-controls';
+  const leftBtn = document.createElement('button');
+  const rightBtn = document.createElement('button');
+  leftBtn.textContent = '◀';
+  leftBtn.disabled = true;
+  rightBtn.textContent = '▶';
+  rightBtn.disabled = true;
+  controls.appendChild(leftBtn);
+  controls.appendChild(rightBtn);
+
+  headerContainer.appendChild(controls);
+  section.appendChild(headerContainer);
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'card-grid-wrapper';
+  const grid = document.createElement('div');
+  grid.className = 'cards';
+  wrapper.appendChild(grid);
+  section.appendChild(wrapper);
+
+  cardSections.appendChild(section);
+
+  const pageKey = `cardSearch-${cardSearchValue}`;
+  const currentPage = sectionPages.get(pageKey) || 0;
+  sectionPages.set(pageKey, currentPage);
+
+  const CARDS_PER_PAGE = 6;
+
+  function renderPage(page) {
+    grid.innerHTML = '';
+    const startIdx = page * CARDS_PER_PAGE;
+    const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+    rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
+    leftBtn.disabled = page === 0;
+    rightBtn.disabled = page >= totalPages - 1;
+    
+    highlightSkills();
+  }
+
+  renderPage(currentPage);
+
+  leftBtn.addEventListener('click', () => {
+    const newPage = sectionPages.get(pageKey) - 1;
+    if (newPage >= 0) {
+      sectionPages.set(pageKey, newPage);
+      renderPage(newPage);
+      highlightSkills();
+    }
+  });
+
+  rightBtn.addEventListener('click', () => {
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    const newPage = sectionPages.get(pageKey) + 1;
+    if (newPage < totalPages) {
+      sectionPages.set(pageKey, newPage);
+      renderPage(newPage);
+      highlightSkills();
+    }
+  });
+}
+
 /* ------------- DYNAMIC SKILL SEARCH ------------- */
 const maxSearches = 30;
+
+function setupDynamicSkillSearch() {
+  const addSearchBtn = document.getElementById('addSearchBtn');
+  
+  // Clear existing search boxes first
+  const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
+  existingContainers.forEach(container => container.remove());
+  
+  // Recreate search boxes from saved state
+  skillSearches.forEach((search, index) => {
+    createSearchBox(search.id, search.value, index === 0); // First one can't be removed
+  });
+  
+  // Update SKILL_SEARCH_KEYS array
+  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+  
+  addSearchBtn.addEventListener('click', addSearchBox);
+}
+
+function createSearchBox(searchId, value = '') {
+  const searchContainer = document.createElement('div');
+  searchContainer.className = 'search-input-container';
+  
+  searchContainer.innerHTML = `
+    <input type="text" id="${searchId}" class="skill-search" placeholder="Search skill" value="${value}">
+    <button class="remove-search-btn" data-search-id="${searchId}" title="Remove search">
+      ×
+    </button>
+  `;
+
+  const skillSearchGroup = document.getElementById('skillSearchGroup');
+  skillSearchGroup.appendChild(searchContainer);
+
+  setupSearchInput(searchId);
+  setupRemoveButton(searchId);
+}
 
 function addSearchBox() {
   if (skillSearches.length >= 30) return;
@@ -1075,7 +1260,7 @@ function addSearchBox() {
   saveSkillSearches();
   
   // Create the UI element
-  createSearchBox(newId, '');
+  createSearchBox(newId, '', false);
   
   // Update the global array
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
@@ -1084,22 +1269,42 @@ function addSearchBox() {
   renderSections();
 }
 
+function saveSkillSearches() {
+  // Update values from current inputs before saving
+  skillSearches.forEach(search => {
+    const input = document.getElementById(search.id);
+    if (input) {
+      search.value = input.value;
+    }
+  });
+  localStorage.setItem('skillSearches', JSON.stringify(skillSearches));
+}
+
+// Modified setupSearchInput to use our persistence system
 function setupSearchInput(searchId) {
   const input = document.getElementById(searchId);
   if (!input) return;
 
-  // Load saved value
-  const saved = localStorage.getItem('filter_' + searchId);
-  if (saved) input.value = saved;
+  // Find the saved value
+  const savedSearch = skillSearches.find(search => search.id === searchId);
+  if (savedSearch) {
+    input.value = savedSearch.value;
+  }
 
-  // Set up input event
   input.addEventListener('input', () => {
-    localStorage.setItem('filter_' + searchId, input.value);
+    // Update our state
+    const search = skillSearches.find(s => s.id === searchId);
+    if (search) {
+      search.value = input.value;
+      saveSkillSearches();
+    }
+    
     sectionPages.clear();
     renderSections();
   });
 }
 
+// Modified setupRemoveButton
 function setupRemoveButton(searchId) {
   const removeBtn = document.querySelector(`.remove-search-btn[data-search-id="${searchId}"]`);
   if (!removeBtn) return;
@@ -1113,48 +1318,76 @@ function setupRemoveButton(searchId) {
   });
 }
 
+// Update the existing removeSearchBox function to use our new system
 function removeSearchBox(searchId) {
+  // Don't remove if it's the last search box
+  if (skillSearches.length <= 1) {
+    // If it's the last one, just clear the value instead of removing
+    const input = document.getElementById(searchId);
+    if (input) {
+      input.value = '';
+      // Update state
+      const search = skillSearches.find(s => s.id === searchId);
+      if (search) {
+        search.value = '';
+        saveSkillSearches();
+      }
+      sectionPages.clear();
+      renderSections();
+    }
+    return;
+  }
+  
+  // Remove from our state
+  skillSearches = skillSearches.filter(search => search.id !== searchId);
+  saveSkillSearches();
+  
+  // Remove from UI
   const container = document.querySelector(`.search-input-container input[id="${searchId}"]`)?.parentElement;
   if (container) {
     container.remove();
   }
-
-  // Remove from SKILL_SEARCH_KEYS array
-  SKILL_SEARCH_KEYS = SKILL_SEARCH_KEYS.filter(id => id !== searchId);
-
-  // Remove from localStorage
-  localStorage.removeItem('filter_' + searchId);
-
-  // If no search boxes left, add one back
-  if (SKILL_SEARCH_KEYS.length === 0) {
-    // Reset to just the first search box
-    SKILL_SEARCH_KEYS = ['skillSearch1'];
-    searchCounter = 2;
-    
-    const skillSearchGroup = document.getElementById('skillSearchGroup');
-    const searchContainer = document.createElement('div');
-    searchContainer.className = 'search-input-container';
-    searchContainer.innerHTML = `
-      <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
-      <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
-    `;
-    
-    // Remove all existing search containers except the header
-    const existingContainers = skillSearchGroup.querySelectorAll('.search-input-container');
-    existingContainers.forEach(container => container.remove());
-    
-    skillSearchGroup.appendChild(searchContainer);
-    setupSearchInput('skillSearch1');
-    setupRemoveButton('skillSearch1');
-    localStorage.setItem('filter_skillSearch1', '');
-  } else {
-    // Update search counter to the highest existing ID + 1
-    const maxId = Math.max(...SKILL_SEARCH_KEYS.map(id => parseInt(id.replace('skillSearch', '')) || 0));
-    searchCounter = maxId + 1;
-  }
-
+  
+  // If we removed the first search box and there are others, rename the remaining ones to maintain order
+  reorganizeSearchBoxes();
+  
   sectionPages.clear();
   renderSections();
+}
+
+function reorganizeSearchBoxes() {
+  // Sort searches by their numeric ID to maintain order
+  skillSearches.sort((a, b) => {
+    const aNum = parseInt(a.id.replace('skillSearch', '')) || 0;
+    const bNum = parseInt(b.id.replace('skillSearch', '')) || 0;
+    return aNum - bNum;
+  });
+  
+  // Clear all existing search containers
+  const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
+  existingContainers.forEach(container => container.remove());
+  
+  // Recreate all search boxes with new IDs if needed
+  skillSearches.forEach((search, index) => {
+    const newId = `skillSearch${index + 1}`;
+    const oldId = search.id;
+    
+    // If the ID needs to change (like if we removed skillSearch1)
+    if (oldId !== newId) {
+      search.id = newId;
+    }
+    
+    createSearchBox(newId, search.value);
+  });
+  
+  // Update the global array
+  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+  
+  // Update search counter
+  searchCounter = skillSearches.length + 1;
+  
+  // Save the reorganized state
+  saveSkillSearches();
 }
 
 function removeFromSlot(slotEl, card){
@@ -1489,6 +1722,13 @@ function updateSlotsForRegion() {
       }
     }
   });
+  
+  // Save the updated slots
+  saveSlotsToLocalStorage();
+  
+  // Re-apply highlighting to show/hide skills based on new region
+  highlightSkills();
+  updateSkillVisibility();
 }
 
 // Setup Hide Uncolored checkbox
@@ -2013,7 +2253,6 @@ filterOrder.forEach(catId => {
       renderFilterRow(catId, headerText, rowTerms, 0, baseFilteredCards);
     }
   });
-}
 
 // Render skill search sections (separated as before)
 SKILL_SEARCH_KEYS.forEach((key, i) => {
@@ -2051,26 +2290,7 @@ SKILL_SEARCH_KEYS.forEach((key, i) => {
   }
 
   highlightSkills();
-
-/* ------------- CARD NAME SEARCH ------------- */
-let cardSearchValue = '';
-
-function setupCardSearch() {
-  const cardSearchInput = document.getElementById('cardSearch');
-  const savedCardSearch = localStorage.getItem('cardSearch');
-  
-  if (savedCardSearch) {
-    cardSearchValue = savedCardSearch;
-    cardSearchInput.value = savedCardSearch;
-  }
-  
-  cardSearchInput.addEventListener('input', (e) => {
-    cardSearchValue = e.target.value.trim().toLowerCase();
-    localStorage.setItem('cardSearch', cardSearchValue);
-    sectionPages.clear();
-    renderSections();
-  });
-}
+} // This closes the renderSections function
 
 function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   const termsNormalized = termList.map(normalizeSkill);
@@ -2240,133 +2460,10 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
   });
 }
 
-function renderCardSearchSection() {
-  // Get the current filtered cards based on all active filters
-  let filteredCards = cardsData.filter(card => {
-    if (region === 'global') {
-      // For Global, only show cards that have release_en date (released globally)
-      if (!card.release_en || card.release_en === '') return false;
-    }
-    
-    // Apply rarity filters
-    if (selectedRarities.size > 0) {
-      const hasRarity = 
-        (selectedRarities.has('R') && card.rarity === 1) ||
-        (selectedRarities.has('SR') && card.rarity === 2) ||
-        (selectedRarities.has('SSR') && card.rarity === 3);
-      if (!hasRarity) return false;
-    }
-    
-    // Apply type filters
-    if (selectedTypes.size > 0 && !selectedTypes.has(card.type)) {
-      return false;
-    }
-    
-    return true;
-  });
-  
-  // Filter by card name search
-  const matches = filteredCards.filter(card => {
-    const cardName = card.char_name.toLowerCase();
-    return cardName.includes(cardSearchValue);
-  });
-  
-  // Sort matches: SSR > SR > R, then by type order
-  const typeOrder = { 'speed': 0, 'stamina': 1, 'power': 2, 'guts': 3, 'intelligence': 4, 'friend': 5, 'group': 6 };
-  
-  matches.sort((a, b) => {
-    // First by rarity (SSR first)
-    if (a.rarity !== b.rarity) {
-      return b.rarity - a.rarity; // SSR (3) > SR (2) > R (1)
-    }
-    // Then by type order
-    return typeOrder[a.type] - typeOrder[b.type];
-  });
-
-  // COMPLETELY HIDE SECTION IF NO MATCHES
-  if (matches.length === 0) {
-    return; // Don't create any section at all
-  }
-
-  const section = document.createElement('div');
-  section.className = 'card-section';
-
-  const headerContainer = document.createElement('div');
-  headerContainer.className = 'card-section-header';
-
-  const header = document.createElement('h2');
-  header.className = 'card-search-header';
-  header.textContent = `Card Search: "${cardSearchValue}" (${matches.length} cards)`;
-  headerContainer.appendChild(header);
-
-  const controls = document.createElement('div');
-  controls.className = 'page-controls';
-  const leftBtn = document.createElement('button');
-  const rightBtn = document.createElement('button');
-  leftBtn.textContent = '◀';
-  leftBtn.disabled = true;
-  rightBtn.textContent = '▶';
-  rightBtn.disabled = true;
-  controls.appendChild(leftBtn);
-  controls.appendChild(rightBtn);
-
-  headerContainer.appendChild(controls);
-  section.appendChild(headerContainer);
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'card-grid-wrapper';
-  const grid = document.createElement('div');
-  grid.className = 'cards';
-  wrapper.appendChild(grid);
-  section.appendChild(wrapper);
-
-  cardSections.appendChild(section);
-
-  const pageKey = `cardSearch-${cardSearchValue}`;
-  const currentPage = sectionPages.get(pageKey) || 0;
-  sectionPages.set(pageKey, currentPage);
-
-  const CARDS_PER_PAGE = 6;
-
-  function renderPage(page) {
-    grid.innerHTML = '';
-    const startIdx = page * CARDS_PER_PAGE;
-    const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
-    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
-
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-    leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-    rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-    leftBtn.disabled = page === 0;
-    rightBtn.disabled = page >= totalPages - 1;
-    
-    highlightSkills();
-  }
-
-  renderPage(currentPage);
-
-  leftBtn.addEventListener('click', () => {
-    const newPage = sectionPages.get(pageKey) - 1;
-    if (newPage >= 0) {
-      sectionPages.set(pageKey, newPage);
-      renderPage(newPage);
-      highlightSkills();
-    }
-  });
-
-  rightBtn.addEventListener('click', () => {
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-    const newPage = sectionPages.get(pageKey) + 1;
-    if (newPage < totalPages) {
-      sectionPages.set(pageKey, newPage);
-      renderPage(newPage);
-      highlightSkills();
-    }
-  });
-}
-
 /* ------------- TOGGLE PRESET CARDS FUNCTIONALITY ------------- */
 function setupTogglePresetCards() {
+  const togglePresetCardsBtn = document.getElementById('togglePresetCardsBtn');
+  
   // Load saved state
   const savedState = localStorage.getItem('showPresetCards');
   if (savedState !== null) {
@@ -2385,6 +2482,7 @@ function setupTogglePresetCards() {
 }
 
 function updateTogglePresetCardsButton() {
+  const togglePresetCardsBtn = document.getElementById('togglePresetCardsBtn');
   togglePresetCardsBtn.textContent = showPresetCards ? 
     'Hide Preset Cards' : 
     'Show Preset Cards';
@@ -2427,190 +2525,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('resize', renderSections);
-
-/* ========== SKILL SEARCH PERSISTENCE ========== */
-// Initialize skill search state
-let skillSearches = JSON.parse(localStorage.getItem('skillSearches')) || [{ id: 'skillSearch1', value: '' }];
-let searchCounter = skillSearches.length + 1;
-
-function setupDynamicSkillSearch() {
-  const addSearchBtn = document.getElementById('addSearchBtn');
-  
-  // Clear existing search boxes first
-  const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
-  existingContainers.forEach(container => container.remove());
-  
-  // Recreate search boxes from saved state
-  skillSearches.forEach((search, index) => {
-    createSearchBox(search.id, search.value, index === 0); // First one can't be removed
-  });
-  
-  // Update SKILL_SEARCH_KEYS array
-  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
-  
-  addSearchBtn.addEventListener('click', addSearchBox);
-}
-
-function createSearchBox(searchId, value = '') {
-  const searchContainer = document.createElement('div');
-  searchContainer.className = 'search-input-container';
-  
-  searchContainer.innerHTML = `
-    <input type="text" id="${searchId}" class="skill-search" placeholder="Search skill" value="${value}">
-    <button class="remove-search-btn" data-search-id="${searchId}" title="Remove search">
-      ×
-    </button>
-  `;
-
-  const skillSearchGroup = document.getElementById('skillSearchGroup');
-  skillSearchGroup.appendChild(searchContainer);
-
-  setupSearchInput(searchId);
-  setupRemoveButton(searchId);
-}
-
-function addSearchBox() {
-  if (skillSearches.length >= 30) return;
-
-  const newId = `skillSearch${searchCounter}`;
-  searchCounter++;
-  
-  // Add to our state
-  skillSearches.push({ id: newId, value: '' });
-  saveSkillSearches();
-  
-  // Create the UI element
-  createSearchBox(newId, '', false);
-  
-  // Update the global array
-  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
-  
-  sectionPages.clear();
-  renderSections();
-}
-
-function saveSkillSearches() {
-  // Update values from current inputs before saving
-  skillSearches.forEach(search => {
-    const input = document.getElementById(search.id);
-    if (input) {
-      search.value = input.value;
-    }
-  });
-  localStorage.setItem('skillSearches', JSON.stringify(skillSearches));
-}
-
-// Modified setupSearchInput to use our persistence system
-function setupSearchInput(searchId) {
-  const input = document.getElementById(searchId);
-  if (!input) return;
-
-  // Find the saved value
-  const savedSearch = skillSearches.find(search => search.id === searchId);
-  if (savedSearch) {
-    input.value = savedSearch.value;
-  }
-
-  input.addEventListener('input', () => {
-    // Update our state
-    const search = skillSearches.find(s => s.id === searchId);
-    if (search) {
-      search.value = input.value;
-      saveSkillSearches();
-    }
-    
-    sectionPages.clear();
-    renderSections();
-  });
-}
-
-// Modified setupRemoveButton
-function setupRemoveButton(searchId) {
-  const removeBtn = document.querySelector(`.remove-search-btn[data-search-id="${searchId}"]`);
-  if (!removeBtn) return;
-
-  // Remove any existing listeners to prevent duplicates
-  const newRemoveBtn = removeBtn.cloneNode(true);
-  removeBtn.parentNode.replaceChild(newRemoveBtn, removeBtn);
-
-  newRemoveBtn.addEventListener('click', () => {
-    removeSearchBox(searchId);
-  });
-}
-
-// Update the existing removeSearchBox function to use our new system
-function removeSearchBox(searchId) {
-  // Don't remove if it's the last search box
-  if (skillSearches.length <= 1) {
-    // If it's the last one, just clear the value instead of removing
-    const input = document.getElementById(searchId);
-    if (input) {
-      input.value = '';
-      // Update state
-      const search = skillSearches.find(s => s.id === searchId);
-      if (search) {
-        search.value = '';
-        saveSkillSearches();
-      }
-      sectionPages.clear();
-      renderSections();
-    }
-    return;
-  }
-  
-  // Remove from our state
-  skillSearches = skillSearches.filter(search => search.id !== searchId);
-  saveSkillSearches();
-  
-  // Remove from UI
-  const container = document.querySelector(`.search-input-container input[id="${searchId}"]`)?.parentElement;
-  if (container) {
-    container.remove();
-  }
-  
-  // If we removed the first search box and there are others, rename the remaining ones to maintain order
-  reorganizeSearchBoxes();
-  
-  sectionPages.clear();
-  renderSections();
-}
-
-function reorganizeSearchBoxes() {
-  // Sort searches by their numeric ID to maintain order
-  skillSearches.sort((a, b) => {
-    const aNum = parseInt(a.id.replace('skillSearch', '')) || 0;
-    const bNum = parseInt(b.id.replace('skillSearch', '')) || 0;
-    return aNum - bNum;
-  });
-  
-  // Clear all existing search containers
-  const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
-  existingContainers.forEach(container => container.remove());
-  
-  // Recreate all search boxes with new IDs if needed
-  skillSearches.forEach((search, index) => {
-    const newId = `skillSearch${index + 1}`;
-    const oldId = search.id;
-    
-    // If the ID needs to change (like if we removed skillSearch1)
-    if (oldId !== newId) {
-      search.id = newId;
-    }
-    
-    createSearchBox(newId, search.value);
-  });
-  
-  // Update the global array
-  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
-  
-  // Update search counter
-  searchCounter = skillSearches.length + 1;
-  
-  // Save the reorganized state
-  saveSkillSearches();
-}
-
-
 
 // Initialize skill search persistence when the page loads
 document.addEventListener('DOMContentLoaded', () => {
