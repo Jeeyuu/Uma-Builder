@@ -669,6 +669,33 @@ body {
 .filter-group, .toggle-button-group {
   transition: opacity 0.3s ease;
 }
+
+/* ---------- COLOR PICKER ---------- */
+.color-picker {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: #ff4444; /* Default red */
+  transition: all 0.2s ease;
+}
+
+.color-picker:hover {
+  border-color: #999;
+  transform: scale(1.1);
+}
+
+.color-picker.red { background: #ff4444; }
+.color-picker.blue { background: #4477ff; }
+.color-picker.green { background: #44ff44; }
+.color-picker.yellow { background: #ffff44; }
+.color-picker.orange { background: #ffaa44; }
+.color-picker.purple { background: #aa44ff; }
+.color-picker.pink { background: #ff44aa; }
+.color-picker.cyan { background: #44ffff; }
+
 </style>
 </head>
 
@@ -1243,6 +1270,7 @@ function createSearchBox(searchId, value = '') {
   searchContainer.className = 'search-input-container';
   
   searchContainer.innerHTML = `
+    <div class="color-picker red" data-search-id="${searchId}" data-color="red"></div>
     <input type="text" id="${searchId}" class="skill-search" placeholder="Search skill" value="${value}">
     <button class="remove-search-btn" data-search-id="${searchId}" title="Remove search">
       ×
@@ -1254,6 +1282,35 @@ function createSearchBox(searchId, value = '') {
 
   setupSearchInput(searchId);
   setupRemoveButton(searchId);
+  setupColorPicker(searchId); // ADD THIS LINE
+}
+
+/* ------------- COLOR PICKER FUNCTIONALITY ------------- */
+const colorSequence = ['red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'cyan'];
+
+function setupColorPicker(searchId) {
+  const colorPicker = document.querySelector(`.color-picker[data-search-id="${searchId}"]`);
+  if (!colorPicker) return;
+
+  // Load saved color
+  const savedColor = localStorage.getItem(`color_${searchId}`) || 'red';
+  colorPicker.className = `color-picker ${savedColor}`;
+  colorPicker.dataset.color = savedColor;
+
+  colorPicker.addEventListener('click', () => {
+    const currentColor = colorPicker.dataset.color;
+    const currentIndex = colorSequence.indexOf(currentColor);
+    const nextIndex = (currentIndex + 1) % colorSequence.length;
+    const nextColor = colorSequence[nextIndex];
+    
+    colorPicker.className = `color-picker ${nextColor}`;
+    colorPicker.dataset.color = nextColor;
+    
+    localStorage.setItem(`color_${searchId}`, nextColor);
+    
+    // Update highlighting immediately
+    highlightSkills();
+  });
 }
 
 function addSearchBox() {
@@ -2009,8 +2066,16 @@ function highlightSkills() {
   };
 
   const searchTerms = SKILL_SEARCH_KEYS
-    .map(id => document.getElementById(id)?.value.trim().toLowerCase())
-    .filter(Boolean);
+    .map(id => {
+      const input = document.getElementById(id);
+      const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
+      const color = colorPicker ? colorPicker.dataset.color : 'red';
+      return {
+        term: input?.value.trim().toLowerCase(),
+        color: color
+      };
+    })
+    .filter(item => item.term);
 
   const colorMap = {
     racecourse: '#ff7792', length: '#ffae77', direction: '#ffff77',
@@ -2051,11 +2116,17 @@ function highlightSkills() {
   document.querySelectorAll('.skill').forEach(skill => {
     const skillText = normalizeSkill(skill.textContent || '');
     
-    if (searchTerms.some(term => skillText.includes(term))) {
-      skill.classList.add('search-highlighted');
-      return;
+    // Check search terms with custom colors
+    for (const { term, color } of searchTerms) {
+      if (skillText.includes(term)) {
+        skill.style.background = getColorValue(color);
+        skill.style.color = getTextColor(color);
+        skill.classList.add('search-highlighted');
+        return; // Only highlight with first matching search term
+      }
     }
     
+    // Check dropdown terms
     for (const { term, color } of dropdownTerms) {
       if (skillText === normalizeSkill(term)) {
         skill.style.background = color;
@@ -2068,6 +2139,27 @@ function highlightSkills() {
 
   // NEW: Update skill visibility for ALL skills (main content and slots)
   updateSkillVisibility();
+}
+
+// Helper functions for colors
+function getColorValue(colorName) {
+  const colorMap = {
+    red: '#ff4444',
+    blue: '#4477ff', 
+    green: '#44ff44',
+    yellow: '#ffff44',
+    orange: '#ffaa44',
+    purple: '#aa44ff',
+    pink: '#ff44aa',
+    cyan: '#44ffff'
+  };
+  return colorMap[colorName] || '#ff4444';
+}
+
+function getTextColor(colorName) {
+  // Use white text for darker colors, black for lighter ones
+  const lightColors = ['yellow', 'cyan'];
+  return lightColors.includes(colorName) ? '#000000' : '#ffffff';
 }
 
 function updateSkillVisibility() {
