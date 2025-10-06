@@ -1468,13 +1468,6 @@ regionSelect.addEventListener('change', (e) => {
   updateSlotsForRegion();
   renderSections();
 });
-  
-  // Save the updated slots
-  saveSlotsToLocalStorage();
-  
-  // Re-apply highlighting to show/hide skills based on new region
-  highlightSkills();
-  updateSkillVisibility();
 }
 
 // Add updateSlotsForRegion function here
@@ -1496,13 +1489,6 @@ function updateSlotsForRegion() {
       }
     }
   });
-  
-  // Save the updated slots
-  saveSlotsToLocalStorage();
-  
-  // Re-apply highlighting to show/hide skills based on new region
-  highlightSkills();
-  updateSkillVisibility();
 }
 
 // Setup Hide Uncolored checkbox
@@ -2255,7 +2241,32 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
 }
 
 function renderCardSearchSection() {
-  const matches = baseFilteredCards.filter(card => {
+  // Get the current filtered cards based on all active filters
+  let filteredCards = cardsData.filter(card => {
+    if (region === 'global') {
+      // For Global, only show cards that have release_en date (released globally)
+      if (!card.release_en || card.release_en === '') return false;
+    }
+    
+    // Apply rarity filters
+    if (selectedRarities.size > 0) {
+      const hasRarity = 
+        (selectedRarities.has('R') && card.rarity === 1) ||
+        (selectedRarities.has('SR') && card.rarity === 2) ||
+        (selectedRarities.has('SSR') && card.rarity === 3);
+      if (!hasRarity) return false;
+    }
+    
+    // Apply type filters
+    if (selectedTypes.size > 0 && !selectedTypes.has(card.type)) {
+      return false;
+    }
+    
+    return true;
+  });
+  
+  // Filter by card name search
+  const matches = filteredCards.filter(card => {
     const cardName = card.char_name.toLowerCase();
     return cardName.includes(cardSearchValue);
   });
