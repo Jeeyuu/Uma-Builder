@@ -704,6 +704,9 @@ body {
 /* Sidebar section hiding for preset cards toggle */
 .sidebar-filters-section {
   transition: opacity 0.3s ease, max-height 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Add the same gap as the main sidebar */
 }
 
 .sidebar-filters-section.hidden {
@@ -711,6 +714,7 @@ body {
   max-height: 0;
   overflow: hidden;
   pointer-events: none;
+  gap: 0; /* Remove gap when hidden to prevent extra space */
 }
 
 /* Ensure smooth transitions for all filter elements */
