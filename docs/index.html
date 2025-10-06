@@ -427,6 +427,8 @@ body {
   align-items: center;
   width: var(--card-w);
   position: relative;
+  min-height: 0; /* Add this to allow shrinking */
+  height: auto; /* Ensure height is automatic */
 }
 
 .card .name, .slot.has-card .name {
@@ -463,6 +465,28 @@ body {
   word-break: break-word;
   white-space: normal;
   text-align: center;
+}
+
+/* Add this to ensure skills containers collapse properly */
+.card .skills, .slot.has-card .skills {
+  min-height: 0;
+  width: 100%;
+}
+
+/* Ensure skills groups collapse when empty */
+.skills-group {
+  min-height: 0;
+}
+
+/* Make sure empty skills containers don't take up space */
+.skills:empty {
+  display: none;
+}
+
+/* Add this to handle the case where all skills in a group are hidden */
+.skills-group:has(.skill.hidden-skill:only-child),
+.skills-group:has(.skill.hidden-skill:first-child + .skill.hidden-skill:last-child) {
+  display: none;
 }
 
 /* TYPE ICON */
