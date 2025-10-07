@@ -1116,6 +1116,52 @@ body.dark-mode .copy-paste-btn:hover {
   background: #666;
 }
 
+/* ---------- DECK BUTTONS ---------- */
+.deck-buttons {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
+}
+
+.deck-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background: #444;
+  color: #fff;
+  transition: background-color 0.2s;
+  font-weight: 600;
+}
+
+.deck-btn:hover {
+  background: #333;
+}
+
+.deck-btn:active {
+  transform: translateY(1px);
+}
+
+/* Adjust clear-all to work in the flex layout */
+.slots-header .clear-all {
+  width: auto;
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* Dark mode support */
+body.dark-mode .deck-btn {
+  background: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode .deck-btn:hover {
+  background: #666;
+}
+
 </style>
 </head>
 
@@ -1384,12 +1430,16 @@ body.dark-mode .copy-paste-btn:hover {
   </div>
 
 <!-- Right Sidebar (Slots) -->
-<!-- Right Sidebar (Slots) -->
 <div class="right-sidebar">
   <div class="skill-search-divider"></div>
   <div class="slots-header">
-    <button class="clear-all" id="clearAllBtn">Clear All</button>
+    <div class="deck-buttons">
+      <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
+      <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
+      <button class="clear-all" id="clearAllBtn">Clear All</button>
+    </div>
   </div>
+
 
   <div class="slots" id="slots">
     <div class="slot-container" data-slot="0">
@@ -2200,6 +2250,7 @@ fetch(JSON_FILE)
     loadSlotsFromLocalStorage();
     setupClearAllSearches();
     updateSelectedSkillsList();
+    setupDeckCopyPaste();
     renderSections();
   })
   .catch(err => {
@@ -2656,13 +2707,14 @@ clearAllBtn.addEventListener('click', ()=>{
     }
     slot.classList.remove('has-card');
     delete slot.dataset.cardId;
+    delete slot.dataset.supportId;
     slot.innerHTML='<div class="placeholder">Empty</div>';
   });
   
   localStorage.removeItem(SLOT_KEY);
   updateSelectedSkillsList();
-  highlightSkills(); // Add this line
-  highlightSelectedSkills(); // Add this line
+  highlightSkills();
+  highlightSelectedSkills();
   renderSections();
 });
 
@@ -3847,6 +3899,165 @@ function clearAllSkillSearches() {
     clearBtn.textContent = originalText;
     clearBtn.style.background = '';
   }, 1500);
+}
+
+/* ------------- DECK COPY/PASTE FUNCTIONALITY ------------- */
+function setupDeckCopyPaste() {
+  const copyDeckBtn = document.getElementById('copyDeckBtn');
+  const pasteDeckBtn = document.getElementById('pasteDeckBtn');
+  
+  copyDeckBtn.addEventListener('click', copyDeckToClipboard);
+  pasteDeckBtn.addEventListener('click', pasteDeckFromClipboard);
+}
+
+function copyDeckToClipboard() {
+  const deckData = slots.map(slot => {
+    const supportId = slot.dataset.supportId;
+    const levelInput = slot.closest('.slot-container').querySelector('.slot-level-input');
+    const level = levelInput ? levelInput.value : '1';
+    
+    return {
+      supportId: supportId || 'empty',
+      level: supportId ? level : '1'
+    };
+  });
+  
+  // Format: supportId1|level1,supportId2|level2,...,supportId6|level6
+  const copyText = deckData.map(slot => `${slot.supportId}|${slot.level}`).join(',');
+  
+  navigator.clipboard.writeText(copyText).then(() => {
+    // Visual feedback
+    const copyBtn = document.getElementById('copyDeckBtn');
+    const originalText = copyBtn.textContent;
+    copyBtn.textContent = 'Copied!';
+    copyBtn.style.background = '#57ad33';
+    
+    setTimeout(() => {
+      copyBtn.textContent = originalText;
+      copyBtn.style.background = '';
+    }, 1500);
+    
+    console.log('Deck copied to clipboard:', deckData);
+  }).catch(err => {
+    console.error('Failed to copy deck: ', err);
+    alert('Failed to copy deck to clipboard');
+  });
+}
+
+function pasteDeckFromClipboard() {
+  navigator.clipboard.readText().then(text => {
+    try {
+      const deckData = parseDeckFromClipboard(text);
+      
+      if (!deckData || deckData.length !== 6) {
+        alert('Invalid deck format! Expected 6 slots.');
+        return;
+      }
+      
+      // Clear current deck first
+      clearAllBtn.click(); // Use the existing clear function
+      
+      // Add a small delay to ensure clear completes
+      setTimeout(() => {
+        let hasValidCards = false;
+        
+        // Populate slots with pasted data
+        deckData.forEach((slotData, index) => {
+          if (slotData.supportId !== 'empty') {
+            const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
+            if (card) {
+              const slot = slots[index];
+              addToSlot(card, slot, false);
+              
+              // Set level if provided and valid
+              if (slotData.level && slotData.level !== '1') {
+                const slotContainer = slot.closest('.slot-container');
+                const levelInput = slotContainer.querySelector('.slot-level-input');
+                if (levelInput) {
+                  const validatedLevel = validateLevel(slotData.level, card);
+                  levelInput.value = validatedLevel;
+                  slotLevels[card.support_id] = validatedLevel;
+                }
+              }
+              
+              hasValidCards = true;
+            } else {
+              console.warn(`Card with support_id ${slotData.supportId} not found`);
+            }
+          }
+          // Empty slots are already handled by the clear operation
+        });
+        
+        // Save the final state
+        saveSlotsToLocalStorage();
+        localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+        
+        // Update UI
+        updateSelectedSkillsList();
+        highlightSkills();
+        highlightSelectedSkills();
+        renderSections();
+        
+        // Visual feedback
+        const pasteBtn = document.getElementById('pasteDeckBtn');
+        const originalText = pasteBtn.textContent;
+        const validCardCount = deckData.filter(slot => slot.supportId !== 'empty').length;
+        pasteBtn.textContent = `Pasted ${validCardCount}`;
+        pasteBtn.style.background = '#14a1f7';
+        
+        setTimeout(() => {
+          pasteBtn.textContent = originalText;
+          pasteBtn.style.background = '';
+        }, 1500);
+        
+        if (!hasValidCards) {
+          alert('No valid cards found in the deck data!');
+        }
+        
+      }, 100);
+      
+    } catch (error) {
+      console.error('Failed to parse deck data: ', error);
+      alert('Invalid deck format in clipboard! Use Copy Deck button first.');
+    }
+  }).catch(err => {
+    console.error('Failed to read clipboard: ', err);
+    alert('Failed to read from clipboard. Please check permissions.');
+  });
+}
+
+function parseDeckFromClipboard(text) {
+  // Expected format: supportId1|level1,supportId2|level2,...,supportId6|level6
+  const slots = text.split(',').map((item, index) => {
+    const [supportId, level] = item.split('|');
+    
+    if (!supportId) {
+      throw new Error(`Invalid format at slot ${index + 1}`);
+    }
+    
+    return {
+      supportId: supportId.trim(),
+      level: (level || '1').trim()
+    };
+  });
+  
+  // Validate we have exactly 6 slots
+  if (slots.length !== 6) {
+    throw new Error(`Expected 6 slots, got ${slots.length}`);
+  }
+  
+  return slots;
+}
+
+// Update the validateLevel function to handle string inputs
+function validateLevel(level, card) {
+  let num = parseInt(level);
+  if (isNaN(num) || num < 1) return 1;
+  
+  const maxLevel = getMaxLevel(card);
+  if (num > maxLevel) return maxLevel;
+  
+  return num;
 }
 
 // Initialize the copy/paste buttons when the page loads
