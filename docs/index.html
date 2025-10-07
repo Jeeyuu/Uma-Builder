@@ -134,7 +134,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: calc(var(--card-w) * 6 + var(--gap) * 5);
+  width: calc(var(--card-w) * 5 + var(--gap) * 4); /* Adjust for 5 columns */
   margin: 0 auto;
 }
 
@@ -271,10 +271,10 @@ body {
 }
 
 .slots-header .clear-all {
-  width: calc(var(--card-w) * 2 + var(--gap) * 1);
+  width: calc(var(--card-w) * 3 + var(--gap) * 2); /* Adjust for 3 columns */
   margin-bottom: 12px;
-  padding: 8px 12px; /* Match page control button padding */
-  height: auto; /* Ensure height is determined by padding + content */
+  padding: 8px 12px;
+  height: auto;
 }
 
 /* ---------- SKILL SEARCH ---------- */
@@ -364,9 +364,10 @@ body {
 /* ---------- SLOTS & CARDS ---------- */
 .slots {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr); /* 3 columns */
+  grid-template-rows: repeat(2, 1fr);    /* 2 rows */
   gap: var(--gap);
-  width: calc(var(--card-w) * 2 + var(--gap) * 1);
+  width: calc(var(--card-w) * 3 + var(--gap) * 2); /* Adjust width for 3 columns */
   margin: 0 auto;
 }
 
@@ -412,9 +413,9 @@ body {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(6, var(--card-w));
+  grid-template-columns: repeat(5, var(--card-w)); /* 5 columns instead of 6 */
   gap: var(--gap);
-  width: calc(var(--card-w) * 6 + var(--gap) * 5);
+  width: calc(var(--card-w) * 5 + var(--gap) * 4); /* Adjust width for 5 columns */
 }
 
 .card, .slot.has-card {
