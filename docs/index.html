@@ -654,28 +654,28 @@ body {
 /* Solid colors - black text, no border */
 .color-picker.green { background: #bce934; }
 .color-picker.blue { background: #1cd8fe; }
-.color-picker.orange { background: #fca92f; }
+.color-picker.orange { background: #fdb832; }
 .color-picker.red { background: #fca5a5; } /* Updated red */
 
 /* Colors with gold border - white text */
 .color-picker.green-border { 
   background: #57ad33; /* Dark green */
-  border-color: #ffcb47;
+  border-color: #fff96b;
   border-width: 3px;
 }
 .color-picker.blue-border { 
   background: #14a1f7; /* Dark blue */
-  border-color: #ffcb47;
+  border-color: #fff96b;
   border-width: 3px;
 }
 .color-picker.orange-border { 
-  background: #f9943b; /* Dark orange */
-  border-color: #ffcb47;
+  background: #fa9937; /* Dark orange */
+  border-color: #fff96b;
   border-width: 3px;
 }
 .color-picker.red-border { 
   background: #f75757; /* Dark red */
-  border-color: #ffcb47;
+  border-color: #fff96b;
   border-width: 3px;
 }
 
@@ -997,8 +997,8 @@ body.dark-mode .skill.search-highlighted[data-has-border="true"],
 body.dark-mode .skill.highlighted[data-has-border="true"],
 body.dark-mode .skill-item.search-highlighted[data-has-border="true"],
 body.dark-mode .skill-item.highlighted[data-has-border="true"] {
-  border-color: #ffcb47;
-  box-shadow: 0 0 0 1px #ffcb47;
+  border-color: #fff96b;
+  box-shadow: 0 0 0 1px #fff96b;
 }
 
 /* ---------- SKILL HIGHLIGHTING WITH BORDERS ---------- */
@@ -1011,8 +1011,8 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
 /* Skills with gold border - white text */
 .skill.search-highlighted[data-has-border="true"],
 .skill.highlighted[data-has-border="true"] {
-  border: 2px solid #ffcb47;
-  box-shadow: 0 0 0 1px #ffcb47;
+  border: 2px solid #fff96b;
+  box-shadow: 0 0 0 1px #fff96b;
   color: #ffffff !important; /* Force white text for bordered skills */
 }
 
@@ -1025,8 +1025,8 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
 /* Selected skills list items with borders */
 .skill-item.search-highlighted[data-has-border="true"],
 .skill-item.highlighted[data-has-border="true"] {
-  border: 2px solid #ffcb47;
-  box-shadow: 0 0 0 1px #ffcb47;
+  border: 2px solid #fff96b;
+  box-shadow: 0 0 0 1px #fff96b;
   padding: 5px 7px; /* Adjusted padding */
   color: #ffffff !important; /* Force white text for bordered skills */
 }
@@ -1313,19 +1313,19 @@ body.dark-mode .copy-paste-btn:hover {
   <!-- Thin divider -->
   <div class="skill-search-divider"></div>
 
-html
+  <!-- ADD THESE TWO BUTTONS -->
+  <div class="copy-paste-buttons">
+    <button id="copySkillsBtn" class="copy-paste-btn">Copy</button>
+    <button id="pasteSkillsBtn" class="copy-paste-btn">Paste</button>
+  </div>
+
 <!-- Skill Search Section -->
 <div id="skillSearchGroup">
   <div class="skill-search-header">
     <label for="skillSearch1">Skill Search</label>
     <button class="add-search-btn" id="addSearchBtn">Add</button>
   </div>
-  
-  <!-- ADD THESE TWO BUTTONS -->
-  <div class="copy-paste-buttons">
-    <button id="copySkillsBtn" class="copy-paste-btn">Copy</button>
-    <button id="pasteSkillsBtn" class="copy-paste-btn">Paste</button>
-  </div>
+
   
   <!-- Default search box -->
   <div class="search-input-container">
@@ -2698,12 +2698,12 @@ const searchTerms = SKILL_SEARCH_KEYS
 
   const colorMap = {
     racecourse: '#bce934',
-    length: '#fca92f',        // corners/straightaways
+    length: '#fdb832',        // corners/straightaways
     direction: '#bce934',
     track: '#bce934',
     season: '#bce934',
     weather: '#bce934',
-    strategy: '#fca92f'       // corners/straightaways (savvy will be handled separately)
+    strategy: '#fdb832'       // corners/straightaways (savvy will be handled separately)
   };
 
   const dropdownTerms = [];
@@ -2723,8 +2723,8 @@ const searchTerms = SKILL_SEARCH_KEYS
   if (filters.strategy) {
     const s = filters.strategy;
     dropdownTerms.push(
-      { term: `${s} Corners`, color: colorMap.strategy },        // #fca92f
-      { term: `${s} Straightaways`, color: colorMap.strategy }, // #fca92f
+      { term: `${s} Corners`, color: colorMap.strategy },        // #fdb832
+      { term: `${s} Straightaways`, color: colorMap.strategy }, // #fdb832
       { term: `${s} Savvy`, color: colorMap.racecourse }        // #bce934 (using racecourse color)
     );
   }
@@ -2735,8 +2735,8 @@ const searchTerms = SKILL_SEARCH_KEYS
     const label = getLengthCategory(dist);
     const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
     dropdownTerms.push(
-      { term: `${label} Corners`, color: colorMap.length },        // #fca92f
-      { term: `${label} Straightaways`, color: colorMap.length },  // #fca92f
+      { term: `${label} Corners`, color: colorMap.length },        // #fdb832
+      { term: `${label} Straightaways`, color: colorMap.length },  // #fdb832
       { term: distType, color: colorMap.racecourse }               // #bce934 (using racecourse color)
     );
   }
@@ -2785,13 +2785,13 @@ function getColorValue(colorName) {
     // Solid colors - no border
     green: '#bce934',
     blue: '#1cd8fe', 
-    orange: '#fca92f',
+    orange: '#fdb832',
     red: '#fca5a5', // Updated red
     
     // Border colors - dark backgrounds
     'green-border': '#57ad33',
     'blue-border': '#14a1f7',
-    'orange-border': '#f9943b', 
+    'orange-border': '#fa9937', 
     'red-border': '#f75757'
   };
   return colorMap[colorName] || '#bce934';
@@ -3318,12 +3318,12 @@ const searchTerms = SKILL_SEARCH_KEYS
   
   const colorMap = {
     racecourse: '#bce934',
-    length: '#fca92f',        // corners/straightaways
+    length: '#fdb832',        // corners/straightaways
     direction: '#bce934',
     track: '#bce934',
     season: '#bce934',
     weather: '#bce934',
-    strategy: '#fca92f'       // corners/straightaways (savvy will be handled separately)
+    strategy: '#fdb832'       // corners/straightaways (savvy will be handled separately)
   };
   
   const dropdownTerms = [];
@@ -3343,8 +3343,8 @@ const searchTerms = SKILL_SEARCH_KEYS
   if (filters.strategy) {
     const s = filters.strategy;
     dropdownTerms.push(
-      { term: `${s} Corners`, color: colorMap.strategy },        // #fca92f
-      { term: `${s} Straightaways`, color: colorMap.strategy }, // #fca92f
+      { term: `${s} Corners`, color: colorMap.strategy },        // #fdb832
+      { term: `${s} Straightaways`, color: colorMap.strategy }, // #fdb832
       { term: `${s} Savvy`, color: colorMap.racecourse }        // #bce934 (using racecourse color)
     );
   }
@@ -3355,8 +3355,8 @@ const searchTerms = SKILL_SEARCH_KEYS
     const label = getLengthCategory(dist);
     const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
     dropdownTerms.push(
-      { term: `${label} Corners`, color: colorMap.length },        // #fca92f
-      { term: `${label} Straightaways`, color: colorMap.length },  // #fca92f
+      { term: `${label} Corners`, color: colorMap.length },        // #fdb832
+      { term: `${label} Straightaways`, color: colorMap.length },  // #fdb832
       { term: distType, color: colorMap.racecourse }               // #bce934 (using racecourse color)
     );
   }
