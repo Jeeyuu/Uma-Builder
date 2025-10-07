@@ -3848,17 +3848,15 @@ function clearAllSkillSearches() {
   // If no containers or only one, just reset the first one
   if (searchContainers.length === 0) return;
   
-  // Remember the color of the first box if it exists
+  // Clear and reset the first search box - ALWAYS reset to green
   const firstContainer = searchContainers[0];
-  const firstColorPicker = firstContainer.querySelector('.color-picker');
-  const firstColor = firstColorPicker ? firstColorPicker.dataset.color : 'green';
-  
-  // Clear and reset the first search box but keep its color
   const firstInput = firstContainer.querySelector('.skill-search');
+  const firstColorPicker = firstContainer.querySelector('.color-picker');
+  
   if (firstInput) firstInput.value = '';
   if (firstColorPicker) {
-    firstColorPicker.className = `color-picker ${firstColor}`;
-    firstColorPicker.dataset.color = firstColor;
+    firstColorPicker.className = 'color-picker green'; // ALWAYS reset to green
+    firstColorPicker.dataset.color = 'green'; // ALWAYS reset to green
   }
   
   // Remove all search boxes except the first one
@@ -3871,9 +3869,9 @@ function clearAllSkillSearches() {
   searchCounter = 2;
   SKILL_SEARCH_KEYS = ['skillSearch1'];
   
-  // Save to localStorage - preserve the first color
+  // Save to localStorage - ALWAYS reset first color to green
   localStorage.setItem('skillSearches', JSON.stringify(skillSearches));
-  localStorage.setItem('color_skillSearch1', firstColor);
+  localStorage.setItem('color_skillSearch1', 'green'); // ALWAYS reset to green
   
   // Clear any orphaned color picker data from localStorage
   for (let i = 2; i <= 30; i++) {
