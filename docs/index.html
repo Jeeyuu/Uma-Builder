@@ -350,17 +350,43 @@ body {
   line-height: 1;
 }
 
-.clear-search-btn:hover {
-  background: #666;
+/* Clear All Button - Dark Red */
+.clear-all, #clearAllBtn {
+  background: #8B0000 !important; /* Dark red */
+  color: #fff;
 }
 
-/* Dark mode support */
-body.dark-mode .clear-search-btn {
-  background: #666;
+.clear-all:hover, #clearAllBtn:hover {
+  background: #A52A2A !important; /* Slightly lighter dark red on hover */
 }
 
-body.dark-mode .clear-search-btn:hover {
-  background: #555;
+/* Dark mode support for clear buttons */
+body.dark-mode .clear-all,
+body.dark-mode #clearAllBtn {
+  background: #8B0000 !important;
+}
+
+body.dark-mode .clear-all:hover,
+body.dark-mode #clearAllBtn:hover {
+  background: #A52A2A !important;
+}
+
+/* Ensure the Clear Filters button also gets the dark red color */
+#clearFiltersBtn {
+  background: #8B0000 !important;
+  color: #fff;
+}
+
+#clearFiltersBtn:hover {
+  background: #A52A2A !important;
+}
+
+body.dark-mode #clearFiltersBtn {
+  background: #8B0000 !important;
+}
+
+body.dark-mode #clearFiltersBtn:hover {
+  background: #A52A2A !important;
 }
 
 /* ---------- CARDS & SLOTS ---------- */
@@ -1434,8 +1460,8 @@ body.dark-mode .slots-header .clear-all:hover {
   <div class="slots-header">
     <div class="deck-buttons">
       <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
-      <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
       <button id="clearAllBtn" class="clear-all">Clear All</button>
+      <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
     </div>
   </div>
 
@@ -2656,16 +2682,16 @@ function addToSlot(card, targetSlot = null, save = true){
     e.target.value = newLevel;
   };
 
-  // Create and attach the click handler - store the actual card object
-  const slotCard = {...card};
+// Create and attach the click handler - store the actual card object
+const slotCard = {...card};
 
-  function slotClickHandler(){ 
-    removeFromSlot(freeSlot, slotCard); 
-  }
+function slotClickHandler(){ 
+  removeFromSlot(freeSlot, slotCard); 
+}
 
-  // Attach the event listener to the slot element only
-  freeSlot.addEventListener('click', slotClickHandler);
-  slotListeners.set(freeSlot, slotClickHandler);
+// Attach the event listener to the slot element only
+freeSlot.addEventListener('click', slotClickHandler);
+slotListeners.set(freeSlot, slotClickHandler);
 
   selectedCardIds.add(card.char_id);
   if(save) saveSlotsToLocalStorage();
@@ -2676,6 +2702,51 @@ function addToSlot(card, targetSlot = null, save = true){
   renderSections();
 }
 
+function removeFromSlot(slot, card) {
+  if (!slot) return;
+  
+  // Find the container for this slot
+  const slotContainer = slot.closest('.slot-container');
+  if (!slotContainer) return;
+
+  // Remove existing listener if any
+  if (slotListeners.has(slot)) {
+    slot.removeEventListener('click', slotListeners.get(slot));
+    slotListeners.delete(slot);
+  }
+
+  // Reset slot content
+  slot.classList.remove('has-card');
+  delete slot.dataset.cardId;
+  delete slot.dataset.supportId;
+  slot.innerHTML = '<div class="placeholder">Empty</div>';
+
+  // Reset level controls
+  const levelInput = slotContainer.querySelector('.slot-level-input');
+  if (levelInput) {
+    levelInput.disabled = true;
+    levelInput.value = '1';
+    levelInput.min = '1';
+    levelInput.max = '50';
+  }
+
+  // Remove from selected cards
+  if (card) {
+    selectedCardIds.delete(card.char_id);
+  }
+
+  // Remove level data
+  if (card && slotLevels[card.support_id]) {
+    delete slotLevels[card.support_id];
+    localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+  }
+
+  saveSlotsToLocalStorage();
+  updateSelectedSkillsList();
+  highlightSkills();
+  highlightSelectedSkills();
+  renderSections();
+}
 
 /* ------------- Clear buttons ------------- */
 clearAllBtn.addEventListener('click', ()=>{
