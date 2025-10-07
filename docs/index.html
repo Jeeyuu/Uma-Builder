@@ -1688,13 +1688,11 @@ body.dark-mode .effect-value {
       <button id="clearAllBtn" class="clear-all">Clear Deck</button>
     </div>
     <!-- Add debug buttons -->
-    <div class="slots-header">
-  <div class="deck-buttons">
-    <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
-    <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
-    <button id="clearAllBtn" class="clear-all">Clear Deck</button>
+    <div class="deck-buttons" style="margin-top: 8px;">
+  <button onclick="updateEffectTotals()" class="deck-btn" style="background: #666;">Update Effects</button>
+  <button onclick="console.log('Cards in slots:', Array.from(document.querySelectorAll('.slot')).map(s => ({supportId: s.dataset.supportId, level: s.closest('.slot-container').querySelector('.slot-level-input')?.value}))); console.log('Card 30011 effects:', getCardEffects(30011));" class="deck-btn" style="background: #666;">Debug Slots</button>
+    </div>
   </div>
-</div>
 
   <div class="slots" id="slots">
     <div class="slot-container" data-slot="0">
@@ -4805,7 +4803,7 @@ function updateEffectTotals() {
           const formattedValue = Number.isInteger(data.total) ? data.total.toString() : data.total.toFixed(1);
           valueSpan.textContent = formattedValue;
         }
-        
+
         // Update the card contributions
         const cardsContainer = element.querySelector('.effect-cards');
         if (cardsContainer) {
@@ -4822,8 +4820,8 @@ function updateEffectTotals() {
             
             cardElement.innerHTML = `
               <img src="https://gametora.com/images/umamusume/supports/support_card_s_${cardData.supportId}.png" 
-                   alt="${cardData.char_name}" 
-                   class="effect-card-img">
+                  alt="${cardData.char_name}" 
+                  class="effect-card-img">
               <div class="effect-card-value">+${Number.isInteger(cardData.value) ? cardData.value : cardData.value.toFixed(1)}</div>
             `;
             
@@ -4890,17 +4888,10 @@ function setupEffectCalculation() {
     input.addEventListener('input', updateEffectTotals);
   });
   
-  // Override clear all functionality to update effects
+  // Override clear all functionality
   const originalClearAll = clearAllBtn.onclick;
   clearAllBtn.onclick = function() {
     if (originalClearAll) originalClearAll();
-    // Clear the slot levels data
-    Object.keys(slotLevels).forEach(supportId => {
-      delete slotLevels[supportId];
-    });
-    localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
-    
-    // Update effects immediately
     setTimeout(updateEffectTotals, 100);
   };
   
@@ -4934,6 +4925,46 @@ document.addEventListener('DOMContentLoaded', function() {
     const originalPasteDeck = window.pasteDeckFromClipboard;
     window.pasteDeckFromClipboard = function() {
       return originalPasteDeck().then(() => {
+        setTimeout(updateEffectTotals, 500);
+      });
+    };
+  }
+});
+
+// Manual trigger for debugging
+window.updateEffects = updateEffectTotals;
+window.getCardEffects = findCardWithEffects;
+
+// ---------- DOCUMENT ------------------------------------------------------------------
+
+// Initialize when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Wait for cards data to be loaded
+  const checkDataLoaded = setInterval(() => {
+    if (cardsData && cardsData.length > 0) {
+      clearInterval(checkDataLoaded);
+      setTimeout(() => {
+        setupEffectCalculation();
+        updateEffectTotals();
+      }, 1000);
+    }
+  }, 100);
+});
+
+// Also update on deck operations
+document.addEventListener('DOMContentLoaded', function() {
+  // Override deck operations to trigger effect updates
+  const originalClearAll = clearAllBtn.onclick;
+  clearAllBtn.onclick = function() {
+    originalClearAll();
+    setTimeout(updateEffectTotals, 100);
+  };
+  
+  // Update when pasting decks
+  const originalPasteDeck = window.pasteDeckFromClipboard;
+  if (originalPasteDeck) {
+    window.pasteDeckFromClipboard = function() {
+      originalPasteDeck().then(() => {
         setTimeout(updateEffectTotals, 500);
       });
     };
