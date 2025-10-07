@@ -1548,11 +1548,16 @@ body.dark-mode .clear-search-btn:hover {
 <!-- Right Sidebar (Slots) -->
 <div class="right-sidebar">
   <div class="skill-search-divider"></div>
-  <div class="slots-header">
+    <div class="slots-header">
     <div class="deck-buttons">
       <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
       <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
       <button id="clearAllBtn" class="clear-all">Clear Deck</button>
+    </div>
+    <!-- Add debug buttons -->
+    <div class="deck-buttons" style="margin-top: 8px;">
+      <button onclick="updateEffectTotals()" class="deck-btn" style="background: #666;">Update Effects</button>
+      <button onclick="console.log('Cards data:', cardsData); console.log('Slots:', document.querySelectorAll('.slot'));" class="deck-btn" style="background: #666;">Debug</button>
     </div>
   </div>
 
@@ -4434,7 +4439,7 @@ function computeGrowth(knownLevels, knownValues, n) {
 
 function parseCardData(data) {
   if (!Array.isArray(data) || data.length < 2) {
-    throw new Error("Invalid data format");
+    return { id: data[0], knownLevels: [], knownValues: [] };
   }
 
   const id = data[0];
@@ -4470,13 +4475,14 @@ function getEffectValueAtLevel(effectData, level) {
     
     return computeGrowth(knownLevels, knownValues, level);
   } catch (error) {
-    console.warn('Error calculating effect value:', error);
+    console.warn('Error calculating effect value:', error, effectData);
     return 0;
   }
 }
 
 // Main function to calculate totals for all selected cards
 function calculateTotalEffects() {
+  console.log('Calculating total effects...');
   const totals = {};
   
   // Initialize all effect types to 0
@@ -4485,16 +4491,24 @@ function calculateTotalEffects() {
   });
 
   // Iterate through all slots with cards
-  slotContainers.forEach(container => {
-    const slot = container.querySelector('.slot');
-    const levelInput = container.querySelector('.slot-level-input');
-    
-    if (slot.dataset.supportId && levelInput && !levelInput.disabled) {
+  const slots = document.querySelectorAll('.slot');
+  let foundCards = 0;
+  
+  slots.forEach(slot => {
+    if (slot.dataset.supportId) {
       const supportId = slot.dataset.supportId;
-      const level = parseInt(levelInput.value) || 1;
+      const slotContainer = slot.closest('.slot-container');
+      const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+      const level = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
+      
+      console.log(`Processing card ${supportId} at level ${level}`);
+      
       const card = cardsData.find(c => String(c.support_id) === String(supportId));
       
       if (card && card.effects) {
+        foundCards++;
+        console.log(`Found card: ${card.char_name} with ${card.effects.length} effects`);
+        
         // Calculate values for each effect at this card's level
         card.effects.forEach(effectData => {
           const effectId = effectData[0];
@@ -4503,69 +4517,130 @@ function calculateTotalEffects() {
           if (effectName) {
             const value = getEffectValueAtLevel(effectData, level);
             totals[effectName] += value;
+            console.log(`  ${effectName}: +${value} (total: ${totals[effectName]})`);
           }
         });
       }
     }
   });
   
+  console.log(`Processed ${foundCards} cards, totals:`, totals);
   return totals;
 }
 
 // Update the UI with calculated totals
 function updateEffectTotals() {
-  const totals = calculateTotalEffects();
-  
-  // Update each effect display
-  Object.entries(totals).forEach(([effectName, total]) => {
-    // Find the element for this effect
-    const effectElements = document.querySelectorAll(`[data-effect="${effectName}"]`);
+  try {
+    console.log('Updating effect totals UI...');
+    const totals = calculateTotalEffects();
     
-    effectElements.forEach(element => {
-      // Find the value span within this element
-      const valueSpan = element.querySelector('.effect-value');
-      if (valueSpan) {
-        // Format the value (remove decimal places if whole number)
-        const formattedValue = Number.isInteger(total) ? total : total.toFixed(1);
-        valueSpan.textContent = formattedValue;
-      }
+    // Update each effect display
+    Object.entries(totals).forEach(([effectName, total]) => {
+      // Find all elements for this effect
+      const effectElements = document.querySelectorAll(`[data-effect="${effectName}"]`);
+      
+      effectElements.forEach(element => {
+        // Find the value span within this element
+        const valueSpan = element.querySelector('.effect-value');
+        if (valueSpan) {
+          // Format the value (remove decimal places if whole number)
+          const formattedValue = Number.isInteger(total) ? total.toString() : total.toFixed(1);
+          valueSpan.textContent = formattedValue;
+          console.log(`Updated ${effectName}: ${formattedValue}`);
+        }
+      });
     });
-  });
+  } catch (error) {
+    console.error('Error updating effect totals:', error);
+  }
 }
 
-// Set up event listeners for level changes
+// Override the existing functions to include effect calculation
 function setupEffectCalculation() {
-  // Listen for level input changes
-  slotContainers.forEach(container => {
-    const levelInput = container.querySelector('.slot-level-input');
-    if (levelInput) {
-      // Remove existing listeners to avoid duplicates
-      const newInput = levelInput.cloneNode(true);
-      levelInput.parentNode.replaceChild(newInput, levelInput);
-      
-      newInput.addEventListener('change', updateEffectTotals);
-      newInput.addEventListener('blur', updateEffectTotals);
-    }
-  });
+  console.log('Setting up effect calculation...');
   
-  // Also update when cards are added/removed
+  // Store original functions
   const originalAddToSlot = window.addToSlot;
+  const originalRemoveFromSlot = window.removeFromSlot;
+  
+  // Override addToSlot to include effect calculation
   window.addToSlot = function(card, targetSlot = null, save = true) {
     const result = originalAddToSlot(card, targetSlot, save);
-    setTimeout(updateEffectTotals, 100); // Small delay to ensure DOM is updated
+    
+    // Add effect calculation after a short delay to ensure DOM is updated
+    setTimeout(() => {
+      updateEffectTotals();
+      
+      // Also set up level input listener for this new card
+      const slot = targetSlot || document.querySelector('.slot:not(.has-card)');
+      if (slot) {
+        const slotContainer = slot.closest('.slot-container');
+        const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+        if (levelInput) {
+          levelInput.addEventListener('change', updateEffectTotals);
+          levelInput.addEventListener('input', updateEffectTotals);
+        }
+      }
+    }, 100);
+    
     return result;
   };
   
-  const originalRemoveFromSlot = window.removeFromSlot;
+  // Override removeFromSlot to include effect calculation
   window.removeFromSlot = function(slot, card) {
     const result = originalRemoveFromSlot(slot, card);
-    setTimeout(updateEffectTotals, 100);
+    
+    setTimeout(() => {
+      updateEffectTotals();
+    }, 100);
+    
     return result;
+  };
+  
+  // Set up level input listeners for existing slots
+  document.querySelectorAll('.slot-level-input').forEach(input => {
+    input.addEventListener('change', updateEffectTotals);
+    input.addEventListener('input', updateEffectTotals);
+  });
+  
+  // Override clear all functionality
+  const originalClearAll = clearAllBtn.onclick;
+  clearAllBtn.onclick = function() {
+    if (originalClearAll) originalClearAll();
+    setTimeout(updateEffectTotals, 100);
   };
   
   // Initial calculation
-  setTimeout(updateEffectTotals, 500);
+  setTimeout(updateEffectTotals, 1000);
 }
+
+// Initialize when cards data is loaded
+function initializeEffectCalculation() {
+  // Wait for cardsData to be populated
+  const checkDataLoaded = setInterval(() => {
+    if (window.cardsData && window.cardsData.length > 0) {
+      clearInterval(checkDataLoaded);
+      console.log('Cards data loaded, setting up effect calculation');
+      setupEffectCalculation();
+    }
+  }, 100);
+}
+
+// Start initialization
+document.addEventListener('DOMContentLoaded', initializeEffectCalculation);
+
+// Also trigger calculation when deck is pasted
+document.addEventListener('DOMContentLoaded', function() {
+  // Override paste deck function if it exists
+  if (window.pasteDeckFromClipboard) {
+    const originalPasteDeck = window.pasteDeckFromClipboard;
+    window.pasteDeckFromClipboard = function() {
+      return originalPasteDeck().then(() => {
+        setTimeout(updateEffectTotals, 500);
+      });
+    };
+  }
+});
 
 // Initialize when the page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -4603,6 +4678,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize the copy/paste buttons when the page loads
 document.addEventListener('DOMContentLoaded', setupCopyPasteButtons);
+
+// Manual trigger for debugging
+window.updateEffects = updateEffectTotals;
 
 </script>
 </body>
