@@ -2059,10 +2059,18 @@ function removeSearchBox(searchId) {
   // Update global array
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
-  // ALWAYS reorganize when any box is removed to maintain color order
-  reorganizeSearchBoxes();
-  
-  // No need to call these separately as reorganizeSearchBoxes() does it
+  // Only reorganize if we removed a box that's NOT the last one
+  // This prevents unnecessary reorganization when removing the last box
+  const removedIndex = parseInt(searchId.replace('skillSearch', '')) || 0;
+  if (removedIndex < skillSearches.length + 1) {
+    reorganizeSearchBoxes();
+  } else {
+    // If we removed the last box, just update the UI
+    sectionPages.clear();
+    renderSections();
+    highlightSkills();
+    highlightSelectedSkills();
+  }
 }
 
 function reorganizeSearchBoxes() {
@@ -2073,37 +2081,38 @@ function reorganizeSearchBoxes() {
     return aNum - bNum;
   });
   
-  // Clear all existing search containers
-  const skillSearchGroup = document.getElementById('skillSearchGroup');
+  // Get all current search containers and their colors BEFORE removing them
   const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
+  const currentColors = [];
+  
+  existingContainers.forEach((container, index) => {
+    const colorPicker = container.querySelector('.color-picker');
+    const color = colorPicker ? colorPicker.dataset.color : 'green';
+    currentColors.push(color);
+  });
+  
+  // Clear all existing search containers
   existingContainers.forEach(container => container.remove());
   
-  // Recreate all search boxes with new sequential IDs
+  // Recreate all search boxes with new sequential IDs and PRESERVE their colors
   skillSearches.forEach((search, index) => {
     const newId = `skillSearch${index + 1}`;
-    const oldId = search.id;
     
-    // Get the color from the old search box before we remove it
-    const oldColorPicker = document.querySelector(`.color-picker[data-search-id="${oldId}"]`);
-    const oldColor = oldColorPicker ? oldColorPicker.dataset.color : 'green';
+    // Get the color from the current position (not the old ID)
+    const color = currentColors[index] || 'green';
     
     // Update the search ID in our state
     search.id = newId;
     
-    // Create new search box with the same color
+    // Create new search box with the preserved color
     createSearchBox(newId, search.value);
     
-    // Immediately set the color to match the old one
+    // Immediately set the color to match the preserved one
     const newColorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
     if (newColorPicker) {
-      newColorPicker.className = `color-picker ${oldColor}`;
-      newColorPicker.dataset.color = oldColor;
-      localStorage.setItem(`color_${newId}`, oldColor);
-    }
-    
-    // Remove old color from localStorage
-    if (oldId !== newId) {
-      localStorage.removeItem(`color_${oldId}`);
+      newColorPicker.className = `color-picker ${color}`;
+      newColorPicker.dataset.color = color;
+      localStorage.setItem(`color_${newId}`, color);
     }
   });
   
