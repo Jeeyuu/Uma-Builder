@@ -1556,8 +1556,8 @@ body.dark-mode .clear-search-btn:hover {
     </div>
     <!-- Add debug buttons -->
     <div class="deck-buttons" style="margin-top: 8px;">
-      <button onclick="updateEffectTotals()" class="deck-btn" style="background: #666;">Update Effects</button>
-      <button onclick="console.log('Cards data:', cardsData); console.log('Slots:', document.querySelectorAll('.slot'));" class="deck-btn" style="background: #666;">Debug</button>
+  <button onclick="updateEffectTotals()" class="deck-btn" style="background: #666;">Update Effects</button>
+  <button onclick="console.log('Cards in slots:', Array.from(document.querySelectorAll('.slot')).map(s => ({supportId: s.dataset.supportId, level: s.closest('.slot-container').querySelector('.slot-level-input')?.value}))); console.log('Card 30011 effects:', getCardEffects(30011));" class="deck-btn" style="background: #666;">Debug Slots</button>
     </div>
   </div>
 
@@ -4413,6 +4413,28 @@ const EFFECT_TYPES = {
   27: "All Stats Bonus"
 };
 
+let supportsDataWithEffects = []; // This will hold the data from supports.json
+
+// Load supports.json to get the effects data
+function loadSupportsData() {
+  return fetch('supports.json')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch supports.json: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Loaded supports.json with effects data:', data.length, 'cards');
+      supportsDataWithEffects = data;
+      return data;
+    })
+    .catch(error => {
+      console.error('Error loading supports.json:', error);
+      return [];
+    });
+}
+
 // Progression calculation functions
 function clamp(x, min, max) {
   return Math.max(min, Math.min(x, max));
@@ -4480,6 +4502,26 @@ function getEffectValueAtLevel(effectData, level) {
   }
 }
 
+// Find card in supports.json by support_id
+function findCardWithEffects(supportId) {
+  if (!supportsDataWithEffects || supportsDataWithEffects.length === 0) {
+    console.warn('supportsDataWithEffects not loaded yet');
+    return null;
+  }
+  
+  const card = supportsDataWithEffects.find(c => c.support_id == supportId);
+  
+  if (!card) {
+    console.warn(`Card with support_id ${supportId} not found in supports.json`);
+    
+    // Debug: log available support_ids to see what's in the data
+    const availableIds = supportsDataWithEffects.slice(0, 5).map(c => c.support_id);
+    console.log('First 5 available support_ids:', availableIds);
+  }
+  
+  return card;
+}
+
 // Main function to calculate totals for all selected cards
 function calculateTotalEffects() {
   console.log('Calculating total effects...');
@@ -4493,6 +4535,7 @@ function calculateTotalEffects() {
   // Iterate through all slots with cards
   const slots = document.querySelectorAll('.slot');
   let foundCards = 0;
+  let processedCards = 0;
   
   slots.forEach(slot => {
     if (slot.dataset.supportId) {
@@ -4503,11 +4546,12 @@ function calculateTotalEffects() {
       
       console.log(`Processing card ${supportId} at level ${level}`);
       
-      const card = cardsData.find(c => String(c.support_id) === String(supportId));
+      // Find card in supports.json (which has the effects data)
+      const card = findCardWithEffects(supportId);
       
       if (card && card.effects) {
         foundCards++;
-        console.log(`Found card: ${card.char_name} with ${card.effects.length} effects`);
+        console.log(`Found card: ${card.char_name} (ID: ${card.support_id}) with ${card.effects.length} effects`);
         
         // Calculate values for each effect at this card's level
         card.effects.forEach(effectData => {
@@ -4518,13 +4562,18 @@ function calculateTotalEffects() {
             const value = getEffectValueAtLevel(effectData, level);
             totals[effectName] += value;
             console.log(`  ${effectName}: +${value} (total: ${totals[effectName]})`);
+            processedCards++;
+          } else {
+            console.warn(`  Unknown effect ID: ${effectId}`);
           }
         });
+      } else {
+        console.log(`Card ${supportId} not found or has no effects`);
       }
     }
   });
   
-  console.log(`Processed ${foundCards} cards, totals:`, totals);
+  console.log(`Processed ${foundCards} cards, ${processedCards} effects, totals:`, totals);
   return totals;
 }
 
@@ -4557,7 +4606,7 @@ function updateEffectTotals() {
 
 // Override the existing functions to include effect calculation
 function setupEffectCalculation() {
-  console.log('Setting up effect calculation...');
+  console.log('Setting up effect calculation with supports.json data...');
   
   // Store original functions
   const originalAddToSlot = window.addToSlot;
@@ -4572,7 +4621,7 @@ function setupEffectCalculation() {
       updateEffectTotals();
       
       // Also set up level input listener for this new card
-      const slot = targetSlot || document.querySelector('.slot:not(.has-card)');
+      const slot = targetSlot || document.querySelector('.slot[data-support-id]:not(.has-card)');
       if (slot) {
         const slotContainer = slot.closest('.slot-container');
         const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
@@ -4610,20 +4659,30 @@ function setupEffectCalculation() {
     setTimeout(updateEffectTotals, 100);
   };
   
-  // Initial calculation
-  setTimeout(updateEffectTotals, 1000);
+  // Initial calculation after data is loaded
+  setTimeout(updateEffectTotals, 1500);
 }
 
-// Initialize when cards data is loaded
+// Initialize when both datasets are loaded
 function initializeEffectCalculation() {
-  // Wait for cardsData to be populated
-  const checkDataLoaded = setInterval(() => {
-    if (window.cardsData && window.cardsData.length > 0) {
-      clearInterval(checkDataLoaded);
-      console.log('Cards data loaded, setting up effect calculation');
-      setupEffectCalculation();
-    }
-  }, 100);
+  console.log('Initializing effect calculation system...');
+  
+  // First load supports.json with effects data
+  loadSupportsData().then(() => {
+    console.log('supports.json loaded, waiting for transformed_supports.json...');
+    
+    // Wait for cardsData to be populated from transformed_supports.json
+    const checkDataLoaded = setInterval(() => {
+      if (window.cardsData && window.cardsData.length > 0) {
+        clearInterval(checkDataLoaded);
+        console.log('Both datasets loaded, setting up effect calculation');
+        console.log('transformed_supports cards:', window.cardsData.length);
+        console.log('supports.json cards:', supportsDataWithEffects.length);
+        
+        setupEffectCalculation();
+      }
+    }, 100);
+  });
 }
 
 // Start initialization
@@ -4641,6 +4700,12 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 });
+
+// Manual trigger for debugging
+window.updateEffects = updateEffectTotals;
+window.getCardEffects = findCardWithEffects;
+
+// ---------- DOCUMENT ------------------------------------------------------------------
 
 // Initialize when the page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -4678,9 +4743,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize the copy/paste buttons when the page loads
 document.addEventListener('DOMContentLoaded', setupCopyPasteButtons);
-
-// Manual trigger for debugging
-window.updateEffects = updateEffectTotals;
 
 </script>
 </body>
