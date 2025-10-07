@@ -134,9 +134,9 @@ body {
 .content-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* Change to flex-start for left alignment */
   justify-content: flex-start;
-  width: calc(var(--card-w) * 5 + var(--gap) * 4); /* Adjust for 5 columns */
+  width: 100%; /* Take full available width */
   margin: 0 auto;
 }
 
@@ -418,9 +418,13 @@ body {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(5, var(--card-w)); /* 5 columns instead of 6 */
+  grid-template-columns: repeat(auto-fill, var(--card-w));
+  grid-auto-rows: 0; /* Prevent row creation */
+  grid-template-rows: 1fr; /* Only 1 row */
   gap: var(--gap);
-  width: calc(var(--card-w) * 5 + var(--gap) * 4); /* Adjust width for 5 columns */
+  width: 100%;
+  justify-content: start; /* Left alignment */
+  overflow: hidden; /* Hide any overflow beyond 1 row */
 }
 
 .card, .slot.has-card {
@@ -597,7 +601,7 @@ body {
 .card-sections {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* Left align sections */
   width: 100%;
   gap: 10px;
 }
@@ -1124,6 +1128,99 @@ let sortBy = 'rarity';
 let sortOrder = 'descending'; // CHANGED TO DESCENDING
 let region = 'global';
 
+/* ------------- DYNAMIC PAGINATION ------------- */
+function calculateCardsPerPage() {
+  const grid = document.querySelector('.cards');
+  if (!grid) return 6; // fallback
+  
+  const gridWidth = grid.clientWidth;
+  const cardWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 120;
+  const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 8;
+  
+  // Calculate how many cards fit in one row
+  const cardsPerRow = Math.floor((gridWidth + gap) / (cardWidth + gap));
+  
+  // Always show at least 1 row, but you can adjust this if you want multiple rows
+  const rowsPerPage = 1; // Change this to 2 or more if you want multiple rows per page
+  
+  return cardsPerRow * rowsPerPage;
+}
+
+function renderFilterPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
+  grid.innerHTML = '';
+  const CARDS_PER_PAGE = calculateCardsPerPage();
+  const startIdx = page * CARDS_PER_PAGE;
+  const endIdx = startIdx + CARDS_PER_PAGE;
+  const pageCards = matches.slice(startIdx, endIdx);
+  
+  pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+
+  const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+
+  // Show/hide pagination controls based on whether pagination is needed
+  const needsPagination = totalPages > 1;
+  leftBtn.style.display = needsPagination ? 'flex' : 'none';
+  rightBtn.style.display = needsPagination ? 'flex' : 'none';
+  leftBtn.disabled = page === 0;
+  rightBtn.disabled = page >= totalPages - 1;
+
+  leftBtn.onclick = () => { 
+    if (page > 0) {
+      renderFilterPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
+      sectionPages.set(pageKey, page-1);
+      highlightSkills();
+    }
+  };
+  
+  rightBtn.onclick = () => { 
+    if (page < totalPages - 1) {
+      renderFilterPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
+      sectionPages.set(pageKey, page+1);
+      highlightSkills();
+    }
+  };
+  
+  highlightSkills();
+}
+
+function renderCardSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
+  grid.innerHTML = '';
+  const CARDS_PER_PAGE = calculateCardsPerPage();
+  const startIdx = page * CARDS_PER_PAGE;
+  const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
+  pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+
+  const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+  
+  // Show/hide pagination controls
+  const needsPagination = totalPages > 1;
+  leftBtn.style.display = needsPagination ? 'flex' : 'none';
+  rightBtn.style.display = needsPagination ? 'flex' : 'none';
+  leftBtn.disabled = page === 0;
+  rightBtn.disabled = page >= totalPages - 1;
+  
+  highlightSkills();
+}
+
+function renderSkillSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
+  grid.innerHTML = '';
+  const CARDS_PER_PAGE = calculateCardsPerPage();
+  const startIdx = page * CARDS_PER_PAGE;
+  const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
+  pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+
+  const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+  
+  // Show/hide pagination controls
+  const needsPagination = totalPages > 1;
+  leftBtn.style.display = needsPagination ? 'flex' : 'none';
+  rightBtn.style.display = needsPagination ? 'flex' : 'none';
+  leftBtn.disabled = page === 0;
+  rightBtn.disabled = page >= totalPages - 1;
+  
+  highlightSkills();
+}
+
 /* ------------- SORTING FUNCTION ------------- */
 function sortCards(cards, sortBy, order) {
   const sortedCards = [...cards];
@@ -1324,41 +1421,24 @@ function renderCardSearchSection() {
 
   const CARDS_PER_PAGE = 6;
 
-  function renderPage(page) {
-    grid.innerHTML = '';
-    const startIdx = page * CARDS_PER_PAGE;
-    const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
-    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+  renderSkillSearchPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
 
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-    leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-    rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-    leftBtn.disabled = page === 0;
-    rightBtn.disabled = page >= totalPages - 1;
-    
-    highlightSkills();
+leftBtn.addEventListener('click', () => {
+  const newPage = sectionPages.get(pageKey) - 1;
+  if (newPage >= 0) {
+    sectionPages.set(pageKey, newPage);
+    renderSkillSearchPage(newPage, matches, grid, leftBtn, rightBtn, pageKey);
   }
+});
 
-  renderPage(currentPage);
-
-  leftBtn.addEventListener('click', () => {
-    const newPage = sectionPages.get(pageKey) - 1;
-    if (newPage >= 0) {
-      sectionPages.set(pageKey, newPage);
-      renderPage(newPage);
-      highlightSkills();
-    }
-  });
-
-  rightBtn.addEventListener('click', () => {
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-    const newPage = sectionPages.get(pageKey) + 1;
-    if (newPage < totalPages) {
-      sectionPages.set(pageKey, newPage);
-      renderPage(newPage);
-      highlightSkills();
-    }
-  });
+rightBtn.addEventListener('click', () => {
+  const totalPages = Math.ceil(matches.length / calculateCardsPerPage());
+  const newPage = sectionPages.get(pageKey) + 1;
+  if (newPage < totalPages) {
+    sectionPages.set(pageKey, newPage);
+    renderSkillSearchPage(newPage, matches, grid, leftBtn, rightBtn, pageKey);
+  }
+});
 }
 
 /* ------------- DYNAMIC SKILL SEARCH ------------- */
@@ -2593,35 +2673,7 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
 
   const CARDS_PER_PAGE = 6;
 
-  function renderPage(page, matches, grid, leftBtn, rightBtn, pageKey){
-    grid.innerHTML = '';
-    const startIdx = page * CARDS_PER_PAGE;
-    const endIdx = startIdx + CARDS_PER_PAGE;
-    const pageCards = matches.slice(startIdx, endIdx);
-    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
-
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-
-    leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-    rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-    leftBtn.disabled = page === 0;
-    rightBtn.disabled = page >= totalPages - 1;
-
-    leftBtn.onclick = ()=>{ 
-      renderPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
-      sectionPages.set(pageKey,page-1);
-      highlightSkills();
-    };
-    rightBtn.onclick = ()=>{ 
-      renderPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
-      sectionPages.set(pageKey,page+1);
-      highlightSkills();
-    };
-    
-    highlightSkills();
-  }
-
-  renderPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
+  renderFilterPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
   cardSections.appendChild(section);
 }
 
@@ -2696,39 +2748,22 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
 
   const CARDS_PER_PAGE = 6;
 
-  function renderPage(page) {
-    grid.innerHTML = '';
-    const startIdx = page * CARDS_PER_PAGE;
-    const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
-    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
-
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-    leftBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-    rightBtn.style.display = totalPages > 1 ? 'flex' : 'none';
-    leftBtn.disabled = page === 0;
-    rightBtn.disabled = page >= totalPages - 1;
-    
-    highlightSkills();
-  }
-
-  renderPage(currentPage);
+  renderCardSearchPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
 
   leftBtn.addEventListener('click', () => {
     const newPage = sectionPages.get(pageKey) - 1;
     if (newPage >= 0) {
       sectionPages.set(pageKey, newPage);
-      renderPage(newPage);
-      highlightSkills();
+      renderCardSearchPage(newPage, matches, grid, leftBtn, rightBtn, pageKey);
     }
   });
 
   rightBtn.addEventListener('click', () => {
-    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    const totalPages = Math.ceil(matches.length / calculateCardsPerPage());
     const newPage = sectionPages.get(pageKey) + 1;
     if (newPage < totalPages) {
       sectionPages.set(pageKey, newPage);
-      renderPage(newPage);
-      highlightSkills();
+      renderCardSearchPage(newPage, matches, grid, leftBtn, rightBtn, pageKey);
     }
   });
 }
@@ -2980,6 +3015,17 @@ window.addEventListener('resize', renderSections);
 // Initialize skill search persistence when the page loads
 document.addEventListener('DOMContentLoaded', () => {
   // This will be called by the existing DOMContentLoaded listener
+});
+
+/* ------------- RESPONSIVE PAGINATION ------------- */
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    // Re-render all sections to update pagination when window resizes
+    sectionPages.clear();
+    renderSections();
+  }, 250);
 });
 
 </script>
