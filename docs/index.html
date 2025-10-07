@@ -992,6 +992,43 @@ body.dark-mode .dark-mode-toggle:hover {
   background: #555;
 }
 
+/* Dark mode support for bordered highlights */
+body.dark-mode .skill.search-highlighted[data-has-border="true"],
+body.dark-mode .skill.highlighted[data-has-border="true"],
+body.dark-mode .skill-item.search-highlighted[data-has-border="true"],
+body.dark-mode .skill-item.highlighted[data-has-border="true"] {
+  border-color: #ffcb47;
+  box-shadow: 0 0 0 1px #ffcb47;
+}
+
+/* ---------- SKILL HIGHLIGHTING WITH BORDERS ---------- */
+.skill.search-highlighted,
+.skill.highlighted {
+  position: relative;
+  z-index: 1;
+}
+
+/* Skills with yellow border */
+.skill.search-highlighted[data-has-border="true"],
+.skill.highlighted[data-has-border="true"] {
+  border: 2px solid #ffcb47;
+  box-shadow: 0 0 0 1px #ffcb47;
+}
+
+/* Adjust padding for bordered skills to maintain size */
+.skill.search-highlighted[data-has-border="true"],
+.skill.highlighted[data-has-border="true"] {
+  padding: 1px 3px; /* Reduced padding to account for border */
+}
+
+/* Selected skills list items with borders */
+.skill-item.search-highlighted[data-has-border="true"],
+.skill-item.highlighted[data-has-border="true"] {
+  border: 2px solid #ffcb47;
+  box-shadow: 0 0 0 1px #ffcb47;
+  padding: 5px 7px; /* Adjusted padding */
+}
+
 </style>
 </head>
 
@@ -2571,6 +2608,7 @@ function highlightSkills() {
   // Process ALL skills (both in main content and slots)
   document.querySelectorAll('.skill').forEach(skill => {
     skill.classList.remove('highlighted', 'search-highlighted');
+    skill.removeAttribute('data-has-border');
     skill.style.background = '#eef2ff';
     skill.style.color = '#000';
   });
@@ -2585,17 +2623,18 @@ function highlightSkills() {
     strategy: document.getElementById('strategy').value || ''
   };
 
-  const searchTerms = SKILL_SEARCH_KEYS
-    .map(id => {
-      const input = document.getElementById(id);
-      const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
-      const color = colorPicker ? colorPicker.dataset.color : 'red';
-      return {
-        term: input?.value.trim().toLowerCase(),
-        color: color
-      };
-    })
-    .filter(item => item.term);
+// In both highlightSkills() and highlightSelectedSkills() functions:
+const searchTerms = SKILL_SEARCH_KEYS
+  .map(id => {
+    const input = document.getElementById(id);
+    const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
+    const color = colorPicker ? colorPicker.dataset.color : 'green'; // default to green
+    return {
+      term: input?.value.trim().toLowerCase(),
+      color: color
+    };
+  })
+  .filter(item => item.term);
 
   const colorMap = {
     racecourse: '#bce934',
@@ -2642,7 +2681,7 @@ function highlightSkills() {
     );
   }
 
-  document.querySelectorAll('.skill').forEach(skill => {
+    document.querySelectorAll('.skill').forEach(skill => {
     const skillText = normalizeSkill(skill.textContent || '');
     
     // Check search terms with custom colors
@@ -2650,12 +2689,16 @@ function highlightSkills() {
       if (skillText.includes(term)) {
         const colorValue = getColorValue(color);
         const textColor = getTextColor(color);
+        const hasBorder = color.includes('-border');
         
-        // Use !important in JavaScript to override any CSS
         skill.style.setProperty('background', colorValue, 'important');
         skill.style.setProperty('color', textColor, 'important');
         skill.classList.add('search-highlighted');
-        return; // Only highlight with first matching search term
+        
+        if (hasBorder) {
+          skill.setAttribute('data-has-border', 'true');
+        }
+        return;
       }
     }
     
@@ -2669,6 +2712,10 @@ function highlightSkills() {
       }
     }
   });
+
+  // NEW: Update skill visibility for ALL skills (main content and slots)
+  updateSkillVisibility();
+}
 
   // NEW: Update skill visibility for ALL skills (main content and slots)
   updateSkillVisibility();
@@ -3192,17 +3239,18 @@ function highlightSelectedSkills() {
     strategy: document.getElementById('strategy').value || ''
   };
   
-  const searchTerms = SKILL_SEARCH_KEYS
-    .map(id => {
-      const input = document.getElementById(id);
-      const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
-      const color = colorPicker ? colorPicker.dataset.color : 'red';
-      return {
-        term: input?.value.trim().toLowerCase(),
-        color: color
-      };
-    })
-    .filter(item => item.term);
+// In both highlightSkills() and highlightSelectedSkills() functions:
+const searchTerms = SKILL_SEARCH_KEYS
+  .map(id => {
+    const input = document.getElementById(id);
+    const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
+    const color = colorPicker ? colorPicker.dataset.color : 'green'; // default to green
+    return {
+      term: input?.value.trim().toLowerCase(),
+      color: color
+    };
+  })
+  .filter(item => item.term);
   
   const colorMap = {
     racecourse: '#bce934',
@@ -3249,8 +3297,9 @@ function highlightSelectedSkills() {
     );
   }
   
-  skillItems.forEach(skillItem => {
+    skillItems.forEach(skillItem => {
     skillItem.classList.remove('highlighted', 'search-highlighted');
+    skillItem.removeAttribute('data-has-border');
     skillItem.style.background = '#eef2ff';
     skillItem.style.color = '#000';
     
@@ -3261,11 +3310,16 @@ function highlightSelectedSkills() {
       if (skillText.includes(term)) {
         const colorValue = getColorValue(color);
         const textColor = getTextColor(color);
+        const hasBorder = color.includes('-border');
         
         skillItem.style.setProperty('background', colorValue, 'important');
         skillItem.style.setProperty('color', textColor, 'important');
         skillItem.classList.add('search-highlighted');
-        return; // Only highlight with first matching search term
+        
+        if (hasBorder) {
+          skillItem.setAttribute('data-has-border', 'true');
+        }
+        return;
       }
     }
     
