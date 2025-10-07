@@ -821,7 +821,7 @@ body {
 .slot-container {
   position: relative;
   width: var(--card-w);
-  margin-bottom: 40px; /* Space for level controls */
+  /* Remove the bottom margin - let grid gap handle spacing */
 }
 
 .slot-level-controls {
@@ -884,7 +884,7 @@ body {
   display: grid;
   grid-template-columns: repeat(3, var(--card-w));
   grid-auto-rows: min-content;
-  gap: var(--gap);
+  gap: var(--gap); /* This handles both horizontal and vertical spacing */
   width: 100%;
   max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
   margin: 0 auto;
