@@ -1904,6 +1904,8 @@ function setupSearchInput(searchId) {
     
     sectionPages.clear();
     renderSections();
+    highlightSkills(); // Add this line
+    highlightSelectedSkills(); // Add this line
   });
 }
 
@@ -2036,6 +2038,8 @@ function removeFromSlot(slotEl, card){
   
   saveSlotsToLocalStorage();
   updateSelectedSkillsList();
+  highlightSkills(); // Add this line
+  highlightSelectedSkills(); // Add this line
   renderSections();
 }
 
@@ -2331,8 +2335,10 @@ regionSelect.addEventListener('change', (e) => {
   // Update all slots with the new region's skills
   updateSlotsForRegion();
   
-  // NEW: Update the skills list
+  // Update the skills list
   updateSelectedSkillsList();
+  highlightSkills(); // Add this line
+  highlightSelectedSkills(); // Add this line
   
   renderSections();
 });
@@ -2569,7 +2575,8 @@ function addToSlot(card, targetSlot = null, save = true){
   if(save) saveSlotsToLocalStorage();
   
   updateSelectedSkillsList();
-  highlightSkills();
+  highlightSkills(); // Ensure main skills are highlighted
+  highlightSelectedSkills(); // Ensure sidebar skills are highlighted
   renderSections();
 }
 
@@ -2604,6 +2611,8 @@ clearAllBtn.addEventListener('click', ()=>{
   
   localStorage.removeItem(SLOT_KEY);
   updateSelectedSkillsList();
+  highlightSkills(); // Add this line
+  highlightSelectedSkills(); // Add this line
   renderSections();
 });
 
@@ -3361,7 +3370,7 @@ const searchTerms = SKILL_SEARCH_KEYS
     );
   }
   
-    skillItems.forEach(skillItem => {
+  skillItems.forEach(skillItem => {
     skillItem.classList.remove('highlighted', 'search-highlighted');
     skillItem.removeAttribute('data-has-border');
     skillItem.style.background = '#eef2ff';
@@ -3371,22 +3380,21 @@ const searchTerms = SKILL_SEARCH_KEYS
     
     // Check search terms with custom colors
     for (const { term, color } of searchTerms) {
-      // In both highlightSkills() and highlightSelectedSkills() functions:
-// Update this part:
-if (skillText.includes(term)) {
-  const colorValue = getColorValue(color);
-  const textColor = getTextColor(color);
-  const hasBorder = color.includes('-border');
-  
-  skill.style.setProperty('background', colorValue, 'important');
-  skill.style.setProperty('color', textColor, 'important');
-  skill.classList.add('search-highlighted');
-  
-  if (hasBorder) {
-    skill.setAttribute('data-has-border', 'true');
-  }
-  return;
-}
+      // FIX: Change 'skill' to 'skillItem'
+      if (skillText.includes(term)) {
+        const colorValue = getColorValue(color);
+        const textColor = getTextColor(color);
+        const hasBorder = color.includes('-border');
+        
+        skillItem.style.setProperty('background', colorValue, 'important'); // FIX: skillItem
+        skillItem.style.setProperty('color', textColor, 'important'); // FIX: skillItem
+        skillItem.classList.add('search-highlighted'); // FIX: skillItem
+        
+        if (hasBorder) {
+          skillItem.setAttribute('data-has-border', 'true'); // FIX: skillItem
+        }
+        return;
+      }
     }
     
     // Check dropdown terms
