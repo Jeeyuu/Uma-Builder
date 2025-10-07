@@ -642,7 +642,6 @@ body {
   cursor: pointer;
   flex-shrink: 0;
   transition: all 0.2s ease;
-  background: #ff4444;
 }
 
 .color-picker:hover {
@@ -650,10 +649,33 @@ body {
   transform: scale(1.1);
 }
 
-.color-picker.yellow { background: #cc9900; }
-.color-picker.green { background: #008800; }
-.color-picker.blue { background: #0044cc; }
-.color-picker.red { background: #cc0000; }
+/* Solid colors */
+.color-picker.green { background: #bce934; }
+.color-picker.blue { background: #1cd8fe; }
+.color-picker.orange { background: #fca92f; }
+.color-picker.red { background: #f87070; }
+
+/* Colors with yellow border */
+.color-picker.green-border { 
+  background: #bce934;
+  border-color: #ffcb47;
+  border-width: 3px;
+}
+.color-picker.blue-border { 
+  background: #1cd8fe;
+  border-color: #ffcb47;
+  border-width: 3px;
+}
+.color-picker.orange-border { 
+  background: #fca92f;
+  border-color: #ffcb47;
+  border-width: 3px;
+}
+.color-picker.red-border { 
+  background: #f87070;
+  border-color: #ffcb47;
+  border-width: 3px;
+}
 
 /* ---------- SKILLS LIST ---------- */
 .selected-skills-section {
@@ -1490,7 +1512,7 @@ function createSearchBox(searchId, value = '') {
   searchContainer.className = 'search-input-container';
   
   searchContainer.innerHTML = `
-    <div class="color-picker yellow" data-search-id="${searchId}" data-color="yellow"></div>
+    <div class="color-picker green" data-search-id="${searchId}" data-color="green"></div>
     <input type="text" id="${searchId}" class="skill-search" placeholder="Search skill" value="${value}">
     <button class="remove-search-btn" data-search-id="${searchId}" title="Remove search">
       ×
@@ -1506,14 +1528,17 @@ function createSearchBox(searchId, value = '') {
 }
 
 /* ------------- COLOR PICKER FUNCTIONALITY ------------- */
-const colorSequence = ['yellow', 'green', 'blue', 'red'];
+const colorSequence = [
+  'green', 'blue', 'orange', 'red',
+  'green-border', 'blue-border', 'orange-border', 'red-border'
+];
 
 function setupColorPicker(searchId) {
   const colorPicker = document.querySelector(`.color-picker[data-search-id="${searchId}"]`);
   if (!colorPicker) return;
 
-  // Load saved color - default to yellow
-  const savedColor = localStorage.getItem(`color_${searchId}`) || 'yellow';
+  // Load saved color - default to green instead of red
+  const savedColor = localStorage.getItem(`color_${searchId}`) || 'green';
   colorPicker.className = `color-picker ${savedColor}`;
   colorPicker.dataset.color = savedColor;
 
@@ -2452,20 +2477,23 @@ function highlightSkills() {
 }
 
 // Helper functions for colors
-// Helper functions for colors
 function getColorValue(colorName) {
   const colorMap = {
-    red: '#cc0000',
-    blue: '#0044cc', 
-    green: '#008800',
-    yellow: '#cc9900'
+    green: '#bce934',
+    blue: '#1cd8fe', 
+    orange: '#fca92f',
+    red: '#f87070',
+    'green-border': '#bce934',
+    'blue-border': '#1cd8fe',
+    'orange-border': '#fca92f', 
+    'red-border': '#f87070'
   };
-  return colorMap[colorName] || '#cc0000';
+  return colorMap[colorName] || '#bce934';
 }
 
 function getTextColor(colorName) {
-  // Always use white text for all colors
-  return '#ffffff';
+  // Always use black text for all colors
+  return '#000000';
 }
 
 function updateSkillVisibility() {
