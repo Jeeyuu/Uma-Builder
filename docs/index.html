@@ -1282,12 +1282,13 @@ body.dark-mode .clear-search-btn:hover {
 /* Effect cards styling */
 .effect-cards {
   display: flex;
-  gap: 2px;
+  gap: 1px;
   align-items: center;
   justify-content: flex-end;
   min-height: 40px;
-  flex-wrap: wrap;
-  max-width: 180px;
+  flex-wrap: nowrap;
+  max-width: 186px; /* 6 cards * 30px + 5 gaps * 1px */
+  overflow: hidden;
 }
 
 .effect-card {
@@ -1295,29 +1296,31 @@ body.dark-mode .clear-search-btn:hover {
   flex-direction: column;
   align-items: center;
   width: 30px;
+  flex-shrink: 0;
   position: relative;
 }
 
 .effect-card-img {
   width: 24px;
   height: 24px;
-  border-radius: 3px;
+  border-radius: 2px;
   border: 1px solid #ddd;
   object-fit: cover;
   background: #fff;
 }
 
 .effect-card-value {
-  font-size: 9px;
+  font-size: 8px;
   font-weight: bold;
   color: #2c5e1a;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 2px;
-  padding: 0 2px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 1px;
+  padding: 0 1px;
   margin-top: 1px;
-  line-height: 1.2;
+  line-height: 1.1;
   text-align: center;
   min-width: 100%;
+  border: 0.5px solid #e0e0e0;
 }
 
 /* Effect row styling */
@@ -1326,10 +1329,11 @@ body.dark-mode .clear-search-btn:hover {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 4px;
-  padding: 2px 4px;
-  border-radius: 4px;
+  margin-bottom: 3px;
+  padding: 3px 5px;
+  border-radius: 3px;
   transition: background-color 0.2s ease;
+  min-height: 36px;
 }
 
 .effect-row:hover {
@@ -1339,24 +1343,48 @@ body.dark-mode .clear-search-btn:hover {
 .effect-info {
   display: flex;
   align-items: center;
-  min-width: 160px;
+  min-width: 150px;
   flex-shrink: 0;
 }
 
 .effect-name {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: #333;
-  min-width: 140px;
+  min-width: 130px;
 }
 
 .effect-value {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   color: #2c5e1a;
-  min-width: 30px;
+  min-width: 25px;
   text-align: right;
-  margin-left: 8px;
+  margin-left: 6px;
+  background: #f0f8f0;
+  padding: 1px 4px;
+  border-radius: 2px;
+  border: 1px solid #e0f0e0;
+}
+
+/* Compact layout for many cards - show scroll for more than 6 */
+.effect-cards.has-many-cards {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+.effect-cards.has-many-cards::-webkit-scrollbar {
+  height: 3px;
+}
+
+.effect-cards.has-many-cards::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.effect-cards.has-many-cards::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 2px;
 }
 
 /* Dark mode support */
@@ -1374,10 +1402,16 @@ body.dark-mode .effect-card-img {
 }
 
 body.dark-mode .effect-card-value {
-  background: rgba(60, 60, 60, 0.9);
+  background: rgba(60, 60, 60, 0.95);
   color: #8bc34a;
+  border-color: #555;
 }
 
+body.dark-mode .effect-value {
+  background: #2a3a2a;
+  color: #8bc34a;
+  border-color: #3a4a3a;
+}
 </style>
 </head>
 
@@ -4754,33 +4788,52 @@ function updateEffectTotals() {
       const effectElements = document.querySelectorAll(`[data-effect="${effectName}"]`);
       
       effectElements.forEach(element => {
+        // Hide entire row if total is 0 and no cards contribute
+        if (data.total === 0 && data.cards.length === 0) {
+          element.style.display = 'none';
+          return;
+        }
+        
+        // Show the row if it has values
+        element.style.display = 'flex';
+        
         // Update the total value
         const valueSpan = element.querySelector('.effect-value');
         if (valueSpan) {
           const formattedValue = Number.isInteger(data.total) ? data.total.toString() : data.total.toFixed(1);
           valueSpan.textContent = formattedValue;
         }
-        
+
         // Update the card contributions
         const cardsContainer = element.querySelector('.effect-cards');
         if (cardsContainer) {
           cardsContainer.innerHTML = '';
           
+          // Sort cards by value (highest first) for consistent display
+          const sortedCards = [...data.cards].sort((a, b) => b.value - a.value);
+          
           // Add card icons for each contributing card
-          data.cards.forEach(cardData => {
+          sortedCards.forEach(cardData => {
             const cardElement = document.createElement('div');
             cardElement.className = 'effect-card';
             cardElement.title = `${cardData.char_name} (Lv. ${cardData.level}): +${cardData.value}`;
             
             cardElement.innerHTML = `
               <img src="https://gametora.com/images/umamusume/supports/support_card_s_${cardData.supportId}.png" 
-                   alt="${cardData.char_name}" 
-                   class="effect-card-img">
+                  alt="${cardData.char_name}" 
+                  class="effect-card-img">
               <div class="effect-card-value">+${Number.isInteger(cardData.value) ? cardData.value : cardData.value.toFixed(1)}</div>
             `;
             
             cardsContainer.appendChild(cardElement);
           });
+          
+          // Handle many cards - enable horizontal scroll if more than 6
+          if (sortedCards.length > 6) {
+            cardsContainer.classList.add('has-many-cards');
+          } else {
+            cardsContainer.classList.remove('has-many-cards');
+          }
         }
       });
     });
