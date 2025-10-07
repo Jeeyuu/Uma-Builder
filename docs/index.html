@@ -402,11 +402,11 @@ body {
   /* Ensure empty slots maintain square shape */
 }
 
+/* Update slot to accommodate level controls */
 .slot.has-card {
+  position: relative;
+  padding-top: 35px; /* Make space for level controls */
   min-height: calc(var(--card-w) * 2.2);
-  aspect-ratio: auto;
-  height: auto;
-  max-height: none;
 }
 
 .slot .placeholder {
@@ -517,6 +517,11 @@ body {
   font-size: 8px;
   line-height: 14px;
   font-weight: bold;
+}
+
+/* Ensure type icon doesn't overlap */
+.slot.has-card .type-icon {
+  top: 35px; /* Adjust type icon position */
 }
 
 .card .type-icon img, .slot.has-card .type-icon img {
@@ -809,12 +814,19 @@ body {
 
 /* ---------- SLOT LEVEL CONTROLS ---------- */
 .slot-level-controls {
+  position: absolute;
+  top: -30px; /* Position above the card */
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  margin-bottom: 8px;
-  padding: 0 4px;
+  padding: 4px 8px;
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  z-index: 10; /* Ensure it's above other elements */
+  pointer-events: auto; /* Ensure clicks work */
 }
 
 .slot-level-label {
@@ -825,9 +837,9 @@ body {
 
 .slot-level-input {
   width: 40px;
-  height: 24px;
+  height: 20px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 3px;
   text-align: center;
   font-size: 11px;
   font-weight: bold;
