@@ -9,6 +9,7 @@
   --gap: 8px;
 }
 
+/* Reset & Base Styles */
 html, body {
   height: 100%;
   margin: 0;
@@ -55,7 +56,7 @@ body {
   display: none;
 }
 
-/* ---------- CONTAINER & SIDEBARS ---------- */
+/* ---------- LAYOUT ---------- */
 .container {
   display: flex;
   width: 100%;
@@ -63,30 +64,21 @@ body {
   overflow: hidden;
 }
 
-.sidebar {
+/* Sidebar Base Styles */
+.sidebar, .right-sidebar {
   flex-shrink: 0;
-  width: 200px;
   padding: 16px 12px;
   box-sizing: border-box;
-  background: #f9f9f9;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.right-sidebar {
-  flex-shrink: 0;
-  /* Remove fixed width and let it size based on content */
-  padding: 16px 12px;
-  box-sizing: border-box;
-  background: #f5f5f5;
-  overflow-y: auto;
-  border-left: 1px solid #ddd;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* Add min-width to prevent it from getting too small */
-  min-width: fit-content;
+.sidebar::-webkit-scrollbar,
+.right-sidebar::-webkit-scrollbar {
+  display: none;
 }
 
 .sidebar > *:not(:last-child),
@@ -94,23 +86,25 @@ body {
   margin-bottom: 12px;
 }
 
-/* Hide scrollbars for both sidebars */
-.sidebar::-webkit-scrollbar,
-.right-sidebar::-webkit-scrollbar {
-  display: none;
+/* Left Sidebar */
+.sidebar {
+  width: 200px;
+  background: #f9f9f9;
 }
 
-.sidebar, .right-sidebar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+/* Right Sidebar */
+.right-sidebar {
+  background: #f5f5f5;
+  border-left: 1px solid #ddd;
+  align-items: center;
+  min-width: fit-content;
 }
 
 .right-sidebar .slots-header {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin: 0;
 }
 
-/* ---------- MAIN CONTENT ---------- */
+/* Main Content */
 .main-content {
   flex-grow: 1;
   display: flex;
@@ -120,40 +114,42 @@ body {
   overflow-y: auto;
   padding: 16px;
   box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .main-content::-webkit-scrollbar {
   display: none;
 }
 
-.main-content {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
 .content-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Change to flex-start for left alignment */
+  align-items: flex-start;
   justify-content: flex-start;
-  width: 100%; /* Take full available width */
+  width: 100%;
   margin: 0 auto;
 }
 
-/* ---------- SIDEBAR FILTERS ---------- */
-.sidebar .filter-group {
+/* ---------- FORM CONTROLS ---------- */
+/* Filter Groups */
+.filter-group, .toggle-button-group {
   display: flex;
   flex-direction: column;
+  transition: opacity 0.3s ease;
 }
 
-/* Regular filter labels */
-.sidebar .filter-group > label:not(.checkbox-label) {
-    margin-bottom: 4px;
-    font-weight: 600;
-    font-size: 13px;
+.filter-group > label:not(.checkbox-label),
+.toggle-button-group label {
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 13px;
 }
 
-.sidebar select, .sidebar .skill-search {
+/* Inputs & Selects */
+.sidebar select, 
+.sidebar .skill-search,
+.search-input-container input {
   width: 100%;
   padding: 6px 8px;
   border-radius: 4px;
@@ -161,18 +157,29 @@ body {
   box-sizing: border-box;
 }
 
-/* ---------- TOGGLE BUTTONS ---------- */
-.toggle-button-group {
-  display: flex;
-  flex-direction: column;
+/* ---------- BUTTONS ---------- */
+.clear-all, #clearFiltersBtn, #togglePresetCardsBtn {
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background: #444;
+  color: #fff;
+  transition: background-color 0.2s;
+  width: 100%;
 }
 
-.toggle-button-group label {
-  margin-bottom: 4px;
-  font-weight: 600;
-  font-size: 13px;
+.clear-all:hover, #clearFiltersBtn:hover, #togglePresetCardsBtn:hover {
+  background: #333;
 }
 
+.slots-header .clear-all {
+  max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
+  margin-bottom: 12px;
+}
+
+/* Toggle Buttons */
 .toggle-buttons-row {
   display: flex;
   justify-content: flex-start;
@@ -197,7 +204,24 @@ body {
   background: none;
 }
 
-/* Rarity buttons */
+.toggle-button img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: grayscale(100%) opacity(0.6);
+  transition: filter 0.2s ease;
+}
+
+.toggle-button.active img {
+  filter: grayscale(0%) opacity(1);
+}
+
+.toggle-button:hover img {
+  filter: grayscale(100%) opacity(0.8);
+}
+
+/* Rarity Buttons */
 .rarity-buttons .toggle-buttons-row {
   width: 100%;
   gap: 2px;
@@ -211,30 +235,7 @@ body {
   background: none;
 }
 
-.rarity-buttons .toggle-button img,
-.type-buttons .toggle-button img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  filter: grayscale(100%) opacity(0.6);
-  transition: filter 0.2s ease;
-}
-
-.rarity-buttons .toggle-button.active img,
-.type-buttons .toggle-button.active img {
-  filter: grayscale(0%) opacity(1);
-}
-
-.rarity-buttons .toggle-button:hover {
-  background: #f0f0f0;
-}
-
-.rarity-buttons .toggle-button:hover img,
-.type-buttons .toggle-button:hover img {
-  filter: grayscale(100%) opacity(0.8);
-}
-
-/* Type buttons */
+/* Type Buttons */
 .type-buttons .toggle-buttons-row {
   width: 100%;
   gap: 1px;
@@ -249,42 +250,6 @@ body {
   min-width: 0;
 }
 
-.toggle-button img {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-}
-
-/* ---------- BUTTONS ---------- */
-.clear-all, #clearFiltersBtn, #togglePresetCardsBtn {
-  padding: 8px 12px;
-  font-size: 12px;
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-  background: #444;
-  color: #fff;
-  transition: background-color 0.2s;
-  width: 100%;
-}
-
-.clear-all:hover, #clearFiltersBtn:hover, #togglePresetCardsBtn:hover {
-  background: #333;
-}
-
-.slots-header .clear-all {
-  width: 100%; /* Make it fill the available width */
-  max-width: calc(var(--card-w) * 3 + var(--gap) * 2); /* But don't exceed slot grid width */
-  margin-bottom: 12px;
-  padding: 8px 12px;
-  height: auto;
-}
-
-/* Fix for slots container spacing */
-.slots {
-  margin-top: 35px !important; /* Force the margin */
-}
-
 /* ---------- SKILL SEARCH ---------- */
 #skillSearchGroup {
   display: flex;
@@ -293,16 +258,10 @@ body {
   position: relative;
 }
 
-#skillSearchGroup label {
-  margin-bottom: 0px;
-  font-weight: 600;
-  font-size: 13px;
-}
-
 .skill-search-divider {
   min-height: 1px;
   background: #333;
-  margin: 0px 0;
+  margin: 0;
   width: 100%;
 }
 
@@ -310,7 +269,13 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0px;
+  margin-bottom: 0;
+}
+
+#skillSearchGroup label {
+  margin-bottom: 0;
+  font-weight: 600;
+  font-size: 13px;
 }
 
 .add-search-btn {
@@ -340,14 +305,6 @@ body {
   width: 100%;
 }
 
-.search-input-container input {
-  flex: 1;
-  padding: 6px 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
-
 .remove-search-btn {
   width: 24px;
   height: 24px;
@@ -369,48 +326,64 @@ body {
   color: #333;
 }
 
-/* ---------- SLOTS & CARDS ---------- */
-.slots {
+/* ---------- CARDS & SLOTS ---------- */
+/* Card Grids */
+.cards, .slots {
   display: grid;
-  grid-template-columns: repeat(3, var(--card-w)); /* Fixed column width */
-  grid-auto-rows: min-content; /* Allow rows to size to content */
+  grid-template-columns: repeat(auto-fill, var(--card-w));
   gap: var(--gap);
   width: 100%;
-  max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
-  margin: 0 auto;
-  align-items: start; /* Align items to top instead of stretching */
+  justify-content: start;
+  align-items: start;
 }
 
-.slot {
+.cards {
+  grid-auto-rows: 0;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+}
+
+.slots {
+  grid-template-columns: repeat(3, var(--card-w));
+  grid-auto-rows: min-content;
+  max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
+  margin: 35px auto 0;
+}
+
+/* Card/Slot Base Styles */
+.card, .slot {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 6px;
   box-sizing: border-box;
   background: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
-  cursor: pointer;
   width: var(--card-w);
-  min-height: var(--card-w);
   position: relative;
+  min-height: 0;
+  height: auto;
+}
+
+.slot {
+  padding: 8px;
+  cursor: pointer;
+  min-height: var(--card-w);
+  height: min-content;
+  justify-self: start;
   transition: min-height 0.3s ease;
-  height: min-content; /* Allow height to be determined by content */
-  justify-self: start; /* Don't stretch to fill grid cell */
 }
 
 .slot:not(.has-card) {
   border: 2px dashed #ccc;
   background: #fafafa;
   aspect-ratio: 1;
-  min-height: var(--card-w);
   height: var(--card-w);
-  /* Ensure empty slots maintain square shape */
 }
 
-/* Update slot to accommodate level controls */
 .slot.has-card {
-  position: relative;
-  padding-top: 35px; /* Make space for level controls */
+  /* Remove any height/min-height constraints */
+  height: auto; /* Let content determine height */
 }
 
 .slot .placeholder {
@@ -423,33 +396,9 @@ body {
   font-size: 11px;
 }
 
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, var(--card-w));
-  grid-auto-rows: 0; /* Prevent row creation */
-  grid-template-rows: 1fr; /* Only 1 row */
-  gap: var(--gap);
-  width: 100%;
-  justify-content: start; /* Left alignment */
-  overflow: hidden; /* Hide any overflow beyond 1 row */
-}
-
-.card, .slot.has-card {
-  border: 1px solid #ddd;
-  padding: 6px;
-  box-sizing: border-box;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: var(--card-w);
-  position: relative;
-  min-height: 0; /* Add this to allow shrinking */
-  height: auto; /* Ensure height is automatic */
-}
-
+/* Card Content */
 .card .name, .slot.has-card .name {
-  margin: 6px 0 4px 0;
+  margin: 6px 0 4px;
   font-weight: 700;
   text-align: center;
   font-size: 12px;
@@ -464,6 +413,7 @@ body {
   object-fit: contain;
 }
 
+/* Skills */
 .card .skills, .slot.has-card .skills,
 .card .skills-group, .slot.has-card .skills-group {
   display: flex;
@@ -471,9 +421,14 @@ body {
   gap: 4px;
   width: 100%;
   align-items: center;
+  min-height: 0;
 }
 
-.card .skill, .slot.has-card .skill {
+.skills-group {
+  min-height: 0;
+}
+
+.skill {
   width: 100%;
   background: #eef2ff;
   border-radius: 4px;
@@ -484,29 +439,19 @@ body {
   text-align: center;
 }
 
-/* Add this to ensure skills containers collapse properly */
-.card .skills, .slot.has-card .skills {
-  min-height: 0;
+.skills-header {
+  font-size: 9px;
+  font-weight: bold;
+  margin-bottom: 0;
+  text-align: center;
+  background: #000;
+  color: #fff;
+  padding: 3px 4px;
+  border-radius: 0;
   width: 100%;
 }
 
-/* Ensure skills groups collapse when empty */
-.skills-group {
-  min-height: 0;
-}
-
-/* Make sure empty skills containers don't take up space */
-.skills:empty {
-  display: none;
-}
-
-/* Add this to handle the case where all skills in a group are hidden */
-.skills-group:has(.skill.hidden-skill:only-child),
-.skills-group:has(.skill.hidden-skill:first-child + .skill.hidden-skill:last-child) {
-  display: none;
-}
-
-/* TYPE ICON */
+/* Type Icon */
 .card .type-icon, .slot.has-card .type-icon {
   position: absolute;
   top: 0px;
@@ -517,15 +462,6 @@ body {
   background: #fff;
   border-radius: 3px;
   overflow: hidden;
-  text-align: center;
-  font-size: 8px;
-  line-height: 14px;
-  font-weight: bold;
-}
-
-/* Ensure type icon doesn't overlap */
-.slot.has-card .type-icon {
-  top: 35px; /* Adjust type icon position */
 }
 
 .card .type-icon img, .slot.has-card .type-icon img {
@@ -534,25 +470,71 @@ body {
   object-fit: contain;
 }
 
-/* ---------- SKILLS & HIGHLIGHTING ---------- */
-.skill.search-highlighted {
-  background: #ff4444; /* REMOVED !important */
-  color: white; /* REMOVED !important */
+/* ---------- SLOT LEVEL CONTROLS ---------- */
+.slot-container {
+  position: relative;
+  width: var(--card-w);
 }
 
-.skills-header {
-  font-size: 9px;
+.slot-container:nth-child(-n+3) {
+  margin-bottom: 40px;
+}
+
+.slot-container:nth-child(n+4) {
+  margin-bottom: 0;
+}
+
+.slot-level-controls {
+  position: absolute;
+  top: -35px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  z-index: 20;
+  pointer-events: auto;
+}
+
+.slot:not(.has-card) .slot-level-controls {
+  display: none;
+}
+
+.slot-level-label {
+  font-size: 11px;
   font-weight: bold;
-  margin-bottom: 0px;
-  text-align: center;
-  background: #000000;
-  color: #ffffff;
-  padding: 3px 4px;
-  border-radius: 0;
-  width: 100%;
+  color: #333;
 }
 
-/* ---------- PAGINATION & SECTIONS ---------- */
+.slot-level-input {
+  width: 40px;
+  height: 20px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  background: #fff;
+}
+
+.slot-level-input:focus {
+  outline: none;
+  border-color: #444;
+}
+
+/* ---------- SECTIONS & PAGINATION ---------- */
+.card-sections {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  gap: 10px;
+}
+
 .card-section {
   position: relative;
   width: 100%;
@@ -561,8 +543,7 @@ body {
 .card-section-header {
   position: relative;
   display: block;
-  margin-top: 0px;
-  margin-bottom: 10px;
+  margin: 0 0 10px;
   width: 100%;
 }
 
@@ -610,15 +591,7 @@ body {
   opacity: 0.45;
 }
 
-.card-sections {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Left align sections */
-  width: 100%;
-  gap: 10px;
-}
-
-/* ---------- SORT ORDER & CHECKBOX ---------- */
+/* ---------- UTILITY CONTROLS ---------- */
 .sort-order-btn {
   border: 1px solid #ccc;
   background: #f5f5f5;
@@ -645,74 +618,19 @@ body {
   border-color: #444;
 }
 
-/* Checkbox labels */
 .checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    margin-bottom: -4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: -4px;
 }
 
 .checkbox-label input[type="checkbox"] {
   margin: 0;
   cursor: pointer;
-}
-
-/* ---------- SKILL HIDING ---------- */
-.skill.hidden-skill,
-.skills-header.hidden-skill {
-  display: none;
-}
-
-/* Fix for skills groups - remove them from layout completely when hidden */
-.skills-group.hidden-skill {
-  display: none !important;
-}
-
-/* Remove the old gap adjustment rules since we're using display: none */
-/* .skills-group:not(.hidden-skill) + .skills-group:not(.hidden-skill) {
-  margin-top: 8px;
-} */
-
-/* Handle empty skills containers */
-.skills:empty,
-.skills:has(.skills-group.hidden-skill:only-child),
-.skills:has(.skills-group.hidden-skill:first-child + .skills-group.hidden-skill:last-child) {
-  display: none;
-}
-
-/* Remove margin from the first visible skills group */
-.skills-group:not(.hidden-skill):first-child {
-  margin-top: 0;
-}
-
-/* Add consistent gap between visible skills groups */
-.skills-group:not(.hidden-skill) + .skills-group:not(.hidden-skill) {
-  margin-top: 8px;
-}
-
-/* ---------- PRESET CARDS TOGGLE ---------- */
-.sidebar-filters-section {
-  transition: opacity 0.3s ease, max-height 0.3s ease, margin-bottom 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.sidebar-filters-section.hidden {
-  opacity: 0;
-  max-height: 0;
-  overflow: hidden;
-  pointer-events: none;
-  margin-bottom: 0 !important;
-  gap: 0;
-}
-
-.filter-group, .toggle-button-group {
-  transition: opacity 0.3s ease;
 }
 
 /* ---------- COLOR PICKER ---------- */
@@ -723,8 +641,8 @@ body {
   border-radius: 4px;
   cursor: pointer;
   flex-shrink: 0;
-  background: #ff4444; /* Default red */
   transition: all 0.2s ease;
+  background: #ff4444;
 }
 
 .color-picker:hover {
@@ -737,7 +655,7 @@ body {
 .color-picker.blue { background: #0044cc; }
 .color-picker.red { background: #cc0000; }
 
-/* ---------- SELECTED SKILLS LIST ---------- */
+/* ---------- SKILLS LIST ---------- */
 .selected-skills-section {
   width: 100%;
   margin-top: 16px;
@@ -812,89 +730,49 @@ body {
   color: white;
 }
 
+/* ---------- VISIBILITY CONTROLS ---------- */
+.sidebar-filters-section {
+  transition: opacity 0.3s ease, max-height 0.3s ease, margin-bottom 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-filters-section.hidden {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  margin-bottom: 0 !important;
+  gap: 0;
+}
+
+/* Skill Hiding */
+.skill.hidden-skill,
+.skills-header.hidden-skill,
+.skills-group.hidden-skill,
 .skill-item.hidden-skill {
   display: none;
 }
 
-.slot-level-controls {
-  position: absolute;
-  top: -35px; /* Position completely above the slot */
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 8px;
-  background: #f8f8f8;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  z-index: 20;
-  pointer-events: auto;
-}
-
-.slot-level-label {
-  font-size: 11px;
-  font-weight: bold;
-  color: #333;
-}
-
-.slot-level-input {
-  width: 40px;
-  height: 20px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  text-align: center;
-  font-size: 11px;
-  font-weight: bold;
-  background: #fff;
-}
-
-.slot-level-input:focus {
-  outline: none;
-  border-color: #444;
-}
-
-/* Update slot structure */
-.slot.has-card {
-  position: relative;
-  padding-top: 0; /* Remove the extra padding */
-  min-height: calc(var(--card-w) * 2.2);
-}
-
-/* Hide level controls on empty slots */
-.slot:not(.has-card) .slot-level-controls {
+.skills:empty,
+.skills:has(.skills-group.hidden-skill:only-child),
+.skills:has(.skills-group.hidden-skill:first-child + .skills-group.hidden-skill:last-child) {
   display: none;
 }
 
-/* Ensure type icon position is correct */
-.slot.has-card .type-icon {
-  top: 4px; /* Reset to original position */
+.skills-group:not(.hidden-skill):first-child {
+  margin-top: 0;
 }
 
-.slots {
-  display: grid;
-  grid-template-columns: repeat(3, var(--card-w));
-  grid-auto-rows: min-content;
-  gap: var(--gap); /* This creates gap between ALL items */
-  width: 100%;
-  max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
-  margin: 0 auto;
-  align-items: start;
+.skills-group:not(.hidden-skill) + .skills-group:not(.hidden-skill) {
+  margin-top: 8px;
 }
 
-.slot-container {
-  position: relative;
-  width: var(--card-w);
-}
-
-/* Apply margin only to first row containers */
-.slot-container:nth-child(-n+3) {
-  margin-bottom: 40px; /* Space for level controls on first row only */
-}
-
-/* Remove the margin from second row containers */
-.slot-container:nth-child(n+4) {
-  margin-bottom: 0;
+/* Skill Highlighting */
+.skill.search-highlighted {
+  background: #ff4444;
+  color: white;
 }
 
 </style>
