@@ -1891,8 +1891,11 @@ function createSearchBox(searchId, value = '') {
   const searchContainer = document.createElement('div');
   searchContainer.className = 'search-input-container';
   
+  // Get the color from localStorage or default to green
+  const savedColor = localStorage.getItem(`color_${searchId}`) || 'green';
+  
   searchContainer.innerHTML = `
-    <div class="color-picker green" data-search-id="${searchId}" data-color="green"></div>
+    <div class="color-picker ${savedColor}" data-search-id="${searchId}" data-color="${savedColor}"></div>
     <input type="text" id="${searchId}" class="skill-search" placeholder="Search skill" value="${value}">
     <button class="remove-search-btn" data-search-id="${searchId}" title="Remove search">
       ×
@@ -1944,18 +1947,20 @@ function addSearchBox() {
   const newId = `skillSearch${searchCounter}`;
   searchCounter++;
   
-  // Add to our state
+  // Add to our state with empty value
   skillSearches.push({ id: newId, value: '' });
   saveSkillSearches();
   
-  // Create the UI element
-  createSearchBox(newId, '', false);
+  // Create the UI element - it will use default green color
+  createSearchBox(newId, '');
   
   // CRITICAL: Update the global array immediately
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
   sectionPages.clear();
   renderSections();
+  highlightSkills();
+  highlightSelectedSkills();
 }
 
 function saveSkillSearches() {
@@ -2054,15 +2059,10 @@ function removeSearchBox(searchId) {
   // Update global array
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
-  // Reorganize if needed (only if we removed the first one)
-  if (searchId === 'skillSearch1') {
-    reorganizeSearchBoxes();
-  }
+  // ALWAYS reorganize when any box is removed to maintain color order
+  reorganizeSearchBoxes();
   
-  sectionPages.clear();
-  renderSections();
-  highlightSkills();
-  highlightSelectedSkills();
+  // No need to call these separately as reorganizeSearchBoxes() does it
 }
 
 function reorganizeSearchBoxes() {
@@ -2074,20 +2074,37 @@ function reorganizeSearchBoxes() {
   });
   
   // Clear all existing search containers
+  const skillSearchGroup = document.getElementById('skillSearchGroup');
   const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
   existingContainers.forEach(container => container.remove());
   
-  // Recreate all search boxes with new IDs if needed
+  // Recreate all search boxes with new sequential IDs
   skillSearches.forEach((search, index) => {
     const newId = `skillSearch${index + 1}`;
     const oldId = search.id;
     
-    // If the ID needs to change (like if we removed skillSearch1)
-    if (oldId !== newId) {
-      search.id = newId;
+    // Get the color from the old search box before we remove it
+    const oldColorPicker = document.querySelector(`.color-picker[data-search-id="${oldId}"]`);
+    const oldColor = oldColorPicker ? oldColorPicker.dataset.color : 'green';
+    
+    // Update the search ID in our state
+    search.id = newId;
+    
+    // Create new search box with the same color
+    createSearchBox(newId, search.value);
+    
+    // Immediately set the color to match the old one
+    const newColorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
+    if (newColorPicker) {
+      newColorPicker.className = `color-picker ${oldColor}`;
+      newColorPicker.dataset.color = oldColor;
+      localStorage.setItem(`color_${newId}`, oldColor);
     }
     
-    createSearchBox(newId, search.value);
+    // Remove old color from localStorage
+    if (oldId !== newId) {
+      localStorage.removeItem(`color_${oldId}`);
+    }
   });
   
   // Update the global array
@@ -2098,48 +2115,10 @@ function reorganizeSearchBoxes() {
   
   // Save the reorganized state
   saveSkillSearches();
-}
-
-function removeFromSlot(slotEl, card){
-  if(slotListeners.has(slotEl)){
-    slotEl.removeEventListener('click', slotListeners.get(slotEl));
-    slotListeners.delete(slotEl);
-  }
   
-  slotEl.classList.remove('has-card');
-  
-  // Find the container and reset level controls
-  const slotContainer = slotEl.closest('.slot-container');
-  if (slotContainer) {
-    const levelInput = slotContainer.querySelector('.slot-level-input');
-    levelInput.disabled = true;
-    levelInput.value = '1';
-    levelInput.min = '1';
-    levelInput.max = '50';
-  }
-  
-  // Remove level data if card exists
-  if (card && card.support_id) {
-    delete slotLevels[card.support_id];
-    localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
-  }
-  
-  delete slotEl.dataset.cardId;
-  delete slotEl.dataset.supportId;
-  slotEl.innerHTML='<div class="placeholder">Empty</div>';
-  
-  // Remove from selectedCardIds using the actual card's char_id
-  if (card && card.char_id) {
-    selectedCardIds.delete(Number(card.char_id));
-  } else if (slotEl.dataset.cardId) {
-    selectedCardIds.delete(Number(slotEl.dataset.cardId));
-  }
-  
-  saveSlotsToLocalStorage();
-  updateSelectedSkillsList();
-  highlightSkills(); // Add this line
-  highlightSelectedSkills(); // Add this line
-  renderSections();
+  // Update highlighting
+  highlightSkills();
+  highlightSelectedSkills();
 }
 
 /* ------------- TOGGLE BUTTON SETUP ------------- */
@@ -3850,37 +3829,39 @@ function clearAllSkillSearches() {
   // If no containers or only one, just reset the first one
   if (searchContainers.length === 0) return;
   
-  // Clear and reset the first search box
+  // Remember the color of the first box if it exists
   const firstContainer = searchContainers[0];
-  const firstInput = firstContainer.querySelector('.skill-search');
   const firstColorPicker = firstContainer.querySelector('.color-picker');
+  const firstColor = firstColorPicker ? firstColorPicker.dataset.color : 'green';
   
+  // Clear and reset the first search box but keep its color
+  const firstInput = firstContainer.querySelector('.skill-search');
   if (firstInput) firstInput.value = '';
   if (firstColorPicker) {
-    firstColorPicker.className = 'color-picker green';
-    firstColorPicker.dataset.color = 'green';
+    firstColorPicker.className = `color-picker ${firstColor}`;
+    firstColorPicker.dataset.color = firstColor;
   }
   
-  // Remove all search boxes except the first one - FAST BATCH REMOVAL
+  // Remove all search boxes except the first one
   for (let i = searchContainers.length - 1; i > 0; i--) {
     searchContainers[i].remove();
   }
   
-  // Reset state efficiently
+  // Reset state
   skillSearches = [{ id: 'skillSearch1', value: '' }];
   searchCounter = 2;
   SKILL_SEARCH_KEYS = ['skillSearch1'];
   
-  // Save to localStorage
+  // Save to localStorage - preserve the first color
   localStorage.setItem('skillSearches', JSON.stringify(skillSearches));
-  localStorage.setItem('color_skillSearch1', 'green');
+  localStorage.setItem('color_skillSearch1', firstColor);
   
   // Clear any orphaned color picker data from localStorage
   for (let i = 2; i <= 30; i++) {
     localStorage.removeItem(`color_skillSearch${i}`);
   }
   
-  // Update UI - batch operations
+  // Update UI
   sectionPages.clear();
   renderSections();
   highlightSkills();
@@ -3896,8 +3877,6 @@ function clearAllSkillSearches() {
     clearBtn.textContent = originalText;
     clearBtn.style.background = '';
   }, 1500);
-  
-  console.log('All searches cleared successfully');
 }
 
 /* ------------- DECK COPY/PASTE FUNCTIONALITY ------------- */
