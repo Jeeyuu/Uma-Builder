@@ -3848,6 +3848,8 @@ function copySkillsToClipboard() {
     return null;
   }).filter(item => item !== null);
   
+  console.log('Skills to copy:', skillsData); // Debug log
+  
   if (skillsData.length === 0) {
     alert('No skills to copy!');
     return;
@@ -3855,6 +3857,8 @@ function copySkillsToClipboard() {
   
   // Format: skill1|color1,skill2|color2,skill3|color3
   const copyText = skillsData.map(item => `${item.skill}|${item.color}`).join(',');
+  
+  console.log('Copy text format:', copyText); // Debug log
   
   navigator.clipboard.writeText(copyText).then(() => {
     // Visual feedback
@@ -3885,7 +3889,7 @@ function pasteSkillsFromClipboard() {
         return;
       }
       
-      // Clear existing searches first
+      // Clear existing searches first using the main clear function
       clearAllSkillSearches();
       
       // Create new searches for each pasted skill
@@ -3893,13 +3897,54 @@ function pasteSkillsFromClipboard() {
         if (index < maxSearches) {
           if (index === 0) {
             // Update first search box
-            updateFirstSearchBox(skillItem);
+            const firstInput = document.getElementById('skillSearch1');
+            const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
+            
+            if (firstInput) firstInput.value = skillItem.skill;
+            if (firstColorPicker) {
+              firstColorPicker.className = `color-picker ${skillItem.color}`;
+              firstColorPicker.dataset.color = skillItem.color;
+              localStorage.setItem('color_skillSearch1', skillItem.color);
+            }
+            
+            // Update state for first search
+            const firstSearch = skillSearches.find(s => s.id === 'skillSearch1');
+            if (firstSearch) {
+              firstSearch.value = skillItem.skill;
+            }
           } else {
             // Add new search boxes
-            addSearchBoxFromPaste(skillItem);
+            const newId = `skillSearch${index + 1}`;
+            
+            // Add to state
+            skillSearches.push({ id: newId, value: skillItem.skill });
+            
+            // Create UI element
+            createSearchBox(newId, skillItem.skill);
+            
+            // Set color
+            const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
+            if (colorPicker) {
+              colorPicker.className = `color-picker ${skillItem.color}`;
+              colorPicker.dataset.color = skillItem.color;
+              localStorage.setItem(`color_${newId}`, skillItem.color);
+            }
           }
         }
       });
+      
+      // Update search counter and global array
+      searchCounter = skillSearches.length + 1;
+      SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+      
+      // Save the updated state
+      saveSkillSearches();
+      
+      // Update UI
+      sectionPages.clear();
+      renderSections();
+      highlightSkills();
+      highlightSelectedSkills();
       
       // Visual feedback
       const pasteBtn = document.getElementById('pasteSkillsBtn');
@@ -3916,7 +3961,7 @@ function pasteSkillsFromClipboard() {
       
     } catch (error) {
       console.error('Failed to parse clipboard data: ', error);
-      alert('Invalid format in clipboard! Use Copy button first.');
+      alert('Invalid format in clipboard! Use Copy Skills button first.');
     }
   }).catch(err => {
     console.error('Failed to read clipboard: ', err);
@@ -3925,8 +3970,14 @@ function pasteSkillsFromClipboard() {
 }
 
 function parseSkillsFromClipboard(text) {
+  if (!text || typeof text !== 'string') {
+    throw new Error('Invalid clipboard data');
+  }
+  
   // Expected format: skill1|color1,skill2|color2,skill3|color3
   const skills = text.split(',').map(item => {
+    if (!item || !item.includes('|')) return null;
+    
     const [skill, color] = item.split('|');
     if (skill && color) {
       return {
@@ -3964,31 +4015,6 @@ function clearAllSkillSearchesForPaste() {
   // Reset state
   skillSearches = [{ id: 'skillSearch1', value: '' }];
   searchCounter = 2;
-}
-
-// Update the paste function to use the new name
-function pasteSkillsFromClipboard() {
-  navigator.clipboard.readText().then(text => {
-    try {
-      const skillsData = parseSkillsFromClipboard(text);
-      
-      if (skillsData.length === 0) {
-        alert('No valid skills found in clipboard!');
-        return;
-      }
-      
-      // Clear existing searches first
-      clearAllSkillSearchesForPaste(); // Use the renamed function
-      
-      // ... rest of paste function ...
-    } catch (error) {
-      console.error('Failed to parse clipboard data: ', error);
-      alert('Invalid format in clipboard! Use Copy button first.');
-    }
-  }).catch(err => {
-    console.error('Failed to read clipboard: ', err);
-    alert('Failed to read from clipboard. Please check permissions.');
-  });
 }
 
 function addSearchBoxFromPaste(skillItem) {
@@ -4233,6 +4259,20 @@ function validateLevel(level, card) {
   if (num > maxLevel) return maxLevel;
   
   return num;
+}
+
+function debugSkillPaste() {
+  const copyBtn = document.getElementById('copySkillsBtn');
+  const pasteBtn = document.getElementById('pasteSkillsBtn');
+  
+  console.log('Copy button exists:', !!copyBtn);
+  console.log('Paste button exists:', !!pasteBtn);
+  console.log('Current skill searches:', skillSearches);
+  console.log('Skill search keys:', SKILL_SEARCH_KEYS);
+  
+  if (copyBtn && pasteBtn) {
+    console.log('Event listeners should be attached');
+  }
 }
 
 // Initialize the copy/paste buttons when the page loads
