@@ -367,13 +367,13 @@ body {
 /* ---------- SLOTS & CARDS ---------- */
 .slots {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(3, var(--card-w)); /* Fixed column width */
+  grid-auto-rows: min-content; /* Allow rows to size to content */
   gap: var(--gap);
-  /* Remove fixed width calculation, let it size naturally */
   width: 100%;
   max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
   margin: 0 auto;
+  align-items: start; /* Align items to top instead of stretching */
 }
 
 .slot {
@@ -389,6 +389,8 @@ body {
   min-height: var(--card-w);
   position: relative;
   transition: min-height 0.3s ease;
+  height: min-content; /* Allow height to be determined by content */
+  justify-self: start; /* Don't stretch to fill grid cell */
 }
 
 .slot:not(.has-card) {
@@ -397,6 +399,7 @@ body {
   aspect-ratio: 1;
   min-height: var(--card-w);
   height: var(--card-w);
+  /* Ensure empty slots maintain square shape */
 }
 
 .slot.has-card {
