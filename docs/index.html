@@ -2351,7 +2351,7 @@ function highlightSkills() {
     skill.style.background = '#eef2ff';
     skill.style.color = '#000';
   });
-
+  
   const filters = {
     racecourse: document.getElementById('racecourse').value || '',
     length: document.getElementById('length').value || '',
@@ -2375,8 +2375,13 @@ function highlightSkills() {
     .filter(item => item.term);
 
   const colorMap = {
-    racecourse: '#ff7792', length: '#ffae77', direction: '#ffff77',
-    track: '#77ff92', season: '#77c9ff', weather: '#c977ff', strategy: '#ff77e4'
+    racecourse: '#bce934',
+    length: '#fca92f',        // corners/straightaways
+    direction: '#bce934',
+    track: '#bce934',
+    season: '#bce934',
+    weather: '#bce934',
+    strategy: '#fca92f'       // corners/straightaways (savvy will be handled separately)
   };
 
   const dropdownTerms = [];
@@ -2391,22 +2396,26 @@ function highlightSkills() {
   }
   if (filters.season) dropdownTerms.push({ term: `${filters.season} Runner`, color: colorMap.season });
   if (filters.weather) dropdownTerms.push({ term: `${capitalize(filters.weather)} Days`, color: colorMap.weather });
+  
+  // Handle strategy separately for savvy vs corners/straightaways
   if (filters.strategy) {
     const s = filters.strategy;
     dropdownTerms.push(
-      { term: `${s} Corners`, color: colorMap.strategy },
-      { term: `${s} Straightaways`, color: colorMap.strategy },
-      { term: `${s} Savvy`, color: colorMap.strategy }
+      { term: `${s} Corners`, color: colorMap.strategy },        // #fca92f
+      { term: `${s} Straightaways`, color: colorMap.strategy }, // #fca92f
+      { term: `${s} Savvy`, color: colorMap.racecourse }        // #bce934 (using racecourse color)
     );
   }
+  
+  // Handle length with separate colors for distance type vs corners/straightaways
   if (filters.length) {
     const dist = parseInt(filters.length, 10);
     const label = getLengthCategory(dist);
     const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
     dropdownTerms.push(
-      { term: `${label} Corners`, color: colorMap.length },
-      { term: `${label} Straightaways`, color: colorMap.length },
-      { term: distType, color: colorMap.length }
+      { term: `${label} Corners`, color: colorMap.length },        // #fca92f
+      { term: `${label} Straightaways`, color: colorMap.length },  // #fca92f
+      { term: distType, color: colorMap.racecourse }               // #bce934 (using racecourse color)
     );
   }
 
@@ -2970,8 +2979,13 @@ function highlightSelectedSkills() {
     .filter(item => item.term);
   
   const colorMap = {
-    racecourse: '#ff7792', length: '#ffae77', direction: '#ffff77',
-    track: '#77ff92', season: '#77c9ff', weather: '#c977ff', strategy: '#ff77e4'
+    racecourse: '#bce934',
+    length: '#fca92f',        // corners/straightaways
+    direction: '#bce934',
+    track: '#bce934',
+    season: '#bce934',
+    weather: '#bce934',
+    strategy: '#fca92f'       // corners/straightaways (savvy will be handled separately)
   };
   
   const dropdownTerms = [];
@@ -2986,22 +3000,26 @@ function highlightSelectedSkills() {
   }
   if (filters.season) dropdownTerms.push({ term: `${filters.season} Runner`, color: colorMap.season });
   if (filters.weather) dropdownTerms.push({ term: `${capitalize(filters.weather)} Days`, color: colorMap.weather });
+  
+  // Handle strategy separately for savvy vs corners/straightaways
   if (filters.strategy) {
     const s = filters.strategy;
     dropdownTerms.push(
-      { term: `${s} Corners`, color: colorMap.strategy },
-      { term: `${s} Straightaways`, color: colorMap.strategy },
-      { term: `${s} Savvy`, color: colorMap.strategy }
+      { term: `${s} Corners`, color: colorMap.strategy },        // #fca92f
+      { term: `${s} Straightaways`, color: colorMap.strategy }, // #fca92f
+      { term: `${s} Savvy`, color: colorMap.racecourse }        // #bce934 (using racecourse color)
     );
   }
+  
+  // Handle length with separate colors for distance type vs corners/straightaways
   if (filters.length) {
     const dist = parseInt(filters.length, 10);
     const label = getLengthCategory(dist);
     const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
     dropdownTerms.push(
-      { term: `${label} Corners`, color: colorMap.length },
-      { term: `${label} Straightaways`, color: colorMap.length },
-      { term: distType, color: colorMap.length }
+      { term: `${label} Corners`, color: colorMap.length },        // #fca92f
+      { term: `${label} Straightaways`, color: colorMap.length },  // #fca92f
+      { term: distType, color: colorMap.racecourse }               // #bce934 (using racecourse color)
     );
   }
   
