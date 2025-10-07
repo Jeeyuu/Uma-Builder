@@ -328,6 +328,41 @@ body {
   color: #333;
 }
 
+/* ---------- SKILL SEARCH BUTTONS ---------- */
+.skill-search-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.clear-search-btn {
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background: #888;
+  color: #fff;
+  transition: background-color 0.2s;
+  width: 48px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.clear-search-btn:hover {
+  background: #666;
+}
+
+/* Dark mode support */
+body.dark-mode .clear-search-btn {
+  background: #666;
+}
+
+body.dark-mode .clear-search-btn:hover {
+  background: #555;
+}
+
 /* ---------- CARDS & SLOTS ---------- */
 /* Card Grids */
 .cards, .slots {
@@ -1323,7 +1358,10 @@ body.dark-mode .copy-paste-btn:hover {
 <div id="skillSearchGroup">
   <div class="skill-search-header">
     <label for="skillSearch1">Skill Search</label>
-    <button class="add-search-btn" id="addSearchBtn">Add</button>
+    <div class="skill-search-buttons">
+      <button class="clear-search-btn" id="clearAllSearchesBtn" title="Clear all searches">Clear</button>
+      <button class="add-search-btn" id="addSearchBtn">Add</button>
+    </div>
   </div>
 
   
@@ -1927,8 +1965,10 @@ function setupRemoveButton(searchId) {
 function removeSearchBox(searchId) {
   // Don't remove if it's the last search box
   if (skillSearches.length <= 1) {
-    // If it's the last one, just clear the value instead of removing
+    // If it's the last one, just clear the value and reset color instead of removing
     const input = document.getElementById(searchId);
+    const colorPicker = document.querySelector(`.color-picker[data-search-id="${searchId}"]`);
+    
     if (input) {
       input.value = '';
       // Update state
@@ -1937,9 +1977,19 @@ function removeSearchBox(searchId) {
         search.value = '';
         saveSkillSearches();
       }
-      sectionPages.clear();
-      renderSections();
     }
+    
+    // Reset color to default
+    if (colorPicker) {
+      colorPicker.className = 'color-picker green';
+      colorPicker.dataset.color = 'green';
+      localStorage.setItem(`color_${searchId}`, 'green');
+    }
+    
+    sectionPages.clear();
+    renderSections();
+    highlightSkills();
+    highlightSelectedSkills();
     return;
   }
   
@@ -1964,6 +2014,8 @@ function removeSearchBox(searchId) {
   
   sectionPages.clear();
   renderSections();
+  highlightSkills();
+  highlightSelectedSkills();
 }
 
 function reorganizeSearchBoxes() {
@@ -2146,10 +2198,8 @@ fetch(JSON_FILE)
     setupCardSearch();
     setupCopyPasteButtons();
     loadSlotsFromLocalStorage();
-    
-    // NEW: Initialize the skills list
+    setupClearAllSearches();
     updateSelectedSkillsList();
-    
     renderSections();
   })
   .catch(err => {
@@ -2630,12 +2680,8 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('cardSearch');
   }
 
-  // Clear skill searches - ONLY clear the values, don't reset the structure
-  const searchInputs = document.querySelectorAll('.skill-search');
-  searchInputs.forEach(input => {
-    input.value = ''; // Clear the input value
-    localStorage.setItem('filter_' + input.id, ''); // Clear from storage
-  });
+  // Clear skill searches - COMPLETELY reset them
+  clearAllSkillSearches(); // Use the new clear function
 
   // Clear toggle buttons (rarity and type)
   selectedRarities.clear();
@@ -2648,7 +2694,7 @@ clearFiltersBtn.addEventListener('click', () => {
   showPresetCards = true;
   localStorage.setItem('showPresetCards', 'true');
   updateTogglePresetCardsButton();
-  updateSidebarFiltersVisibility(); // ADD THIS
+  updateSidebarFiltersVisibility();
 
   // DO NOT clear sorting and region controls - keep them as they are
   
@@ -3665,7 +3711,8 @@ function parseSkillsFromClipboard(text) {
   return skills;
 }
 
-function clearAllSkillSearches() {
+// Rename the existing function used by paste to avoid conflict
+function clearAllSkillSearchesForPaste() {
   // Remove all search boxes except the first one
   const searchContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
   searchContainers.forEach((container, index) => {
@@ -3690,19 +3737,29 @@ function clearAllSkillSearches() {
   searchCounter = 2;
 }
 
-function updateFirstSearchBox(skillItem) {
-  const firstInput = document.getElementById('skillSearch1');
-  const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
-  
-  if (firstInput && firstColorPicker) {
-    firstInput.value = skillItem.skill;
-    firstColorPicker.className = `color-picker ${skillItem.color}`;
-    firstColorPicker.dataset.color = skillItem.color;
-    
-    // Update state
-    skillSearches[0] = { id: 'skillSearch1', value: skillItem.skill };
-    localStorage.setItem('color_skillSearch1', skillItem.color);
-  }
+// Update the paste function to use the new name
+function pasteSkillsFromClipboard() {
+  navigator.clipboard.readText().then(text => {
+    try {
+      const skillsData = parseSkillsFromClipboard(text);
+      
+      if (skillsData.length === 0) {
+        alert('No valid skills found in clipboard!');
+        return;
+      }
+      
+      // Clear existing searches first
+      clearAllSkillSearchesForPaste(); // Use the renamed function
+      
+      // ... rest of paste function ...
+    } catch (error) {
+      console.error('Failed to parse clipboard data: ', error);
+      alert('Invalid format in clipboard! Use Copy button first.');
+    }
+  }).catch(err => {
+    console.error('Failed to read clipboard: ', err);
+    alert('Failed to read from clipboard. Please check permissions.');
+  });
 }
 
 function addSearchBoxFromPaste(skillItem) {
@@ -3725,6 +3782,71 @@ function addSearchBoxFromPaste(skillItem) {
   
   // Update global array
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+}
+
+/* ------------- CLEAR ALL SKILL SEARCHES ------------- */
+function setupClearAllSearches() {
+  const clearAllSearchesBtn = document.getElementById('clearAllSearchesBtn');
+  
+  clearAllSearchesBtn.addEventListener('click', clearAllSkillSearches);
+}
+
+function clearAllSkillSearches() {
+  // Clear all search inputs
+  const searchInputs = document.querySelectorAll('#skillSearchGroup .skill-search');
+  searchInputs.forEach(input => {
+    input.value = '';
+  });
+  
+  // Reset all color pickers to default green
+  const colorPickers = document.querySelectorAll('#skillSearchGroup .color-picker');
+  colorPickers.forEach((picker, index) => {
+    picker.className = 'color-picker green';
+    picker.dataset.color = 'green';
+    
+    // Save to localStorage
+    const searchId = picker.dataset.searchId;
+    if (searchId) {
+      localStorage.setItem(`color_${searchId}`, 'green');
+    }
+  });
+  
+  // Remove all search boxes except the first one
+  const searchContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
+  searchContainers.forEach((container, index) => {
+    if (index > 0) {
+      const searchId = container.querySelector('.skill-search').id;
+      removeSearchBox(searchId);
+    }
+  });
+  
+  // Reset state
+  skillSearches = [{ id: 'skillSearch1', value: '' }];
+  searchCounter = 2;
+  SKILL_SEARCH_KEYS = ['skillSearch1'];
+  
+  // Save the cleared state
+  saveSkillSearches();
+  
+  // Clear skill search from localStorage
+  localStorage.removeItem('skillSearches');
+  
+  // Update UI
+  sectionPages.clear();
+  renderSections();
+  highlightSkills();
+  highlightSelectedSkills();
+  
+  // Visual feedback
+  const clearBtn = document.getElementById('clearAllSearchesBtn');
+  const originalText = clearBtn.textContent;
+  clearBtn.textContent = 'Cleared!';
+  clearBtn.style.background = '#f75757';
+  
+  setTimeout(() => {
+    clearBtn.textContent = originalText;
+    clearBtn.style.background = '';
+  }, 1500);
 }
 
 // Initialize the copy/paste buttons when the page loads
