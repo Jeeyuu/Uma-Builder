@@ -651,30 +651,30 @@ body {
   transform: scale(1.1);
 }
 
-/* Solid colors */
+/* Solid colors - black text, no border */
 .color-picker.green { background: #bce934; }
 .color-picker.blue { background: #1cd8fe; }
 .color-picker.orange { background: #fca92f; }
-.color-picker.red { background: #f87070; }
+.color-picker.red { background: #fca5a5; } /* Updated red */
 
-/* Colors with yellow border */
+/* Colors with gold border - white text */
 .color-picker.green-border { 
-  background: #bce934;
+  background: #57ad33; /* Dark green */
   border-color: #ffcb47;
   border-width: 3px;
 }
 .color-picker.blue-border { 
-  background: #1cd8fe;
+  background: #14a1f7; /* Dark blue */
   border-color: #ffcb47;
   border-width: 3px;
 }
 .color-picker.orange-border { 
-  background: #fca92f;
+  background: #f9943b; /* Dark orange */
   border-color: #ffcb47;
   border-width: 3px;
 }
 .color-picker.red-border { 
-  background: #f87070;
+  background: #f75757; /* Dark red */
   border-color: #ffcb47;
   border-width: 3px;
 }
@@ -1008,11 +1008,12 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
   z-index: 1;
 }
 
-/* Skills with yellow border */
+/* Skills with gold border - white text */
 .skill.search-highlighted[data-has-border="true"],
 .skill.highlighted[data-has-border="true"] {
   border: 2px solid #ffcb47;
   box-shadow: 0 0 0 1px #ffcb47;
+  color: #ffffff !important; /* Force white text for bordered skills */
 }
 
 /* Adjust padding for bordered skills to maintain size */
@@ -1027,8 +1028,19 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
   border: 2px solid #ffcb47;
   box-shadow: 0 0 0 1px #ffcb47;
   padding: 5px 7px; /* Adjusted padding */
+  color: #ffffff !important; /* Force white text for bordered skills */
 }
 
+/* Ensure solid colors keep black text */
+.skill.search-highlighted:not([data-has-border="true"]),
+.skill.highlighted:not([data-has-border="true"]) {
+  color: #000000 !important;
+}
+
+.skill-item.search-highlighted:not([data-has-border="true"]),
+.skill-item.highlighted:not([data-has-border="true"]) {
+  color: #000000 !important;
+}
 </style>
 </head>
 
@@ -2686,20 +2698,22 @@ const searchTerms = SKILL_SEARCH_KEYS
     
     // Check search terms with custom colors
     for (const { term, color } of searchTerms) {
-      if (skillText.includes(term)) {
-        const colorValue = getColorValue(color);
-        const textColor = getTextColor(color);
-        const hasBorder = color.includes('-border');
-        
-        skill.style.setProperty('background', colorValue, 'important');
-        skill.style.setProperty('color', textColor, 'important');
-        skill.classList.add('search-highlighted');
-        
-        if (hasBorder) {
-          skill.setAttribute('data-has-border', 'true');
-        }
-        return;
-      }
+// In both highlightSkills() and highlightSelectedSkills() functions:
+// Update this part:
+if (skillText.includes(term)) {
+  const colorValue = getColorValue(color);
+  const textColor = getTextColor(color);
+  const hasBorder = color.includes('-border');
+  
+  skill.style.setProperty('background', colorValue, 'important');
+  skill.style.setProperty('color', textColor, 'important');
+  skill.classList.add('search-highlighted');
+  
+  if (hasBorder) {
+    skill.setAttribute('data-has-border', 'true');
+  }
+  return;
+}
     }
     
     // Check dropdown terms
@@ -2720,21 +2734,27 @@ const searchTerms = SKILL_SEARCH_KEYS
 // Helper functions for colors
 function getColorValue(colorName) {
   const colorMap = {
+    // Solid colors - no border
     green: '#bce934',
     blue: '#1cd8fe', 
     orange: '#fca92f',
-    red: '#f87070',
-    'green-border': '#bce934',
-    'blue-border': '#1cd8fe',
-    'orange-border': '#fca92f', 
-    'red-border': '#f87070'
+    red: '#fca5a5', // Updated red
+    
+    // Border colors - dark backgrounds
+    'green-border': '#57ad33',
+    'blue-border': '#14a1f7',
+    'orange-border': '#f9943b', 
+    'red-border': '#f75757'
   };
   return colorMap[colorName] || '#bce934';
 }
 
 function getTextColor(colorName) {
-  // Always use black text for all colors
-  return '#000000';
+  // Use white text for border colors, black text for solid colors
+  if (colorName.includes('-border')) {
+    return '#ffffff'; // White text for bordered colors
+  }
+  return '#000000'; // Black text for solid colors
 }
 
 function updateSkillVisibility() {
@@ -3303,20 +3323,22 @@ const searchTerms = SKILL_SEARCH_KEYS
     
     // Check search terms with custom colors
     for (const { term, color } of searchTerms) {
-      if (skillText.includes(term)) {
-        const colorValue = getColorValue(color);
-        const textColor = getTextColor(color);
-        const hasBorder = color.includes('-border');
-        
-        skillItem.style.setProperty('background', colorValue, 'important');
-        skillItem.style.setProperty('color', textColor, 'important');
-        skillItem.classList.add('search-highlighted');
-        
-        if (hasBorder) {
-          skillItem.setAttribute('data-has-border', 'true');
-        }
-        return;
-      }
+      // In both highlightSkills() and highlightSelectedSkills() functions:
+// Update this part:
+if (skillText.includes(term)) {
+  const colorValue = getColorValue(color);
+  const textColor = getTextColor(color);
+  const hasBorder = color.includes('-border');
+  
+  skill.style.setProperty('background', colorValue, 'important');
+  skill.style.setProperty('color', textColor, 'important');
+  skill.classList.add('search-highlighted');
+  
+  if (hasBorder) {
+    skill.setAttribute('data-has-border', 'true');
+  }
+  return;
+}
     }
     
     // Check dropdown terms
