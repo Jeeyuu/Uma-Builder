@@ -134,9 +134,9 @@ body {
 .content-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* Change from center to flex-start */
   justify-content: flex-start;
-  width: calc(var(--card-w) * 5 + var(--gap) * 4); /* Adjust for 5 columns */
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -418,9 +418,11 @@ body {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(5, var(--card-w)); /* 5 columns instead of 6 */
+  grid-template-columns: repeat(auto-fill, var(--card-w));
   gap: var(--gap);
-  width: calc(var(--card-w) * 5 + var(--gap) * 4); /* Adjust width for 5 columns */
+  width: 100%;
+  justify-content: start; /* Left alignment */
+  align-content: start; /* Top alignment */
 }
 
 .card, .slot.has-card {
@@ -433,8 +435,9 @@ body {
   align-items: center;
   width: var(--card-w);
   position: relative;
-  min-height: 0; /* Add this to allow shrinking */
-  height: auto; /* Ensure height is automatic */
+  min-height: 0;
+  height: auto;
+  /* Remove any margin-auto centering if present */
 }
 
 .card .name, .slot.has-card .name {
