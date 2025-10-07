@@ -2894,12 +2894,18 @@ clearAllBtn.addEventListener('click', ()=>{
 });
 
 clearFiltersBtn.addEventListener('click', () => {
-  FILTER_KEYS.forEach(id => {
+  // Only clear the preset filters (racecourse through strategy)
+  const presetFilterIds = ['racecourse', 'length', 'direction', 'track', 'season', 'weather', 'strategy'];
+  
+  presetFilterIds.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.value = '';
-    localStorage.removeItem('filter_' + id);
+    if (el) {
+      el.value = '';
+      localStorage.removeItem('filter_' + id);
+    }
   });
 
+  // Clear card name search
   const cardSearchInput = document.getElementById('cardSearch');
   if (cardSearchInput) {
     cardSearchInput.value = '';
@@ -2907,15 +2913,8 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('cardSearch');
   }
 
-  // Clear skill searches - use the optimized function
-  clearAllSkillSearches();
-
-  // Clear toggle buttons (rarity and type)
-  selectedRarities.clear();
-  selectedTypes.clear();
-  document.querySelectorAll('.toggle-button').forEach(button => {
-    button.classList.remove('active');
-  });
+  // DO NOT clear skill searches - keep them as they are
+  // DO NOT clear toggle buttons (rarity and type) - keep them as they are
 
   // Reset preset cards to visible state when clearing filters
   showPresetCards = true;
