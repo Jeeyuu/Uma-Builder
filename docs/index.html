@@ -817,13 +817,6 @@ body {
   display: none;
 }
 
-/* ---------- SLOT LEVEL CONTROLS ---------- */
-.slot-container {
-  position: relative;
-  width: var(--card-w);
-  margin-bottom: 40px; /* Space for level controls */
-}
-
 .slot-level-controls {
   position: absolute;
   top: -35px; /* Position completely above the slot */
@@ -879,16 +872,21 @@ body {
   top: 4px; /* Reset to original position */
 }
 
-/* Update slots grid to accommodate containers */
 .slots {
   display: grid;
   grid-template-columns: repeat(3, var(--card-w));
   grid-auto-rows: min-content;
-  gap: var(--gap);
+  gap: var(--gap); /* This creates gap between ALL items */
   width: 100%;
   max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
   margin: 0 auto;
   align-items: start;
+}
+
+/* Remove the margin-bottom from slot containers */
+.slot-container {
+  position: relative;
+  width: var(--card-w);
 }
 
 </style>
