@@ -76,7 +76,7 @@ body {
 
 .right-sidebar {
   flex-shrink: 0;
-  width: 280px; /* Wider to fit slots */
+  /* Remove fixed width and let it size based on content */
   padding: 16px 12px;
   box-sizing: border-box;
   background: #f5f5f5;
@@ -85,6 +85,8 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* Add min-width to prevent it from getting too small */
+  min-width: fit-content;
 }
 
 .sidebar > *:not(:last-child),
@@ -271,7 +273,8 @@ body {
 }
 
 .slots-header .clear-all {
-  width: calc(var(--card-w) * 3 + var(--gap) * 2); /* Adjust for 3 columns */
+  width: 100%; /* Make it fill the available width */
+  max-width: calc(var(--card-w) * 3 + var(--gap) * 2); /* But don't exceed slot grid width */
   margin-bottom: 12px;
   padding: 8px 12px;
   height: auto;
@@ -364,10 +367,12 @@ body {
 /* ---------- SLOTS & CARDS ---------- */
 .slots {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 columns */
-  grid-template-rows: repeat(2, 1fr);    /* 2 rows */
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: var(--gap);
-  width: calc(var(--card-w) * 3 + var(--gap) * 2); /* Adjust width for 3 columns */
+  /* Remove fixed width calculation, let it size naturally */
+  width: 100%;
+  max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
   margin: 0 auto;
 }
 
