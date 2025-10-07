@@ -1041,6 +1041,46 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
 .skill-item.highlighted:not([data-has-border="true"]) {
   color: #000000 !important;
 }
+
+/* ---------- COPY/PASTE BUTTONS ---------- */
+.copy-paste-buttons {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.copy-paste-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background: #444;
+  color: #fff;
+  transition: background-color 0.2s;
+  font-weight: 600;
+}
+
+.copy-paste-btn:hover {
+  background: #333;
+}
+
+.copy-paste-btn:active {
+  transform: translateY(1px);
+}
+
+/* Dark mode support */
+body.dark-mode .copy-paste-btn {
+  background: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode .copy-paste-btn:hover {
+  background: #666;
+}
+
 </style>
 </head>
 
@@ -1273,19 +1313,26 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
   <!-- Thin divider -->
   <div class="skill-search-divider"></div>
 
-  <!-- Skill Search Section -->
-  <div id="skillSearchGroup">
-    <div class="skill-search-header">
-      <label for="skillSearch1">Skill Search</label>
-      <button class="add-search-btn" id="addSearchBtn">Add</button>
-    </div>
-    
-    <!-- Default search box -->
-    <div class="search-input-container">
-    <div class="color-picker red" data-search-id="skillSearch1" data-color="red"></div>
-      <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
-      <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
-    </div>
+html
+<!-- Skill Search Section -->
+<div id="skillSearchGroup">
+  <div class="skill-search-header">
+    <label for="skillSearch1">Skill Search</label>
+    <button class="add-search-btn" id="addSearchBtn">Add</button>
+  </div>
+  
+  <!-- ADD THESE TWO BUTTONS -->
+  <div class="copy-paste-buttons">
+    <button id="copySkillsBtn" class="copy-paste-btn">Copy</button>
+    <button id="pasteSkillsBtn" class="copy-paste-btn">Paste</button>
+  </div>
+  
+  <!-- Default search box -->
+  <div class="search-input-container">
+    <div class="color-picker green" data-search-id="skillSearch1" data-color="green"></div>
+    <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
+    <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
+  </div>
     
     <!-- Additional search boxes will be added here dynamically -->
   </div>
@@ -2093,6 +2140,7 @@ fetch(JSON_FILE)
     setupPresetReset();
     setupTogglePresetCards();
     setupCardSearch();
+    setupCopyPasteButtons();
     loadSlotsFromLocalStorage();
     
     // NEW: Initialize the skills list
@@ -3493,6 +3541,186 @@ window.addEventListener('resize', () => {
     renderSections();
   }, 250);
 });
+
+/* ------------- SKILL SEARCH COPY/PASTE FUNCTIONALITY ------------- */
+function setupCopyPasteButtons() {
+  const copyBtn = document.getElementById('copySkillsBtn');
+  const pasteBtn = document.getElementById('pasteSkillsBtn');
+  
+  copyBtn.addEventListener('click', copySkillsToClipboard);
+  pasteBtn.addEventListener('click', pasteSkillsFromClipboard);
+}
+
+function copySkillsToClipboard() {
+  const skillsData = skillSearches.map(search => {
+    const input = document.getElementById(search.id);
+    const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
+    
+    if (input && input.value.trim() && colorPicker) {
+      return {
+        skill: input.value.trim(),
+        color: colorPicker.dataset.color
+      };
+    }
+    return null;
+  }).filter(item => item !== null);
+  
+  if (skillsData.length === 0) {
+    alert('No skills to copy!');
+    return;
+  }
+  
+  // Format: skill1|color1,skill2|color2,skill3|color3
+  const copyText = skillsData.map(item => `${item.skill}|${item.color}`).join(',');
+  
+  navigator.clipboard.writeText(copyText).then(() => {
+    // Visual feedback
+    const copyBtn = document.getElementById('copySkillsBtn');
+    const originalText = copyBtn.textContent;
+    copyBtn.textContent = 'Copied!';
+    copyBtn.style.background = '#57ad33';
+    
+    setTimeout(() => {
+      copyBtn.textContent = originalText;
+      copyBtn.style.background = '';
+    }, 1500);
+    
+    console.log(`Copied ${skillsData.length} skill(s) to clipboard`);
+  }).catch(err => {
+    console.error('Failed to copy skills: ', err);
+    alert('Failed to copy skills to clipboard');
+  });
+}
+
+function pasteSkillsFromClipboard() {
+  navigator.clipboard.readText().then(text => {
+    try {
+      const skillsData = parseSkillsFromClipboard(text);
+      
+      if (skillsData.length === 0) {
+        alert('No valid skills found in clipboard!');
+        return;
+      }
+      
+      // Clear existing searches first
+      clearAllSkillSearches();
+      
+      // Create new searches for each pasted skill
+      skillsData.forEach((skillItem, index) => {
+        if (index < maxSearches) {
+          if (index === 0) {
+            // Update first search box
+            updateFirstSearchBox(skillItem);
+          } else {
+            // Add new search boxes
+            addSearchBoxFromPaste(skillItem);
+          }
+        }
+      });
+      
+      // Visual feedback
+      const pasteBtn = document.getElementById('pasteSkillsBtn');
+      const originalText = pasteBtn.textContent;
+      pasteBtn.textContent = `Pasted ${skillsData.length}`;
+      pasteBtn.style.background = '#14a1f7';
+      
+      setTimeout(() => {
+        pasteBtn.textContent = originalText;
+        pasteBtn.style.background = '';
+      }, 1500);
+      
+      console.log(`Pasted ${skillsData.length} skill(s) from clipboard`);
+      
+    } catch (error) {
+      console.error('Failed to parse clipboard data: ', error);
+      alert('Invalid format in clipboard! Use Copy button first.');
+    }
+  }).catch(err => {
+    console.error('Failed to read clipboard: ', err);
+    alert('Failed to read from clipboard. Please check permissions.');
+  });
+}
+
+function parseSkillsFromClipboard(text) {
+  // Expected format: skill1|color1,skill2|color2,skill3|color3
+  const skills = text.split(',').map(item => {
+    const [skill, color] = item.split('|');
+    if (skill && color) {
+      return {
+        skill: skill.trim(),
+        color: color.trim()
+      };
+    }
+    return null;
+  }).filter(item => item !== null);
+  
+  return skills;
+}
+
+function clearAllSkillSearches() {
+  // Remove all search boxes except the first one
+  const searchContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
+  searchContainers.forEach((container, index) => {
+    if (index > 0) {
+      const searchId = container.querySelector('.skill-search').id;
+      removeSearchBox(searchId);
+    }
+  });
+  
+  // Clear the first search box
+  const firstInput = document.getElementById('skillSearch1');
+  const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
+  if (firstInput) firstInput.value = '';
+  if (firstColorPicker) {
+    firstColorPicker.className = 'color-picker green';
+    firstColorPicker.dataset.color = 'green';
+    localStorage.setItem('color_skillSearch1', 'green');
+  }
+  
+  // Reset state
+  skillSearches = [{ id: 'skillSearch1', value: '' }];
+  searchCounter = 2;
+}
+
+function updateFirstSearchBox(skillItem) {
+  const firstInput = document.getElementById('skillSearch1');
+  const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
+  
+  if (firstInput && firstColorPicker) {
+    firstInput.value = skillItem.skill;
+    firstColorPicker.className = `color-picker ${skillItem.color}`;
+    firstColorPicker.dataset.color = skillItem.color;
+    
+    // Update state
+    skillSearches[0] = { id: 'skillSearch1', value: skillItem.skill };
+    localStorage.setItem('color_skillSearch1', skillItem.color);
+  }
+}
+
+function addSearchBoxFromPaste(skillItem) {
+  const newId = `skillSearch${searchCounter}`;
+  searchCounter++;
+  
+  // Add to state
+  skillSearches.push({ id: newId, value: skillItem.skill });
+  
+  // Create UI element
+  createSearchBox(newId, skillItem.skill, false);
+  
+  // Set color
+  const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
+  if (colorPicker) {
+    colorPicker.className = `color-picker ${skillItem.color}`;
+    colorPicker.dataset.color = skillItem.color;
+    localStorage.setItem(`color_${newId}`, skillItem.color);
+  }
+  
+  // Update global array
+  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+}
+
+// Initialize the copy/paste buttons when the page loads
+document.addEventListener('DOMContentLoaded', setupCopyPasteButtons);
 
 </script>
 </body>
