@@ -53,7 +53,9 @@ body {
 }
 
 .header-nav {
-  display: none;
+  display: flex; /* Make sure this is visible */
+  align-items: center;
+  gap: 10px;
 }
 
 /* ---------- LAYOUT ---------- */
@@ -797,6 +799,199 @@ body {
   color: white;
 }
 
+/* ---------- DARK MODE ---------- */
+body.dark-mode {
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+/* Header */
+body.dark-mode .header {
+  background: #2d2d2d;
+  border-bottom-color: #444;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .header-title {
+  color: #e0e0e0;
+}
+
+/* Sidebars */
+body.dark-mode .sidebar {
+  background: #2d2d2d;
+}
+
+body.dark-mode .right-sidebar {
+  background: #252525;
+  border-left-color: #444;
+}
+
+/* Form Controls */
+body.dark-mode select,
+body.dark-mode .skill-search,
+body.dark-mode .slot-level-input {
+  background: #3a3a3a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode select:focus,
+body.dark-mode .skill-search:focus,
+body.dark-mode .slot-level-input:focus {
+  border-color: #666;
+  outline: none;
+}
+
+/* Cards & Slots */
+body.dark-mode .card,
+body.dark-mode .slot {
+  background: #2d2d2d;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+body.dark-mode .slot:not(.has-card) {
+  background: #252525;
+  border-color: #555;
+}
+
+/* Skills */
+body.dark-mode .skill {
+  background: #3a3a3a;
+  color: #e0e0e0;
+}
+
+body.dark-mode .skills-header {
+  background: #444;
+  color: #e0e0e0;
+}
+
+/* Buttons */
+body.dark-mode .clear-all,
+body.dark-mode #clearFiltersBtn,
+body.dark-mode #togglePresetCardsBtn,
+body.dark-mode .add-search-btn,
+body.dark-mode .page-controls button {
+  background: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode .clear-all:hover,
+body.dark-mode #clearFiltersBtn:hover,
+body.dark-mode #togglePresetCardsBtn:hover,
+body.dark-mode .add-search-btn:hover,
+body.dark-mode .page-controls button:hover:not(:disabled) {
+  background: #666;
+}
+
+body.dark-mode .page-controls button:disabled {
+  background: #444;
+  color: #888;
+}
+
+/* Remove Search Button */
+body.dark-mode .remove-search-btn {
+  background: #3a3a3a;
+  border-color: #555;
+  color: #888;
+}
+
+body.dark-mode .remove-search-btn:hover {
+  background: #444;
+  color: #e0e0e0;
+}
+
+/* Toggle Buttons */
+body.dark-mode .toggle-button {
+  background: #3a3a3a;
+}
+
+body.dark-mode .toggle-button:hover {
+  background: #444;
+}
+
+/* Sort Order Button */
+body.dark-mode .sort-order-btn {
+  background: #3a3a3a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+body.dark-mode .sort-order-btn:hover {
+  background: #444;
+  border-color: #666;
+}
+
+body.dark-mode .sort-order-btn.ascending {
+  background: #555;
+  border-color: #666;
+}
+
+/* Level Controls */
+body.dark-mode .slot-level-controls {
+  background: #3a3a3a;
+  border-color: #555;
+}
+
+body.dark-mode .slot-level-label {
+  color: #e0e0e0;
+}
+
+/* Selected Skills */
+body.dark-mode .skill-item {
+  background: #3a3a3a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+/* Scrollbars */
+body.dark-mode .skills-list::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+body.dark-mode .skills-list::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+body.dark-mode .skills-list::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Dividers */
+body.dark-mode .skill-search-divider {
+  background: #555;
+}
+
+/* Dark Mode Toggle Button */
+.dark-mode-toggle {
+  background: none;
+  border: 2px solid #666;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-mode-toggle:hover {
+  background: #444;
+  border-color: #888;
+  transform: scale(1.1);
+}
+
+body.dark-mode .dark-mode-toggle {
+  border-color: #888;
+  background: #444;
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+  background: #555;
+}
+
 </style>
 </head>
 
@@ -808,7 +1003,10 @@ body {
     <div class="header-title">Uma Builder</div>
   </div>
   <div class="header-nav">
-    <!-- Navigation links are hidden -->
+    <!-- Dark Mode Toggle Button -->
+    <button id="darkModeToggle" class="dark-mode-toggle" title="Toggle Dark Mode">
+      🌙
+    </button>
   </div>
 </div>
 
@@ -3164,6 +3362,31 @@ function createLevelControls(slot, card) {
   
   return levelControls;
 }
+
+/* ------------- DARK MODE ------------- */
+function setupDarkMode() {
+  const darkModeToggle = document.getElementById('darkModeToggle');
+  const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+  
+  // Apply saved dark mode state
+  if (savedDarkMode) {
+    document.body.classList.add('dark-mode');
+    darkModeToggle.textContent = '☀️'; // Sun icon for light mode
+  } else {
+    darkModeToggle.textContent = '🌙'; // Moon icon for dark mode
+  }
+  
+  darkModeToggle.addEventListener('click', () => {
+    const isDarkMode = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDarkMode);
+    
+    // Update button icon
+    darkModeToggle.textContent = isDarkMode ? '☀️' : '🌙';
+  });
+}
+
+// Initialize dark mode when the page loads
+document.addEventListener('DOMContentLoaded', setupDarkMode);
 
 // Initialize the hide uncolored checkbox
 setupHideUncoloredCheckbox();
