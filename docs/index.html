@@ -813,9 +813,14 @@ body {
 }
 
 /* ---------- SLOT LEVEL CONTROLS ---------- */
+.slot-wrapper {
+  position: relative;
+  width: var(--card-w);
+}
+
 .slot-level-controls {
   position: absolute;
-  top: -30px; /* Position above the card */
+  top: -35px; /* Position above the card */
   left: 0;
   right: 0;
   display: flex;
@@ -825,8 +830,8 @@ body {
   background: #f8f8f8;
   border: 1px solid #ddd;
   border-radius: 4px;
-  z-index: 10; /* Ensure it's above other elements */
-  pointer-events: auto; /* Ensure clicks work */
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .slot-level-label {
@@ -851,9 +856,21 @@ body {
   border-color: #444;
 }
 
+/* Update slot structure */
+.slot.has-card {
+  position: relative;
+  padding-top: 0; /* Remove the extra padding */
+  min-height: calc(var(--card-w) * 2.2);
+}
+
 /* Hide level controls on empty slots */
 .slot:not(.has-card) .slot-level-controls {
   display: none;
+}
+
+/* Ensure type icon position is correct */
+.slot.has-card .type-icon {
+  top: 4px; /* Reset to original position */
 }
 
 </style>
@@ -2250,10 +2267,12 @@ freeSlot.innerHTML = `
     <span class="slot-level-label">Level</span>
     <input type="number" class="slot-level-input" min="1" max="${getMaxLevel(card)}" value="${slotLevels[card.support_id] || 1}">
   </div>
-  <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div>
-  <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
-  <div class="name">${escapeHtml(card.char_name)}</div>
-  <div class="skills">${skillsHTML}</div>
+  <div class="slot-content">
+    <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div>
+    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+    <div class="name">${escapeHtml(card.char_name)}</div>
+    <div class="skills">${skillsHTML}</div>
+  </div>
 `;
 
 // Add level input event listeners
