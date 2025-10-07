@@ -491,6 +491,23 @@ body.dark-mode #clearFiltersBtn:hover {
   min-height: 0;
 }
 
+/* Fix for hidden skills groups - remove gap when group is hidden */
+.skills-group.hidden-skill {
+  display: none !important;
+  margin: 0 !important;
+  gap: 0 !important;
+}
+
+/* Ensure no gap between visible groups when a hidden group is between them */
+.skills-group:not(.hidden-skill) + .skills-group:not(.hidden-skill) {
+  margin-top: 8px;
+}
+
+/* Remove top margin for first visible group */
+.skills-group:not(.hidden-skill):first-child {
+  margin-top: 0;
+}
+
 .skill {
   width: 100%;
   background: #eef2ff;
