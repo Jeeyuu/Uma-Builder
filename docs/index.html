@@ -813,14 +813,15 @@ body {
 }
 
 /* ---------- SLOT LEVEL CONTROLS ---------- */
-.slot-wrapper {
+.slot-container {
   position: relative;
   width: var(--card-w);
+  margin-bottom: 40px; /* Space for level controls */
 }
 
 .slot-level-controls {
   position: absolute;
-  top: -35px; /* Position above the card */
+  top: -35px; /* Position completely above the slot */
   left: 0;
   right: 0;
   display: flex;
@@ -830,7 +831,7 @@ body {
   background: #f8f8f8;
   border: 1px solid #ddd;
   border-radius: 4px;
-  z-index: 10;
+  z-index: 20;
   pointer-events: auto;
 }
 
@@ -871,6 +872,18 @@ body {
 /* Ensure type icon position is correct */
 .slot.has-card .type-icon {
   top: 4px; /* Reset to original position */
+}
+
+/* Update slots grid to accommodate containers */
+.slots {
+  display: grid;
+  grid-template-columns: repeat(3, var(--card-w));
+  grid-auto-rows: min-content;
+  gap: var(--gap);
+  width: 100%;
+  max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
+  margin: 0 auto;
+  align-items: start;
 }
 
 </style>
@@ -1128,37 +1141,67 @@ body {
   </div>
 
 <!-- Right Sidebar (Slots) -->
+<!-- Right Sidebar (Slots) -->
 <div class="right-sidebar">
-
-    <!-- ADD THIS DIVIDER -->
   <div class="skill-search-divider"></div>
-
   <div class="slots-header">
     <button class="clear-all" id="clearAllBtn">Clear All</button>
   </div>
 
   <div class="slots" id="slots">
-    <div class="slot" data-slot="0"><div class="placeholder">Empty</div></div>
-    <div class="slot" data-slot="1"><div class="placeholder">Empty</div></div>
-    <div class="slot" data-slot="2"><div class="placeholder">Empty</div></div>
-    <div class="slot" data-slot="3"><div class="placeholder">Empty</div></div>
-    <div class="slot" data-slot="4"><div class="placeholder">Empty</div></div>
-    <div class="slot" data-slot="5"><div class="placeholder">Empty</div></div>
+    <div class="slot-container" data-slot="0">
+      <div class="slot-level-controls">
+        <span class="slot-level-label">Level</span>
+        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+      </div>
+      <div class="slot" data-slot="0"><div class="placeholder">Empty</div></div>
+    </div>
+    <div class="slot-container" data-slot="1">
+      <div class="slot-level-controls">
+        <span class="slot-level-label">Level</span>
+        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+      </div>
+      <div class="slot" data-slot="1"><div class="placeholder">Empty</div></div>
+    </div>
+    <div class="slot-container" data-slot="2">
+      <div class="slot-level-controls">
+        <span class="slot-level-label">Level</span>
+        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+      </div>
+      <div class="slot" data-slot="2"><div class="placeholder">Empty</div></div>
+    </div>
+    <div class="slot-container" data-slot="3">
+      <div class="slot-level-controls">
+        <span class="slot-level-label">Level</span>
+        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+      </div>
+      <div class="slot" data-slot="3"><div class="placeholder">Empty</div></div>
+    </div>
+    <div class="slot-container" data-slot="4">
+      <div class="slot-level-controls">
+        <span class="slot-level-label">Level</span>
+        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+      </div>
+      <div class="slot" data-slot="4"><div class="placeholder">Empty</div></div>
+    </div>
+    <div class="slot-container" data-slot="5">
+      <div class="slot-level-controls">
+        <span class="slot-level-label">Level</span>
+        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+      </div>
+      <div class="slot" data-slot="5"><div class="placeholder">Empty</div></div>
+    </div>
   </div>
 
-  <!-- ADD THIS DIVIDER -->
   <div class="skill-search-divider"></div>
-
-  <!-- ADD THIS NEW SKILLS LIST SECTION -->
   <div class="selected-skills-section">
     <div class="skills-list-header">
       <h3>Selected Card Skills</h3>
       <span class="skills-count">(<span id="skillsCount">0</span> unique skills)</span>
     </div>
-    <div class="skills-list" id="selectedSkillsList">
-      <!-- Skills will be populated here dynamically -->
-    </div>
+    <div class="skills-list" id="selectedSkillsList"></div>
   </div>
+</div>
 </div>
   
 </div>
@@ -1173,6 +1216,7 @@ const HIDE = { char_id: false, url_name: true };
 /* ------------- STATE ------------- */
 let cardsData = [];
 const cardSections = document.getElementById('cardSections');
+const slotContainers = Array.from(document.querySelectorAll('.slot-container'));
 const slots = Array.from(document.querySelectorAll('.right-sidebar .slot'));
 const clearAllBtn = document.getElementById('clearAllBtn');
 const clearFiltersBtn = document.getElementById('clearFiltersBtn');
@@ -1755,6 +1799,16 @@ function removeFromSlot(slotEl, card){
   
   slotEl.classList.remove('has-card');
   
+  // Find the container and reset level controls
+  const slotContainer = slotEl.closest('.slot-container');
+  if (slotContainer) {
+    const levelInput = slotContainer.querySelector('.slot-level-input');
+    levelInput.disabled = true;
+    levelInput.value = '1';
+    levelInput.min = '1';
+    levelInput.max = '50';
+  }
+  
   // Remove level data if card exists
   if (card && card.support_id) {
     delete slotLevels[card.support_id];
@@ -1769,15 +1823,11 @@ function removeFromSlot(slotEl, card){
   if (card && card.char_id) {
     selectedCardIds.delete(Number(card.char_id));
   } else if (slotEl.dataset.cardId) {
-    // Fallback: try to get char_id from slot data
     selectedCardIds.delete(Number(slotEl.dataset.cardId));
   }
   
   saveSlotsToLocalStorage();
-  
-  // NEW: Update the skills list
   updateSelectedSkillsList();
-  
   renderSections();
 }
 
@@ -2215,11 +2265,13 @@ function loadSlotsFromLocalStorage() {
   slotData.forEach((supportId, index) => {
     if (supportId) {
       const card = cardsData.find(c => String(c.support_id) === String(supportId));
-      if (card) addToSlot(card, slots[index], false);
+      if (card) {
+        const slot = slots[index];
+        addToSlot(card, slot, false);
+      }
     }
   });
   
-  // NEW: Apply highlighting to all loaded slot skills
   highlightSkills();
 }
 
@@ -2227,16 +2279,19 @@ function addToSlot(card, targetSlot = null, save = true){
   const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
   if(!freeSlot) return;
 
+  // Find the container for this slot
+  const slotContainer = freeSlot.closest('.slot-container');
+  if (!slotContainer) return;
+
   // Remove existing listener if any
   if(slotListeners.has(freeSlot)){
     freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
     slotListeners.delete(freeSlot);
   }
 
-// Use English skills for Global region, Japanese skills for Japan region
-// Fall back to Japanese skills if English skills are empty
-const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+  // Use English skills for Global region, Japanese skills for Japan region
+  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
   let skillsHTML = '';
   
@@ -2257,54 +2312,54 @@ const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_sk
     skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
   }
 
-freeSlot.dataset.cardId = card.char_id;
-freeSlot.dataset.supportId = card.support_id;
-freeSlot.classList.add('has-card');
+  freeSlot.dataset.cardId = card.char_id;
+  freeSlot.dataset.supportId = card.support_id;
+  freeSlot.classList.add('has-card');
 
-// Use compact styling for slots with level controls
-freeSlot.innerHTML = `
-  <div class="slot-level-controls">
-    <span class="slot-level-label">Level</span>
-    <input type="number" class="slot-level-input" min="1" max="${getMaxLevel(card)}" value="${slotLevels[card.support_id] || 1}">
-  </div>
-  <div class="slot-content">
+  // Update slot content (NO level controls here)
+  freeSlot.innerHTML = `
     <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div>
     <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
     <div class="name">${escapeHtml(card.char_name)}</div>
     <div class="skills">${skillsHTML}</div>
-  </div>
-`;
+  `;
 
-// Add level input event listeners
-const levelInput = freeSlot.querySelector('.slot-level-input');
-levelInput.addEventListener('change', (e) => {
-  const newLevel = updateSlotLevel(freeSlot, card, e.target.value);
-  e.target.value = newLevel;
-});
-
-levelInput.addEventListener('blur', (e) => {
-  const newLevel = updateSlotLevel(freeSlot, card, e.target.value);
-  e.target.value = newLevel;
-});
+  // Update level controls in the container (outside the clickable slot)
+  const levelControls = slotContainer.querySelector('.slot-level-controls');
+  const levelInput = levelControls.querySelector('.slot-level-input');
+  
+  // Enable and configure level input
+  levelInput.disabled = false;
+  levelInput.min = '1';
+  levelInput.max = getMaxLevel(card);
+  levelInput.value = slotLevels[card.support_id] || 1;
+  
+  // Update level input event listeners
+  levelInput.onchange = (e) => {
+    const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
+    e.target.value = newLevel;
+  };
+  
+  levelInput.onblur = (e) => {
+    const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
+    e.target.value = newLevel;
+  };
 
   // Create and attach the click handler - store the actual card object
-  const slotCard = {...card}; // Create a copy to avoid reference issues
-  
+  const slotCard = {...card};
+
   function slotClickHandler(){ 
     removeFromSlot(freeSlot, slotCard); 
   }
-  
-  // Attach the event listener to the slot element
+
+  // Attach the event listener to the slot element only
   freeSlot.addEventListener('click', slotClickHandler);
   slotListeners.set(freeSlot, slotClickHandler);
 
   selectedCardIds.add(card.char_id);
   if(save) saveSlotsToLocalStorage();
   
-  // NEW: Update the skills list
   updateSelectedSkillsList();
-  
-  // NEW: Apply highlighting to the slot skills immediately
   highlightSkills();
   renderSections();
 }
@@ -2320,7 +2375,15 @@ clearAllBtn.addEventListener('click', ()=>{
   });
   localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
   
-  slots.forEach(slot=>{
+  // Reset all level controls and slots
+  slotContainers.forEach(container => {
+    const levelInput = container.querySelector('.slot-level-input');
+    levelInput.disabled = true;
+    levelInput.value = '1';
+    levelInput.min = '1';
+    levelInput.max = '50';
+    
+    const slot = container.querySelector('.slot');
     if(slotListeners.has(slot)){
       slot.removeEventListener('click', slotListeners.get(slot));
       slotListeners.delete(slot);
@@ -2329,11 +2392,9 @@ clearAllBtn.addEventListener('click', ()=>{
     delete slot.dataset.cardId;
     slot.innerHTML='<div class="placeholder">Empty</div>';
   });
+  
   localStorage.removeItem(SLOT_KEY);
-  
-  // NEW: Update the skills list
   updateSelectedSkillsList();
-  
   renderSections();
 });
 
@@ -3124,13 +3185,13 @@ function validateLevel(level, card) {
   return num;
 }
 
-function updateSlotLevel(slot, card, level) {
+function updateSlotLevel(slotContainer, card, level) {
   const validatedLevel = validateLevel(level, card);
-  slotLevels[slot.dataset.supportId] = validatedLevel;
+  slotLevels[card.support_id] = validatedLevel;
   localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
   
   // Update the input display
-  const levelInput = slot.querySelector('.slot-level-input');
+  const levelInput = slotContainer.querySelector('.slot-level-input');
   if (levelInput) {
     levelInput.value = validatedLevel;
   }
