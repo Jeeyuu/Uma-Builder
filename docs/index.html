@@ -120,7 +120,6 @@ body {
   overflow-y: auto;
   padding: 16px;
   box-sizing: border-box;
-  width: 100%; /* Take all available space between sidebars */
 }
 
 .main-content::-webkit-scrollbar {
@@ -137,8 +136,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 100%;
-  max-width: 100%; /* Remove fixed width constraint */
+  width: calc(var(--card-w) * 5 + var(--gap) * 4); /* Adjust for 5 columns */
   margin: 0 auto;
 }
 
@@ -418,13 +416,11 @@ body {
   font-size: 11px;
 }
 
-/* Responsive cards grid */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--card-w), 1fr));
+  grid-template-columns: repeat(5, var(--card-w)); /* 5 columns instead of 6 */
   gap: var(--gap);
-  width: 100%;
-  justify-content: center;
+  width: calc(var(--card-w) * 5 + var(--gap) * 4); /* Adjust width for 5 columns */
 }
 
 .card, .slot.has-card {
@@ -437,10 +433,10 @@ body {
   align-items: center;
   width: var(--card-w);
   position: relative;
-  min-height: 0;
-  height: auto;
-  justify-self: center; /* Center cards in their grid cells */
+  min-height: 0; /* Add this to allow shrinking */
+  height: auto; /* Ensure height is automatic */
 }
+
 .card .name, .slot.has-card .name {
   margin: 6px 0 4px 0;
   font-weight: 700;
