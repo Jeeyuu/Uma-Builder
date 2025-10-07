@@ -1687,6 +1687,13 @@ body.dark-mode .effect-value {
       <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
       <button id="clearAllBtn" class="clear-all">Clear Deck</button>
     </div>
+    <!-- Add debug buttons -->
+    <div class="slots-header">
+  <div class="deck-buttons">
+    <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
+    <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
+    <button id="clearAllBtn" class="clear-all">Clear Deck</button>
+  </div>
 </div>
 
   <div class="slots" id="slots">
@@ -2679,7 +2686,7 @@ fetch(JSON_FILE)
     }));
 
     // Initialize all components with error handling
-      try {
+    try {
       setupFilterPersistence();
       setupToggleButtons();
       setupSortingControls();
@@ -2694,10 +2701,6 @@ fetch(JSON_FILE)
       updateSelectedSkillsList();
       setupDeckCopyPaste();
       renderSections();
-      
-      // ADD THIS LINE to initialize effect calculation
-      initializeEffectCalculation();
-      
     } catch (error) {
       console.error('Error during setup:', error);
     }
@@ -4714,22 +4717,11 @@ function getEffectValueAtLevel(effectData, level) {
 
 function findCardWithEffects(supportId) {
   if (!supportsDataWithEffects || supportsDataWithEffects.length === 0) {
-    console.warn('supportsDataWithEffects not loaded yet for card', supportId);
+    console.warn('supportsDataWithEffects not loaded yet');
     return null;
   }
   
-  // Try to find the card, log if not found for debugging
   const card = supportsDataWithEffects.find(c => c.support_id == supportId);
-  
-  if (!card) {
-    console.warn(`Card with support_id ${supportId} not found in supports.json`);
-    // Log some available IDs to help debug
-    const sampleIds = supportsDataWithEffects.slice(0, 5).map(c => c.support_id);
-    console.log('Sample support_ids in data:', sampleIds);
-  } else {
-    console.log(`Found card: ${card.char_name} (ID: ${card.support_id}) with ${card.effects ? card.effects.length : 0} effects`);
-  }
-  
   return card;
 }
 
@@ -4897,16 +4889,7 @@ function setupEffectCalculation() {
     input.addEventListener('change', updateEffectTotals);
     input.addEventListener('input', updateEffectTotals);
   });
-
-      // Manual trigger for testing effects
-    window.testEffects = function() {
-      console.log('Manual effect test triggered');
-      console.log('cardsData length:', cardsData ? cardsData.length : 0);
-      console.log('supportsDataWithEffects length:', supportsDataWithEffects ? supportsDataWithEffects.length : 0);
-      console.log('Slots with cards:', Array.from(document.querySelectorAll('.slot[data-support-id]')).map(s => s.dataset.supportId));
-      updateEffectTotals();
-    };
-      
+  
   // Override clear all functionality to update effects
   const originalClearAll = clearAllBtn.onclick;
   clearAllBtn.onclick = function() {
@@ -4929,33 +4912,16 @@ function setupEffectCalculation() {
 function initializeEffectCalculation() {
   console.log('Initializing effect calculation system...');
   
-  // First load supports.json with effects data
   loadSupportsData().then(() => {
-    console.log('supports.json loaded, setting up effect calculation');
+    console.log('supports.json loaded, waiting for transformed_supports.json...');
     
-    // Set up effect calculation immediately after supports.json is loaded
-    // Don't wait for transformed_supports.json since cardsData should already be loaded
-    setTimeout(() => {
+    const checkDataLoaded = setInterval(() => {
       if (window.cardsData && window.cardsData.length > 0) {
+        clearInterval(checkDataLoaded);
         console.log('Both datasets loaded, setting up effect calculation');
-        console.log('transformed_supports cards:', window.cardsData.length);
-        console.log('supports.json cards:', supportsDataWithEffects.length);
-        
         setupEffectCalculation();
-      } else {
-        console.log('Waiting for cardsData to be populated...');
-        // If cardsData isn't ready yet, wait for it
-        const checkDataLoaded = setInterval(() => {
-          if (window.cardsData && window.cardsData.length > 0) {
-            clearInterval(checkDataLoaded);
-            console.log('cardsData now loaded, setting up effect calculation');
-            setupEffectCalculation();
-          }
-        }, 100);
       }
-    }, 500);
-  }).catch(error => {
-    console.error('Failed to load supports.json:', error);
+    }, 100);
   });
 }
 
