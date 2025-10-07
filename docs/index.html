@@ -1402,7 +1402,7 @@ body.dark-mode .slots-header .clear-all:hover {
 <!-- Skill Search Section -->
 <div id="skillSearchGroup">
   <div class="skill-search-header">
-    <label for="skillSearch1">Skill Search</label>
+    <label for="skillSearch1">Search</label>  <!-- CHANGED -->
     <div class="skill-search-buttons">
       <button class="clear-search-btn" id="clearAllSearchesBtn" title="Clear all searches">Clear</button>
       <button class="add-search-btn" id="addSearchBtn">Add</button>
@@ -2013,25 +2013,22 @@ function setupRemoveButton(searchId) {
 function removeSearchBox(searchId) {
   // Don't remove if it's the last search box
   if (skillSearches.length <= 1) {
-    // If it's the last one, just clear the value and reset color instead of removing
+    // If it's the last one, just clear the value and reset color
     const input = document.getElementById(searchId);
     const colorPicker = document.querySelector(`.color-picker[data-search-id="${searchId}"]`);
     
-    if (input) {
-      input.value = '';
-      // Update state
-      const search = skillSearches.find(s => s.id === searchId);
-      if (search) {
-        search.value = '';
-        saveSkillSearches();
-      }
-    }
-    
-    // Reset color to default
+    if (input) input.value = '';
     if (colorPicker) {
       colorPicker.className = 'color-picker green';
       colorPicker.dataset.color = 'green';
       localStorage.setItem(`color_${searchId}`, 'green');
+    }
+    
+    // Update state
+    const search = skillSearches.find(s => s.id === searchId);
+    if (search) {
+      search.value = '';
+      saveSkillSearches();
     }
     
     sectionPages.clear();
@@ -2041,24 +2038,26 @@ function removeSearchBox(searchId) {
     return;
   }
   
-  // Remove from our state
-  skillSearches = skillSearches.filter(search => search.id !== searchId);
-  saveSkillSearches();
-  
-  // Remove from UI
+  // Remove from UI first
   const container = document.querySelector(`.search-input-container input[id="${searchId}"]`)?.parentElement;
   if (container) {
     container.remove();
   }
   
-  // Remove color picker data from localStorage
+  // Then update state
+  skillSearches = skillSearches.filter(search => search.id !== searchId);
+  saveSkillSearches();
+  
+  // Remove from localStorage
   localStorage.removeItem(`color_${searchId}`);
   
-  // CRITICAL: Update SKILL_SEARCH_KEYS after removal
+  // Update global array
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
-  // If we removed the first search box and there are others, rename the remaining ones to maintain order
-  reorganizeSearchBoxes();
+  // Reorganize if needed (only if we removed the first one)
+  if (searchId === 'skillSearch1') {
+    reorganizeSearchBoxes();
+  }
   
   sectionPages.clear();
   renderSections();
@@ -2730,8 +2729,8 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('cardSearch');
   }
 
-  // Clear skill searches - COMPLETELY reset them
-  clearAllSkillSearches(); // Use the new clear function
+  // Clear skill searches - use the optimized function
+  clearAllSkillSearches();
 
   // Clear toggle buttons (rarity and type)
   selectedRarities.clear();
@@ -2750,6 +2749,8 @@ clearFiltersBtn.addEventListener('click', () => {
   
   const presetsSelect = document.getElementById('presets');
   if (presetsSelect) presetsSelect.value = '';
+  
+  // Batch UI updates
   sectionPages.clear();
   renderSections();
   updateSkillVisibility();
@@ -3841,47 +3842,45 @@ function setupClearAllSearches() {
   clearAllSearchesBtn.addEventListener('click', clearAllSkillSearches);
 }
 
+/* ------------- CLEAR ALL SKILL SEARCHES - OPTIMIZED ------------- */
 function clearAllSkillSearches() {
-  // Clear all search inputs
-  const searchInputs = document.querySelectorAll('#skillSearchGroup .skill-search');
-  searchInputs.forEach(input => {
-    input.value = '';
-  });
-  
-  // Reset all color pickers to default green
-  const colorPickers = document.querySelectorAll('#skillSearchGroup .color-picker');
-  colorPickers.forEach((picker, index) => {
-    picker.className = 'color-picker green';
-    picker.dataset.color = 'green';
-    
-    // Save to localStorage
-    const searchId = picker.dataset.searchId;
-    if (searchId) {
-      localStorage.setItem(`color_${searchId}`, 'green');
-    }
-  });
-  
-  // Remove all search boxes except the first one
+  // Get all search containers at once
   const searchContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
-  searchContainers.forEach((container, index) => {
-    if (index > 0) {
-      const searchId = container.querySelector('.skill-search').id;
-      removeSearchBox(searchId);
-    }
-  });
   
-  // Reset state
+  // If no containers or only one, just reset the first one
+  if (searchContainers.length === 0) return;
+  
+  // Clear and reset the first search box
+  const firstContainer = searchContainers[0];
+  const firstInput = firstContainer.querySelector('.skill-search');
+  const firstColorPicker = firstContainer.querySelector('.color-picker');
+  
+  if (firstInput) firstInput.value = '';
+  if (firstColorPicker) {
+    firstColorPicker.className = 'color-picker green';
+    firstColorPicker.dataset.color = 'green';
+  }
+  
+  // Remove all search boxes except the first one - FAST BATCH REMOVAL
+  for (let i = searchContainers.length - 1; i > 0; i--) {
+    searchContainers[i].remove();
+  }
+  
+  // Reset state efficiently
   skillSearches = [{ id: 'skillSearch1', value: '' }];
   searchCounter = 2;
   SKILL_SEARCH_KEYS = ['skillSearch1'];
   
-  // Save the cleared state
-  saveSkillSearches();
+  // Save to localStorage
+  localStorage.setItem('skillSearches', JSON.stringify(skillSearches));
+  localStorage.setItem('color_skillSearch1', 'green');
   
-  // Clear skill search from localStorage
-  localStorage.removeItem('skillSearches');
+  // Clear any orphaned color picker data from localStorage
+  for (let i = 2; i <= 30; i++) {
+    localStorage.removeItem(`color_skillSearch${i}`);
+  }
   
-  // Update UI
+  // Update UI - batch operations
   sectionPages.clear();
   renderSections();
   highlightSkills();
@@ -3897,6 +3896,8 @@ function clearAllSkillSearches() {
     clearBtn.textContent = originalText;
     clearBtn.style.background = '';
   }, 1500);
+  
+  console.log('All searches cleared successfully');
 }
 
 /* ------------- DECK COPY/PASTE FUNCTIONALITY ------------- */
