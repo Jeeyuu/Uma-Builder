@@ -1891,8 +1891,9 @@ function createSearchBox(searchId, value = '') {
   const searchContainer = document.createElement('div');
   searchContainer.className = 'search-input-container';
   
-  // Get the color from localStorage or default to green
-  const savedColor = localStorage.getItem(`color_${searchId}`) || 'green';
+  // FORCE green color for all new boxes, ignore localStorage for new creations
+  const isNewBox = !document.getElementById(searchId);
+  const savedColor = isNewBox ? 'green' : (localStorage.getItem(`color_${searchId}`) || 'green');
   
   searchContainer.innerHTML = `
     <div class="color-picker ${savedColor}" data-search-id="${searchId}" data-color="${savedColor}"></div>
@@ -1951,8 +1952,16 @@ function addSearchBox() {
   skillSearches.push({ id: newId, value: '' });
   saveSkillSearches();
   
-  // Create the UI element - it will use default green color
+  // Create the UI element - ALWAYS use default green color for new boxes
   createSearchBox(newId, '');
+  
+  // CRITICAL: Force the new box to be green, regardless of what's in localStorage
+  const newColorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
+  if (newColorPicker) {
+    newColorPicker.className = 'color-picker green';
+    newColorPicker.dataset.color = 'green';
+    localStorage.setItem(`color_${newId}`, 'green');
+  }
   
   // CRITICAL: Update the global array immediately
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
@@ -2099,6 +2108,7 @@ function reorganizeSearchBoxes() {
     const newId = `skillSearch${index + 1}`;
     
     // Get the color from the current position (not the old ID)
+    // If we have more boxes than saved colors, use green for new ones
     const color = currentColors[index] || 'green';
     
     // Update the search ID in our state
