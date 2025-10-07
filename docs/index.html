@@ -1118,14 +1118,16 @@ body.dark-mode .copy-paste-btn:hover {
 
 /* ---------- DECK BUTTONS ---------- */
 .deck-buttons {
-  display: flex;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(3, var(--card-w));
+  gap: var(--gap);
   width: 100%;
   max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
+  margin-bottom: 12px; /* Added margin bottom */
 }
 
-.deck-btn {
-  flex: 1;
+.deck-btn, .slots-header .clear-all {
+  width: var(--card-w);
   padding: 8px 12px;
   font-size: 12px;
   cursor: pointer;
@@ -1135,30 +1137,27 @@ body.dark-mode .copy-paste-btn:hover {
   color: #fff;
   transition: background-color 0.2s;
   font-weight: 600;
+  margin-bottom: 0; /* Remove any existing margin */
+  box-sizing: border-box;
 }
 
-.deck-btn:hover {
+.deck-btn:hover, .slots-header .clear-all:hover {
   background: #333;
 }
 
-.deck-btn:active {
+.deck-btn:active, .slots-header .clear-all:active {
   transform: translateY(1px);
 }
 
-/* Adjust clear-all to work in the flex layout */
-.slots-header .clear-all {
-  width: auto;
-  flex: 1;
-  margin-bottom: 0;
-}
-
 /* Dark mode support */
-body.dark-mode .deck-btn {
+body.dark-mode .deck-btn,
+body.dark-mode .slots-header .clear-all {
   background: #555;
   color: #e0e0e0;
 }
 
-body.dark-mode .deck-btn:hover {
+body.dark-mode .deck-btn:hover,
+body.dark-mode .slots-header .clear-all:hover {
   background: #666;
 }
 
@@ -1436,10 +1435,9 @@ body.dark-mode .deck-btn:hover {
     <div class="deck-buttons">
       <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
       <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
-      <button class="clear-all" id="clearAllBtn">Clear All</button>
+      <button id="clearAllBtn" class="clear-all">Clear All</button>
     </div>
   </div>
-
 
   <div class="slots" id="slots">
     <div class="slot-container" data-slot="0">
