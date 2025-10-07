@@ -807,6 +807,43 @@ body {
   display: none;
 }
 
+/* ---------- SLOT LEVEL CONTROLS ---------- */
+.slot-level-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.slot-level-label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #333;
+}
+
+.slot-level-input {
+  width: 40px;
+  height: 24px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  background: #fff;
+}
+
+.slot-level-input:focus {
+  outline: none;
+  border-color: #444;
+}
+
+/* Hide level controls on empty slots */
+.slot:not(.has-card) .slot-level-controls {
+  display: none;
+}
+
 </style>
 </head>
 
@@ -1095,7 +1132,7 @@ body {
   </div>
 </div>
   
-  </div>
+</div>
 
 </div>
 
@@ -1134,6 +1171,10 @@ let hideUncolored = false;
 let sortBy = 'rarity';
 let sortOrder = 'descending'; // CHANGED TO DESCENDING
 let region = 'global';
+
+/* ------------- LEVEL STATE ------------- */
+const slotLevels = JSON.parse(localStorage.getItem('slotLevels')) || {};
+const MAX_LEVELS = { 'R': 40, 'SR': 45, 'SSR': 50 };
 
 /* ------------- DYNAMIC PAGINATION ------------- */
 function calculateCardsPerPage() {
@@ -1684,6 +1725,13 @@ function removeFromSlot(slotEl, card){
   }
   
   slotEl.classList.remove('has-card');
+  
+  // Remove level data if card exists
+  if (card && card.support_id) {
+    delete slotLevels[card.support_id];
+    localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+  }
+  
   delete slotEl.dataset.cardId;
   delete slotEl.dataset.supportId;
   slotEl.innerHTML='<div class="placeholder">Empty</div>';
@@ -2180,17 +2228,33 @@ const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_sk
     skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
   }
 
-  freeSlot.dataset.cardId = card.char_id;
-  freeSlot.dataset.supportId = card.support_id;
-  freeSlot.classList.add('has-card');
-  
-  // Use compact styling for slots
-  freeSlot.innerHTML = `
-    <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div>
-    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
-    <div class="name">${escapeHtml(card.char_name)}</div>
-    <div class="skills">${skillsHTML}</div>
-  `;
+freeSlot.dataset.cardId = card.char_id;
+freeSlot.dataset.supportId = card.support_id;
+freeSlot.classList.add('has-card');
+
+// Use compact styling for slots with level controls
+freeSlot.innerHTML = `
+  <div class="slot-level-controls">
+    <span class="slot-level-label">Level</span>
+    <input type="number" class="slot-level-input" min="1" max="${getMaxLevel(card)}" value="${slotLevels[card.support_id] || 1}">
+  </div>
+  <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div>
+  <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+  <div class="name">${escapeHtml(card.char_name)}</div>
+  <div class="skills">${skillsHTML}</div>
+`;
+
+// Add level input event listeners
+const levelInput = freeSlot.querySelector('.slot-level-input');
+levelInput.addEventListener('change', (e) => {
+  const newLevel = updateSlotLevel(freeSlot, card, e.target.value);
+  e.target.value = newLevel;
+});
+
+levelInput.addEventListener('blur', (e) => {
+  const newLevel = updateSlotLevel(freeSlot, card, e.target.value);
+  e.target.value = newLevel;
+});
 
   // Create and attach the click handler - store the actual card object
   const slotCard = {...card}; // Create a copy to avoid reference issues
@@ -2218,6 +2282,13 @@ const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_sk
 /* ------------- Clear buttons ------------- */
 clearAllBtn.addEventListener('click', ()=>{
   selectedCardIds.clear();
+  
+  // Clear level data
+  Object.keys(slotLevels).forEach(supportId => {
+    delete slotLevels[supportId];
+  });
+  localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+  
   slots.forEach(slot=>{
     if(slotListeners.has(slot)){
       slot.removeEventListener('click', slotListeners.get(slot));
@@ -2999,6 +3070,72 @@ function updateSelectedSkillsVisibility() {
       skillItem.classList.remove('hidden-skill');
     }
   });
+}
+
+/* ------------- LEVEL MANAGEMENT ------------- */
+function getCardRarity(card) {
+  if (card.rarity === 3) return 'SSR';
+  if (card.rarity === 2) return 'SR';
+  return 'R';
+}
+
+function getMaxLevel(card) {
+  return MAX_LEVELS[getCardRarity(card)] || 50;
+}
+
+function validateLevel(level, card) {
+  let num = parseInt(level);
+  if (isNaN(num) || num < 1) return 1;
+  
+  const maxLevel = getMaxLevel(card);
+  if (num > maxLevel) return maxLevel;
+  
+  return num;
+}
+
+function updateSlotLevel(slot, card, level) {
+  const validatedLevel = validateLevel(level, card);
+  slotLevels[slot.dataset.supportId] = validatedLevel;
+  localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+  
+  // Update the input display
+  const levelInput = slot.querySelector('.slot-level-input');
+  if (levelInput) {
+    levelInput.value = validatedLevel;
+  }
+  
+  return validatedLevel;
+}
+
+function createLevelControls(slot, card) {
+  const levelControls = document.createElement('div');
+  levelControls.className = 'slot-level-controls';
+  
+  const levelLabel = document.createElement('span');
+  levelLabel.className = 'slot-level-label';
+  levelLabel.textContent = 'Level';
+  
+  const levelInput = document.createElement('input');
+  levelInput.type = 'number';
+  levelInput.className = 'slot-level-input';
+  levelInput.min = '1';
+  levelInput.max = getMaxLevel(card);
+  levelInput.value = slotLevels[card.support_id] || 1;
+  
+  levelInput.addEventListener('change', (e) => {
+    const newLevel = updateSlotLevel(slot, card, e.target.value);
+    e.target.value = newLevel; // Ensure valid value is displayed
+  });
+  
+  levelInput.addEventListener('blur', (e) => {
+    const newLevel = updateSlotLevel(slot, card, e.target.value);
+    e.target.value = newLevel; // Ensure valid value is displayed
+  });
+  
+  levelControls.appendChild(levelLabel);
+  levelControls.appendChild(levelInput);
+  
+  return levelControls;
 }
 
 // Initialize the hide uncolored checkbox
