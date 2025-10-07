@@ -1187,6 +1187,81 @@ body.dark-mode .slots-header .clear-all:hover {
   background: #666;
 }
 
+/* Clear All Button - Dark Red */
+.clear-all, #clearAllBtn {
+  background: #8B0000 !important; /* Dark red */
+  color: #fff;
+}
+
+.clear-all:hover, #clearAllBtn:hover {
+  background: #A52A2A !important; /* Slightly lighter dark red on hover */
+}
+
+/* Dark mode support for clear buttons */
+body.dark-mode .clear-all,
+body.dark-mode #clearAllBtn {
+  background: #8B0000 !important;
+}
+
+body.dark-mode .clear-all:hover,
+body.dark-mode #clearAllBtn:hover {
+  background: #A52A2A !important;
+}
+
+/* Ensure the Clear Filters button also gets the dark red color */
+#clearFiltersBtn {
+  background: #8B0000 !important;
+  color: #fff;
+}
+
+#clearFiltersBtn:hover {
+  background: #A52A2A !important;
+}
+
+body.dark-mode #clearFiltersBtn {
+  background: #8B0000 !important;
+}
+
+body.dark-mode #clearFiltersBtn:hover {
+  background: #A52A2A !important;
+}
+
+/* Hide Preset Cards button should remain normal color (not red) */
+#togglePresetCardsBtn {
+  background: #444 !important; /* Normal gray color */
+  color: #fff;
+}
+
+#togglePresetCardsBtn:hover {
+  background: #333 !important;
+}
+
+body.dark-mode #togglePresetCardsBtn {
+  background: #555 !important;
+}
+
+body.dark-mode #togglePresetCardsBtn:hover {
+  background: #666 !important;
+}
+
+/* Search Clear button - Dark Red */
+.clear-search-btn {
+  background: #8B0000 !important; /* Dark red */
+  color: #fff;
+}
+
+.clear-search-btn:hover {
+  background: #A52A2A !important;
+}
+
+body.dark-mode .clear-search-btn {
+  background: #8B0000 !important;
+}
+
+body.dark-mode .clear-search-btn:hover {
+  background: #A52A2A !important;
+}
+
 </style>
 </head>
 
@@ -1426,14 +1501,13 @@ body.dark-mode .slots-header .clear-all:hover {
   </div>
 
 <!-- Skill Search Section -->
-<div id="skillSearchGroup">
-  <div class="skill-search-header">
-    <label for="skillSearch1">Search</label>  <!-- CHANGED -->
-    <div class="skill-search-buttons">
-      <button class="clear-search-btn" id="clearAllSearchesBtn" title="Clear all searches">Clear</button>
-      <button class="add-search-btn" id="addSearchBtn">Add</button>
-    </div>
+<div class="skill-search-header">
+  <label for="skillSearch1">Search</label>
+  <div class="skill-search-buttons">
+    <button class="add-search-btn" id="addSearchBtn">Add</button>
+    <button class="clear-search-btn" id="clearAllSearchesBtn" title="Clear all searches">Clear</button>
   </div>
+</div>
 
   
   <!-- Default search box -->
@@ -1458,11 +1532,11 @@ body.dark-mode .slots-header .clear-all:hover {
 <div class="right-sidebar">
   <div class="skill-search-divider"></div>
   <div class="slots-header">
-    <div class="deck-buttons">
-      <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
-      <button id="clearAllBtn" class="clear-all">Clear All</button>
-      <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
-    </div>
+<div class="deck-buttons">
+  <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
+  <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
+  <button id="clearAllBtn" class="clear-all">Clear Deck</button>
+</div>
   </div>
 
   <div class="slots" id="slots">
