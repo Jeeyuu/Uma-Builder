@@ -1421,7 +1421,7 @@ body.dark-mode .effect-value {
 .right-sidebar {
   position: relative;
   transition: all 0.3s ease;
-  min-width: 158px;
+  min-width: 157px;
   overflow-y: auto !important;
   height: 100%;
 }
@@ -1436,7 +1436,7 @@ body.dark-mode .effect-value {
     position: sticky;
     top: 50vh;
     left: 0;
-    width: 16px;
+    width: 15px;
     height: 150px;
     margin-left: 3.95px;
     border: 2px solid #ddd;
@@ -3702,6 +3702,9 @@ clearAllBtn.addEventListener('click', () => {
     }, 100);
 });
 
+// Simple assignment - no function overriding complications
+clearAllBtn.onclick = handleClearAll;
+
 clearFiltersBtn.addEventListener('click', () => {
   // Only clear the preset filters (racecourse through strategy)
   const presetFilterIds = ['racecourse', 'length', 'direction', 'track', 'season', 'weather', 'strategy'];
@@ -4922,6 +4925,19 @@ function setupDeckCopyPaste() {
   
   copyDeckBtn.addEventListener('click', copyDeckToClipboard);
   pasteDeckBtn.addEventListener('click', pasteDeckFromClipboard);
+}
+
+// Also fix the deck paste override:
+function setupDeckPasteOverride() {
+    const pasteDeckBtn = document.getElementById('pasteDeckBtn');
+    if (pasteDeckBtn && window.pasteDeckFromClipboard) {
+        const originalPasteDeck = window.pasteDeckFromClipboard;
+        window.pasteDeckFromClipboard = function() {
+            return originalPasteDeck().then(() => {
+                setTimeout(updateEffectTotals, 500);
+            });
+        };
+    }
 }
 
 // Enhanced deck copy/paste to include levels
