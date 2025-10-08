@@ -23,7 +23,7 @@ jobs:
 
       - name: Fetch supports.json
         run: |
-          curl -s -o docs/supports.json https://gametora.com/data/umamusume/support-cards.219b4454.json
+          curl -s -o docs/supports.json https://gametora.com/data/umamusume/support-cards.5ac6ae00.json
           if ! jq empty docs/supports.json; then
             echo "❌ supports.json is not valid JSON. Aborting."
             exit 1
