@@ -7,11 +7,7 @@
 :root {
   --card-w: 120px;
   --gap: 7px;
-  --card-gap: 7.6px; /* Default = collapsed */
-}
-
-.right-sidebar:not(.collapsed) {
-  --card-gap: 9.8px; /* Override when expanded */
+  --card-gap: 11px; /* Default when sidebar is EXPANDED */
 }
 
 /* Reset & Base Styles */
@@ -1504,7 +1500,7 @@ body.dark-mode .effect-value {
   grid-template-columns: repeat(3, var(--card-w));
   grid-auto-rows: min-content;
   max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
-  margin: 46px auto 0; /* Reduced top margin since button is sticky */
+  margin: 40px auto 0; /* Reduced top margin since button is sticky */
   height: auto;
   min-height: min-content;
 }
