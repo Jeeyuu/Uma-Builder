@@ -1425,10 +1425,10 @@ body.dark-mode .effect-value {
   min-width: 80px !important;
 }
 
-/* Collapse Toggle Button - FIXED POSITIONING */
+/* Collapse Toggle Button - ATTACHED TO SIDEBAR */
 .collapse-toggle {
-  position: fixed;
-  right: calc(100% - 20px); /* Position outside the sidebar */
+  position: absolute;
+  left: -20px;
   top: 50%;
   transform: translateY(-50%);
   width: 20px;
@@ -1444,18 +1444,24 @@ body.dark-mode .effect-value {
   color: white;
   font-size: 12px;
   font-weight: bold;
-  z-index: 1000; /* Higher z-index to ensure it's above everything */
+  z-index: 1000;
   transition: all 0.3s ease;
-}
-
-/* Adjust position when collapsed */
-.right-sidebar.collapsed ~ .collapse-toggle {
-  right: 80px; /* Match collapsed sidebar width */
 }
 
 .collapse-toggle:hover {
   background: #333;
   width: 22px;
+  left: -22px;
+}
+
+/* Ensure the main content doesn't overlap the toggle */
+.container {
+  position: relative;
+}
+
+/* Make sure the toggle is visible by allowing overflow */
+body {
+  overflow-x: visible;
 }
 
 /* Collapsed Layout */
@@ -1857,13 +1863,14 @@ body.dark-mode .collapse-toggle:hover {
     </div>
   </div>
 
-<!-- Collapse Toggle Button - MOVED OUTSIDE the right sidebar -->
-<button class="collapse-toggle" id="collapseSidebar" title="Collapse sidebar">◀</button>
-
 <!-- Right Sidebar (Slots) -->
 <div class="right-sidebar" id="rightSidebar">
+  <!-- Collapse Toggle Button - INSIDE the right sidebar but positioned outside -->
+  <button class="collapse-toggle" id="collapseSidebar" title="Collapse sidebar">◀</button>
+  
   <div class="skill-search-divider"></div>
     <div class="slots-header">
+    <!-- ... rest of your existing right sidebar content ... -->
     <div class="deck-buttons">
       <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
       <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
