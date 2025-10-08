@@ -3534,163 +3534,170 @@ function setupSortingControls() {
 
 
   // Update the card display in slots to show unique effects
-  // Enhanced addToSlot function with better level persistence
-  function addToSlot(card, targetSlot = null, save = true) {
-      const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
-      if (!freeSlot) return;
+// Enhanced addToSlot function with better level persistence
+function addToSlot(card, targetSlot = null, save = true) {
+    const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
+    if (!freeSlot) return;
 
-      // Find the container for this slot
-      const slotContainer = freeSlot.closest('.slot-container');
-      if (!slotContainer) return;
+    // Find the container for this slot
+    const slotContainer = freeSlot.closest('.slot-container');
+    if (!slotContainer) return;
 
-      // Remove existing listener if any
-      if (slotListeners.has(freeSlot)) {
-          freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
-          slotListeners.delete(freeSlot);
-      }
-
-      // Use English skills for Global region, Japanese skills for Japan region
-      const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-      const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
-
-      let skillsHTML = '';
-
-      // Only add skills groups if there are skills to show
-      if (card.hint_skills && card.hint_skills.length) {
-          const hintSkillsHTML = card.hint_skills.map(s => {
-              const skillText = String(s || '');
-              return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-          }).join('');
-          skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
-      }
-
-      if (eventSkillsToUse && eventSkillsToUse.length) {
-          const eventSkillsHTML = eventSkillsToUse.map(s => {
-              const skillText = String(s || '');
-              return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-          }).join('');
-          skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
-      }
-
-      // ADD UNIQUE EFFECTS DISPLAY IN SLOT
-      if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
-          const uniqueEffectsHTML = card.unique.effects.map(effect => {
-              const effectName = EFFECT_TYPES[effect.type];
-              if (effectName) {
-                  const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
-                  // Check if unique effects are active at current level
-                  const currentLevel = getCardLevel(card.support_id);
-                  const isActive = shouldApplyUniqueEffects(card, currentLevel);
-                  const activeStyle = isActive ? 'background: #f0fff0; border-left: 3px solid #44ff44;' : 'background: #fff0f0; border-left: 3px solid #ff4444;';
-                  
-                  return `<div class="skill" style="${activeStyle}">
-                      <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+) ${isActive ? '✅' : '🔒'}
-                  </div>`;
-              }
-              return '';
-          }).filter(html => html !== '').join('');
-
-          if (uniqueEffectsHTML) {
-              skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
-          }
-      }
-
-      freeSlot.dataset.cardId = card.char_id;
-      freeSlot.dataset.supportId = card.support_id;
-      freeSlot.classList.add('has-card');
-
-      // In the addToSlot function, replace the nameHtml section with:
-  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
-
-  // Show different data based on current sort selection (same as createCardElement)
-  const sortByValue = document.getElementById('sortBy').value;
-
-  if (sortByValue === 'support_id') {
-    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
-  } else if (sortByValue === 'release') {
-    const releaseDate = region === 'global' ? card.release_en : card.release;
-    if (releaseDate && releaseDate !== '') {
-      const formattedDate = formatDateForDisplay(releaseDate);
-      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+    // Remove existing listener if any
+    if (slotListeners.has(freeSlot)) {
+        freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
+        slotListeners.delete(freeSlot);
     }
-  } else if (!isNaN(parseInt(sortByValue))) {
-    // Effect sorting - show the effect value
-    const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
-    if (effectValue !== null) {
-      const effectName = EFFECT_TYPES[parseInt(sortByValue)];
-      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${effectValue}</div>`;
+
+    // Use English skills for Global region, Japanese skills for Japan region
+    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+
+    let skillsHTML = '';
+
+    // Only add skills groups if there are skills to show
+    if (card.hint_skills && card.hint_skills.length) {
+        const hintSkillsHTML = card.hint_skills.map(s => {
+            const skillText = String(s || '');
+            return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
+        }).join('');
+        skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
     }
-  } else {
-    // Default: show character ID
-    if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
-  }
 
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
-      // Update slot content with character ID
-      freeSlot.innerHTML = `
-          <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
-          <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
-          ${nameHtml}
-          <div class="skills">${skillsHTML}</div>
-      `;
+    if (eventSkillsToUse && eventSkillsToUse.length) {
+        const eventSkillsHTML = eventSkillsToUse.map(s => {
+            const skillText = String(s || '');
+            return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
+        }).join('');
+        skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
+    }
 
-      // Update level controls in the container
-      const levelControls = slotContainer.querySelector('.slot-level-controls');
-      const levelInput = levelControls.querySelector('.slot-level-input');
+    // ADD UNIQUE EFFECTS DISPLAY IN SLOT
+    if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
+        const uniqueEffectsHTML = card.unique.effects.map(effect => {
+            const effectName = EFFECT_TYPES[effect.type];
+            if (effectName) {
+                const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
+                // Check if unique effects are active at current level
+                const currentLevel = getCardLevel(card.support_id);
+                const isActive = shouldApplyUniqueEffects(card, currentLevel);
+                const activeStyle = isActive ? 'background: #f0fff0; border-left: 3px solid #44ff44;' : 'background: #fff0f0; border-left: 3px solid #ff4444;';
+                
+                return `<div class="skill" style="${activeStyle}">
+                    <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+) ${isActive ? '✅' : '🔒'}
+                </div>`;
+            }
+            return '';
+        }).filter(html => html !== '').join('');
 
-      // Enable and configure level input - USE SAVED LEVEL IF AVAILABLE
-      levelInput.disabled = false;
-      levelInput.min = '1';
-      levelInput.max = getMaxLevel(card);
-      
-      // CRITICAL: Use the saved level for this specific card, or default to 1
-      const savedLevel = getCardLevel(card.support_id);
-      levelInput.value = savedLevel;
+        if (uniqueEffectsHTML) {
+            skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
+        }
+    }
 
-      // Enhanced level input event listeners
-      const handleLevelChange = (e) => {
-          const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
-          e.target.value = newLevel;
-          
-          // Update unique effects display to show if they're active
-          updateUniqueEffectsDisplay(freeSlot, card, newLevel);
-      };
+    freeSlot.dataset.cardId = card.char_id;
+    freeSlot.dataset.supportId = card.support_id;
+    freeSlot.classList.add('has-card');
 
-      levelInput.onchange = handleLevelChange;
-      levelInput.onblur = handleLevelChange;
-      levelInput.oninput = (e) => {
-          // Real-time validation for better UX
-          const value = parseInt(e.target.value);
-          const maxLevel = getMaxLevel(card);
-          if (value > maxLevel) {
-              e.target.value = maxLevel;
-          } else if (value < 1 || isNaN(value)) {
-              e.target.value = 1;
-          }
-      };
+    // FIXED: Initialize nameHtml variable properly
+    let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
 
-      // Create and attach the click handler
-      const slotCard = { ...card };
+    // Show different data based on current sort selection (same as createCardElement)
+    const sortByValue = document.getElementById('sortBy').value;
 
-      function slotClickHandler() {
-          removeFromSlot(freeSlot, slotCard);
-      }
+    if (sortByValue === 'support_id') {
+        nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+    } else if (sortByValue === 'release') {
+        const releaseDate = region === 'global' ? card.release_en : card.release;
+        if (releaseDate && releaseDate !== '') {
+            const formattedDate = formatDateForDisplay(releaseDate);
+            nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+        } else {
+            // Show something even if no release date
+            nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">No release date</div>`;
+        }
+    } else if (!isNaN(parseInt(sortByValue))) {
+        // Effect sorting - show the effect value
+        const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
+        if (effectValue !== null && effectValue !== 0) {
+            const effectName = EFFECT_TYPES[parseInt(sortByValue)];
+            nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${effectValue}</div>`;
+        } else {
+            // Show character ID if no effect value
+            if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+        }
+    } else {
+        // Default: show character ID
+        if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+    }
 
-      // Attach the event listener to the slot element only
-      freeSlot.addEventListener('click', slotClickHandler);
-      slotListeners.set(freeSlot, slotClickHandler);
+    if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
-      selectedCardIds.add(card.char_id);
-      if (save) saveSlotsToLocalStorage();
+    // Update slot content with character ID
+    freeSlot.innerHTML = `
+        <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
+        <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+        ${nameHtml}
+        <div class="skills">${skillsHTML}</div>
+    `;
 
-      updateSelectedSkillsList();
-      highlightSkills();
-      highlightSelectedSkills();
-      renderSections();
+    // Update level controls in the container
+    const levelControls = slotContainer.querySelector('.slot-level-controls');
+    const levelInput = levelControls.querySelector('.slot-level-input');
 
-      // Update effect totals after adding card
-      setTimeout(updateEffectTotals, 100);
-  }
+    // Enable and configure level input - USE SAVED LEVEL IF AVAILABLE
+    levelInput.disabled = false;
+    levelInput.min = '1';
+    levelInput.max = getMaxLevel(card);
+    
+    // CRITICAL: Use the saved level for this specific card, or default to 1
+    const savedLevel = getCardLevel(card.support_id);
+    levelInput.value = savedLevel;
+
+    // Enhanced level input event listeners
+    const handleLevelChange = (e) => {
+        const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
+        e.target.value = newLevel;
+        
+        // Update unique effects display to show if they're active
+        updateUniqueEffectsDisplay(freeSlot, card, newLevel);
+    };
+
+    levelInput.onchange = handleLevelChange;
+    levelInput.onblur = handleLevelChange;
+    levelInput.oninput = (e) => {
+        // Real-time validation for better UX
+        const value = parseInt(e.target.value);
+        const maxLevel = getMaxLevel(card);
+        if (value > maxLevel) {
+            e.target.value = maxLevel;
+        } else if (value < 1 || isNaN(value)) {
+            e.target.value = 1;
+        }
+    };
+
+    // Create and attach the click handler
+    const slotCard = { ...card };
+
+    function slotClickHandler() {
+        removeFromSlot(freeSlot, slotCard);
+    }
+
+    // Attach the event listener to the slot element only
+    freeSlot.addEventListener('click', slotClickHandler);
+    slotListeners.set(freeSlot, slotClickHandler);
+
+    selectedCardIds.add(card.char_id);
+    if (save) saveSlotsToLocalStorage();
+
+    updateSelectedSkillsList();
+    highlightSkills();
+    highlightSelectedSkills();
+    renderSections();
+
+    // Update effect totals after adding card
+    setTimeout(updateEffectTotals, 100);
+}
 
   // Enhanced removeFromSlot function
   function removeFromSlot(slot, card) {
