@@ -1719,21 +1719,50 @@ body.dark-mode .collapse-toggle:hover {
 
   
   <!-- ADD SORTING CONTROLS HERE -->
-  <div class="filter-group">
-    <label for="sortBy">Sort By</label>
-    <div style="display: flex; gap: 6px; align-items: center;">
-      <select id="sortBy" style="flex: 1;">
-        <option value="rarity">Rarity</option>
-        <option value="name">Name</option>
-        <option value="type">Type</option>
-        <option value="release">Release Date</option>
-        <option value="support_id">Game ID Number</option>
-      </select>
-      <button id="sortOrder" class="sort-order-btn ascending" style="width: 32px; height: 32px; border: 1px solid #ccc; background: #444; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 4px; flex-shrink: 0;">
-        ↑
-      </button>
-    </div>
+<div class="filter-group">
+  <label for="sortBy">Sort By</label>
+  <div style="display: flex; gap: 6px; align-items: center;">
+    <select id="sortBy" style="flex: 1;">
+      <option value="rarity">Rarity</option>
+      <option value="name">Character name</option>
+      <option value="type">Card type</option>
+      <option value="release">Release date</option>
+      <option value="support_id">Game ID Number</option>
+      <option disabled=""></option>
+      <option disabled="">— Effects —</option>
+      <option value="1">Friendship Bonus</option>
+      <option value="2">Mood Effect</option>
+      <option value="3">Speed Bonus</option>
+      <option value="4">Stamina Bonus</option>
+      <option value="5">Power Bonus</option>
+      <option value="6">Guts Bonus</option>
+      <option value="7">Wit Bonus</option>
+      <option value="8">Training Effectiveness</option>
+      <option value="9">Initial Speed</option>
+      <option value="10">Initial Stamina</option>
+      <option value="11">Initial Power</option>
+      <option value="12">Initial Guts</option>
+      <option value="13">Initial Wit</option>
+      <option value="14">Initial Friendship Gauge</option>
+      <option value="15">Race Bonus</option>
+      <option value="16">Fan Bonus</option>
+      <option value="17">Hint Levels</option>
+      <option value="18">Hint Frequency</option>
+      <option value="19">Specialty Priority</option>
+      <option value="25">Event Recovery</option>
+      <option value="26">Event Effectiveness</option>
+      <option value="27">Failure Protection</option>
+      <option value="28">Energy Cost Reduction</option>
+      <option value="30">Skill Point Bonus</option>
+      <option value="31">Wit Friendship Recovery</option>
+      <option value="32">Initial Skill Points Up</option>
+      <option value="41">All Stats Bonus</option>
+    </select>
+    <button id="sortOrder" class="sort-order-btn ascending" style="width: 32px; height: 32px; border: 1px solid #ccc; background: #444; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 4px; flex-shrink: 0;">
+      ↑
+    </button>
   </div>
+</div>
 
   <div class="filter-group">
     <label for="region">Region</label>
@@ -2377,6 +2406,13 @@ function sortCards(cards, sortBy, order) {
         break;
         
       default:
+        // Handle effect sorting (numeric values)
+        if (!isNaN(parseInt(sortBy))) {
+          const effectId = parseInt(sortBy);
+          aValue = getEffectValueForSorting(a, effectId) || 0;
+          bValue = getEffectValueForSorting(b, effectId) || 0;
+          break;
+        }
         return 0;
     }
     
@@ -3248,8 +3284,32 @@ function createCardElement(card){
     }
   }
   
+  // ENHANCED: Add sort data display below name
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
-  if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+  
+  // Show different data based on current sort selection
+  const sortByValue = document.getElementById('sortBy').value;
+  
+  if (sortByValue === 'support_id') {
+    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+  } else if (sortByValue === 'release') {
+    const releaseDate = region === 'global' ? card.release_en : card.release;
+    if (releaseDate && releaseDate !== '') {
+      const formattedDate = formatDateForDisplay(releaseDate);
+      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+    }
+  } else if (!isNaN(parseInt(sortByValue))) {
+    // Effect sorting - show the effect value
+    const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
+    if (effectValue !== null) {
+      const effectName = EFFECT_TYPES[parseInt(sortByValue)];
+      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${effectValue}</div>`;
+    }
+  } else {
+    // Default: show character ID
+    if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+  }
+  
   if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
   el.innerHTML = `
@@ -3548,11 +3608,33 @@ function addToSlot(card, targetSlot = null, save = true) {
     freeSlot.dataset.supportId = card.support_id;
     freeSlot.classList.add('has-card');
 
-    // ADD CHARACTER ID DISPLAY TO SLOT (same as in createCardElement)
-    let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
-    if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
-    if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+    // In the addToSlot function, replace the nameHtml section with:
+let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
 
+// Show different data based on current sort selection (same as createCardElement)
+const sortByValue = document.getElementById('sortBy').value;
+
+if (sortByValue === 'support_id') {
+  nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+} else if (sortByValue === 'release') {
+  const releaseDate = region === 'global' ? card.release_en : card.release;
+  if (releaseDate && releaseDate !== '') {
+    const formattedDate = formatDateForDisplay(releaseDate);
+    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+  }
+} else if (!isNaN(parseInt(sortByValue))) {
+  // Effect sorting - show the effect value
+  const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
+  if (effectValue !== null) {
+    const effectName = EFFECT_TYPES[parseInt(sortByValue)];
+    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${effectValue}</div>`;
+  }
+} else {
+  // Default: show character ID
+  if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+}
+
+if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
     // Update slot content with character ID
     freeSlot.innerHTML = `
         <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
@@ -5732,6 +5814,49 @@ function addDebugButton() {
 
 // Initialize debug button in development
 // addDebugButton(); // Uncomment if you need to debug level saving
+
+/* ------------- SORTING HELPER FUNCTIONS ------------- */
+function formatDateForDisplay(dateString) {
+  if (!dateString) return 'Unknown';
+  
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return dateString; // Return original if invalid
+    
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  } catch (e) {
+    return dateString; // Return original if parsing fails
+  }
+}
+
+function getEffectValueForSorting(card, effectId) {
+  // Find the card with effects data
+  const cardWithEffects = findCardWithEffects(card.support_id);
+  
+  if (!cardWithEffects || !cardWithEffects.effects) {
+    return null;
+  }
+  
+  // Find the effect data for this effect ID
+  const effectData = cardWithEffects.effects.find(effect => effect[0] === effectId);
+  
+  if (!effectData) {
+    return 0; // Effect not found, return 0
+  }
+  
+  // Get the base value (level 1 value)
+  const baseValue = effectData[1];
+  
+  if (baseValue === -1 || baseValue === undefined) {
+    return 0; // No base value
+  }
+  
+  return baseValue;
+}
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
