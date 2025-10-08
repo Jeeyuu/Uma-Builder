@@ -2205,10 +2205,30 @@ let sortBy = 'rarity';
 let sortOrder = 'descending'; // CHANGED TO DESCENDING
 let region = 'global';
 
-/* ------------- LEVEL STATE ------------- */
+/* ------------- ENHANCED LEVEL PERSISTENCE ------------- */
+// This replaces the existing slotLevels initialization
 const slotLevels = JSON.parse(localStorage.getItem('slotLevels')) || {};
 const MAX_LEVELS = { 'R': 40, 'SR': 45, 'SSR': 50 };
 
+// Store levels by support_id instead of by slot position
+function saveCardLevel(supportId, level) {
+    if (supportId) {
+        slotLevels[supportId] = parseInt(level) || 1;
+        localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+        console.log(`Saved level ${level} for card ${supportId}`);
+    }
+}
+
+function getCardLevel(supportId) {
+    return slotLevels[supportId] || 1;
+}
+
+function removeCardLevel(supportId) {
+    if (slotLevels[supportId]) {
+        delete slotLevels[supportId];
+        localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+    }
+}
 /* ------------- DYNAMIC PAGINATION ------------- */
 function calculateCardsPerPage() {
   const grid = document.querySelector('.cards');
@@ -3463,206 +3483,225 @@ function createCardElement(card){
 }
 
 // Update the card display in slots to show unique effects
-function addToSlot(card, targetSlot = null, save = true){
-  const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
-  if(!freeSlot) return;
+// Enhanced addToSlot function with better level persistence
+function addToSlot(card, targetSlot = null, save = true) {
+    const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
+    if (!freeSlot) return;
 
-  // Find the container for this slot
-  const slotContainer = freeSlot.closest('.slot-container');
-  if (!slotContainer) return;
+    // Find the container for this slot
+    const slotContainer = freeSlot.closest('.slot-container');
+    if (!slotContainer) return;
 
-  // Remove existing listener if any
-  if(slotListeners.has(freeSlot)){
-    freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
-    slotListeners.delete(freeSlot);
-  }
-
-  // Use English skills for Global region, Japanese skills for Japan region
-  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
-
-  let skillsHTML = '';
-  
-  // Only add skills groups if there are skills to show
-  if(card.hint_skills && card.hint_skills.length) {
-    const hintSkillsHTML = card.hint_skills.map(s => {
-      const skillText = String(s || '');
-      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-    }).join('');
-    skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
-  }
-
-  if(eventSkillsToUse && eventSkillsToUse.length) {
-    const eventSkillsHTML = eventSkillsToUse.map(s => {
-      const skillText = String(s || '');
-      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-    }).join('');
-    skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
-  }
-
-  // ADD UNIQUE EFFECTS DISPLAY IN SLOT
-  if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
-    const uniqueEffectsHTML = card.unique.effects.map(effect => {
-      const effectName = EFFECT_TYPES[effect.type];
-      if (effectName) {
-        const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
-        return `<div class="skill" style="background: #fff0f0; border-left: 3px solid #ff4444;">
-          <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+)
-        </div>`;
-      }
-      return '';
-    }).filter(html => html !== '').join('');
-    
-    if (uniqueEffectsHTML) {
-      skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
+    // Remove existing listener if any
+    if (slotListeners.has(freeSlot)) {
+        freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
+        slotListeners.delete(freeSlot);
     }
-  }
 
-  freeSlot.dataset.cardId = card.char_id;
-  freeSlot.dataset.supportId = card.support_id;
-  freeSlot.classList.add('has-card');
+    // Use English skills for Global region, Japanese skills for Japan region
+    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
-  // Update slot content (NO level controls here)
-  freeSlot.innerHTML = `
-    <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png" alt="${escapeHtml(card.type)}"></div>
-    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
-    <div class="name">${escapeHtml(card.char_name)}</div>
-    <div class="skills">${skillsHTML}</div>
-  `;
+    let skillsHTML = '';
 
-  // Update level controls in the container (outside the clickable slot)
-  const levelControls = slotContainer.querySelector('.slot-level-controls');
-  const levelInput = levelControls.querySelector('.slot-level-input');
-  
-  // Enable and configure level input
-  levelInput.disabled = false;
-  levelInput.min = '1';
-  levelInput.max = getMaxLevel(card);
-  levelInput.value = slotLevels[card.support_id] || 1;
-  
-  // Update level input event listeners
-  levelInput.onchange = (e) => {
-    const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
-    e.target.value = newLevel;
-    // Update effect totals when level changes
-    setTimeout(updateEffectTotals, 50);
-  };
-  
-  levelInput.onblur = (e) => {
-    const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
-    e.target.value = newLevel;
-    // Update effect totals when level changes
-    setTimeout(updateEffectTotals, 50);
-  };
+    // Only add skills groups if there are skills to show
+    if (card.hint_skills && card.hint_skills.length) {
+        const hintSkillsHTML = card.hint_skills.map(s => {
+            const skillText = String(s || '');
+            return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
+        }).join('');
+        skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
+    }
 
-  // Create and attach the click handler - store the actual card object
-  const slotCard = {...card};
+    if (eventSkillsToUse && eventSkillsToUse.length) {
+        const eventSkillsHTML = eventSkillsToUse.map(s => {
+            const skillText = String(s || '');
+            return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
+        }).join('');
+        skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
+    }
 
-  function slotClickHandler(){ 
-    removeFromSlot(freeSlot, slotCard); 
-  }
+    // ADD UNIQUE EFFECTS DISPLAY IN SLOT
+    if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
+        const uniqueEffectsHTML = card.unique.effects.map(effect => {
+            const effectName = EFFECT_TYPES[effect.type];
+            if (effectName) {
+                const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
+                // Check if unique effects are active at current level
+                const currentLevel = getCardLevel(card.support_id);
+                const isActive = shouldApplyUniqueEffects(card, currentLevel);
+                const activeStyle = isActive ? 'background: #f0fff0; border-left: 3px solid #44ff44;' : 'background: #fff0f0; border-left: 3px solid #ff4444;';
+                
+                return `<div class="skill" style="${activeStyle}">
+                    <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+) ${isActive ? '✅' : '🔒'}
+                </div>`;
+            }
+            return '';
+        }).filter(html => html !== '').join('');
 
-  // Attach the event listener to the slot element only
-  freeSlot.addEventListener('click', slotClickHandler);
-  slotListeners.set(freeSlot, slotClickHandler);
+        if (uniqueEffectsHTML) {
+            skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
+        }
+    }
 
-  selectedCardIds.add(card.char_id);
-  if(save) saveSlotsToLocalStorage();
-  
-  updateSelectedSkillsList();
-  highlightSkills(); // Ensure main skills are highlighted
-  highlightSelectedSkills(); // Ensure sidebar skills are highlighted
-  renderSections();
-  
-  // Update effect totals after adding card
-  setTimeout(updateEffectTotals, 100);
+    freeSlot.dataset.cardId = card.char_id;
+    freeSlot.dataset.supportId = card.support_id;
+    freeSlot.classList.add('has-card');
+
+    // Update slot content
+    freeSlot.innerHTML = `
+        <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
+        <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+        <div class="name">${escapeHtml(card.char_name)}</div>
+        <div class="skills">${skillsHTML}</div>
+    `;
+
+    // Update level controls in the container
+    const levelControls = slotContainer.querySelector('.slot-level-controls');
+    const levelInput = levelControls.querySelector('.slot-level-input');
+
+    // Enable and configure level input - USE SAVED LEVEL IF AVAILABLE
+    levelInput.disabled = false;
+    levelInput.min = '1';
+    levelInput.max = getMaxLevel(card);
+    
+    // CRITICAL: Use the saved level for this specific card, or default to 1
+    const savedLevel = getCardLevel(card.support_id);
+    levelInput.value = savedLevel;
+
+    // Enhanced level input event listeners
+    const handleLevelChange = (e) => {
+        const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
+        e.target.value = newLevel;
+        
+        // Update unique effects display to show if they're active
+        updateUniqueEffectsDisplay(freeSlot, card, newLevel);
+    };
+
+    levelInput.onchange = handleLevelChange;
+    levelInput.onblur = handleLevelChange;
+    levelInput.oninput = (e) => {
+        // Real-time validation for better UX
+        const value = parseInt(e.target.value);
+        const maxLevel = getMaxLevel(card);
+        if (value > maxLevel) {
+            e.target.value = maxLevel;
+        } else if (value < 1 || isNaN(value)) {
+            e.target.value = 1;
+        }
+    };
+
+    // Create and attach the click handler
+    const slotCard = { ...card };
+
+    function slotClickHandler() {
+        removeFromSlot(freeSlot, slotCard);
+    }
+
+    // Attach the event listener to the slot element only
+    freeSlot.addEventListener('click', slotClickHandler);
+    slotListeners.set(freeSlot, slotClickHandler);
+
+    selectedCardIds.add(card.char_id);
+    if (save) saveSlotsToLocalStorage();
+
+    updateSelectedSkillsList();
+    highlightSkills();
+    highlightSelectedSkills();
+    renderSections();
+
+    // Update effect totals after adding card
+    setTimeout(updateEffectTotals, 100);
 }
 
+// Enhanced removeFromSlot function
 function removeFromSlot(slot, card) {
-  if (!slot) return;
-  
-  // Find the container for this slot
-  const slotContainer = slot.closest('.slot-container');
-  if (!slotContainer) return;
+    if (!slot) return;
 
-  // Remove existing listener if any
-  if (slotListeners.has(slot)) {
-    slot.removeEventListener('click', slotListeners.get(slot));
-    slotListeners.delete(slot);
-  }
+    // Find the container for this slot
+    const slotContainer = slot.closest('.slot-container');
+    if (!slotContainer) return;
 
-  // Reset slot content
-  slot.classList.remove('has-card');
-  delete slot.dataset.cardId;
-  delete slot.dataset.supportId;
-  slot.innerHTML = '<div class="placeholder">Empty</div>';
+    // Remove existing listener if any
+    if (slotListeners.has(slot)) {
+        slot.removeEventListener('click', slotListeners.get(slot));
+        slotListeners.delete(slot);
+    }
 
-  // Reset level controls
-  const levelInput = slotContainer.querySelector('.slot-level-input');
-  if (levelInput) {
-    levelInput.disabled = true;
-    levelInput.value = '1';
-    levelInput.min = '1';
-    levelInput.max = '50';
-  }
+    // Reset slot content
+    slot.classList.remove('has-card');
+    
+    // IMPORTANT: Don't remove the level data when unequipping!
+    // The level is preserved by support_id in slotLevels
+    const supportId = slot.dataset.supportId;
+    
+    delete slot.dataset.cardId;
+    delete slot.dataset.supportId;
+    slot.innerHTML = '<div class="placeholder">Empty</div>';
 
-  // Remove from selected cards
-  if (card) {
-    selectedCardIds.delete(card.char_id);
-  }
+    // Reset level controls UI (but keep the data)
+    const levelInput = slotContainer.querySelector('.slot-level-input');
+    if (levelInput) {
+        levelInput.disabled = true;
+        levelInput.value = '1';
+        levelInput.min = '1';
+        levelInput.max = '50';
+    }
 
-  // Remove level data
-  if (card && slotLevels[card.support_id]) {
-    delete slotLevels[card.support_id];
-    localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
-  }
+    // Remove from selected cards
+    if (card) {
+        selectedCardIds.delete(card.char_id);
+    }
 
-  saveSlotsToLocalStorage();
-  updateSelectedSkillsList();
-  highlightSkills();
-  highlightSelectedSkills();
-  renderSections();
+    saveSlotsToLocalStorage();
+    updateSelectedSkillsList();
+    highlightSkills();
+    highlightSelectedSkills();
+    renderSections();
+    
+    // Update effect totals after removal
+    setTimeout(updateEffectTotals, 100);
 }
 
 /* ------------- Clear buttons ------------- */
-clearAllBtn.addEventListener('click', ()=>{
-  selectedCardIds.clear();
-  
-  // Clear level data
-  Object.keys(slotLevels).forEach(supportId => {
-    delete slotLevels[supportId];
-  });
-  localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
-  
-  // Reset all level controls and slots
-  slotContainers.forEach(container => {
-    const levelInput = container.querySelector('.slot-level-input');
-    levelInput.disabled = true;
-    levelInput.value = '1';
-    levelInput.min = '1';
-    levelInput.max = '50';
-    
-    const slot = container.querySelector('.slot');
-    if(slotListeners.has(slot)){
-      slot.removeEventListener('click', slotListeners.get(slot));
-      slotListeners.delete(slot);
-    }
-    slot.classList.remove('has-card');
-    delete slot.dataset.cardId;
-    delete slot.dataset.supportId;
-    slot.innerHTML='<div class="placeholder">Empty</div>';
-  });
-  
-  localStorage.removeItem(SLOT_KEY);
-  updateSelectedSkillsList();
-  highlightSkills();
-  highlightSelectedSkills();
-  renderSections();
-  
-  // CRITICAL: Clear effect totals after clearing deck
-  setTimeout(() => {
-    updateEffectTotals();
-  }, 100);
+// Enhanced clear all function
+clearAllBtn.addEventListener('click', () => {
+    selectedCardIds.clear();
+
+    // IMPORTANT: Don't clear level data when clearing deck!
+    // The levels are preserved by support_id for future use
+    // Only clear levels for cards that are no longer in any deck
+    // (This preserves levels for cards that might be re-added later)
+
+    // Reset all level controls and slots
+    slotContainers.forEach(container => {
+        const levelInput = container.querySelector('.slot-level-input');
+        levelInput.disabled = true;
+        levelInput.value = '1';
+        levelInput.min = '1';
+        levelInput.max = '50';
+
+        const slot = container.querySelector('.slot');
+        if (slotListeners.has(slot)) {
+            slot.removeEventListener('click', slotListeners.get(slot));
+            slotListeners.delete(slot);
+        }
+        slot.classList.remove('has-card');
+        delete slot.dataset.cardId;
+        delete slot.dataset.supportId;
+        slot.innerHTML = '<div class="placeholder">Empty</div>';
+    });
+
+    localStorage.removeItem(SLOT_KEY);
+    updateSelectedSkillsList();
+    highlightSkills();
+    highlightSelectedSkills();
+    renderSections();
+
+    // Update effect totals after clearing
+    setTimeout(() => {
+        updateEffectTotals();
+    }, 100);
 });
 
 clearFiltersBtn.addEventListener('click', () => {
@@ -4492,18 +4531,23 @@ function validateLevel(level, card) {
   return num;
 }
 
+// Enhanced level update function
 function updateSlotLevel(slotContainer, card, level) {
-  const validatedLevel = validateLevel(level, card);
-  slotLevels[card.support_id] = validatedLevel;
-  localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
-  
-  // Update the input display
-  const levelInput = slotContainer.querySelector('.slot-level-input');
-  if (levelInput) {
-    levelInput.value = validatedLevel;
-  }
-  
-  return validatedLevel;
+    const validatedLevel = validateLevel(level, card);
+    
+    // Save the level for this specific card (by support_id)
+    saveCardLevel(card.support_id, validatedLevel);
+    
+    // Update the input display
+    const levelInput = slotContainer.querySelector('.slot-level-input');
+    if (levelInput) {
+        levelInput.value = validatedLevel;
+    }
+    
+    // Update effect totals immediately
+    setTimeout(updateEffectTotals, 50);
+    
+    return validatedLevel;
 }
 
 function createLevelControls(slot, card) {
@@ -4882,38 +4926,45 @@ function setupDeckCopyPaste() {
   pasteDeckBtn.addEventListener('click', pasteDeckFromClipboard);
 }
 
+// Enhanced deck copy/paste to include levels
 function copyDeckToClipboard() {
-  const deckData = slots.map(slot => {
-    const supportId = slot.dataset.supportId;
-    const levelInput = slot.closest('.slot-container').querySelector('.slot-level-input');
-    const level = levelInput ? levelInput.value : '1';
-    
-    return {
-      supportId: supportId || 'empty',
-      level: supportId ? level : '1'
-    };
-  });
-  
-  // Format: supportId1|level1,supportId2|level2,...,supportId6|level6
-  const copyText = deckData.map(slot => `${slot.supportId}|${slot.level}`).join(',');
-  
-  navigator.clipboard.writeText(copyText).then(() => {
-    // Visual feedback
-    const copyBtn = document.getElementById('copyDeckBtn');
-    const originalText = copyBtn.textContent;
-    copyBtn.textContent = 'Copied!';
-    copyBtn.style.background = '#57ad33';
-    
-    setTimeout(() => {
-      copyBtn.textContent = originalText;
-      copyBtn.style.background = '';
-    }, 1500);
-    
-    console.log('Deck copied to clipboard:', deckData);
-  }).catch(err => {
-    console.error('Failed to copy deck: ', err);
-    alert('Failed to copy deck to clipboard');
-  });
+    const deckData = slots.map(slot => {
+        const supportId = slot.dataset.supportId;
+        // Use the saved level from slotLevels, or current input value as fallback
+        let level = '1';
+        if (supportId) {
+            level = getCardLevel(supportId).toString();
+        } else {
+            const levelInput = slot.closest('.slot-container').querySelector('.slot-level-input');
+            level = levelInput ? levelInput.value : '1';
+        }
+
+        return {
+            supportId: supportId || 'empty',
+            level: supportId ? level : '1'
+        };
+    });
+
+    // Format: supportId1|level1,supportId2|level2,...,supportId6|level6
+    const copyText = deckData.map(slot => `${slot.supportId}|${slot.level}`).join(',');
+
+    navigator.clipboard.writeText(copyText).then(() => {
+        // Visual feedback
+        const copyBtn = document.getElementById('copyDeckBtn');
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        copyBtn.style.background = '#57ad33';
+
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.style.background = '';
+        }, 1500);
+
+        console.log('Deck copied to clipboard with levels:', deckData);
+    }).catch(err => {
+        console.error('Failed to copy deck: ', err);
+        alert('Failed to copy deck to clipboard');
+    });
 }
 
 function pasteDeckFromClipboard() {
@@ -5613,6 +5664,58 @@ function calculateEffectContributions() {
   
   return contributions;
 }
+
+// Function to update unique effects display based on current level
+function updateUniqueEffectsDisplay(slot, card, level) {
+    const uniqueEffects = slot.querySelectorAll('.skills-group:last-child .skill');
+    if (uniqueEffects.length > 0 && card.unique && card.unique.effects) {
+        uniqueEffects.forEach((effectElement, index) => {
+            const uniqueEffect = card.unique.effects[index];
+            if (uniqueEffect) {
+                const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
+                const isActive = level >= threshold;
+                const activeStyle = isActive ? 'background: #f0fff0; border-left: 3px solid #44ff44;' : 'background: #fff0f0; border-left: 3px solid #ff4444;';
+                
+                effectElement.style.cssText = activeStyle;
+                // Update the status indicator
+                const text = effectElement.textContent;
+                const newText = text.replace(/✅|🔒/g, isActive ? '✅' : '🔒');
+                effectElement.textContent = newText;
+            }
+        });
+    }
+}
+
+// Debug function to see all saved levels
+function debugSavedLevels() {
+    console.log('All saved card levels:', slotLevels);
+    // Show in alert for easy checking
+    const levelCount = Object.keys(slotLevels).length;
+    alert(`Saved levels for ${levelCount} cards:\n${JSON.stringify(slotLevels, null, 2)}`);
+}
+
+// Add debug button to help troubleshoot
+function addDebugButton() {
+    const debugBtn = document.createElement('button');
+    debugBtn.textContent = 'Debug Levels';
+    debugBtn.style.position = 'fixed';
+    debugBtn.style.bottom = '10px';
+    debugBtn.style.right = '10px';
+    debugBtn.style.zIndex = '10000';
+    debugBtn.style.padding = '5px';
+    debugBtn.style.fontSize = '10px';
+    debugBtn.style.background = '#ff4444';
+    debugBtn.style.color = 'white';
+    debugBtn.style.border = 'none';
+    debugBtn.style.borderRadius = '3px';
+    debugBtn.style.cursor = 'pointer';
+    debugBtn.addEventListener('click', debugSavedLevels);
+    
+    document.body.appendChild(debugBtn);
+}
+
+// Initialize debug button in development
+// addDebugButton(); // Uncomment if you need to debug level saving
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
