@@ -7,7 +7,7 @@
 :root {
   --card-w: 120px;
   --gap: 7px;
-  --card-gap: 7px; /* Default for expanded sidebar */
+  --card-gap: 11px; /* Default when sidebar is EXPANDED */
 }
 
 /* Reset & Base Styles */
@@ -392,12 +392,17 @@ body.dark-mode #clearFiltersBtn:hover {
   background: #A52A2A !important;
 }
 
+/* When right sidebar is collapsed, override the card gap to 7px */
+.right-sidebar.collapsed {
+  --card-gap: 7px;
+}
+
 /* ---------- CARDS & SLOTS ---------- */
 /* Card Grids */
 .cards, .slots {
   display: grid;
   grid-template-columns: repeat(auto-fill, var(--card-w));
-  gap: var(--card-gap); /* Use the dynamic gap variable */
+  gap: var(--card-gap);
   width: 100%;
   justify-content: start;
   align-items: start;
@@ -412,7 +417,7 @@ body.dark-mode #clearFiltersBtn:hover {
 .slots {
   grid-template-columns: repeat(3, var(--card-w));
   grid-auto-rows: min-content;
-  max-width: calc(var(--card-w) * 3 + var(--card-gap) * 2); /* Use dynamic gap here too */
+  max-width: calc(var(--card-w) * 3 + var(--card-gap) * 2);
   margin: 35px auto 0;
   height: auto;
   min-height: min-content;
