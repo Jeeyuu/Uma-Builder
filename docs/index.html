@@ -3308,29 +3308,27 @@ function createCardElement(card){
         const formattedDate = formatDateForDisplay(releaseDate);
         nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
       }
-    } else if (!isNaN(parseInt(sortByValue))) {
-      // Effect sorting - show the effect value at MAX LEVEL
-      const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
-      if (effectValue !== null && effectValue !== 0) {
-        const effectName = EFFECT_TYPES[parseInt(sortByValue)];
-        const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
-        const formattedValue = Number.isInteger(effectValue) ? 
-          effectValue.toString() : effectValue.toFixed(1);
-        
-        // Format with appropriate unit
-        let displayValue;
-        if (unit === "Lv ") {
-          displayValue = unit + formattedValue;
-        } else {
-          displayValue = formattedValue + unit;
-        }
-        
-        nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
-      }
+    // In createCardElement function, replace the effect sorting section:
+} else if (!isNaN(parseInt(sortByValue))) {
+  // Effect sorting - show the effect value at CURRENT LEVEL (not max level)
+  const effectValue = getEffectValueForCurrentLevel(card, parseInt(sortByValue));
+  if (effectValue !== null && effectValue !== 0) {
+    const effectName = EFFECT_TYPES[parseInt(sortByValue)];
+    const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
+    const formattedValue = Number.isInteger(effectValue) ? 
+      effectValue.toString() : effectValue.toFixed(1);
+    
+    // Format with appropriate unit
+    let displayValue;
+    if (unit === "Lv ") {
+      displayValue = unit + formattedValue;
     } else {
-      // Default: show character ID (only if not hidden)
-      if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+      displayValue = formattedValue + unit;
     }
+    
+    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+  }
+}
   }
   
   if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
@@ -3669,16 +3667,25 @@ if (sortByValue === 'support_id') {
     const formattedDate = formatDateForDisplay(releaseDate);
     nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
   }
+// In addToSlot function, replace the effect sorting section:
 } else if (!isNaN(parseInt(sortByValue))) {
-  // Effect sorting - show the effect value
-  const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
+  // Effect sorting - show the effect value at CURRENT LEVEL
+  const effectValue = getEffectValueForCurrentLevel(card, parseInt(sortByValue));
   if (effectValue !== null) {
     const effectName = EFFECT_TYPES[parseInt(sortByValue)];
-    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${effectValue}</div>`;
+    const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
+    const formattedValue = Number.isInteger(effectValue) ? 
+      effectValue.toString() : effectValue.toFixed(1);
+    
+    let displayValue;
+    if (unit === "Lv ") {
+      displayValue = unit + formattedValue;
+    } else {
+      displayValue = formattedValue + unit;
+    }
+    
+    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
   }
-} else {
-  // Default: show character ID
-  if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
 }
 
 if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
@@ -3704,26 +3711,32 @@ if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opaci
     levelInput.value = savedLevel;
 
     // Enhanced level input event listeners
-    const handleLevelChange = (e) => {
-        const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
-        e.target.value = newLevel;
-        
-        // Update unique effects display to show if they're active
-        updateUniqueEffectsDisplay(freeSlot, card, newLevel);
-    };
+    // In addToSlot function, update the handleLevelChange function:
+const handleLevelChange = (e) => {
+    const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
+    e.target.value = newLevel;
+    
+    // Update unique effects display to show if they're active
+    updateUniqueEffectsDisplay(freeSlot, card, newLevel);
+    
+    // NEW: Refresh all card displays to update the effect values
+    refreshCardDisplays();
+};
 
-    levelInput.onchange = handleLevelChange;
-    levelInput.onblur = handleLevelChange;
-    levelInput.oninput = (e) => {
-        // Real-time validation for better UX
-        const value = parseInt(e.target.value);
-        const maxLevel = getMaxLevel(card);
-        if (value > maxLevel) {
-            e.target.value = maxLevel;
-        } else if (value < 1 || isNaN(value)) {
-            e.target.value = 1;
-        }
-    };
+// Also add input event for real-time updates
+levelInput.addEventListener('input', (e) => {
+    // Real-time validation for better UX
+    const value = parseInt(e.target.value);
+    const maxLevel = getMaxLevel(card);
+    if (value > maxLevel) {
+        e.target.value = maxLevel;
+    } else if (value < 1 || isNaN(value)) {
+        e.target.value = 1;
+    }
+    
+    // Real-time update of card displays
+    setTimeout(() => refreshCardDisplays(), 100);
+});
 
     // Create and attach the click handler
     const slotCard = { ...card };
@@ -4678,6 +4691,9 @@ function updateSlotLevel(slotContainer, card, level) {
     
     // Update effect totals immediately
     setTimeout(updateEffectTotals, 50);
+    
+    // NEW: Refresh card displays to update the gray text values
+    setTimeout(refreshCardDisplays, 100);
     
     return validatedLevel;
 }
@@ -5881,6 +5897,7 @@ function formatDateForDisplay(dateString) {
 }
 
 /* ------------- UPDATE getEffectValueForSorting FUNCTION ------------- */
+/* ------------- UPDATE getEffectValueForSorting FUNCTION ------------- */
 function getEffectValueForSorting(card, effectId) {
   // Find the card with effects data
   const cardWithEffects = findCardWithEffects(card.support_id);
@@ -5909,6 +5926,55 @@ function getEffectValueForSorting(card, effectId) {
   return maxValue;
 }
 
+/* ------------- ADD THIS NEW FUNCTION ------------- */
+function getEffectValueForCurrentLevel(card, effectId) {
+  // Find the card with effects data
+  const cardWithEffects = findCardWithEffects(card.support_id);
+  
+  if (!cardWithEffects || !cardWithEffects.effects) {
+    return null;
+  }
+  
+  // Find the effect data for this effect ID
+  const effectData = cardWithEffects.effects.find(effect => effect[0] === effectId);
+  
+  if (!effectData) {
+    return 0; // Effect not found, return 0
+  }
+  
+  // Get the CURRENT LEVEL from the slot if the card is equipped
+  let currentLevel = 1;
+  const slot = slots.find(s => s.dataset.supportId === String(card.support_id));
+  if (slot) {
+    const slotContainer = slot.closest('.slot-container');
+    const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+    currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
+  } else {
+    // For unequipped cards, use MAX LEVEL
+    currentLevel = getMaxLevel(card);
+  }
+  
+  // Calculate value at current level
+  const currentValue = getEffectValueAtLevel(effectData, currentLevel);
+  
+  // ADD UNIQUE EFFECTS if applicable at current level
+  if (shouldApplyUniqueEffects(card, currentLevel)) {
+    const uniqueValue = getUniqueEffectValue(card, effectId);
+    return currentValue + uniqueValue;
+  }
+  
+  return currentValue;
+}
+
+/* ------------- REFRESH CARD DISPLAYS FUNCTION ------------- */
+function refreshCardDisplays() {
+  // Re-render sections to update the effect values below card names
+  sectionPages.clear();
+  renderSections();
+  
+  // Also update effect totals in the right sidebar
+  updateEffectTotals();
+}
 
 /* ------------- UPDATE SLOTS FOR SORT CHANGE ------------- */
 function updateSlotsForSortChange() {
@@ -5932,6 +5998,15 @@ function updateSlotsForSortChange() {
   
   // Save the updated slots
   saveSlotsToLocalStorage();
+}
+
+function refreshCardDisplays() {
+  // Re-render sections to update the effect values below card names
+  sectionPages.clear();
+  renderSections();
+  
+  // Also update effect totals in the right sidebar
+  updateEffectTotals();
 }
 
 // ---------- DOCUMENT ------------------------------------------------------------------
