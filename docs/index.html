@@ -2728,7 +2728,6 @@ function addSearchBox() {
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
   sectionPages.clear();
-  renderSections();
   highlightSkills();
   highlightSelectedSkills();
 }
@@ -2764,7 +2763,6 @@ function setupSearchInput(searchId) {
     }
     
     sectionPages.clear();
-    renderSections();
     highlightSkills(); // Add this line
     highlightSelectedSkills(); // Add this line
   });
@@ -2807,7 +2805,6 @@ function removeSearchBox(searchId) {
     }
     
     sectionPages.clear();
-    renderSections();
     highlightSkills();
     highlightSelectedSkills();
     return;
