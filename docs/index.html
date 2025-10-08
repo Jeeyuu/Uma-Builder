@@ -3342,32 +3342,58 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  el.addEventListener('click', ()=> {
+  // Replace your current card click handler in createCardElement():
+el.addEventListener('click', ()=> {
     const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
-    if(slot) removeFromSlot(slot, card);
-    else addToSlot(card);
-  });
+    if(slot) {
+        removeFromSlot(slot, card);
+    } else {
+        addToSlot(card);
+    }
+    
+    // INSTEAD of calling renderSections(), just update the disabled states
+    updateCardDisabledStates();
+});
 
-  if(selectedCardIds.has(card.char_id)){
-    el.classList.add('disabled');
-    const dupLabel = document.createElement('div');
-    dupLabel.textContent = 'Duplicate Support';
-    dupLabel.style.position = 'absolute';
-    dupLabel.style.top = '0';
-    dupLabel.style.left = '0';
-    dupLabel.style.width = '100%';
-    dupLabel.style.background = 'red';
-    dupLabel.style.color = 'white';
-    dupLabel.style.fontSize = '9px';
-    dupLabel.style.fontWeight = 'bold';
-    dupLabel.style.textAlign = 'center';
-    dupLabel.style.padding = '2px 0';
-    dupLabel.style.borderTopLeftRadius = '4px';
-    dupLabel.style.borderTopRightRadius = '4px';
-    el.appendChild(dupLabel);
-  }
-
-  return el;
+// Add this new function that only updates disabled states without full re-render:
+function updateCardDisabledStates() {
+    const allCards = document.querySelectorAll('.card');
+    allCards.forEach(cardEl => {
+        const cardId = parseInt(cardEl.dataset.id);
+        if (selectedCardIds.has(cardId)) {
+            cardEl.classList.add('disabled');
+            // Ensure duplicate label exists
+            if (!cardEl.querySelector('[data-dup-label]')) {
+                const dupLabel = document.createElement('div');
+                dupLabel.textContent = 'Duplicate Support';
+                dupLabel.setAttribute('data-dup-label', 'true');
+                dupLabel.style.position = 'absolute';
+                dupLabel.style.top = '0';
+                dupLabel.style.left = '0';
+                dupLabel.style.width = '100%';
+                dupLabel.style.background = 'red';
+                dupLabel.style.color = 'white';
+                dupLabel.style.fontSize = '9px';
+                dupLabel.style.fontWeight = 'bold';
+                dupLabel.style.textAlign = 'center';
+                dupLabel.style.padding = '2px 0';
+                dupLabel.style.borderTopLeftRadius = '4px';
+                dupLabel.style.borderTopRightRadius = '4px';
+                dupLabel.style.zIndex = '10';
+                cardEl.appendChild(dupLabel);
+            }
+        } else {
+            cardEl.classList.remove('disabled');
+            const dupLabel = cardEl.querySelector('[data-dup-label]');
+            if (dupLabel) {
+                dupLabel.remove();
+            }
+        }
+    });
+    
+    // Update skill highlighting without full re-render
+    highlightSkills();
+    highlightSelectedSkills();
 }
 
 /* ------------- Slot handling & persistence ------------- */
@@ -3739,10 +3765,8 @@ if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opaci
     selectedCardIds.add(card.char_id);
     if (save) saveSlotsToLocalStorage();
 
-    updateSelectedSkillsList();
-    highlightSkills();
-    highlightSelectedSkills();
-    renderSections();
+updateSelectedSkillsList();
+updateCardDisabledStates(); // ← ADD THIS INSTEAD
 
     // Update effect totals after adding card
     setTimeout(updateEffectTotals, 100);
@@ -3787,12 +3811,10 @@ function removeFromSlot(slot, card) {
         selectedCardIds.delete(card.char_id);
     }
 
-    saveSlotsToLocalStorage();
-    updateSelectedSkillsList();
-    highlightSkills();
-    highlightSelectedSkills();
-    renderSections();
-    
+saveSlotsToLocalStorage();
+updateSelectedSkillsList();
+updateCardDisabledStates(); // ← ADD THIS INSTEAD
+
     // Update effect totals after removal
     setTimeout(updateEffectTotals, 100);
 }
@@ -5932,6 +5954,37 @@ function updateSlotsForSortChange() {
   
   // Save the updated slots
   saveSlotsToLocalStorage();
+}
+
+/* ------------- SMART RENDER DETECTION ------------- */
+function needsFullRender() {
+  // Check if any filters, searches, or sorting changed that would affect card visibility
+  const currentFilterState = JSON.stringify({
+    racecourse: document.getElementById('racecourse').value,
+    length: document.getElementById('length').value,
+    direction: document.getElementById('direction').value,
+    track: document.getElementById('track').value,
+    season: document.getElementById('season').value,
+    weather: document.getElementById('weather').value,
+    strategy: document.getElementById('strategy').value,
+    skillSearches: SKILL_SEARCH_KEYS.map(key => document.getElementById(key)?.value.trim()).filter(Boolean),
+    cardSearch: cardSearchValue,
+    rarities: Array.from(selectedRarities),
+    types: Array.from(selectedTypes),
+    sortBy: sortBy,
+    sortOrder: sortOrder,
+    region: region
+  });
+  
+  // Store the last state to compare against
+  if (!window.lastFilterState) {
+    window.lastFilterState = currentFilterState;
+    return true; // First render
+  }
+  
+  const needsRender = window.lastFilterState !== currentFilterState;
+  window.lastFilterState = currentFilterState;
+  return needsRender;
 }
 
 // ---------- DOCUMENT ------------------------------------------------------------------
