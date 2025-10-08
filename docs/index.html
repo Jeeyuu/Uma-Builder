@@ -4787,15 +4787,29 @@ function updateEffectTotals() {
     console.log('Updating effect totals UI with card contributions...');
     const contributions = calculateEffectContributions();
     
+    // Check if any slots have cards
+    const hasCards = document.querySelectorAll('.slot.has-card').length > 0;
+    
     // Update each effect display
     Object.entries(contributions).forEach(([effectName, data]) => {
       // Find all elements for this effect
       const effectElements = document.querySelectorAll(`[data-effect="${effectName}"]`);
       
       effectElements.forEach(element => {
-        // Hide entire row if total is 0 and no cards contribute
-        if (data.total === 0 && data.cards.length === 0) {
+        // Hide entire row if total is 0 and no cards contribute, OR if deck is empty
+        if ((data.total === 0 && data.cards.length === 0) || !hasCards) {
           element.style.display = 'none';
+          
+          // Also reset the values to 0 when hiding
+          const valueSpan = element.querySelector('.effect-value');
+          if (valueSpan) {
+            valueSpan.textContent = '0';
+          }
+          
+          const cardsContainer = element.querySelector('.effect-cards');
+          if (cardsContainer) {
+            cardsContainer.innerHTML = '';
+          }
           return;
         }
         
@@ -4842,6 +4856,17 @@ function updateEffectTotals() {
         }
       });
     });
+    
+    // If no cards at all, ensure all effects are hidden and reset
+    if (!hasCards) {
+      document.querySelectorAll('.effect-row').forEach(row => {
+        row.style.display = 'none';
+        const valueSpan = row.querySelector('.effect-value');
+        if (valueSpan) valueSpan.textContent = '0';
+        const cardsContainer = row.querySelector('.effect-cards');
+        if (cardsContainer) cardsContainer.innerHTML = '';
+      });
+    }
   } catch (error) {
     console.error('Error updating effect totals:', error);
   }
