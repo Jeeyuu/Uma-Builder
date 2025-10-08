@@ -5589,7 +5589,6 @@ function setupCollapsibleSidebar() {
 
 // Initialize when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-    setupLayoutObserver(); // Add this line
   setupCollapsibleSidebar();
 });
 
@@ -5722,38 +5721,6 @@ function addDebugButton() {
 
 // Initialize debug button in development
 // addDebugButton(); // Uncomment if you need to debug level saving
-
-/* ------------- RESPONSIVE LAYOUT OBSERVER ------------- */
-function setupLayoutObserver() {
-  const mainContent = document.querySelector('.main-content');
-  const rightSidebar = document.getElementById('rightSidebar');
-  
-  if (!mainContent || !rightSidebar) return;
-  
-  // Create a ResizeObserver to watch for layout changes
-  const resizeObserver = new ResizeObserver(entries => {
-    // Debounce the recalculation
-    clearTimeout(window.layoutResizeTimeout);
-    window.layoutResizeTimeout = setTimeout(() => {
-      console.log('Layout changed, recalculating cards...');
-      sectionPages.clear();
-      renderSections();
-    }, 100);
-  });
-  
-  // Observe both the main content and sidebar
-  resizeObserver.observe(mainContent);
-  resizeObserver.observe(rightSidebar);
-}
-
-// Also add this to your existing resize handler for better coverage
-window.addEventListener('resize', () => {
-  clearTimeout(window.layoutResizeTimeout);
-  window.layoutResizeTimeout = setTimeout(() => {
-    sectionPages.clear();
-    renderSections();
-  }, 250);
-});
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
