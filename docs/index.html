@@ -7,14 +7,11 @@
 :root {
   --card-w: 120px;
   --gap: 7px;
-  --card-gap-collapsed: 7.6px;
-  --card-gap-expanded: 9.8px;
+  --card-gap: 7.6px; /* Default = collapsed */
 }
 
-/* When right sidebar exists and is NOT collapsed, use expanded gap */
-.right-sidebar:not(.collapsed) ~ .main-content .cards,
-.right-sidebar:not(.collapsed) .slots {
-  gap: var(--card-gap-expanded);
+.right-sidebar:not(.collapsed) {
+  --card-gap: 9.8px; /* Override when expanded */
 }
 
 /* Reset & Base Styles */
@@ -401,16 +398,14 @@ body.dark-mode #clearFiltersBtn:hover {
 
 /* ---------- CARDS & SLOTS ---------- */
 /* Card Grids */
-/* Default gap for collapsed state */
 .cards, .slots {
   display: grid;
   grid-template-columns: repeat(auto-fill, var(--card-w));
-  gap: var(--card-gap-collapsed);
+  gap: var(--card-gap);
   width: 100%;
   justify-content: start;
   align-items: start;
 }
-
 
 .cards {
   grid-auto-rows: 0;
