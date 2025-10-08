@@ -1418,21 +1418,21 @@ body.dark-mode .effect-value {
   position: relative;
   transition: all 0.3s ease;
   min-width: fit-content;
-  overflow: visible !important; /* Crucial: allow content to overflow */
+  overflow: visible !important;
 }
 
 .right-sidebar.collapsed {
-  width: 120px !important; /* Increased to match card width */
-  min-width: 120px !important;
+  width: var(--card-w) !important; /* Use the card width variable */
+  min-width: var(--card-w) !important;
 }
 
 /* Collapse Toggle Button - TALLER AND POSITIONED OUTSIDE */
 .collapse-toggle {
   position: absolute;
-  left: -20px; /* Position outside the sidebar */
-  top: 20px; /* Position from top */
+  left: -20px;
+  top: 20px;
   width: 20px;
-  height: 60px; /* Doubled from 30px to 60px */
+  height: 60px;
   background: #444;
   border: 1px solid #ddd;
   border-right: none;
@@ -1442,7 +1442,7 @@ body.dark-mode .effect-value {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 16px; /* Slightly larger arrow */
+  font-size: 16px;
   font-weight: bold;
   z-index: 1000;
   transition: all 0.3s ease;
@@ -1465,28 +1465,29 @@ body.dark-mode .effect-value {
   z-index: 1;
 }
 
-/* Collapsed Layout - ADJUSTED FOR WIDER SIDEBAR */
+/* Collapsed Layout - USE VARIABLES FOR CONSISTENCY */
 .right-sidebar.collapsed .slots {
   grid-template-columns: 1fr;
-  max-width: 120px; /* Match the increased width */
+  max-width: var(--card-w);
   margin: 35px auto 0;
-  gap: 8px; /* Slightly more gap for better spacing */
+  gap: var(--gap);
 }
 
 .right-sidebar.collapsed .slot-container {
-  width: 120px; /* Full card width */
-  margin-bottom: 12px !important; /* More spacing between cards */
+  width: var(--card-w);
+  margin-bottom: calc(var(--gap) * 2) !important;
 }
 
 .right-sidebar.collapsed .slot {
-  width: 120px; /* Full card width */
-  min-height: 120px; /* Maintain aspect ratio */
-  height: 120px; /* Full card height */
-  padding: 6px; /* Slightly more padding */
+  width: var(--card-w);
+  min-height: var(--card-w);
+  height: auto;
+  padding: 6px;
 }
 
 .right-sidebar.collapsed .slot:not(.has-card) {
-  height: 120px; /* Full card height */
+  height: var(--card-w);
+  aspect-ratio: 1;
 }
 
 .right-sidebar.collapsed .slot.has-card .name,
@@ -1498,8 +1499,8 @@ body.dark-mode .effect-value {
 }
 
 .right-sidebar.collapsed .slot.has-card img {
-  max-width: 96px; /* Larger image to fit the bigger card */
-  max-height: 96px;
+  max-width: calc(var(--card-w) * 0.8);
+  max-height: calc(var(--card-w) * 0.8);
 }
 
 .right-sidebar.collapsed .slot.has-card .type-icon {
@@ -1509,45 +1510,57 @@ body.dark-mode .effect-value {
   right: 4px;
 }
 
-/* Collapsed Level Controls - ADJUSTED FOR WIDER LAYOUT */
+/* Collapsed Level Controls */
 .right-sidebar.collapsed .slot-level-controls {
   padding: 4px 6px;
   top: -30px;
-  width: 120px; /* Match the card width */
+  width: var(--card-w);
 }
 
 .right-sidebar.collapsed .slot-level-label {
-  font-size: 11px; /* Slightly larger text */
+  font-size: 11px;
 }
 
 .right-sidebar.collapsed .slot-level-input {
-  width: 40px; /* Wider input */
+  width: 40px;
   height: 20px;
   font-size: 11px;
 }
 
-/* Collapsed Deck Buttons - ADJUSTED FOR WIDER LAYOUT */
+/* Collapsed Deck Buttons */
 .right-sidebar.collapsed .deck-buttons {
   grid-template-columns: 1fr;
-  max-width: 120px; /* Match the increased width */
+  max-width: var(--card-w);
   gap: 6px;
 }
 
 .right-sidebar.collapsed .deck-btn,
 .right-sidebar.collapsed .slots-header .clear-all {
-  width: 120px; /* Full width buttons */
+  width: var(--card-w);
   padding: 8px 12px;
-  font-size: 11px; /* Slightly larger text */
+  font-size: 11px;
   min-height: 36px;
 }
 
-/* Collapsed Effect Rows - ADJUSTED FOR WIDER LAYOUT */
+/* FIXED: Collapsed Effect Rows with Scroll */
+.right-sidebar.collapsed .selected-skills-section {
+  display: none; /* Hide skills list in collapsed mode */
+}
+
+.right-sidebar.collapsed .effect-rows-container {
+  max-height: 300px; /* Limit height and enable scroll */
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-top: 10px;
+}
+
 .right-sidebar.collapsed .effect-row {
   min-height: 28px;
   padding: 3px 6px;
   margin-bottom: 3px;
   flex-wrap: nowrap;
   overflow: hidden;
+  width: var(--card-w);
 }
 
 .right-sidebar.collapsed .effect-info {
@@ -1556,10 +1569,11 @@ body.dark-mode .effect-value {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .right-sidebar.collapsed .effect-name {
-  font-size: 10px; /* Slightly larger text */
+  font-size: 10px;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -1569,7 +1583,7 @@ body.dark-mode .effect-value {
 }
 
 .right-sidebar.collapsed .effect-value {
-  font-size: 10px; /* Slightly larger text */
+  font-size: 10px;
   min-width: 25px;
   padding: 1px 3px;
   margin-left: 0;
@@ -1588,6 +1602,38 @@ body.dark-mode .effect-value {
 /* Ensure proper spacing in collapsed mode */
 .right-sidebar.collapsed .skill-search-divider {
   margin: 12px 0;
+}
+
+/* Scrollbar styling for effect rows */
+.effect-rows-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.effect-rows-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.effect-rows-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 2px;
+}
+
+.effect-rows-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Dark mode scrollbar */
+body.dark-mode .effect-rows-container::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+body.dark-mode .effect-rows-container::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+body.dark-mode .effect-rows-container::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
 
 /* Dark mode support for collapsed sidebar */
@@ -1926,20 +1972,21 @@ body.dark-mode .collapse-toggle:hover {
 
   <div class="skill-search-divider"></div>
 
-<div class="effect-row" data-effect="Friendship Bonus">
-  <div class="effect-info">
-    <span class="effect-name">Friendship Bonus</span>
-    <span class="effect-value">0</span>
-  </div>
-  <div class="effect-cards"></div>
-</div>
-<div class="effect-row" data-effect="Mood Effect">
-  <div class="effect-info">
-    <span class="effect-name">Mood Effect</span>
-    <span class="effect-value">0</span>
-  </div>
-  <div class="effect-cards"></div>
-</div>
+  <div class="effect-rows-container">
+    <div class="effect-row" data-effect="Friendship Bonus">
+      <div class="effect-info">
+        <span class="effect-name">Friendship Bonus</span>
+        <span class="effect-value">0</span>
+      </div>
+      <div class="effect-cards"></div>
+    </div>
+    <div class="effect-row" data-effect="Mood Effect">
+      <div class="effect-info">
+        <span class="effect-name">Mood Effect</span>
+        <span class="effect-value">0</span>
+      </div>
+      <div class="effect-cards"></div>
+    </div>
 <div class="effect-row" data-effect="Speed Bonus">
   <div class="effect-info">
     <span class="effect-name">Speed Bonus</span>
@@ -2108,14 +2155,15 @@ body.dark-mode .collapse-toggle:hover {
   </div>
   <div class="effect-cards"></div>
 </div>
-<div class="effect-row" data-effect="All Stats Bonus">
-  <div class="effect-info">
-    <span class="effect-name">All Stats Bonus</span>
-    <span class="effect-value">0</span>
-  </div>
-  <div class="effect-cards"></div>
-</div>
-</div>
+    <div class="effect-row" data-effect="All Stats Bonus">
+      <div class="effect-info">
+        <span class="effect-name">All Stats Bonus</span>
+        <span class="effect-value">0</span>
+      </div>
+      <div class="effect-cards"></div>
+    </div>
+  </div> <!-- Close effect-rows-container -->
+</div> <!-- Close right-sidebar -->
   
 </div>
 
