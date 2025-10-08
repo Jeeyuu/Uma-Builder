@@ -76,6 +76,7 @@ body {
   flex-direction: column;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  height: 100%;
 }
 
 .sidebar::-webkit-scrollbar,
@@ -100,6 +101,8 @@ body {
   border-left: 1px solid #ddd;
   align-items: center;
   min-width: fit-content;
+  overflow-y: auto !important;
+  overflow-x: hidden;
 }
 
 .right-sidebar .slots-header {
@@ -411,6 +414,8 @@ body.dark-mode #clearFiltersBtn:hover {
   grid-auto-rows: min-content;
   max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
   margin: 35px auto 0;
+  height: auto;
+  min-height: min-content;
 }
 
 /* Card/Slot Base Styles */
@@ -1418,12 +1423,15 @@ body.dark-mode .effect-value {
   position: relative;
   transition: all 0.3s ease;
   min-width: fit-content;
-  overflow: visible !important; /* Crucial: allow content to overflow */
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  height: 100%;
 }
 
 .right-sidebar.collapsed {
   width: 120px !important;
   min-width: 120px !important;
+  overflow-y: auto !important;
 }
 
 /* Collapse Toggle Button - POSITIONED OUTSIDE */
@@ -1471,6 +1479,8 @@ body.dark-mode .effect-value {
   max-width: 120px;
   margin: 35px auto 0;
   gap: 30px;
+  height: auto;
+  min-height: min-content;
 }
 
 .right-sidebar.collapsed .slot-container {
@@ -1547,6 +1557,8 @@ body.dark-mode .effect-value {
   margin-bottom: 2px;
   flex-wrap: nowrap;
   overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .right-sidebar.collapsed .effect-info {
@@ -1555,6 +1567,7 @@ body.dark-mode .effect-value {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  overflow: hidden;
 }
 
 .right-sidebar.collapsed .effect-name {
