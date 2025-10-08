@@ -3236,6 +3236,7 @@ function setupHideUncoloredCheckbox() {
 
 
 // Update the card display to show unique effects
+/* ------------- UPDATE createCardElement FUNCTION ------------- */
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -3289,30 +3290,47 @@ function createCardElement(card){
     }
   }
   
-  // ENHANCED: Add sort data display below name
+  // ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
   
   // Show different data based on current sort selection
   const sortByValue = document.getElementById('sortBy').value;
   
-  if (sortByValue === 'support_id') {
-    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
-  } else if (sortByValue === 'release') {
-    const releaseDate = region === 'global' ? card.release_en : card.release;
-    if (releaseDate && releaseDate !== '') {
-      const formattedDate = formatDateForDisplay(releaseDate);
-      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+  // Define which sort options should NOT show the extra data box
+  const hideDataOptions = ['rarity', 'name', 'type'];
+  
+  if (!hideDataOptions.includes(sortByValue)) {
+    if (sortByValue === 'support_id') {
+      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+    } else if (sortByValue === 'release') {
+      const releaseDate = region === 'global' ? card.release_en : card.release;
+      if (releaseDate && releaseDate !== '') {
+        const formattedDate = formatDateForDisplay(releaseDate);
+        nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+      }
+    } else if (!isNaN(parseInt(sortByValue))) {
+      // Effect sorting - show the effect value at MAX LEVEL
+      const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
+      if (effectValue !== null && effectValue !== 0) {
+        const effectName = EFFECT_TYPES[parseInt(sortByValue)];
+        const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
+        const formattedValue = Number.isInteger(effectValue) ? 
+          effectValue.toString() : effectValue.toFixed(1);
+        
+        // Format with appropriate unit
+        let displayValue;
+        if (unit === "Lv ") {
+          displayValue = unit + formattedValue;
+        } else {
+          displayValue = formattedValue + unit;
+        }
+        
+        nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+      }
+    } else {
+      // Default: show character ID (only if not hidden)
+      if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
     }
-  } else if (!isNaN(parseInt(sortByValue))) {
-    // Effect sorting - show the effect value
-    const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
-    if (effectValue !== null) {
-      const effectName = EFFECT_TYPES[parseInt(sortByValue)];
-      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${effectValue}</div>`;
-    }
-  } else {
-    // Default: show character ID
-    if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
   }
   
   if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
@@ -5862,6 +5880,7 @@ function formatDateForDisplay(dateString) {
   }
 }
 
+/* ------------- UPDATE getEffectValueForSorting FUNCTION ------------- */
 function getEffectValueForSorting(card, effectId) {
   // Find the card with effects data
   const cardWithEffects = findCardWithEffects(card.support_id);
@@ -5877,15 +5896,19 @@ function getEffectValueForSorting(card, effectId) {
     return 0; // Effect not found, return 0
   }
   
-  // Get the base value (level 1 value)
-  const baseValue = effectData[1];
+  // Get the MAX LEVEL value instead of base value
+  const maxLevel = getMaxLevel(card);
+  const maxValue = getEffectValueAtLevel(effectData, maxLevel);
   
-  if (baseValue === -1 || baseValue === undefined) {
-    return 0; // No base value
+  // ADD UNIQUE EFFECTS AT MAX LEVEL
+  if (shouldApplyUniqueEffects(card, maxLevel)) {
+    const uniqueValue = getUniqueEffectValue(card, effectId);
+    return maxValue + uniqueValue;
   }
   
-  return baseValue;
+  return maxValue;
 }
+
 
 /* ------------- UPDATE SLOTS FOR SORT CHANGE ------------- */
 function updateSlotsForSortChange() {
