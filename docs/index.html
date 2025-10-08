@@ -1644,6 +1644,29 @@ body.dark-mode .collapse-toggle {
 body.dark-mode .collapse-toggle:hover {
   background: #666;
 }
+
+.card, .slot {
+  /* Prevent focus outline and scrolling */
+  outline: none !important;
+}
+
+.card:focus, .slot:focus {
+  outline: none !important;
+}
+
+/* Prevent any focus-related scrolling */
+.card *:focus, .slot *:focus {
+  outline: none !important;
+}
+
+/* Ensure cards don't get focus */
+.card {
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 </style>
 </head>
 
@@ -3343,12 +3366,18 @@ function createCardElement(card){
   `;
 
 el.addEventListener('click', (e)=> {
-  e.preventDefault(); // Prevent default behavior
-  e.stopPropagation(); // Stop event bubbling
+  e.preventDefault();
+  e.stopPropagation();
   
   const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
-  if(slot) removeFromSlot(slot, card);
-  else addToSlot(card);
+  if(slot) {
+    removeFromSlot(slot, card);
+  } else {
+    addToSlot(card);
+  }
+  
+  // DON'T call renderSections here - it will be called by addToSlot/removeFromSlot
+  return false;
 });
 
   if(selectedCardIds.has(card.char_id)){
@@ -3735,6 +3764,7 @@ function slotClickHandler(e) {
   e.preventDefault();
   e.stopPropagation();
   removeFromSlot(freeSlot, slotCard);
+  return false;
 }
 
     // Attach the event listener to the slot element only
@@ -3747,7 +3777,6 @@ function slotClickHandler(e) {
     updateSelectedSkillsList();
     highlightSkills();
     highlightSelectedSkills();
-    renderSections();
 
     // Update effect totals after adding card
     setTimeout(updateEffectTotals, 100);
@@ -3796,7 +3825,6 @@ function removeFromSlot(slot, card) {
     updateSelectedSkillsList();
     highlightSkills();
     highlightSelectedSkills();
-    renderSections();
     
     // Update effect totals after removal
     setTimeout(updateEffectTotals, 100);
