@@ -1688,10 +1688,10 @@ body.dark-mode .effect-value {
       <button id="clearAllBtn" class="clear-all">Clear Deck</button>
     </div>
     <!-- Add debug buttons -->
-    <div class="deck-buttons" style="margin-top: 8px;">
-  <button onclick="updateEffectTotals()" class="deck-btn" style="background: #666;">Update Effects</button>
-  <button onclick="console.log('Cards in slots:', Array.from(document.querySelectorAll('.slot')).map(s => ({supportId: s.dataset.supportId, level: s.closest('.slot-container').querySelector('.slot-level-input')?.value}))); console.log('Card 30011 effects:', getCardEffects(30011));" class="deck-btn" style="background: #666;">Debug Slots</button>
-    </div>
+    <!-- <div class="deck-buttons" style="margin-top: 8px;">
+      <button onclick="updateEffectTotals()" class="deck-btn" style="background: #666;">Update Effects</button>
+      <button onclick="console.log('Cards in slots:', Array.from(document.querySelectorAll('.slot')).map(s => ({supportId: s.dataset.supportId, level: s.closest('.slot-container').querySelector('.slot-level-input')?.value}))); console.log('Card 30011 effects:', getCardEffects(30011));" class="deck-btn" style="background: #666;">Debug Slots</button>
+    </div> -->
   </div>
 
   <div class="slots" id="slots">
