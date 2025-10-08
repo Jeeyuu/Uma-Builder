@@ -2281,13 +2281,11 @@ function renderFilterPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
   const CARDS_PER_PAGE = calculateCardsPerPage();
   const startIdx = page * CARDS_PER_PAGE;
   const endIdx = startIdx + CARDS_PER_PAGE;
-  
-  // Get fresh cards with current sort data
-  const pageCards = getCurrentSortedCards().slice(startIdx, endIdx);
+  const pageCards = matches.slice(startIdx, endIdx);
   
   pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
-  const totalPages = Math.ceil(getCurrentSortedCards().length / CARDS_PER_PAGE);
+  const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
 
   // Show/hide pagination controls based on whether pagination is needed
   const needsPagination = totalPages > 1;
@@ -2319,12 +2317,10 @@ function renderCardSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
   grid.innerHTML = '';
   const CARDS_PER_PAGE = calculateCardsPerPage();
   const startIdx = page * CARDS_PER_PAGE;
-  
-  // Get fresh cards with current sort data
-  const pageCards = getCurrentSortedCards().slice(startIdx, startIdx + CARDS_PER_PAGE);
+  const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
   pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
-  const totalPages = Math.ceil(getCurrentSortedCards().length / CARDS_PER_PAGE);
+  const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
   
   // Show/hide pagination controls
   const needsPagination = totalPages > 1;
@@ -2340,12 +2336,10 @@ function renderSkillSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) 
   grid.innerHTML = '';
   const CARDS_PER_PAGE = calculateCardsPerPage();
   const startIdx = page * CARDS_PER_PAGE;
-  
-  // Get fresh cards with current sort data
-  const pageCards = getCurrentSortedCards().slice(startIdx, startIdx + CARDS_PER_PAGE);
+  const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
   pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
-  const totalPages = Math.ceil(getCurrentSortedCards().length / CARDS_PER_PAGE);
+  const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
   
   // Show/hide pagination controls
   const needsPagination = totalPages > 1;
@@ -2450,83 +2444,6 @@ function sortCards(cards, sortBy, order) {
   });
   
   return sortedCards;
-}
-
-/* ------------- GET CURRENT SORTED CARDS ------------- */
-function getCurrentSortedCards() {
-  const filters = {
-    racecourse: document.getElementById('racecourse').value || '',
-    length: document.getElementById('length').value || '',
-    direction: document.getElementById('direction').value || '',
-    track: document.getElementById('track').value || '',
-    season: document.getElementById('season').value || '',
-    weather: document.getElementById('weather').value || '',
-    strategy: document.getElementById('strategy').value || ''
-  };
-
-  // Apply region filter first
-  let filteredCards = cardsData.filter(card => {
-    if (region === 'global') {
-      return card.release_en && card.release_en !== '';
-    } else {
-      return true;
-    }
-  });
-  
-  // Apply rarity and type filters
-  if (selectedRarities.size > 0) {
-    filteredCards = filteredCards.filter(card => {
-      if (selectedRarities.has('R') && card.rarity === 1) return true;
-      if (selectedRarities.has('SR') && card.rarity === 2) return true;
-      if (selectedRarities.has('SSR') && card.rarity === 3) return true;
-      return false;
-    });
-  }
-  
-  if (selectedTypes.size > 0) {
-    filteredCards = filteredCards.filter(card => {
-      return selectedTypes.has(card.type);
-    });
-  }
-
-  // Apply card name search
-  if (cardSearchValue) {
-    filteredCards = filteredCards.filter(card => {
-      const cardName = card.char_name.toLowerCase();
-      return cardName.includes(cardSearchValue);
-    });
-  }
-
-  // Apply skill searches
-  const hasSkillSearches = SKILL_SEARCH_KEYS.some(key => {
-    const input = document.getElementById(key);
-    return input && input.value.trim();
-  });
-
-  if (hasSkillSearches) {
-    filteredCards = filteredCards.filter(card => {
-      return SKILL_SEARCH_KEYS.some(key => {
-        const input = document.getElementById(key);
-        if (!input || !input.value.trim()) return false;
-        
-        const searchTerm = input.value.trim().toLowerCase();
-        const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-        const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
-        const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
-        
-        return skills.some(skill => skill.includes(searchTerm));
-      });
-    });
-  }
-
-  // Apply filter presets
-  const anyDropdownActive = Object.values(filters).some(v => v);
-  if (anyDropdownActive) {
-    filteredCards = filterCardsWithRules(filteredCards, filters);
-  }
-
-  // Apply sorting
-  return sortCards(filteredCards, sortBy, sortOrder);
 }
 
 /* ------------- CARD NAME SEARCH ------------- */
@@ -4146,7 +4063,6 @@ function filterCardsWithRules(cards,filters){
 }
 
 /* ------------- UPDATED RENDER SECTIONS WITH CARD SEARCH AT TOP ------------- */
-/* ------------- UPDATED RENDER SECTIONS WITH CURRENT SORTED CARDS ------------- */
 function renderSections() {
   cardSections.innerHTML='';
 
@@ -4160,11 +4076,11 @@ function renderSections() {
     strategy: document.getElementById('strategy').value || ''
   };
 
-  const anyDropdownActive = Object.values(filters).some(v => v);
-  const anySkillActive = SKILL_SEARCH_KEYS.some(key => document.getElementById(key)?.value.trim());
-  const anyRarityActive = selectedRarities.size > 0;
-  const anyTypeActive = selectedTypes.size > 0;
-  const anyCardSearchActive = cardSearchValue.length > 0;
+const anyDropdownActive = Object.values(filters).some(v => v);
+const anySkillActive = SKILL_SEARCH_KEYS.some(key => document.getElementById(key)?.value.trim());
+const anyRarityActive = selectedRarities.size > 0;
+const anyTypeActive = selectedTypes.size > 0;
+const anyCardSearchActive = cardSearchValue.length > 0;
 
   if(!anyDropdownActive && !anySkillActive && !anyRarityActive && !anyTypeActive && !anyCardSearchActive) {
     const section = document.createElement('div');
@@ -4182,14 +4098,6 @@ function renderSections() {
     section.appendChild(msg);
     cardSections.appendChild(section);
     return;
-  }
-
-  // Use current sorted cards instead of baseFilteredCards
-  const currentCards = getCurrentSortedCards();
-
-  // ADD THIS NEW SECTION AT THE TOP - Render Card Name Search FIRST
-  if (anyCardSearchActive) {
-    renderCardSearchSection();
   }
 
 // Apply region filter first - CORRECTED
