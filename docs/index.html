@@ -396,7 +396,7 @@ body.dark-mode #clearFiltersBtn:hover {
 .cards, .slots {
   display: grid;
   grid-template-columns: repeat(auto-fill, var(--card-w));
-  gap: clamp(4px, var(--gap), 16px); /* Min 4px, preferred var(--gap), Max 16px */
+  gap: var(--gap);
   width: 100%;
   justify-content: start;
   align-items: start;
