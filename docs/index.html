@@ -3702,9 +3702,6 @@ clearAllBtn.addEventListener('click', () => {
     }, 100);
 });
 
-// Simple assignment - no function overriding complications
-clearAllBtn.onclick = handleClearAll;
-
 clearFiltersBtn.addEventListener('click', () => {
   // Only clear the preset filters (racecourse through strategy)
   const presetFilterIds = ['racecourse', 'length', 'direction', 'track', 'season', 'weather', 'strategy'];
