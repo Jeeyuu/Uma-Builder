@@ -2217,6 +2217,31 @@ const FILTER_KEYS = ['racecourse','length','direction','track','season','weather
 let SKILL_SEARCH_KEYS = []; // This will be populated from localStorage
 let showPresetCards = true; // Start with preset cards visible
 
+/* ------------- SCROLL PRESERVATION ------------- */
+let mainContentScrollTop = 0;
+const mainContent = document.querySelector('.main-content');
+
+// Save scroll position before any re-renders
+function saveScrollPosition() {
+    mainContentScrollTop = mainContent.scrollTop;
+}
+
+// Restore scroll position after re-renders
+function restoreScrollPosition() {
+    if (mainContentScrollTop > 0) {
+        mainContent.scrollTop = mainContentScrollTop;
+    }
+}
+
+// Override the renderSections function to preserve scroll
+const originalRenderSections = window.renderSections;
+window.renderSections = function() {
+    saveScrollPosition();
+    originalRenderSections();
+    // Use setTimeout to ensure DOM is updated before restoring scroll
+    setTimeout(restoreScrollPosition, 0);
+};
+
 /* ------------- CARD SEARCH STATE ------------- */
 let cardSearchValue = '';
 
@@ -3342,11 +3367,13 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  el.addEventListener('click', ()=> {
+el.addEventListener('click', ()=> {
+    saveScrollPosition(); // Save scroll before any action
     const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
     if(slot) removeFromSlot(slot, card);
     else addToSlot(card);
-  });
+    // Scroll will be restored by the modified renderSections
+});
 
   if(selectedCardIds.has(card.char_id)){
     el.classList.add('disabled');
@@ -3728,9 +3755,10 @@ if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opaci
     // Create and attach the click handler
     const slotCard = { ...card };
 
-    function slotClickHandler() {
-        removeFromSlot(freeSlot, slotCard);
-    }
+function slotClickHandler() {
+    saveScrollPosition(); // Save scroll before removal
+    removeFromSlot(freeSlot, slotCard);
+}
 
     // Attach the event listener to the slot element only
     freeSlot.addEventListener('click', slotClickHandler);
