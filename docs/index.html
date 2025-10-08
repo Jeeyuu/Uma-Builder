@@ -6,7 +6,8 @@
 <style>
 :root {
   --card-w: 120px;
-  --gap: 4px;
+  --gap: 8px;
+  --card-gap: 7px; /* Default for expanded sidebar */
 }
 
 /* Reset & Base Styles */
@@ -396,7 +397,7 @@ body.dark-mode #clearFiltersBtn:hover {
 .cards, .slots {
   display: grid;
   grid-template-columns: repeat(auto-fill, var(--card-w));
-  gap: var(--gap);
+  gap: var(--card-gap); /* Use the dynamic gap variable */
   width: 100%;
   justify-content: start;
   align-items: start;
@@ -411,7 +412,7 @@ body.dark-mode #clearFiltersBtn:hover {
 .slots {
   grid-template-columns: repeat(3, var(--card-w));
   grid-auto-rows: min-content;
-  max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
+  max-width: calc(var(--card-w) * 3 + var(--card-gap) * 2); /* Use dynamic gap here too */
   margin: 35px auto 0;
   height: auto;
   min-height: min-content;
@@ -1425,10 +1426,9 @@ body.dark-mode .effect-value {
   height: 100%;
 }
 
+/* When right sidebar is collapsed, override the card gap */
 .right-sidebar.collapsed {
-  width: 120px !important;
-  min-width: 120px !important;
-  overflow-y: auto !important;
+  --card-gap: 11px;
 }
 
 /* Collapse Toggle Button - YOUR PREFERRED SETTINGS */
