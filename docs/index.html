@@ -522,7 +522,7 @@ body.dark-mode #clearFiltersBtn:hover {
 .skills-header {
   font-size: 9px;
   font-weight: bold;
-  margin-bottom: 0;
+  margin-top: 6px;
   text-align: center;
   background: #000;
   color: #fff;
@@ -3163,7 +3163,7 @@ function createCardElement(card){
   }
   
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
-  if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 6px;">ID: ${card.char_id}</div>`;
+  if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
   if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
   el.innerHTML = `
