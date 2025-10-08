@@ -5013,7 +5013,38 @@ function calculateEffectContributions() {
   return contributions;
 }
 
-// Update the UI with calculated totals and card contributions
+// Update the unit mapping to put Lv before the number
+const EFFECT_UNITS = {
+  1: "%",   // Friendship Bonus
+  2: "%",   // Mood Effect
+  3: "",    // Speed Bonus
+  4: "",    // Stamina Bonus
+  5: "",    // Power Bonus
+  6: "",    // Guts Bonus
+  7: "",    // Wit Bonus
+  8: "%",   // Training Effectiveness
+  9: "",    // Initial Speed
+  10: "",   // Initial Stamina
+  11: "",   // Initial Power
+  12: "",   // Initial Guts
+  13: "",   // Initial Wit
+  14: "",   // Initial Friendship Gauge
+  15: "%",  // Race Bonus
+  16: "%",  // Fan Bonus
+  17: "Lv ", // Hint Levels - CHANGED: Lv before number
+  18: "%",  // Hint Frequency
+  19: "",   // Specialty Priority
+  25: "%",  // Event Recovery
+  26: "%",  // Event Effectiveness
+  27: "%",  // Failure Protection
+  28: "%",  // Energy Cost Reduction
+  30: "",   // Skill Point Bonus
+  31: "",   // Wit Friendship Recovery
+  32: "",   // Initial Skill Points Up
+  41: ""    // All Stats Bonus
+};
+
+// Then update the display logic to handle prefix vs suffix units
 function updateEffectTotals() {
   try {
     console.log('Updating effect totals UI with card contributions...');
@@ -5049,11 +5080,23 @@ function updateEffectTotals() {
         // Show the row if it has values
         element.style.display = 'flex';
         
-        // Update the total value
+        // Update the total value with appropriate unit
         const valueSpan = element.querySelector('.effect-value');
         if (valueSpan) {
-          const formattedValue = Number.isInteger(data.total) ? data.total.toString() : data.total.toFixed(1);
-          valueSpan.textContent = formattedValue;
+          // Find the effect ID from the effect name
+          const effectId = Object.keys(EFFECT_TYPES).find(key => 
+            EFFECT_TYPES[key] === effectName
+          );
+          const unit = EFFECT_UNITS[effectId] || "";
+          const formattedValue = Number.isInteger(data.total) ? 
+            data.total.toString() : data.total.toFixed(1);
+          
+          // Check if unit is "Lv " (prefix) or something else (suffix)
+          if (unit === "Lv ") {
+            valueSpan.textContent = unit + formattedValue; // Lv before number
+          } else {
+            valueSpan.textContent = formattedValue + unit; // unit after number
+          }
         }
 
         // Update the card contributions - hide in collapsed mode
@@ -5072,13 +5115,45 @@ function updateEffectTotals() {
             sortedCards.forEach(cardData => {
               const cardElement = document.createElement('div');
               cardElement.className = 'effect-card';
-              cardElement.title = `${cardData.char_name} (Lv. ${cardData.level}): +${cardData.value}`;
+              
+              // Find the effect ID for this specific card's effect
+              const card = findCardWithEffects(cardData.supportId);
+              let unit = "";
+              if (card && card.effects) {
+                const effectData = card.effects.find(effect => 
+                  EFFECT_TYPES[effect[0]] === effectName
+                );
+                if (effectData) {
+                  unit = EFFECT_UNITS[effectData[0]] || "";
+                }
+              }
+              
+              const formattedCardValue = Number.isInteger(cardData.value) ? 
+                cardData.value.toString() : cardData.value.toFixed(1);
+              
+              // Handle prefix vs suffix for tooltip
+              let tooltipValue;
+              if (unit === "Lv ") {
+                tooltipValue = unit + formattedCardValue;
+              } else {
+                tooltipValue = formattedCardValue + unit;
+              }
+              
+              cardElement.title = `${cardData.char_name} (Lv. ${cardData.level}): +${tooltipValue}`;
+              
+              // Handle prefix vs suffix for card display
+              let displayValue;
+              if (unit === "Lv ") {
+                displayValue = unit + formattedCardValue;
+              } else {
+                displayValue = "+" + formattedCardValue + unit;
+              }
               
               cardElement.innerHTML = `
                 <img src="https://gametora.com/images/umamusume/supports/support_card_s_${cardData.supportId}.png" 
                     alt="${cardData.char_name}" 
                     class="effect-card-img">
-                <div class="effect-card-value">+${Number.isInteger(cardData.value) ? cardData.value : cardData.value.toFixed(1)}</div>
+                <div class="effect-card-value">${displayValue}</div>
               `;
               
               cardsContainer.appendChild(cardElement);
