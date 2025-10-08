@@ -5572,18 +5572,24 @@ function setupCollapsibleSidebar() {
     
     if (isNowCollapsed) {
       rightSidebar.classList.add('collapsed');
-      collapseToggle.textContent = '◀'; // Arrow pointing LEFT when collapsed
+      collapseToggle.textContent = '◀';
       collapseToggle.title = 'Expand sidebar';
       localStorage.setItem('sidebarCollapsed', 'true');
     } else {
       rightSidebar.classList.remove('collapsed');
-      collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when expanded
+      collapseToggle.textContent = '▶';
       collapseToggle.title = 'Collapse sidebar';
       localStorage.setItem('sidebarCollapsed', 'false');
     }
     
     // Update effect totals to ensure proper display
     setTimeout(updateEffectTotals, 50);
+    
+    // SIMPLE FIX: Force cards to recalculate layout after sidebar animation
+    setTimeout(() => {
+      sectionPages.clear();
+      renderSections();
+    }, 100); // Small delay to ensure CSS transition completes
   });
 }
 
