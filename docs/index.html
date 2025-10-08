@@ -4111,13 +4111,10 @@ function filterCardsWithRules(cards,filters){
 
 /* ------------- UPDATED RENDER SECTIONS WITH CARD SEARCH AT TOP ------------- */
 function renderSections() {
-    // Save scroll position at the start
-    const savedScroll = window.pageYOffset || document.documentElement.scrollTop;
-    
-    cardSections.innerHTML='';
-    
-    const filters = {
-        racecourse: document.getElementById('racecourse').value || '',
+  cardSections.innerHTML='';
+
+  const filters = {
+    racecourse: document.getElementById('racecourse').value || '',
     length: document.getElementById('length').value || '',
     direction: document.getElementById('direction').value || '',
     track: document.getElementById('track').value || '',
@@ -4257,11 +4254,6 @@ SKILL_SEARCH_KEYS.forEach((key, i) => {
 });
 
   highlightSkills();
-  
-      // Restore scroll position at the end
-    requestAnimationFrame(() => {
-        window.scrollTo(0, savedScroll);
-    });
 } // This closes the renderSections function
 
 function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
