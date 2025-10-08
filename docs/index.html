@@ -3394,7 +3394,7 @@ function updateCardDisabledStates() {
     // Update skill highlighting without full re-render
     highlightSkills();
     highlightSelectedSkills();
-}
+}}
 
 /* ------------- Slot handling & persistence ------------- */
 function saveSlotsToLocalStorage() {
@@ -3814,7 +3814,7 @@ function removeFromSlot(slot, card) {
 saveSlotsToLocalStorage();
 updateSelectedSkillsList();
 updateCardDisabledStates(); // ← ADD THIS INSTEAD
-
+    
     // Update effect totals after removal
     setTimeout(updateEffectTotals, 100);
 }
