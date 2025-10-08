@@ -1422,17 +1422,17 @@ body.dark-mode .effect-value {
 }
 
 .right-sidebar.collapsed {
-  width: 120px !important; /* Increased to match card width */
-  min-width: 120px !important;
+  width: 80px !important;
+  min-width: 80px !important;
 }
 
-/* Collapse Toggle Button - TALLER AND POSITIONED OUTSIDE */
+/* Collapse Toggle Button - POSITIONED OUTSIDE */
 .collapse-toggle {
   position: absolute;
   left: -20px; /* Position outside the sidebar */
   top: 20px; /* Position from top */
   width: 20px;
-  height: 60px; /* Doubled from 30px to 60px */
+  height: 30px;
   background: #444;
   border: 1px solid #ddd;
   border-right: none;
@@ -1442,7 +1442,7 @@ body.dark-mode .effect-value {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 16px; /* Slightly larger arrow */
+  font-size: 12px;
   font-weight: bold;
   z-index: 1000;
   transition: all 0.3s ease;
@@ -1465,28 +1465,28 @@ body.dark-mode .effect-value {
   z-index: 1;
 }
 
-/* Collapsed Layout - ADJUSTED FOR WIDER SIDEBAR */
+/* Collapsed Layout */
 .right-sidebar.collapsed .slots {
   grid-template-columns: 1fr;
-  max-width: 120px; /* Match the increased width */
+  max-width: 60px;
   margin: 35px auto 0;
-  gap: 8px; /* Slightly more gap for better spacing */
+  gap: 4px;
 }
 
 .right-sidebar.collapsed .slot-container {
-  width: 120px; /* Full card width */
-  margin-bottom: 12px !important; /* More spacing between cards */
+  width: 60px;
+  margin-bottom: 8px !important;
 }
 
 .right-sidebar.collapsed .slot {
-  width: 120px; /* Full card width */
-  min-height: 120px; /* Maintain aspect ratio */
-  height: 120px; /* Full card height */
-  padding: 6px; /* Slightly more padding */
+  width: 60px;
+  min-height: 60px;
+  height: 60px;
+  padding: 4px;
 }
 
 .right-sidebar.collapsed .slot:not(.has-card) {
-  height: 120px; /* Full card height */
+  height: 60px;
 }
 
 .right-sidebar.collapsed .slot.has-card .name,
@@ -1498,54 +1498,53 @@ body.dark-mode .effect-value {
 }
 
 .right-sidebar.collapsed .slot.has-card img {
-  max-width: 96px; /* Larger image to fit the bigger card */
-  max-height: 96px;
+  max-width: 48px;
+  max-height: 48px;
 }
 
 .right-sidebar.collapsed .slot.has-card .type-icon {
-  width: 24px;
-  height: 24px;
-  top: 4px;
-  right: 4px;
+  width: 20px;
+  height: 20px;
+  top: 2px;
+  right: 2px;
 }
 
-/* Collapsed Level Controls - ADJUSTED FOR WIDER LAYOUT */
+/* Collapsed Level Controls */
 .right-sidebar.collapsed .slot-level-controls {
-  padding: 4px 6px;
-  top: -30px;
-  width: 120px; /* Match the card width */
+  padding: 2px 4px;
+  top: -25px;
 }
 
 .right-sidebar.collapsed .slot-level-label {
-  font-size: 11px; /* Slightly larger text */
+  font-size: 9px;
 }
 
 .right-sidebar.collapsed .slot-level-input {
-  width: 40px; /* Wider input */
-  height: 20px;
-  font-size: 11px;
+  width: 30px;
+  height: 16px;
+  font-size: 9px;
 }
 
-/* Collapsed Deck Buttons - ADJUSTED FOR WIDER LAYOUT */
+/* Collapsed Deck Buttons */
 .right-sidebar.collapsed .deck-buttons {
   grid-template-columns: 1fr;
-  max-width: 120px; /* Match the increased width */
-  gap: 6px;
+  max-width: 60px;
+  gap: 4px;
 }
 
 .right-sidebar.collapsed .deck-btn,
 .right-sidebar.collapsed .slots-header .clear-all {
-  width: 120px; /* Full width buttons */
-  padding: 8px 12px;
-  font-size: 11px; /* Slightly larger text */
-  min-height: 36px;
+  width: 60px;
+  padding: 6px 8px;
+  font-size: 10px;
+  min-height: 32px;
 }
 
-/* Collapsed Effect Rows - ADJUSTED FOR WIDER LAYOUT */
+/* Collapsed Effect Rows */
 .right-sidebar.collapsed .effect-row {
-  min-height: 28px;
-  padding: 3px 6px;
-  margin-bottom: 3px;
+  min-height: 24px;
+  padding: 2px 4px;
+  margin-bottom: 2px;
   flex-wrap: nowrap;
   overflow: hidden;
 }
@@ -1559,19 +1558,19 @@ body.dark-mode .effect-value {
 }
 
 .right-sidebar.collapsed .effect-name {
-  font-size: 10px; /* Slightly larger text */
+  font-size: 9px;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
-  margin-right: 6px;
+  margin-right: 4px;
 }
 
 .right-sidebar.collapsed .effect-value {
-  font-size: 10px; /* Slightly larger text */
-  min-width: 25px;
-  padding: 1px 3px;
+  font-size: 9px;
+  min-width: 20px;
+  padding: 0 2px;
   margin-left: 0;
   flex-shrink: 0;
 }
@@ -1587,7 +1586,7 @@ body.dark-mode .effect-value {
 
 /* Ensure proper spacing in collapsed mode */
 .right-sidebar.collapsed .skill-search-divider {
-  margin: 12px 0;
+  margin: 8px 0;
 }
 
 /* Dark mode support for collapsed sidebar */
