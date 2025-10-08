@@ -3174,7 +3174,7 @@ function setupHideUncoloredCheckbox() {
 }
 
 
-/* ------------- UPDATED CARD CREATION WITH BETTER ERROR HANDLING ------------- */
+// Update the card display to show unique effects
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -3208,6 +3208,24 @@ function createCardElement(card){
       return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
     }).join('');
     skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
+  }
+  
+  // ADD UNIQUE EFFECTS DISPLAY
+  if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
+    const uniqueEffectsHTML = card.unique.effects.map(effect => {
+      const effectName = EFFECT_TYPES[effect.type];
+      if (effectName) {
+        const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
+        return `<div class="skill" style="background: #fff0f0; border-left: 3px solid #ff4444;">
+          <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+)
+        </div>`;
+      }
+      return '';
+    }).filter(html => html !== '').join('');
+    
+    if (uniqueEffectsHTML) {
+      skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
+    }
   }
   
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
@@ -3273,6 +3291,178 @@ function loadSlotsFromLocalStorage() {
   highlightSkills();
 }
 
+/* ------------- UNIQUE EFFECTS CALCULATION ------------- */
+function shouldApplyUniqueEffects(card, level) {
+  if (!card.unique || !card.unique.effects || card.unique.effects.length === 0) {
+    return false;
+  }
+  
+  const rarity = card.rarity;
+  const threshold = rarity === 1 ? 20 : rarity === 2 ? 25 : 30;
+  
+  return level >= threshold;
+}
+
+function getUniqueEffectValue(card, effectType) {
+  if (!card.unique || !card.unique.effects) return 0;
+  
+  const uniqueEffect = card.unique.effects.find(effect => effect.type === effectType);
+  return uniqueEffect ? uniqueEffect.value : 0;
+}
+
+function calculateEffectContributions() {
+  console.log('Calculating effect contributions...');
+  const contributions = {};
+  
+  // Initialize structure for each effect type
+  Object.values(EFFECT_TYPES).forEach(effectName => {
+    contributions[effectName] = {
+      total: 0,
+      cards: [] // Array of { supportId, value, level, char_name }
+    };
+  });
+
+  // Iterate through all slots with cards
+  const slots = document.querySelectorAll('.slot');
+  
+  slots.forEach(slot => {
+    if (slot.dataset.supportId) {
+      const supportId = slot.dataset.supportId;
+      const slotContainer = slot.closest('.slot-container');
+      const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+      const level = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
+      
+      // Find card in supports.json (which has the effects data)
+      const card = findCardWithEffects(supportId);
+      
+      if (card && card.effects) {
+        // Calculate values for each effect at this card's level
+        card.effects.forEach(effectData => {
+          const effectId = effectData[0];
+          const effectName = EFFECT_TYPES[effectId];
+          
+          if (effectName) {
+            let value = getEffectValueAtLevel(effectData, level);
+            
+            // ADD UNIQUE EFFECTS IF LEVEL THRESHOLD IS MET
+            if (shouldApplyUniqueEffects(card, level)) {
+              const uniqueValue = getUniqueEffectValue(card, effectId);
+              value += uniqueValue;
+            }
+            
+            if (value > 0) { // Only show cards that actually contribute
+              contributions[effectName].total += value;
+              contributions[effectName].cards.push({
+                supportId: supportId,
+                value: value,
+                level: level,
+                char_name: card.char_name,
+                hasUnique: shouldApplyUniqueEffects(card, level) && getUniqueEffectValue(card, effectId) > 0
+              });
+            }
+          }
+        });
+      }
+    }
+  });
+  
+  return contributions;
+}
+
+// Update the card display to show unique effects
+function createCardElement(card){
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.dataset.id = card.char_id;
+  el.dataset.supportId = card.support_id;
+  el.dataset.name = card.char_name;
+
+  const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
+  const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
+
+  // Use English skills for Global region, Japanese skills for Japan region
+  // Fall back to Japanese skills if English skills are empty
+  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+
+  let skillsHTML = '';
+  
+  // FIX: Handle hint_skills with safe string conversion
+  if(card.hint_skills && card.hint_skills.length) {
+    const hintSkillsHTML = card.hint_skills.map(s => {
+      const skillText = String(s || '');
+      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
+    }).join('');
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
+  }
+
+  // FIX: Handle event skills with safe string conversion
+  if(eventSkillsToUse && eventSkillsToUse.length) {
+    const eventSkillsHTML = eventSkillsToUse.map(s => {
+      const skillText = String(s || '');
+      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
+    }).join('');
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
+  }
+  
+  // ADD UNIQUE EFFECTS DISPLAY
+  if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
+    const uniqueEffectsHTML = card.unique.effects.map(effect => {
+      const effectName = EFFECT_TYPES[effect.type];
+      if (effectName) {
+        const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
+        return `<div class="skill" style="background: #fff0f0; border-left: 3px solid #ff4444;">
+          <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+)
+        </div>`;
+      }
+      return '';
+    }).filter(html => html !== '').join('');
+    
+    if (uniqueEffectsHTML) {
+      skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
+    }
+  }
+  
+  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
+  if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+
+  el.innerHTML = `
+    <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
+    <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
+    ${nameHtml}
+    <div class="skills">${skillsHTML}</div>
+  `;
+
+  el.addEventListener('click', ()=> {
+    const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
+    if(slot) removeFromSlot(slot, card);
+    else addToSlot(card);
+  });
+
+  if(selectedCardIds.has(card.char_id)){
+    el.classList.add('disabled');
+    const dupLabel = document.createElement('div');
+    dupLabel.textContent = 'Duplicate Support';
+    dupLabel.style.position = 'absolute';
+    dupLabel.style.top = '0';
+    dupLabel.style.left = '0';
+    dupLabel.style.width = '100%';
+    dupLabel.style.background = 'red';
+    dupLabel.style.color = 'white';
+    dupLabel.style.fontSize = '9px';
+    dupLabel.style.fontWeight = 'bold';
+    dupLabel.style.textAlign = 'center';
+    dupLabel.style.padding = '2px 0';
+    dupLabel.style.borderTopLeftRadius = '4px';
+    dupLabel.style.borderTopRightRadius = '4px';
+    el.appendChild(dupLabel);
+  }
+
+  return el;
+}
+
+// Update the card display in slots to show unique effects
 function addToSlot(card, targetSlot = null, save = true){
   const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
   if(!freeSlot) return;
@@ -3310,6 +3500,24 @@ function addToSlot(card, targetSlot = null, save = true){
     skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
   }
 
+  // ADD UNIQUE EFFECTS DISPLAY IN SLOT
+  if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
+    const uniqueEffectsHTML = card.unique.effects.map(effect => {
+      const effectName = EFFECT_TYPES[effect.type];
+      if (effectName) {
+        const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
+        return `<div class="skill" style="background: #fff0f0; border-left: 3px solid #ff4444;">
+          <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+)
+        </div>`;
+      }
+      return '';
+    }).filter(html => html !== '').join('');
+    
+    if (uniqueEffectsHTML) {
+      skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
+    }
+  }
+
   freeSlot.dataset.cardId = card.char_id;
   freeSlot.dataset.supportId = card.support_id;
   freeSlot.classList.add('has-card');
@@ -3336,23 +3544,27 @@ function addToSlot(card, targetSlot = null, save = true){
   levelInput.onchange = (e) => {
     const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
     e.target.value = newLevel;
+    // Update effect totals when level changes
+    setTimeout(updateEffectTotals, 50);
   };
   
   levelInput.onblur = (e) => {
     const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
     e.target.value = newLevel;
+    // Update effect totals when level changes
+    setTimeout(updateEffectTotals, 50);
   };
 
-// Create and attach the click handler - store the actual card object
-const slotCard = {...card};
+  // Create and attach the click handler - store the actual card object
+  const slotCard = {...card};
 
-function slotClickHandler(){ 
-  removeFromSlot(freeSlot, slotCard); 
-}
+  function slotClickHandler(){ 
+    removeFromSlot(freeSlot, slotCard); 
+  }
 
-// Attach the event listener to the slot element only
-freeSlot.addEventListener('click', slotClickHandler);
-slotListeners.set(freeSlot, slotClickHandler);
+  // Attach the event listener to the slot element only
+  freeSlot.addEventListener('click', slotClickHandler);
+  slotListeners.set(freeSlot, slotClickHandler);
 
   selectedCardIds.add(card.char_id);
   if(save) saveSlotsToLocalStorage();
@@ -3361,6 +3573,9 @@ slotListeners.set(freeSlot, slotClickHandler);
   highlightSkills(); // Ensure main skills are highlighted
   highlightSelectedSkills(); // Ensure sidebar skills are highlighted
   renderSections();
+  
+  // Update effect totals after adding card
+  setTimeout(updateEffectTotals, 100);
 }
 
 function removeFromSlot(slot, card) {
@@ -5320,6 +5535,84 @@ function setupCollapsibleSidebar() {
 document.addEventListener('DOMContentLoaded', function() {
   setupCollapsibleSidebar();
 });
+
+/* ------------- UNIQUE EFFECTS CALCULATION ------------- */
+function shouldApplyUniqueEffects(card, level) {
+  if (!card.unique || !card.unique.effects || card.unique.effects.length === 0) {
+    return false;
+  }
+  
+  const rarity = card.rarity;
+  const threshold = rarity === 1 ? 20 : rarity === 2 ? 25 : 30;
+  
+  return level >= threshold;
+}
+
+function getUniqueEffectValue(card, effectType) {
+  if (!card.unique || !card.unique.effects) return 0;
+  
+  const uniqueEffect = card.unique.effects.find(effect => effect.type === effectType);
+  return uniqueEffect ? uniqueEffect.value : 0;
+}
+
+function calculateEffectContributions() {
+  console.log('Calculating effect contributions...');
+  const contributions = {};
+  
+  // Initialize structure for each effect type
+  Object.values(EFFECT_TYPES).forEach(effectName => {
+    contributions[effectName] = {
+      total: 0,
+      cards: [] // Array of { supportId, value, level, char_name }
+    };
+  });
+
+  // Iterate through all slots with cards
+  const slots = document.querySelectorAll('.slot');
+  
+  slots.forEach(slot => {
+    if (slot.dataset.supportId) {
+      const supportId = slot.dataset.supportId;
+      const slotContainer = slot.closest('.slot-container');
+      const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+      const level = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
+      
+      // Find card in supports.json (which has the effects data)
+      const card = findCardWithEffects(supportId);
+      
+      if (card && card.effects) {
+        // Calculate values for each effect at this card's level
+        card.effects.forEach(effectData => {
+          const effectId = effectData[0];
+          const effectName = EFFECT_TYPES[effectId];
+          
+          if (effectName) {
+            let value = getEffectValueAtLevel(effectData, level);
+            
+            // ADD UNIQUE EFFECTS IF LEVEL THRESHOLD IS MET
+            if (shouldApplyUniqueEffects(card, level)) {
+              const uniqueValue = getUniqueEffectValue(card, effectId);
+              value += uniqueValue;
+            }
+            
+            if (value > 0) { // Only show cards that actually contribute
+              contributions[effectName].total += value;
+              contributions[effectName].cards.push({
+                supportId: supportId,
+                value: value,
+                level: level,
+                char_name: card.char_name,
+                hasUnique: shouldApplyUniqueEffects(card, level) && getUniqueEffectValue(card, effectId) > 0
+              });
+            }
+          }
+        });
+      }
+    }
+  });
+  
+  return contributions;
+}
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
