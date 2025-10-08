@@ -1418,21 +1418,21 @@ body.dark-mode .effect-value {
   position: relative;
   transition: all 0.3s ease;
   min-width: fit-content;
-  overflow: visible !important;
+  overflow: visible !important; /* Crucial: allow content to overflow */
 }
 
 .right-sidebar.collapsed {
-  width: 95px !important;
-  min-width: 95px !important;
+  width: 120px !important;
+  min-width: 120px !important;
 }
 
-/* Collapse Toggle Button */
+/* Collapse Toggle Button - POSITIONED OUTSIDE */
 .collapse-toggle {
   position: absolute;
-  left: -20px;
-  top: 20px;
+  left: -20px; /* Position outside the sidebar */
+  top: 20px; /* Position from top */
   width: 20px;
-  height: 60px; /* 2x taller */
+  height: 30px;
   background: #444;
   border: 1px solid #ddd;
   border-right: none;
@@ -1442,7 +1442,7 @@ body.dark-mode .effect-value {
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: bold;
   z-index: 1000;
   transition: all 0.3s ease;
@@ -1465,29 +1465,28 @@ body.dark-mode .effect-value {
   z-index: 1;
 }
 
-/* Collapsed Layout - 95px WIDTH */
+/* Collapsed Layout */
 .right-sidebar.collapsed .slots {
   grid-template-columns: 1fr;
-  max-width: 95px;
+  max-width: 120px;
   margin: 35px auto 0;
-  gap: 24px; /* Increased from 4px to 24px */
+  gap: 4px;
 }
 
 .right-sidebar.collapsed .slot-container {
   width: 95px;
-  margin-bottom: 12px !important;
+  margin-bottom: 8px !important;
 }
 
 .right-sidebar.collapsed .slot {
   width: 95px;
-  min-height: 95px;
-  height: 95px;
+  min-height: 60px;
+  height: 60px;
   padding: 4px;
 }
 
 .right-sidebar.collapsed .slot:not(.has-card) {
-  height: 95px;
-  aspect-ratio: 1;
+  height: 60px;
 }
 
 .right-sidebar.collapsed .slot.has-card .name,
@@ -1499,8 +1498,8 @@ body.dark-mode .effect-value {
 }
 
 .right-sidebar.collapsed .slot.has-card img {
-  max-width: 76px; /* 95px * 0.8 = 76px */
-  max-height: 76px;
+  max-width: 48px;
+  max-height: 48px;
 }
 
 .right-sidebar.collapsed .slot.has-card .type-icon {
@@ -1512,57 +1511,42 @@ body.dark-mode .effect-value {
 
 /* Collapsed Level Controls */
 .right-sidebar.collapsed .slot-level-controls {
-  padding: 3px 4px;
+  padding: 2px 4px;
   top: -25px;
-  width: 95px;
 }
 
 .right-sidebar.collapsed .slot-level-label {
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .right-sidebar.collapsed .slot-level-input {
-  width: 35px;
-  height: 18px;
-  font-size: 10px;
+  width: 30px;
+  height: 16px;
+  font-size: 9px;
 }
 
-/* Collapsed Deck Buttons - 0 BOTTOM MARGIN */
+/* Collapsed Deck Buttons */
 .right-sidebar.collapsed .deck-buttons {
   grid-template-columns: 1fr;
-  max-width: 95px;
-  gap: 6px;
-  margin-bottom: 0 !important; /* 0 bottom margin when collapsed */
+  max-width: 60px;
+  gap: 4px;
 }
 
 .right-sidebar.collapsed .deck-btn,
 .right-sidebar.collapsed .slots-header .clear-all {
-  width: 95px; /* Changed from 60px to 95px */
+  width: 60px;
   padding: 6px 8px;
   font-size: 10px;
   min-height: 32px;
 }
 
 /* Collapsed Effect Rows */
-.right-sidebar.collapsed .selected-skills-section {
-  display: none;
-}
-
-.right-sidebar.collapsed .effect-rows-container {
-  max-height: 300px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  margin-top: 10px;
-  width: 95px;
-}
-
 .right-sidebar.collapsed .effect-row {
   min-height: 24px;
   padding: 2px 4px;
   margin-bottom: 2px;
   flex-wrap: nowrap;
   overflow: hidden;
-  width: 90px;
 }
 
 .right-sidebar.collapsed .effect-info {
@@ -1571,7 +1555,6 @@ body.dark-mode .effect-value {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
 }
 
 .right-sidebar.collapsed .effect-name {
@@ -1603,43 +1586,10 @@ body.dark-mode .effect-value {
 
 /* Ensure proper spacing in collapsed mode */
 .right-sidebar.collapsed .skill-search-divider {
-  margin: 12px 0;
-  width: 95px;
+  margin: 8px 0;
 }
 
-/* Scrollbar styling */
-.effect-rows-container::-webkit-scrollbar {
-  width: 3px;
-}
-
-.effect-rows-container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 2px;
-}
-
-.effect-rows-container::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 2px;
-}
-
-.effect-rows-container::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* Dark mode scrollbar */
-body.dark-mode .effect-rows-container::-webkit-scrollbar-track {
-  background: #2d2d2d;
-}
-
-body.dark-mode .effect-rows-container::-webkit-scrollbar-thumb {
-  background: #555;
-}
-
-body.dark-mode .effect-rows-container::-webkit-scrollbar-thumb:hover {
-  background: #666;
-}
-
-/* Dark mode support */
+/* Dark mode support for collapsed sidebar */
 body.dark-mode .collapse-toggle {
   background: #555;
   border-color: #666;
