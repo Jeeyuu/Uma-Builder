@@ -1425,10 +1425,10 @@ body.dark-mode .effect-value {
   min-width: 80px !important;
 }
 
-/* Collapse Toggle Button */
+/* Collapse Toggle Button - FIXED POSITIONING */
 .collapse-toggle {
-  position: absolute;
-  left: -20px;
+  position: fixed;
+  right: calc(100% - 20px); /* Position outside the sidebar */
   top: 50%;
   transform: translateY(-50%);
   width: 20px;
@@ -1444,14 +1444,18 @@ body.dark-mode .effect-value {
   color: white;
   font-size: 12px;
   font-weight: bold;
-  z-index: 100;
+  z-index: 1000; /* Higher z-index to ensure it's above everything */
   transition: all 0.3s ease;
+}
+
+/* Adjust position when collapsed */
+.right-sidebar.collapsed ~ .collapse-toggle {
+  right: 80px; /* Match collapsed sidebar width */
 }
 
 .collapse-toggle:hover {
   background: #333;
   width: 22px;
-  left: -22px;
 }
 
 /* Collapsed Layout */
@@ -1853,13 +1857,13 @@ body.dark-mode .collapse-toggle:hover {
     </div>
   </div>
 
+<!-- Collapse Toggle Button - MOVED OUTSIDE the right sidebar -->
+<button class="collapse-toggle" id="collapseSidebar" title="Collapse sidebar">◀</button>
+
 <!-- Right Sidebar (Slots) -->
 <div class="right-sidebar" id="rightSidebar">
-  <!-- Add this collapse toggle button -->
-  <button class="collapse-toggle" id="collapseSidebar" title="Toggle sidebar">◀</button>
-  
   <div class="skill-search-divider"></div>
-  <div class="slots-header">
+    <div class="slots-header">
     <div class="deck-buttons">
       <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
       <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
@@ -5160,6 +5164,9 @@ function setupCollapsibleSidebar() {
     rightSidebar.classList.add('collapsed');
     collapseToggle.textContent = '▶';
     collapseToggle.title = 'Expand sidebar';
+  } else {
+    collapseToggle.textContent = '◀';
+    collapseToggle.title = 'Collapse sidebar';
   }
 
   collapseToggle.addEventListener('click', () => {
