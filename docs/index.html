@@ -3235,7 +3235,9 @@ function setupHideUncoloredCheckbox() {
 }
 
 
-/* ------------- ENHANCED createCardElement WITH DEBUGGING ------------- */
+// Update the card display to show unique effects
+/* ------------- UPDATE createCardElement FUNCTION ------------- */
+/* ------------- UPDATE createCardElement FUNCTION ------------- */
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -3247,11 +3249,13 @@ function createCardElement(card){
   const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
 
   // Use English skills for Global region, Japanese skills for Japan region
+  // Fall back to Japanese skills if English skills are empty
   const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
   const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
   let skillsHTML = '';
   
+  // FIX: Handle hint_skills with safe string conversion
   if(card.hint_skills && card.hint_skills.length) {
     const hintSkillsHTML = card.hint_skills.map(s => {
       const skillText = String(s || '');
@@ -3260,6 +3264,7 @@ function createCardElement(card){
     skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
   }
 
+  // FIX: Handle event skills with safe string conversion
   if(eventSkillsToUse && eventSkillsToUse.length) {
     const eventSkillsHTML = eventSkillsToUse.map(s => {
       const skillText = String(s || '');
@@ -3268,6 +3273,7 @@ function createCardElement(card){
     skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
   }
   
+  // ADD UNIQUE EFFECTS DISPLAY
   if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
     const uniqueEffectsHTML = card.unique.effects.map(effect => {
       const effectName = EFFECT_TYPES[effect.type];
@@ -3285,10 +3291,13 @@ function createCardElement(card){
     }
   }
   
-  // ENHANCED: Add sort data display below name
+  // ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
   
+  // Show different data based on current sort selection
   const sortByValue = document.getElementById('sortBy').value;
+  
+  // Define which sort options should NOT show the extra data box
   const hideDataOptions = ['rarity', 'name', 'type'];
   
   if (!hideDataOptions.includes(sortByValue)) {
@@ -3301,19 +3310,15 @@ function createCardElement(card){
         nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
       }
     } else if (!isNaN(parseInt(sortByValue))) {
-      const effectId = parseInt(sortByValue);
-      // Effect sorting - show the effect value at MAX LEVEL for main section
-      const effectValue = getEffectValueForSorting(card, effectId, true); // TRUE for max level
-      
-      // DEBUG: Uncomment to see what's happening
-      // debugEffectData(card, effectId);
-      
+      // Effect sorting - show the effect value at MAX LEVEL (useMaxLevel = true)
+      const effectValue = getEffectValueForSorting(card, parseInt(sortByValue), true); // TRUE for max level
       if (effectValue !== null && effectValue !== 0) {
-        const effectName = EFFECT_TYPES[effectId];
-        const unit = EFFECT_UNITS[effectId] || "";
+        const effectName = EFFECT_TYPES[parseInt(sortByValue)];
+        const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
         const formattedValue = Number.isInteger(effectValue) ? 
           effectValue.toString() : effectValue.toFixed(1);
         
+        // Format with appropriate unit
         let displayValue;
         if (unit === "Lv ") {
           displayValue = unit + formattedValue;
@@ -3322,11 +3327,9 @@ function createCardElement(card){
         }
         
         nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
-      } else {
-        // Show zero values too for debugging
-        // nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px; color: red;">${EFFECT_TYPES[effectId]}: 0</div>`;
       }
     } else {
+      // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
     }
   }
@@ -5897,8 +5900,7 @@ function formatDateForDisplay(dateString) {
 }
 
 /* ------------- UPDATE getEffectValueForSorting FUNCTION ------------- */
-/* ------------- FIXED getEffectValueForSorting FUNCTION ------------- */
-function getEffectValueForSorting(card, effectId, useMaxLevel = true) {
+function getEffectValueForSorting(card, effectId, useMaxLevel = true) { // ADDED useMaxLevel parameter
   // Find the card with effects data
   const cardWithEffects = findCardWithEffects(card.support_id);
   
@@ -5925,42 +5927,16 @@ function getEffectValueForSorting(card, effectId, useMaxLevel = true) {
       value += uniqueValue;
     }
   } else {
-    // Get the CURRENT LEVEL value for slots - FIXED: Use actual current level
-    const currentLevel = getCardLevel(card.support_id);
-    value = getEffectValueAtLevel(effectData, currentLevel);
-    
-    // ADD UNIQUE EFFECTS AT CURRENT LEVEL if applicable
-    if (shouldApplyUniqueEffects(card, currentLevel)) {
-      const uniqueValue = getUniqueEffectValue(card, effectId);
-      value += uniqueValue;
+    // Get the CURRENT LEVEL value for slots (existing behavior)
+    const baseValue = effectData[1];
+    if (baseValue === -1 || baseValue === undefined) {
+      return 0; // No base value
     }
+    value = baseValue;
   }
   
   return value;
 }
-
-/* ------------- DEBUG FUNCTION TO CHECK EFFECT DATA ------------- */
-function debugEffectData(card, effectId) {
-  const cardWithEffects = findCardWithEffects(card.support_id);
-  console.log('Card:', card.char_name, 'Support ID:', card.support_id);
-  console.log('Has effects data:', !!cardWithEffects);
-  
-  if (cardWithEffects && cardWithEffects.effects) {
-    const effectData = cardWithEffects.effects.find(effect => effect[0] === effectId);
-    console.log('Effect data for', effectId, ':', effectData);
-    
-    if (effectData) {
-      const maxLevel = getMaxLevel(card);
-      const maxValue = getEffectValueAtLevel(effectData, maxLevel);
-      const currentLevel = getCardLevel(card.support_id);
-      const currentValue = getEffectValueAtLevel(effectData, currentLevel);
-      
-      console.log('Max level value:', maxValue, 'at level', maxLevel);
-      console.log('Current level value:', currentValue, 'at level', currentLevel);
-    }
-  }
-}
-
 
 
 /* ------------- UPDATE SLOTS FOR SORT CHANGE ------------- */
