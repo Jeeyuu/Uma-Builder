@@ -2230,59 +2230,91 @@ function removeCardLevel(supportId) {
     }
 }
 /* ------------- DYNAMIC PAGINATION ------------- */
+// Enhanced calculateCardsPerPage function that accounts for sidebar state
 function calculateCardsPerPage() {
-  const grid = document.querySelector('.cards');
-  if (!grid) return 6; // fallback
-  
-  const gridWidth = grid.clientWidth;
-  const cardWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 120;
-  const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 8;
-  
-  // Calculate how many cards fit in one row
-  const cardsPerRow = Math.floor((gridWidth + gap) / (cardWidth + gap));
-  
-  // Always show at least 1 row, but you can adjust this if you want multiple rows
-  const rowsPerPage = 1; // Change this to 2 or more if you want multiple rows per page
-  
-  return cardsPerRow * rowsPerPage;
+    const grid = document.querySelector('.cards');
+    const rightSidebar = document.getElementById('rightSidebar');
+    const isCollapsed = rightSidebar.classList.contains('collapsed');
+    
+    if (!grid) return 6; // fallback
+    
+    // Get the available width for the grid - force recalculation
+    const gridWidth = grid.clientWidth;
+    const cardWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 120;
+    const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 8;
+    
+    // Calculate how many cards fit in one row
+    const cardsPerRow = Math.floor((gridWidth + gap) / (cardWidth + gap));
+    
+    // When sidebar is collapsed, we have more space - show more rows
+    const rowsPerPage = isCollapsed ? 3 : 2; // Show more rows when sidebar is collapsed
+    
+    const totalCards = cardsPerRow * rowsPerPage;
+    console.log(`Cards per page: ${totalCards} (${cardsPerRow} columns × ${rowsPerPage} rows, sidebar collapsed: ${isCollapsed})`);
+    
+    return totalCards;
 }
 
+// Enhanced window resize handler with better debouncing
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        // Update layout and re-render all sections when window resizes
+        console.log('Window resized, updating layout...');
+        updateMainContentLayout();
+    }, 100);
+});
+
+// Override the render functions to force recalculation on every render
 function renderFilterPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
-  grid.innerHTML = '';
-  const CARDS_PER_PAGE = calculateCardsPerPage();
-  const startIdx = page * CARDS_PER_PAGE;
-  const endIdx = startIdx + CARDS_PER_PAGE;
-  const pageCards = matches.slice(startIdx, endIdx);
-  
-  pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+    grid.innerHTML = '';
+    const CARDS_PER_PAGE = calculateCardsPerPage();
+    const startIdx = page * CARDS_PER_PAGE;
+    const endIdx = startIdx + CARDS_PER_PAGE;
+    const pageCards = matches.slice(startIdx, endIdx);
+    
+    console.log(`Rendering filter page ${page}: ${pageCards.length} cards (${CARDS_PER_PAGE} per page)`);
+    
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
-  const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
 
-  // Show/hide pagination controls based on whether pagination is needed
-  const needsPagination = totalPages > 1;
-  leftBtn.style.display = needsPagination ? 'flex' : 'none';
-  rightBtn.style.display = needsPagination ? 'flex' : 'none';
-  leftBtn.disabled = page === 0;
-  rightBtn.disabled = page >= totalPages - 1;
+    // Show/hide pagination controls based on whether pagination is needed
+    const needsPagination = totalPages > 1;
+    leftBtn.style.display = needsPagination ? 'flex' : 'none';
+    rightBtn.style.display = needsPagination ? 'flex' : 'none';
+    leftBtn.disabled = page === 0;
+    rightBtn.disabled = page >= totalPages - 1;
 
-  leftBtn.onclick = () => { 
-    if (page > 0) {
-      renderFilterPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
-      sectionPages.set(pageKey, page-1);
-      highlightSkills();
-    }
-  };
-  
-  rightBtn.onclick = () => { 
-    if (page < totalPages - 1) {
-      renderFilterPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
-      sectionPages.set(pageKey, page+1);
-      highlightSkills();
-    }
-  };
-  
-  highlightSkills();
+    leftBtn.onclick = () => { 
+        if (page > 0) {
+            renderFilterPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
+            sectionPages.set(pageKey, page-1);
+            highlightSkills();
+        }
+    };
+    
+    rightBtn.onclick = () => { 
+        if (page < totalPages - 1) {
+            renderFilterPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
+            sectionPages.set(pageKey, page+1);
+            highlightSkills();
+        }
+    };
+    
+    highlightSkills();
 }
+
+// Force layout update when the page loads completely
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for everything to settle, then update layout
+    setTimeout(() => {
+        setupCollapsibleSidebar();
+        updateMainContentLayout();
+    }, 500);
+});
+
 
 function renderCardSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
   grid.innerHTML = '';
@@ -4627,17 +4659,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // This will be called by the existing DOMContentLoaded listener
 });
 
-/* ------------- RESPONSIVE PAGINATION ------------- */
-let resizeTimeout;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(() => {
-    // Re-render all sections to update pagination when window resizes
-    sectionPages.clear();
-    renderSections();
-  }, 250);
-});
-
 /* ------------- SKILL SEARCH COPY/PASTE FUNCTIONALITY ------------- */
 function setupCopyPasteButtons() {
   const copyBtn = document.getElementById('copySkillsBtn');
@@ -5549,42 +5570,58 @@ document.addEventListener('DOMContentLoaded', function() {
 window.updateEffects = updateEffectTotals;
 window.getCardEffects = findCardWithEffects;
 
-/* ------------- COLLAPSIBLE SIDEBAR FUNCTIONALITY ------------- */
+// Enhanced collapsible sidebar function
 function setupCollapsibleSidebar() {
-  const rightSidebar = document.getElementById('rightSidebar');
-  const collapseToggle = document.getElementById('collapseSidebar');
-  
-  // Load saved state
-  const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-
-  // Set initial state
-  if (isCollapsed) {
-    rightSidebar.classList.add('collapsed');
-    collapseToggle.textContent = '◀'; // Arrow pointing LEFT when collapsed
-    collapseToggle.title = 'Expand sidebar';
-  } else {
-    collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when expanded
-    collapseToggle.title = 'Collapse sidebar';
-  }
-
-  collapseToggle.addEventListener('click', () => {
-    const isNowCollapsed = !rightSidebar.classList.contains('collapsed');
+    const rightSidebar = document.getElementById('rightSidebar');
+    const collapseToggle = document.getElementById('collapseSidebar');
+    const mainContent = document.querySelector('.main-content');
     
-    if (isNowCollapsed) {
-      rightSidebar.classList.add('collapsed');
-      collapseToggle.textContent = '◀'; // Arrow pointing LEFT when collapsed
-      collapseToggle.title = 'Expand sidebar';
-      localStorage.setItem('sidebarCollapsed', 'true');
+    // Load saved state
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+    // Set initial state
+    if (isCollapsed) {
+        rightSidebar.classList.add('collapsed');
+        collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when collapsed (sidebar is hidden)
+        collapseToggle.title = 'Expand sidebar';
+        // Adjust main content padding when starting collapsed
+        if (mainContent) {
+            mainContent.style.paddingRight = '16px';
+        }
     } else {
-      rightSidebar.classList.remove('collapsed');
-      collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when expanded
-      collapseToggle.title = 'Collapse sidebar';
-      localStorage.setItem('sidebarCollapsed', 'false');
+        collapseToggle.textContent = '◀'; // Arrow pointing LEFT when expanded
+        collapseToggle.title = 'Collapse sidebar';
+        if (mainContent) {
+            mainContent.style.paddingRight = '0';
+        }
     }
-    
-    // Update effect totals to ensure proper display
-    setTimeout(updateEffectTotals, 50);
-  });
+
+    // Update layout initially - wait a bit for DOM to be fully ready
+    setTimeout(() => {
+        updateMainContentLayout();
+    }, 200);
+
+    collapseToggle.addEventListener('click', () => {
+        const isNowCollapsed = !rightSidebar.classList.contains('collapsed');
+        
+        if (isNowCollapsed) {
+            rightSidebar.classList.add('collapsed');
+            collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when collapsed
+            collapseToggle.title = 'Expand sidebar';
+            localStorage.setItem('sidebarCollapsed', 'true');
+        } else {
+            rightSidebar.classList.remove('collapsed');
+            collapseToggle.textContent = '◀'; // Arrow pointing LEFT when expanded
+            collapseToggle.title = 'Collapse sidebar';
+            localStorage.setItem('sidebarCollapsed', 'false');
+        }
+        
+        // Update the layout and card grid IMMEDIATELY
+        updateMainContentLayout();
+        
+        // Update effect totals to ensure proper display
+        setTimeout(updateEffectTotals, 50);
+    });
 }
 
 // Initialize when the page loads
@@ -5721,6 +5758,64 @@ function addDebugButton() {
 
 // Initialize debug button in development
 // addDebugButton(); // Uncomment if you need to debug level saving
+
+/* ------------- RESPONSIVE CARD LAYOUT FOR COLLAPSIBLE SIDEBAR ------------- */
+function updateMainContentLayout() {
+    const rightSidebar = document.getElementById('rightSidebar');
+    const mainContent = document.querySelector('.main-content');
+    const isCollapsed = rightSidebar.classList.contains('collapsed');
+    
+    // Update CSS variable for dynamic gap adjustment
+    if (isCollapsed) {
+        document.documentElement.style.setProperty('--card-gap', '7px'); // Smaller gap when collapsed
+        if (mainContent) {
+            mainContent.style.paddingRight = '16px'; // Add right padding when sidebar is collapsed
+        }
+    } else {
+        document.documentElement.style.setProperty('--card-gap', '7px'); // Normal gap
+        if (mainContent) {
+            mainContent.style.paddingRight = '0'; // Remove right padding when sidebar is expanded
+        }
+    }
+    
+    // Force immediate recalculation and re-render of ALL sections
+    setTimeout(() => {
+        sectionPages.clear();
+        renderSections();
+        // Also trigger a window resize event to force layout recalculation
+        window.dispatchEvent(new Event('resize'));
+    }, 50);
+}
+
+// Also update when filters change or cards are added/removed
+function setupLayoutTriggers() {
+    // Override functions that might affect layout to trigger updates
+    const originalAddToSlot = window.addToSlot;
+    const originalRemoveFromSlot = window.removeFromSlot;
+    
+    window.addToSlot = function(...args) {
+        const result = originalAddToSlot(...args);
+        setTimeout(updateMainContentLayout, 50);
+        return result;
+    };
+    
+    window.removeFromSlot = function(...args) {
+        const result = originalRemoveFromSlot(...args);
+        setTimeout(updateMainContentLayout, 50);
+        return result;
+    };
+    
+    // Also trigger on filter changes
+    const filterElements = document.querySelectorAll('#racecourse, #length, #direction, #track, #season, #weather, #strategy, #cardSearch');
+    filterElements.forEach(element => {
+        element.addEventListener('change', () => {
+            setTimeout(updateMainContentLayout, 100);
+        });
+    });
+}
+
+// Initialize layout triggers
+document.addEventListener('DOMContentLoaded', setupLayoutTriggers);
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
