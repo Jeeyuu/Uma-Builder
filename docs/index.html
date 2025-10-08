@@ -1425,11 +1425,10 @@ body.dark-mode .effect-value {
   min-width: 80px !important;
 }
 
-/* Collapse Toggle Button - ATTACHED TO SIDEBAR */
 .collapse-toggle {
-  position: absolute;
-  left: -20px;
-  top: 50%;
+  position: fixed;
+  right: 100%; /* Position to the left of the sidebar */
+  top: 50vh; /* Center vertically */
   transform: translateY(-50%);
   width: 20px;
   height: 60px;
@@ -1446,6 +1445,11 @@ body.dark-mode .effect-value {
   font-weight: bold;
   z-index: 1000;
   transition: all 0.3s ease;
+}
+
+/* Adjust when sidebar is collapsed */
+.right-sidebar.collapsed + .collapse-toggle {
+  right: 80px; /* Match collapsed sidebar width */
 }
 
 .collapse-toggle:hover {
@@ -1865,8 +1869,6 @@ body.dark-mode .collapse-toggle:hover {
 
 <!-- Right Sidebar (Slots) -->
 <div class="right-sidebar" id="rightSidebar">
-  <!-- Collapse Toggle Button - INSIDE the right sidebar but positioned outside -->
-  <button class="collapse-toggle" id="collapseSidebar" title="Collapse sidebar">◀</button>
   
   <div class="skill-search-divider"></div>
     <div class="slots-header">
@@ -1876,12 +1878,10 @@ body.dark-mode .collapse-toggle:hover {
       <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
       <button id="clearAllBtn" class="clear-all">Clear Deck</button>
     </div>
-    <!-- Add debug buttons -->
-    <!-- <div class="deck-buttons" style="margin-top: 8px;">
-      <button onclick="updateEffectTotals()" class="deck-btn" style="background: #666;">Update Effects</button>
-      <button onclick="console.log('Cards in slots:', Array.from(document.querySelectorAll('.slot')).map(s => ({supportId: s.dataset.supportId, level: s.closest('.slot-container').querySelector('.slot-level-input')?.value}))); console.log('Card 30011 effects:', getCardEffects(30011));" class="deck-btn" style="background: #666;">Debug Slots</button>
-    </div> -->
   </div>
+
+<!-- Toggle button after sidebar -->
+<button class="collapse-toggle" id="collapseSidebar" title="Collapse sidebar">◀</button>
 
   <div class="slots" id="slots">
     <div class="slot-container" data-slot="0">
