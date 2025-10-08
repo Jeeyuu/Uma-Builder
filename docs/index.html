@@ -5166,10 +5166,10 @@ function setupCollapsibleSidebar() {
   // Set initial state
   if (isCollapsed) {
     rightSidebar.classList.add('collapsed');
-    collapseToggle.textContent = '▶';
+    collapseToggle.textContent = '◀'; // Arrow pointing LEFT when collapsed
     collapseToggle.title = 'Expand sidebar';
   } else {
-    collapseToggle.textContent = '◀';
+    collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when expanded
     collapseToggle.title = 'Collapse sidebar';
   }
 
@@ -5178,12 +5178,12 @@ function setupCollapsibleSidebar() {
     
     if (isNowCollapsed) {
       rightSidebar.classList.add('collapsed');
-      collapseToggle.textContent = '▶';
+      collapseToggle.textContent = '◀'; // Arrow pointing LEFT when collapsed
       collapseToggle.title = 'Expand sidebar';
       localStorage.setItem('sidebarCollapsed', 'true');
     } else {
       rightSidebar.classList.remove('collapsed');
-      collapseToggle.textContent = '◀';
+      collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when expanded
       collapseToggle.title = 'Collapse sidebar';
       localStorage.setItem('sidebarCollapsed', 'false');
     }
