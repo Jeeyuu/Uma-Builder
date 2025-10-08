@@ -3664,14 +3664,12 @@ function removeFromSlot(slot, card) {
 }
 
 /* ------------- Clear buttons ------------- */
-// Enhanced clear all function
+// Enhanced clear all function - FIXED VERSION
 clearAllBtn.addEventListener('click', () => {
     selectedCardIds.clear();
 
     // IMPORTANT: Don't clear level data when clearing deck!
     // The levels are preserved by support_id for future use
-    // Only clear levels for cards that are no longer in any deck
-    // (This preserves levels for cards that might be re-added later)
 
     // Reset all level controls and slots
     slotContainers.forEach(container => {
@@ -5496,13 +5494,7 @@ function setupEffectCalculation() {
     input.addEventListener('change', updateEffectTotals);
     input.addEventListener('input', updateEffectTotals);
   });
-  
-  // Override clear all functionality
-  const originalClearAll = clearAllBtn.onclick;
-  clearAllBtn.onclick = function() {
-    if (originalClearAll) originalClearAll();
-    setTimeout(updateEffectTotals, 100);
-  };
+
   
   // Initial calculation after data is loaded
   setTimeout(updateEffectTotals, 1500);
@@ -5733,14 +5725,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }, 100);
 });
 
-// Also update on deck operations
-document.addEventListener('DOMContentLoaded', function() {
-  // Override deck operations to trigger effect updates
-  const originalClearAll = clearAllBtn.onclick;
-  clearAllBtn.onclick = function() {
-    originalClearAll();
-    setTimeout(updateEffectTotals, 100);
-  };
+
   
   // Update when pasting decks
   const originalPasteDeck = window.pasteDeckFromClipboard;
@@ -5751,7 +5736,7 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     };
   }
-});
+
 
 // Initialize the copy/paste buttons when the page loads
 document.addEventListener('DOMContentLoaded', setupCopyPasteButtons);
