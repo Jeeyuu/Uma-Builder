@@ -129,12 +129,13 @@ body {
 }
 
 .content-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  width: 100%;
-  margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 100%; /* Allow full width usage */
+    margin: 0 auto;
 }
 
 /* ---------- FORM CONTROLS ---------- */
@@ -404,9 +405,35 @@ body.dark-mode #clearFiltersBtn:hover {
 }
 
 .cards {
-  grid-auto-rows: 0;
-  grid-template-rows: 1fr;
-  overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, var(--card-w));
+    gap: var(--card-gap);
+    width: 100%;
+    justify-content: start;
+    align-items: start;
+    grid-auto-rows: 0;
+    grid-template-rows: 1fr;
+    overflow: hidden;
+}
+
+/* Ensure cards grid uses available space efficiently */
+.card-grid-wrapper {
+    width: 100%;
+}
+
+/* Better responsive behavior for very small screens */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 12px;
+    }
+    
+    .container {
+        flex-direction: column;
+    }
+    
+    .sidebar, .right-sidebar {
+        width: 100% !important;
+    }
 }
 
 .slots {
@@ -613,16 +640,16 @@ body.dark-mode #clearFiltersBtn:hover {
 
 /* ---------- SECTIONS & PAGINATION ---------- */
 .card-sections {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  gap: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 10px;
 }
 
 .card-section {
-  position: relative;
-  width: 100%;
+    position: relative;
+    width: 100%;
 }
 
 .card-section-header {
@@ -1421,7 +1448,7 @@ body.dark-mode .effect-value {
 .right-sidebar {
   position: relative;
   transition: all 0.3s ease;
-  min-width: fit-content;
+  min-width: 158px;
   overflow-y: auto !important;
   height: 100%;
 }
@@ -1467,26 +1494,25 @@ body.dark-mode .effect-value {
   overflow: hidden;
 }
 
-/* Ensure main content takes remaining space and ignores sidebar layout */
+/* ------------- RESPONSIVE MAIN CONTENT ------------- */
 .main-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  overflow-y: auto;
-  padding: 16px 0 16px 16px; /* top: 16px, right: 0, bottom: 16px, left: 16px */
-  box-sizing: border-box;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  /* Main content doesn't care about sidebar internal layout */
-  position: relative;
-  z-index: 1;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    overflow-y: auto;
+    padding: 16px 16px 16px 16px; /* Equal padding on all sides */
+    box-sizing: border-box;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    transition: padding-right 0.3s ease; /* Smooth transition when sidebar collapses */
 }
 
 .main-content::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
+
 
 /* Adjust sidebar content to account for sticky button */
 .right-sidebar-content {
@@ -2229,97 +2255,113 @@ function removeCardLevel(supportId) {
         localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
     }
 }
-/* ------------- DYNAMIC PAGINATION ------------- */
+// Enhanced calculateCardsPerPage function that accounts for sidebar state
 function calculateCardsPerPage() {
-  const grid = document.querySelector('.cards');
-  if (!grid) return 6; // fallback
-  
-  const gridWidth = grid.clientWidth;
-  const cardWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 120;
-  const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 8;
-  
-  // Calculate how many cards fit in one row
-  const cardsPerRow = Math.floor((gridWidth + gap) / (cardWidth + gap));
-  
-  // Always show at least 1 row, but you can adjust this if you want multiple rows
-  const rowsPerPage = 1; // Change this to 2 or more if you want multiple rows per page
-  
-  return cardsPerRow * rowsPerPage;
+    const grid = document.querySelector('.cards');
+    const rightSidebar = document.getElementById('rightSidebar');
+    const isCollapsed = rightSidebar.classList.contains('collapsed');
+    
+    if (!grid) return 6; // fallback
+    
+    // Get the available width for the grid
+    const gridWidth = grid.clientWidth;
+    const cardWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 120;
+    const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 8;
+    
+    // Calculate how many cards fit in one row
+    const cardsPerRow = Math.floor((gridWidth + gap) / (cardWidth + gap));
+    
+    // When sidebar is collapsed, we have more space - show more rows
+    const rowsPerPage = isCollapsed ? 3 : 2; // Show more rows when sidebar is collapsed
+    
+    return cardsPerRow * rowsPerPage;
 }
 
+// Enhanced window resize handler
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        // Update layout and re-render all sections when window resizes
+        updateMainContentLayout();
+    }, 250);
+});
+
+// Update the existing render functions to use the enhanced layout
 function renderFilterPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
-  grid.innerHTML = '';
-  const CARDS_PER_PAGE = calculateCardsPerPage();
-  const startIdx = page * CARDS_PER_PAGE;
-  const endIdx = startIdx + CARDS_PER_PAGE;
-  const pageCards = matches.slice(startIdx, endIdx);
-  
-  pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+    grid.innerHTML = '';
+    const CARDS_PER_PAGE = calculateCardsPerPage();
+    const startIdx = page * CARDS_PER_PAGE;
+    const endIdx = startIdx + CARDS_PER_PAGE;
+    const pageCards = matches.slice(startIdx, endIdx);
+    
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
-  const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
 
-  // Show/hide pagination controls based on whether pagination is needed
-  const needsPagination = totalPages > 1;
-  leftBtn.style.display = needsPagination ? 'flex' : 'none';
-  rightBtn.style.display = needsPagination ? 'flex' : 'none';
-  leftBtn.disabled = page === 0;
-  rightBtn.disabled = page >= totalPages - 1;
+    // Show/hide pagination controls based on whether pagination is needed
+    const needsPagination = totalPages > 1;
+    leftBtn.style.display = needsPagination ? 'flex' : 'none';
+    rightBtn.style.display = needsPagination ? 'flex' : 'none';
+    leftBtn.disabled = page === 0;
+    rightBtn.disabled = page >= totalPages - 1;
 
-  leftBtn.onclick = () => { 
-    if (page > 0) {
-      renderFilterPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
-      sectionPages.set(pageKey, page-1);
-      highlightSkills();
-    }
-  };
-  
-  rightBtn.onclick = () => { 
-    if (page < totalPages - 1) {
-      renderFilterPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
-      sectionPages.set(pageKey, page+1);
-      highlightSkills();
-    }
-  };
-  
-  highlightSkills();
+    leftBtn.onclick = () => { 
+        if (page > 0) {
+            renderFilterPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
+            sectionPages.set(pageKey, page-1);
+            highlightSkills();
+        }
+    };
+    
+    rightBtn.onclick = () => { 
+        if (page < totalPages - 1) {
+            renderFilterPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
+            sectionPages.set(pageKey, page+1);
+            highlightSkills();
+        }
+    };
+    
+    highlightSkills();
 }
 
+// Also update the other render functions similarly
 function renderCardSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
-  grid.innerHTML = '';
-  const CARDS_PER_PAGE = calculateCardsPerPage();
-  const startIdx = page * CARDS_PER_PAGE;
-  const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
-  pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+    grid.innerHTML = '';
+    const CARDS_PER_PAGE = calculateCardsPerPage();
+    const startIdx = page * CARDS_PER_PAGE;
+    const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
-  const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-  
-  // Show/hide pagination controls
-  const needsPagination = totalPages > 1;
-  leftBtn.style.display = needsPagination ? 'flex' : 'none';
-  rightBtn.style.display = needsPagination ? 'flex' : 'none';
-  leftBtn.disabled = page === 0;
-  rightBtn.disabled = page >= totalPages - 1;
-  
-  highlightSkills();
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    
+    // Show/hide pagination controls
+    const needsPagination = totalPages > 1;
+    leftBtn.style.display = needsPagination ? 'flex' : 'none';
+    rightBtn.style.display = needsPagination ? 'flex' : 'none';
+    leftBtn.disabled = page === 0;
+    rightBtn.disabled = page >= totalPages - 1;
+    
+    highlightSkills();
 }
 
 function renderSkillSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
-  grid.innerHTML = '';
-  const CARDS_PER_PAGE = calculateCardsPerPage();
-  const startIdx = page * CARDS_PER_PAGE;
-  const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
-  pageCards.forEach(card => grid.appendChild(createCardElement(card)));
+    grid.innerHTML = '';
+    const CARDS_PER_PAGE = calculateCardsPerPage();
+    const startIdx = page * CARDS_PER_PAGE;
+    const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
+    pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
-  const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-  
-  // Show/hide pagination controls
-  const needsPagination = totalPages > 1;
-  leftBtn.style.display = needsPagination ? 'flex' : 'none';
-  rightBtn.style.display = needsPagination ? 'flex' : 'none';
-  leftBtn.disabled = page === 0;
-  rightBtn.disabled = page >= totalPages - 1;
-  
-  highlightSkills();
+    const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
+    
+    // Show/hide pagination controls
+    const needsPagination = totalPages > 1;
+    leftBtn.style.display = needsPagination ? 'flex' : 'none';
+    rightBtn.style.display = needsPagination ? 'flex' : 'none';
+    leftBtn.disabled = page === 0;
+    rightBtn.disabled = page >= totalPages - 1;
+    
+    highlightSkills();
 }
 
 /* ------------- SORTING FUNCTION ------------- */
@@ -4629,17 +4671,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // This will be called by the existing DOMContentLoaded listener
 });
 
-/* ------------- RESPONSIVE PAGINATION ------------- */
-let resizeTimeout;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimeout);
-  resizeTimeout = setTimeout(() => {
-    // Re-render all sections to update pagination when window resizes
-    sectionPages.clear();
-    renderSections();
-  }, 250);
-});
-
 /* ------------- SKILL SEARCH COPY/PASTE FUNCTIONALITY ------------- */
 function setupCopyPasteButtons() {
   const copyBtn = document.getElementById('copySkillsBtn');
@@ -5544,42 +5575,82 @@ document.addEventListener('DOMContentLoaded', function() {
 window.updateEffects = updateEffectTotals;
 window.getCardEffects = findCardWithEffects;
 
-/* ------------- COLLAPSIBLE SIDEBAR FUNCTIONALITY ------------- */
-function setupCollapsibleSidebar() {
-  const rightSidebar = document.getElementById('rightSidebar');
-  const collapseToggle = document.getElementById('collapseSidebar');
-  
-  // Load saved state
-  const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-
-  // Set initial state
-  if (isCollapsed) {
-    rightSidebar.classList.add('collapsed');
-    collapseToggle.textContent = '◀'; // Arrow pointing LEFT when collapsed
-    collapseToggle.title = 'Expand sidebar';
-  } else {
-    collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when expanded
-    collapseToggle.title = 'Collapse sidebar';
-  }
-
-  collapseToggle.addEventListener('click', () => {
-    const isNowCollapsed = !rightSidebar.classList.contains('collapsed');
+/* ------------- RESPONSIVE CARD LAYOUT FOR COLLAPSIBLE SIDEBAR ------------- */
+function updateMainContentLayout() {
+    const rightSidebar = document.getElementById('rightSidebar');
+    const mainContent = document.querySelector('.main-content');
+    const isCollapsed = rightSidebar.classList.contains('collapsed');
     
-    if (isNowCollapsed) {
-      rightSidebar.classList.add('collapsed');
-      collapseToggle.textContent = '◀'; // Arrow pointing LEFT when collapsed
-      collapseToggle.title = 'Expand sidebar';
-      localStorage.setItem('sidebarCollapsed', 'true');
+    // Update CSS variable for dynamic gap adjustment
+    if (isCollapsed) {
+        document.documentElement.style.setProperty('--card-gap', '7px'); // Smaller gap when collapsed
+        if (mainContent) {
+            mainContent.style.paddingRight = '16px'; // Add right padding when sidebar is collapsed
+        }
     } else {
-      rightSidebar.classList.remove('collapsed');
-      collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when expanded
-      collapseToggle.title = 'Collapse sidebar';
-      localStorage.setItem('sidebarCollapsed', 'false');
+        document.documentElement.style.setProperty('--card-gap', '7px'); // Normal gap
+        if (mainContent) {
+            mainContent.style.paddingRight = '0'; // Remove right padding when sidebar is expanded
+        }
     }
     
-    // Update effect totals to ensure proper display
-    setTimeout(updateEffectTotals, 50);
-  });
+    // Force recalculation of cards per page and re-render sections
+    sectionPages.clear();
+    setTimeout(() => {
+        renderSections();
+    }, 100);
+}
+
+// Enhanced collapsible sidebar function
+function setupCollapsibleSidebar() {
+    const rightSidebar = document.getElementById('rightSidebar');
+    const collapseToggle = document.getElementById('collapseSidebar');
+    const mainContent = document.querySelector('.main-content');
+    
+    // Load saved state
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+
+    // Set initial state
+    if (isCollapsed) {
+        rightSidebar.classList.add('collapsed');
+        collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when collapsed (sidebar is hidden)
+        collapseToggle.title = 'Expand sidebar';
+        // Adjust main content padding when starting collapsed
+        if (mainContent) {
+            mainContent.style.paddingRight = '16px';
+        }
+    } else {
+        collapseToggle.textContent = '◀'; // Arrow pointing LEFT when expanded
+        collapseToggle.title = 'Collapse sidebar';
+        if (mainContent) {
+            mainContent.style.paddingRight = '0';
+        }
+    }
+
+    // Update layout initially
+    updateMainContentLayout();
+
+    collapseToggle.addEventListener('click', () => {
+        const isNowCollapsed = !rightSidebar.classList.contains('collapsed');
+        
+        if (isNowCollapsed) {
+            rightSidebar.classList.add('collapsed');
+            collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when collapsed
+            collapseToggle.title = 'Expand sidebar';
+            localStorage.setItem('sidebarCollapsed', 'true');
+        } else {
+            rightSidebar.classList.remove('collapsed');
+            collapseToggle.textContent = '◀'; // Arrow pointing LEFT when expanded
+            collapseToggle.title = 'Collapse sidebar';
+            localStorage.setItem('sidebarCollapsed', 'false');
+        }
+        
+        // Update the layout and card grid
+        updateMainContentLayout();
+        
+        // Update effect totals to ensure proper display
+        setTimeout(updateEffectTotals, 50);
+    });
 }
 
 // Initialize when the page loads
