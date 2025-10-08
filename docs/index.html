@@ -1418,6 +1418,7 @@ body.dark-mode .effect-value {
   position: relative;
   transition: all 0.3s ease;
   min-width: fit-content;
+  overflow: visible !important; /* Crucial: allow content to overflow */
 }
 
 .right-sidebar.collapsed {
@@ -1425,13 +1426,13 @@ body.dark-mode .effect-value {
   min-width: 80px !important;
 }
 
+/* Collapse Toggle Button - POSITIONED OUTSIDE */
 .collapse-toggle {
-  position: fixed;
-  right: 100%; /* Position to the left of the sidebar */
-  top: 50vh; /* Center vertically */
-  transform: translateY(-50%);
+  position: absolute;
+  left: -20px; /* Position outside the sidebar */
+  top: 20px; /* Position from top */
   width: 20px;
-  height: 60px;
+  height: 30px;
   background: #444;
   border: 1px solid #ddd;
   border-right: none;
@@ -1447,25 +1448,21 @@ body.dark-mode .effect-value {
   transition: all 0.3s ease;
 }
 
-/* Adjust when sidebar is collapsed */
-.right-sidebar.collapsed + .collapse-toggle {
-  right: 80px; /* Match collapsed sidebar width */
-}
-
 .collapse-toggle:hover {
   background: #333;
   width: 22px;
   left: -22px;
 }
 
-/* Ensure the main content doesn't overlap the toggle */
+/* Ensure the container allows overflow */
 .container {
-  position: relative;
+  overflow: visible;
 }
 
-/* Make sure the toggle is visible by allowing overflow */
-body {
-  overflow-x: visible;
+/* Main content should not overlap */
+.main-content {
+  position: relative;
+  z-index: 1;
 }
 
 /* Collapsed Layout */
@@ -1869,19 +1866,17 @@ body.dark-mode .collapse-toggle:hover {
 
 <!-- Right Sidebar (Slots) -->
 <div class="right-sidebar" id="rightSidebar">
+  <!-- Toggle button INSIDE the sidebar at the top -->
+  <button class="collapse-toggle" id="collapseSidebar" title="Collapse sidebar">◀</button>
   
   <div class="skill-search-divider"></div>
-    <div class="slots-header">
-    <!-- ... rest of your existing right sidebar content ... -->
+  <div class="slots-header">
     <div class="deck-buttons">
       <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
       <button id="pasteDeckBtn" class="deck-btn">Paste Deck</button>
       <button id="clearAllBtn" class="clear-all">Clear Deck</button>
     </div>
   </div>
-
-<!-- Toggle button after sidebar -->
-<button class="collapse-toggle" id="collapseSidebar" title="Collapse sidebar">◀</button>
 
   <div class="slots" id="slots">
     <div class="slot-container" data-slot="0">
@@ -5164,6 +5159,8 @@ window.getCardEffects = findCardWithEffects;
 function setupCollapsibleSidebar() {
   const rightSidebar = document.getElementById('rightSidebar');
   const collapseToggle = document.getElementById('collapseSidebar');
+  
+  // Load saved state
   const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
   // Set initial state
