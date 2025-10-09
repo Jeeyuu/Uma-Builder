@@ -3030,7 +3030,6 @@ function setupPresets() {
   if (!presetsSelect) return;
 
   const savedPreset = localStorage.getItem('filter_presets');
-  const isFirstVisit = !localStorage.getItem('hasVisitedBefore');
 
   fetch(PRESETS_JSON_FILE)
     .then(response => {
@@ -3051,19 +3050,7 @@ function setupPresets() {
         presetsSelect.appendChild(option);
       });
       
-      // Set default selection logic
-      if (savedPreset) {
-        presetsSelect.value = savedPreset;
-      } else if (isFirstVisit && sortedCups.length >= 2) {
-        // On first visit, automatically select the 2nd option (Taurus Cup)
-        const secondCup = sortedCups[1]; // Index 1 is the 2nd item
-        presetsSelect.value = secondCup.title;
-        localStorage.setItem('filter_presets', secondCup.title);
-        localStorage.setItem('hasVisitedBefore', 'true');
-        
-        // Apply the preset immediately
-        applyPreset(secondCup);
-      }
+      if (savedPreset) presetsSelect.value = savedPreset;
       
       presetsSelect.addEventListener('change', function() {
         localStorage.setItem('filter_presets', this.value);
