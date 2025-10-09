@@ -3347,12 +3347,12 @@ function createCardElement(card){
   
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+      nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
     } else if (sortByValue === 'release') {
       const releaseDate = region === 'global' ? card.release_en : card.release;
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
-        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+        nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
       }
 } else if (!isNaN(parseInt(sortByValue))) {
   // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
@@ -3371,15 +3371,15 @@ function createCardElement(card){
       displayValue = formattedValue + unit;
     }
     
-    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+    nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
   }
     } else {
       // Default: show character ID (only if not hidden)
-      if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+      if(!HIDE.char_id) nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
     }
   }
   
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8.25px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
@@ -3651,12 +3651,12 @@ const hideDataOptions = ['rarity', 'name', 'type'];
 
 if (!hideDataOptions.includes(sortByValue)) {
   if (sortByValue === 'support_id') {
-    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+    nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
   } else if (sortByValue === 'release') {
     const releaseDate = region === 'global' ? card.release_en : card.release;
     if (releaseDate && releaseDate !== '') {
       const formattedDate = formatDateForDisplay(releaseDate);
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+      nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
     }
   } else if (!isNaN(parseInt(sortByValue))) {
     // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
@@ -3680,14 +3680,14 @@ if (!hideDataOptions.includes(sortByValue)) {
         displayValue = formattedValue + unit;
       }
       
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+      nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
     }
   } else {
     // Default: show character ID (only if not hidden)
-    if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+    if(!HIDE.char_id) nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
   }
   
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8.25px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 }
 
 //-------------------------------------------------------------
@@ -5309,14 +5309,17 @@ const EFFECT_TYPES = {
   17: "Hint Levels",
   18: "Hint Frequency",
   19: "Specialty Priority",
-  20: "Event Recovery",
-  21: "Event Effectiveness",
-  22: "Failure Protection",
-  23: "Energy Cost Reduction",
-  24: "Skill Point Bonus",
-  25: "Wit Friendship Recovery",
-  26: "Initial Skill Points Up",
-  27: "All Stats Bonus"
+  // NOTE THE GAPS: 20-24 are missing
+  25: "Event Recovery",
+  26: "Event Effectiveness", 
+  27: "Failure Protection",
+  28: "Energy Cost Reduction",
+  // 29 is missing
+  30: "Skill Point Bonus",
+  31: "Wit Friendship Recovery",
+  32: "Initial Skill Points Up",
+  // 33-40 are missing
+  41: "All Stats Bonus"
 };
 
 let supportsDataWithEffects = [];
@@ -5516,7 +5519,7 @@ const EFFECT_UNITS = {
   14: "",   // Initial Friendship Gauge
   15: "%",  // Race Bonus
   16: "%",  // Fan Bonus
-  17: "Lv ", // Hint Levels - CHANGED: Lv before number
+  17: "Lv ", // Hint Levels
   18: "%",  // Hint Frequency
   19: "",   // Specialty Priority
   25: "%",  // Event Recovery
@@ -5524,7 +5527,7 @@ const EFFECT_UNITS = {
   27: "%",  // Failure Protection
   28: "%",  // Energy Cost Reduction
   30: "",   // Skill Point Bonus
-  31: "",   // Wit Friendship Recovery
+  31: "%",  // Wit Friendship Recovery
   32: "",   // Initial Skill Points Up
   41: ""    // All Stats Bonus
 };
