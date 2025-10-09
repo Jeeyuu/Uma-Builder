@@ -2982,17 +2982,23 @@ fetch(JSON_FILE)
       setupTogglePresetCards();
       setupCardSearch();
       setupCopyPasteButtons();
-      loadSlotsFromLocalStorage(); // This now calls updateAllSlotDisplays internally
+      loadSlotsFromLocalStorage(); // This now has proper waiting logic
       setupClearAllSearches();
       updateSelectedSkillsList();
       setupDeckCopyPaste();
       
-      // Final refresh to ensure everything is synced
+      // Final refresh to ensure everything is synced - ADD THESE LINES:
       setTimeout(() => {
         sectionPages.clear();
         renderSections();
         updateAllSlotDisplays();
-      }, 200);
+        
+        // Double check after everything settles
+        setTimeout(() => {
+          ensureSlotsLoaded();
+          updateAllSlotDisplays();
+        }, 500);
+      }, 500);
     } catch (error) {
       console.error('Error during setup:', error);
     }
@@ -3481,25 +3487,48 @@ function saveSlotsToLocalStorage() {
   localStorage.setItem(SLOT_KEY, JSON.stringify(slotData));
 }
 
+/* ------------- ENHANCED SLOT LOADING ------------- */
 function loadSlotsFromLocalStorage() {
   const saved = localStorage.getItem(SLOT_KEY);
   if (!saved) return;
-  const slotData = JSON.parse(saved);
-
-  slotData.forEach((supportId, index) => {
-    if (supportId) {
-      const card = cardsData.find(c => String(c.support_id) === String(supportId));
-      if (card) {
-        const slot = slots[index];
-        addToSlot(card, slot, false);
-      }
-    }
-  });
   
-  // Refresh slot displays to show current sort data
-  setTimeout(() => {
-    updateAllSlotDisplays(); // This ensures effect text is shown
+  const slotData = JSON.parse(saved);
+  let loadedCount = 0;
+  
+  // Wait for cardsData to be available
+  const waitForData = setInterval(() => {
+    if (cardsData && cardsData.length > 0) {
+      clearInterval(waitForData);
+      
+      slotData.forEach((supportId, index) => {
+        if (supportId && supportId !== 'empty') {
+          const card = cardsData.find(c => String(c.support_id) === String(supportId));
+          if (card) {
+            const slot = slots[index];
+            addToSlot(card, slot, false);
+            loadedCount++;
+          }
+        }
+      });
+      
+      console.log(`Loaded ${loadedCount} cards into slots`);
+      
+      // Force refresh slot displays after a short delay to ensure DOM is ready
+      setTimeout(() => {
+        updateAllSlotDisplays();
+        // Double check after everything is settled
+        setTimeout(updateAllSlotDisplays, 200);
+      }, 300);
+    }
   }, 100);
+  
+  // Timeout after 5 seconds
+  setTimeout(() => {
+    clearInterval(waitForData);
+    if (loadedCount === 0) {
+      console.warn('Failed to load slot data - cardsData not available');
+    }
+  }, 5000);
 }
 
 /* ------------- UNIQUE EFFECTS CALCULATION ------------- */
@@ -4101,41 +4130,117 @@ function updateSkillVisibility() {
     }
   });
   
-  /* ------------- UPDATE ALL SLOT DISPLAYS ------------- */
+/* ------------- ROBUST SLOT DISPLAY UPDATE ------------- */
 function updateAllSlotDisplays() {
-  slots.forEach(slot => {
+  console.log('Updating all slot displays...');
+  
+  slots.forEach((slot, index) => {
     if (slot.dataset.supportId) {
       const supportId = slot.dataset.supportId;
       const card = cardsData.find(c => String(c.support_id) === String(supportId));
       
       if (card) {
+        console.log(`Updating slot ${index} with card: ${card.char_name}`);
         const slotContainer = slot.closest('.slot-container');
         const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
         const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
         
-        // Update the name section with effect data
-        updateSlotNameWithEffectData(slot, card, currentLevel);
+        // Force update the name section with effect data
+        forceUpdateSlotNameWithEffectData(slot, card, currentLevel);
       }
+    } else {
+      console.log(`Slot ${index} is empty`);
     }
   });
 }
 
-  // Hide empty headers AND entire groups when hiding uncolored skills
-  document.querySelectorAll('.skills-group').forEach(group => {
-    const skills = group.querySelectorAll('.skill');
-    const visibleSkills = Array.from(skills).filter(skill => !skill.classList.contains('hidden-skill'));
-    
-    const header = group.querySelector('.skills-header');
-    if (header) {
-      if (shouldHide && visibleSkills.length === 0) {
-        header.classList.add('hidden-skill');
-        group.classList.add('hidden-skill'); // Hide the entire group
-      } else {
-        header.classList.remove('hidden-skill');
-        group.classList.remove('hidden-skill'); // Show the entire group
+/* ------------- FORCE UPDATE SLOT NAME WITH EFFECT DATA ------------- */
+function forceUpdateSlotNameWithEffectData(slot, card, level) {
+  console.log(`Force updating slot for: ${card.char_name}`);
+  
+  // Get the current sort selection
+  const sortByValue = document.getElementById('sortBy').value;
+  const hideDataOptions = ['rarity', 'name', 'type'];
+  
+  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
+  
+  // Show different data based on current sort selection
+  if (!hideDataOptions.includes(sortByValue)) {
+    if (sortByValue === 'support_id') {
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+    } else if (sortByValue === 'release') {
+      const releaseDate = region === 'global' ? card.release_en : card.release;
+      if (releaseDate && releaseDate !== '') {
+        const formattedDate = formatDateForDisplay(releaseDate);
+        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
       }
+    } else if (!isNaN(parseInt(sortByValue))) {
+      // Effect sorting - show effect value at CURRENT LEVEL
+      const effectId = parseInt(sortByValue);
+      const effectValue = getEffectValueAtCurrentLevel(card, effectId, level);
+      
+      if (effectValue !== null) {
+        const effectName = EFFECT_TYPES[effectId];
+        const unit = EFFECT_UNITS[effectId] || "";
+        const formattedValue = Number.isInteger(effectValue) ? 
+          effectValue.toString() : effectValue.toFixed(1);
+        
+        // Format with appropriate unit
+        let displayValue;
+        if (unit === "Lv ") {
+          displayValue = unit + formattedValue;
+        } else {
+          displayValue = formattedValue + unit;
+        }
+        
+        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+      }
+    } else {
+      // Default: show character ID (only if not hidden)
+      if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
     }
-  });
+    
+    if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  }
+  
+  // Get existing slot elements
+  const typeIcon = slot.querySelector('.type-icon');
+  const img = slot.querySelector('img:not(.type-icon img)');
+  const skills = slot.querySelector('.skills');
+  
+  // Completely rebuild the slot content to ensure everything is fresh
+  slot.innerHTML = '';
+  
+  if (typeIcon) slot.appendChild(typeIcon.cloneNode(true));
+  if (img) slot.appendChild(img.cloneNode(true));
+  
+  // Add the name section
+  const nameContainer = document.createElement('div');
+  nameContainer.innerHTML = nameHtml;
+  slot.appendChild(nameContainer);
+  
+  if (skills) slot.appendChild(skills.cloneNode(true));
+  
+  // Re-add the slot class and data attributes
+  slot.classList.add('has-card');
+  slot.dataset.cardId = card.char_id;
+  slot.dataset.supportId = card.support_id;
+  
+  // Re-attach the click listener
+  const slotCard = { ...card };
+  function slotClickHandler() {
+    removeFromSlot(slot, slotCard);
+  }
+  
+  // Remove existing listener if any
+  if (slotListeners.has(slot)) {
+    slot.removeEventListener('click', slotListeners.get(slot));
+  }
+  
+  slot.addEventListener('click', slotClickHandler);
+  slotListeners.set(slot, slotClickHandler);
+  
+  console.log(`Slot updated for: ${card.char_name}`);
 }
 
 /* ------------- UPDATE SLOT NAME WITH EFFECT DATA ------------- */
@@ -6151,6 +6256,51 @@ function needsFullRender() {
   window.lastFilterState = currentFilterState;
   return needsRender;
 }
+
+/* ------------- ENSURE SLOTS LOAD PROPERLY ------------- */
+function ensureSlotsLoaded() {
+  console.log('Ensuring slots are properly loaded...');
+  
+  // Check if we have slots with cards but no effect text
+  const slotsWithCards = Array.from(slots).filter(slot => slot.dataset.supportId);
+  
+  if (slotsWithCards.length > 0) {
+    console.log(`Found ${slotsWithCards.length} slots with cards, verifying effect text...`);
+    
+    let needsUpdate = false;
+    slotsWithCards.forEach(slot => {
+      const nameContainer = slot.querySelector('.name');
+      if (nameContainer) {
+        const effectText = nameContainer.nextElementSibling;
+        // If there's no effect text element after the name, we need to update
+        if (!effectText || !effectText.style || effectText.style.fontSize !== '8px') {
+          needsUpdate = true;
+        }
+      }
+    });
+    
+    if (needsUpdate) {
+      console.log('Slots need effect text update, forcing refresh...');
+      updateAllSlotDisplays();
+    }
+  }
+}
+
+/* ------------- DEBUG SLOT STATUS ------------- */
+function debugSlotStatus() {
+  console.log('=== SLOT DEBUG INFO ===');
+  slots.forEach((slot, index) => {
+    console.log(`Slot ${index}:`, {
+      hasCard: slot.classList.contains('has-card'),
+      supportId: slot.dataset.supportId,
+      cardId: slot.dataset.cardId,
+      name: slot.querySelector('.name')?.textContent,
+      effectText: slot.querySelector('.name')?.nextElementSibling?.textContent
+    });
+  });
+}
+
+// Call this in console if you need to debug: debugSlotStatus()
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
