@@ -2972,27 +2972,27 @@ fetch(JSON_FILE)
     }));
 
     // Initialize all components with error handling
-    // Initialize all components with error handling
     try {
       setupFilterPersistence();
       setupToggleButtons();
-      setupSortingControls(); // This sets up the controls but doesn't trigger sort
+      setupSortingControls();
       setupDynamicSkillSearch();
       setupPresets();
       setupPresetReset();
       setupTogglePresetCards();
       setupCardSearch();
       setupCopyPasteButtons();
-      loadSlotsFromLocalStorage();
+      loadSlotsFromLocalStorage(); // This now calls updateAllSlotDisplays internally
       setupClearAllSearches();
       updateSelectedSkillsList();
       setupDeckCopyPaste();
       
-      // Trigger initial sort after all setup is complete
+      // Final refresh to ensure everything is synced
       setTimeout(() => {
         sectionPages.clear();
         renderSections();
-      }, 100);
+        updateAllSlotDisplays();
+      }, 200);
     } catch (error) {
       console.error('Error during setup:', error);
     }
@@ -3200,22 +3200,27 @@ sortBySelect.addEventListener('change', (e) => {
   sortBy = e.target.value;
   localStorage.setItem('sortBy', sortBy);
   sectionPages.clear();
-  renderSections(); // This will re-render with updated data below names
+  renderSections();
   
-  // Also update slots to show the new data
+  // Update slot displays with new sort data
   setTimeout(() => {
-    updateSlotsForSortChange();
+    updateAllSlotDisplays();
   }, 50);
 });
 
-  sortOrderBtn.addEventListener('click', () => {
-    sortOrder = sortOrder === 'ascending' ? 'descending' : 'ascending';
-    sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
-    sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
-    localStorage.setItem('sortOrder', sortOrder);
-    sectionPages.clear();
-    renderSections(); // This will re-render with updated data below names
-  });
+sortOrderBtn.addEventListener('click', () => {
+  sortOrder = sortOrder === 'ascending' ? 'descending' : 'ascending';
+  sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
+  sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
+  localStorage.setItem('sortOrder', sortOrder);
+  sectionPages.clear();
+  renderSections();
+  
+  // Update slot displays with new sort data
+  setTimeout(() => {
+    updateAllSlotDisplays();
+  }, 50);
+});
 
   regionSelect.addEventListener('change', (e) => {
     region = e.target.value;
@@ -3347,12 +3352,12 @@ function createCardElement(card){
   
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
-      nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
     } else if (sortByValue === 'release') {
       const releaseDate = region === 'global' ? card.release_en : card.release;
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
-        nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
       }
 } else if (!isNaN(parseInt(sortByValue))) {
   // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
@@ -3371,15 +3376,15 @@ function createCardElement(card){
       displayValue = formattedValue + unit;
     }
     
-    nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
   }
     } else {
       // Default: show character ID (only if not hidden)
-      if(!HIDE.char_id) nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+      if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
     }
   }
   
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8.25px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
@@ -3491,9 +3496,11 @@ function loadSlotsFromLocalStorage() {
     }
   });
   
-  highlightSkills();
+  // Refresh slot displays to show current sort data
+  setTimeout(() => {
+    updateAllSlotDisplays();
+  }, 100);
 }
-
 /* ------------- UNIQUE EFFECTS CALCULATION ------------- */
 function shouldApplyUniqueEffects(card, level) {
   if (!card.unique || !card.unique.effects || card.unique.effects.length === 0) {
@@ -3651,12 +3658,12 @@ const hideDataOptions = ['rarity', 'name', 'type'];
 
 if (!hideDataOptions.includes(sortByValue)) {
   if (sortByValue === 'support_id') {
-    nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
   } else if (sortByValue === 'release') {
     const releaseDate = region === 'global' ? card.release_en : card.release;
     if (releaseDate && releaseDate !== '') {
       const formattedDate = formatDateForDisplay(releaseDate);
-      nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
     }
   } else if (!isNaN(parseInt(sortByValue))) {
     // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
@@ -3680,14 +3687,14 @@ if (!hideDataOptions.includes(sortByValue)) {
         displayValue = formattedValue + unit;
       }
       
-      nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
     }
   } else {
     // Default: show character ID (only if not hidden)
-    if(!HIDE.char_id) nameHtml += `<div style="font-size:8.25px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+    if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
   }
   
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8.25px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 }
 
 //-------------------------------------------------------------
@@ -4092,6 +4099,23 @@ function updateSkillVisibility() {
     }
   });
   
+  function updateAllSlotDisplays() {
+  slots.forEach(slot => {
+    if (slot.dataset.supportId) {
+      const supportId = slot.dataset.supportId;
+      const card = cardsData.find(c => String(c.support_id) === String(supportId));
+      
+      if (card) {
+        const slotContainer = slot.closest('.slot-container');
+        const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+        const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
+        
+        refreshSlotDisplay(slot, card, currentLevel);
+      }
+    }
+  });
+}
+
   // Hide empty headers AND entire groups when hiding uncolored skills
   document.querySelectorAll('.skills-group').forEach(group => {
     const skills = group.querySelectorAll('.skill');
