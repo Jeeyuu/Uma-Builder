@@ -3052,21 +3052,18 @@ function setupPresets() {
       });
       
       // Set default selection logic
-if (savedPreset) {
-  presetsSelect.value = savedPreset;
-} else if (isFirstVisit && sortedCups.length >= 2) {
-  // On first visit, automatically select the 2nd option (Taurus Cup)
-  const secondCup = sortedCups[1]; // Index 1 is the 2nd item
-  presetsSelect.value = secondCup.title;
-  localStorage.setItem('filter_presets', secondCup.title);
-  localStorage.setItem('hasVisitedBefore', 'true');
-  
-  // Apply the preset immediately
-  applyPreset(secondCup);
-} else {
-  // Ensure -- Select -- is shown when no preset is saved
-  presetsSelect.value = '';
-}
+      if (savedPreset) {
+        presetsSelect.value = savedPreset;
+      } else if (isFirstVisit && sortedCups.length >= 2) {
+        // On first visit, automatically select the 2nd option (Taurus Cup)
+        const secondCup = sortedCups[1]; // Index 1 is the 2nd item
+        presetsSelect.value = secondCup.title;
+        localStorage.setItem('filter_presets', secondCup.title);
+        localStorage.setItem('hasVisitedBefore', 'true');
+        
+        // Apply the preset immediately
+        applyPreset(secondCup);
+      }
       
       presetsSelect.addEventListener('change', function() {
         localStorage.setItem('filter_presets', this.value);
@@ -3872,15 +3869,8 @@ clearFiltersBtn.addEventListener('click', () => {
 
   // DO NOT clear sorting and region controls - keep them as they are
   
-  // Clear the preset selection and reset first visit state
   const presetsSelect = document.getElementById('presets');
-  if (presetsSelect) {
-    presetsSelect.value = '';
-    localStorage.removeItem('filter_presets');
-  }
-  
-  // Reset first visit state so Taurus Cup will be selected again on next visit
-  localStorage.removeItem('hasVisitedBefore');
+  if (presetsSelect) presetsSelect.value = '';
   
   // Batch UI updates
   sectionPages.clear();
