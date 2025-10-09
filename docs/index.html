@@ -3594,7 +3594,7 @@ function addToSlot(card, targetSlot = null, save = true) {
 
 //-------------------------------------------------------------
 
-    // In the addToSlot function, replace the nameHtml section with:
+// ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS
 let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
 
 // Show scaled effect values based on current level
@@ -3611,7 +3611,11 @@ if (sortByValue === 'support_id') {
 } else if (!isNaN(parseInt(sortByValue))) {
   // Effect sorting - show the effect value AT CURRENT LEVEL
   const effectId = parseInt(sortByValue);
-  const effectValue = getEffectValueAtCurrentLevel(card, effectId, level);
+  
+  // FIX: Get the current level for this card
+  const currentLevel = getCardLevel(card.support_id);
+  const effectValue = getEffectValueAtCurrentLevel(card, effectId, currentLevel);
+  
   if (effectValue !== null && effectValue !== 0) {
     const effectName = EFFECT_TYPES[effectId];
     const unit = EFFECT_UNITS[effectId] || "";
