@@ -3030,6 +3030,7 @@ function setupPresets() {
   if (!presetsSelect) return;
 
   const savedPreset = localStorage.getItem('filter_presets');
+  const hasManuallySelectedNone = localStorage.getItem('manuallySelectedNone') === 'true';
 
   fetch(PRESETS_JSON_FILE)
     .then(response => {
@@ -3050,16 +3051,34 @@ function setupPresets() {
         presetsSelect.appendChild(option);
       });
       
-      if (savedPreset) presetsSelect.value = savedPreset;
+      // Set default selection logic
+      if (savedPreset) {
+        presetsSelect.value = savedPreset;
+      } else if (!hasManuallySelectedNone && sortedCups.length >= 2) {
+        // On first visit, automatically select the 2nd option (Taurus Cup)
+        const secondCup = sortedCups[1]; // Index 1 is the 2nd item
+        presetsSelect.value = secondCup.title;
+        localStorage.setItem('filter_presets', secondCup.title);
+        
+        // Apply the preset immediately
+        applyPreset(secondCup);
+      }
       
       presetsSelect.addEventListener('change', function() {
-        localStorage.setItem('filter_presets', this.value);
+        const selectedValue = this.value;
+        localStorage.setItem('filter_presets', selectedValue);
         
-        if (this.value) {
+        if (selectedValue) {
           const selectedOption = this.options[this.selectedIndex];
           const cup = JSON.parse(selectedOption.dataset.cupData);
           applyPreset(cup);
+          
+          // Clear the manual selection flag when a preset is chosen
+          localStorage.removeItem('manuallySelectedNone');
         } else {
+          // User manually selected "-- Select --"
+          localStorage.setItem('manuallySelectedNone', 'true');
+          clearPresetFilters();
           sectionPages.clear();
           renderSections();
         }
@@ -3072,6 +3091,24 @@ function setupPresets() {
       option.disabled = true;
       presetsSelect.appendChild(option);
     });
+}
+
+function clearPresetFilters() {
+  // Only clear the preset filters (racecourse through strategy)
+  const presetFilterIds = ['racecourse', 'length', 'direction', 'track', 'season', 'weather', 'strategy'];
+  
+  presetFilterIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.value = '';
+      localStorage.removeItem('filter_' + id);
+    }
+  });
+  
+  // Update UI without affecting other filters
+  sectionPages.clear();
+  renderSections();
+  highlightSkills();
 }
 
 function applyPreset(cup) {
@@ -3104,6 +3141,9 @@ function applyPreset(cup) {
     const el = document.getElementById(id);
     if (el && el.value) localStorage.setItem('filter_' + id, el.value);
   });
+  
+  // Clear manual selection flag when applying a preset
+  localStorage.removeItem('manuallySelectedNone');
   
   sectionPages.clear();
   renderSections();
@@ -3856,8 +3896,14 @@ clearFiltersBtn.addEventListener('click', () => {
 
   // DO NOT clear sorting and region controls - keep them as they are
   
+  // Clear the preset selection but preserve manual selection state
   const presetsSelect = document.getElementById('presets');
-  if (presetsSelect) presetsSelect.value = '';
+  if (presetsSelect) {
+    presetsSelect.value = '';
+    localStorage.removeItem('filter_presets');
+    // Set manual selection flag when clearing filters
+    localStorage.setItem('manuallySelectedNone', 'true');
+  }
   
   // Batch UI updates
   sectionPages.clear();
