@@ -3719,8 +3719,11 @@ if (sortByValue === 'support_id') {
 if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
 //-------------------------------------------------------------
+// Add this line to define showLevel
+const showLevel = savedLevel > 1;
+
 // Update slot content with character ID
-  freeSlot.innerHTML = `
+freeSlot.innerHTML = `
     <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
     ${showLevel ? `<div class="slot-level-badge">Lv.${savedLevel}</div>` : ''}
     <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
