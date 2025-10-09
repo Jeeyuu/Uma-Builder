@@ -3756,8 +3756,8 @@ const handleLevelChange = (e) => {
     // Update unique effects display to show if they're active
     updateUniqueEffectsDisplay(freeSlot, card, newLevel);
     
-    // UPDATE: Refresh the slot display with new scaled values
-    updateSlotNameWithEffectData(freeSlot, card, newLevel); // Add this line
+    // UPDATE: Refresh the slot display with new scaled values - SIMPLIFIED
+    updateSlotNameWithEffectData(freeSlot, card, newLevel);
     refreshSlotDisplay(freeSlot, card, newLevel);
 };
 
@@ -4154,25 +4154,46 @@ function updateAllSlotDisplays() {
   });
 }
 
-/* ------------- FIXED SLOT UPDATE FUNCTION ------------- */
+/* ------------- SIMPLIFIED SLOT NAME UPDATE ------------- */
 function forceUpdateSlotNameWithEffectData(slot, card, level) {
-  console.log(`Force updating slot for: ${card.char_name}`);
+  console.log(`Updating slot effect text for: ${card.char_name}`);
   
   // Get the current sort selection
   const sortByValue = document.getElementById('sortBy').value;
   const hideDataOptions = ['rarity', 'name', 'type'];
   
-  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
+  // Find the name container and the existing effect text
+  const nameContainer = slot.querySelector('.name');
+  if (!nameContainer) return;
   
-  // Show different data based on current sort selection
+  // Remove any existing effect text (elements after the name)
+  let nextElement = nameContainer.nextElementSibling;
+  while (nextElement) {
+    if (nextElement.style && nextElement.style.fontSize === '8px') {
+      nextElement.remove();
+    }
+    nextElement = nextElement.nextElementSibling;
+  }
+  
+  // Add new effect data based on current sort selection
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+      const effectDiv = document.createElement('div');
+      effectDiv.style.fontSize = '8px';
+      effectDiv.style.opacity = '0.6';
+      effectDiv.style.marginBottom = '0px';
+      effectDiv.textContent = `ID: ${card.support_id}`;
+      nameContainer.after(effectDiv);
     } else if (sortByValue === 'release') {
       const releaseDate = region === 'global' ? card.release_en : card.release;
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
-        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+        const effectDiv = document.createElement('div');
+        effectDiv.style.fontSize = '8px';
+        effectDiv.style.opacity = '0.6';
+        effectDiv.style.marginBottom = '0px';
+        effectDiv.textContent = formattedDate;
+        nameContainer.after(effectDiv);
       }
     } else if (!isNaN(parseInt(sortByValue))) {
       // Effect sorting - show effect value at CURRENT LEVEL
@@ -4193,107 +4214,37 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
           displayValue = formattedValue + unit;
         }
         
-        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+        const effectDiv = document.createElement('div');
+        effectDiv.style.fontSize = '8px';
+        effectDiv.style.opacity = '0.6';
+        effectDiv.style.marginBottom = '0px';
+        effectDiv.textContent = `${effectName}: ${displayValue}`;
+        nameContainer.after(effectDiv);
       }
     } else {
       // Default: show character ID (only if not hidden)
-      if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+      if(!HIDE.char_id) {
+        const effectDiv = document.createElement('div');
+        effectDiv.style.fontSize = '8px';
+        effectDiv.style.opacity = '0.6';
+        effectDiv.style.marginBottom = '0px';
+        effectDiv.textContent = `ID: ${card.char_id}`;
+        nameContainer.after(effectDiv);
+      }
     }
     
-    if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
-  }
-
-  // Store references to the original elements BEFORE clearing
-  const originalTypeIcon = slot.querySelector('.type-icon');
-  const originalCardImage = slot.querySelector('img:not(.type-icon img)');
-  const originalSkills = slot.querySelector('.skills');
-  
-  // Store the original HTML of key elements
-  const typeIconHTML = originalTypeIcon ? originalTypeIcon.outerHTML : '';
-  const cardImageHTML = originalCardImage ? originalCardImage.outerHTML : '';
-  const skillsHTML = originalSkills ? originalSkills.outerHTML : '';
-  
-  // Create the new slot content using the same structure as addToSlot
-  const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
-  const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
-
-  // Use English skills for Global region, Japanese skills for Japan region
-  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
-
-  let skillsContent = '';
-
-  // Only add skills groups if there are skills to show
-  if (card.hint_skills && card.hint_skills.length) {
-    const hintSkillsHTML = card.hint_skills.map(s => {
-      const skillText = String(s || '');
-      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-    }).join('');
-    skillsContent += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
-  }
-
-  if (eventSkillsToUse && eventSkillsToUse.length) {
-    const eventSkillsHTML = eventSkillsToUse.map(s => {
-      const skillText = String(s || '');
-      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-    }).join('');
-    skillsContent += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
-  }
-
-  // ADD UNIQUE EFFECTS DISPLAY IN SLOT
-  if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
-    const uniqueEffectsHTML = card.unique.effects.map(effect => {
-      const effectName = EFFECT_TYPES[effect.type];
-      if (effectName) {
-        const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
-        // Check if unique effects are active at current level
-        const isActive = shouldApplyUniqueEffects(card, level);
-        const activeStyle = isActive ? 'background: #f0fff0; border-left: 3px solid #44ff44;' : 'background: #fff0f0; border-left: 3px solid #ff4444;';
-        
-        return `<div class="skill" style="${activeStyle}">
-          <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+) ${isActive ? '✅' : '🔒'}
-        </div>`;
-      }
-      return '';
-    }).filter(html => html !== '').join('');
-
-    if (uniqueEffectsHTML) {
-      skillsContent += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
+    if(!HIDE.url_name && card.url_name) {
+      const urlDiv = document.createElement('div');
+      urlDiv.style.fontSize = '8px';
+      urlDiv.style.opacity = '0.6';
+      urlDiv.textContent = card.url_name;
+      nameContainer.after(urlDiv);
     }
   }
-
-  // Build the complete slot HTML using the same structure as addToSlot
-  const slotHTML = `
-    <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
-    <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
-    ${nameHtml}
-    <div class="skills">${skillsContent}</div>
-  `;
-
-  // Replace the slot content
-  slot.innerHTML = slotHTML;
-
-  // Re-add the slot class and data attributes
-  slot.classList.add('has-card');
-  slot.dataset.cardId = card.char_id;
-  slot.dataset.supportId = card.support_id;
   
-  // Re-attach the click listener
-  const slotCard = { ...card };
-  function slotClickHandler() {
-    removeFromSlot(slot, slotCard);
-  }
-  
-  // Remove existing listener if any
-  if (slotListeners.has(slot)) {
-    slot.removeEventListener('click', slotListeners.get(slot));
-  }
-  
-  slot.addEventListener('click', slotClickHandler);
-  slotListeners.set(slot, slotClickHandler);
-  
-  console.log(`Slot updated for: ${card.char_name}`);
-}}
+  console.log(`Slot effect text updated for: ${card.char_name}`);
+}
+}
 
 /* ------------- UPDATE SLOT NAME WITH EFFECT DATA ------------- */
 function updateSlotNameWithEffectData(slot, card, level) {
@@ -4304,17 +4255,34 @@ function updateSlotNameWithEffectData(slot, card, level) {
   const sortByValue = document.getElementById('sortBy').value;
   const hideDataOptions = ['rarity', 'name', 'type'];
   
-  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
+  // Remove any existing effect text (elements after the name)
+  let nextElement = nameContainer.nextElementSibling;
+  while (nextElement) {
+    if (nextElement.style && nextElement.style.fontSize === '8px') {
+      nextElement.remove();
+    }
+    nextElement = nextElement.nextElementSibling;
+  }
   
-  // Show different data based on current sort selection (same logic as main cards)
+  // Add new effect data based on current sort selection
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+      const effectDiv = document.createElement('div');
+      effectDiv.style.fontSize = '8px';
+      effectDiv.style.opacity = '0.6';
+      effectDiv.style.marginBottom = '0px';
+      effectDiv.textContent = `ID: ${card.support_id}`;
+      nameContainer.after(effectDiv);
     } else if (sortByValue === 'release') {
       const releaseDate = region === 'global' ? card.release_en : card.release;
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
-        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+        const effectDiv = document.createElement('div');
+        effectDiv.style.fontSize = '8px';
+        effectDiv.style.opacity = '0.6';
+        effectDiv.style.marginBottom = '0px';
+        effectDiv.textContent = formattedDate;
+        nameContainer.after(effectDiv);
       }
     } else if (!isNaN(parseInt(sortByValue))) {
       // Effect sorting - show effect value at CURRENT LEVEL
@@ -4335,44 +4303,32 @@ function updateSlotNameWithEffectData(slot, card, level) {
           displayValue = formattedValue + unit;
         }
         
-        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+        const effectDiv = document.createElement('div');
+        effectDiv.style.fontSize = '8px';
+        effectDiv.style.opacity = '0.6';
+        effectDiv.style.marginBottom = '0px';
+        effectDiv.textContent = `${effectName}: ${displayValue}`;
+        nameContainer.after(effectDiv);
       }
     } else {
       // Default: show character ID (only if not hidden)
-      if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+      if(!HIDE.char_id) {
+        const effectDiv = document.createElement('div');
+        effectDiv.style.fontSize = '8px';
+        effectDiv.style.opacity = '0.6';
+        effectDiv.style.marginBottom = '0px';
+        effectDiv.textContent = `ID: ${card.char_id}`;
+        nameContainer.after(effectDiv);
+      }
     }
     
-    if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
-  }
-  
-  // Replace the name section while preserving the rest of the slot content
-  const nameParent = nameContainer.parentNode;
-  const skillsSection = slot.querySelector('.skills');
-  const typeIcon = slot.querySelector('.type-icon');
-  const img = slot.querySelector('img');
-  
-  // Rebuild the slot content with updated name section
-  slot.innerHTML = `
-    ${typeIcon ? typeIcon.outerHTML : ''}
-    ${img ? img.outerHTML : ''}
-    ${nameHtml}
-    ${skillsSection ? skillsSection.outerHTML : ''}
-  `;
-  
-  // Re-attach the click listener
-  if (slot.dataset.supportId) {
-    const slotCard = { ...card };
-    function slotClickHandler() {
-      removeFromSlot(slot, slotCard);
+    if(!HIDE.url_name && card.url_name) {
+      const urlDiv = document.createElement('div');
+      urlDiv.style.fontSize = '8px';
+      urlDiv.style.opacity = '0.6';
+      urlDiv.textContent = card.url_name;
+      nameContainer.after(urlDiv);
     }
-    
-    // Remove existing listener if any
-    if (slotListeners.has(slot)) {
-      slot.removeEventListener('click', slotListeners.get(slot));
-    }
-    
-    slot.addEventListener('click', slotClickHandler);
-    slotListeners.set(slot, slotClickHandler);
   }
 }
 
