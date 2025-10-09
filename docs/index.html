@@ -3592,10 +3592,12 @@ function addToSlot(card, targetSlot = null, save = true) {
     freeSlot.dataset.supportId = card.support_id;
     freeSlot.classList.add('has-card');
 
+//-------------------------------------------------------------
+
     // In the addToSlot function, replace the nameHtml section with:
 let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
 
-// Show different data based on current sort selection (same as createCardElement)
+// Show scaled effect values based on current level
 const sortByValue = document.getElementById('sortBy').value;
 
 if (sortByValue === 'support_id') {
@@ -3607,11 +3609,24 @@ if (sortByValue === 'support_id') {
     nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
   }
 } else if (!isNaN(parseInt(sortByValue))) {
-  // Effect sorting - show the effect value
-  const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
-  if (effectValue !== null) {
-    const effectName = EFFECT_TYPES[parseInt(sortByValue)];
-    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${effectValue}</div>`;
+  // Effect sorting - show the effect value AT CURRENT LEVEL
+  const effectId = parseInt(sortByValue);
+  const effectValue = getEffectValueAtCurrentLevel(card, effectId, level);
+  if (effectValue !== null && effectValue !== 0) {
+    const effectName = EFFECT_TYPES[effectId];
+    const unit = EFFECT_UNITS[effectId] || "";
+    const formattedValue = Number.isInteger(effectValue) ? 
+      effectValue.toString() : effectValue.toFixed(1);
+    
+    // Format with appropriate unit
+    let displayValue;
+    if (unit === "Lv ") {
+      displayValue = unit + formattedValue;
+    } else {
+      displayValue = formattedValue + unit;
+    }
+    
+    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
   }
 } else {
   // Default: show character ID
@@ -3619,6 +3634,8 @@ if (sortByValue === 'support_id') {
 }
 
 if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+
+//-------------------------------------------------------------
     // Update slot content with character ID
     freeSlot.innerHTML = `
         <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
@@ -3640,17 +3657,20 @@ if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opaci
     const savedLevel = getCardLevel(card.support_id);
     levelInput.value = savedLevel;
 
-    // Enhanced level input event listeners
-    const handleLevelChange = (e) => {
-        const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
-        e.target.value = newLevel;
-        
-        // Update unique effects display to show if they're active
-        updateUniqueEffectsDisplay(freeSlot, card, newLevel);
-    };
+// Enhanced level input event listeners
+const handleLevelChange = (e) => {
+    const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
+    e.target.value = newLevel;
+    
+    // Update unique effects display to show if they're active
+    updateUniqueEffectsDisplay(freeSlot, card, newLevel);
+    
+    // UPDATE: Refresh the slot display with new scaled values
+    refreshSlotDisplay(freeSlot, card, newLevel);
+};
 
-    levelInput.onchange = handleLevelChange;
-    levelInput.onblur = handleLevelChange;
+levelInput.onchange = handleLevelChange;
+levelInput.onblur = handleLevelChange;
     levelInput.oninput = (e) => {
         // Real-time validation for better UX
         const value = parseInt(e.target.value);
@@ -3728,6 +3748,38 @@ updateCardDisabledStates(); // ← ADD THIS INSTEAD
     
     // Update effect totals after removal
     setTimeout(updateEffectTotals, 100);
+}
+
+/* ------------- REFRESH SLOT DISPLAY ------------- */
+function refreshSlotDisplay(slot, card, level) {
+    // Update the effect value display in the slot
+    const sortByValue = document.getElementById('sortBy').value;
+    
+    if (!isNaN(parseInt(sortByValue))) {
+        const effectId = parseInt(sortByValue);
+        const effectValue = getEffectValueAtCurrentLevel(card, effectId, level);
+        
+        // Find and update the effect value display
+        const effectDisplay = slot.querySelector('.name + div');
+        if (effectDisplay && effectDisplay.textContent.includes(EFFECT_TYPES[effectId])) {
+            const effectName = EFFECT_TYPES[effectId];
+            const unit = EFFECT_UNITS[effectId] || "";
+            const formattedValue = Number.isInteger(effectValue) ? 
+                effectValue.toString() : effectValue.toFixed(1);
+            
+            let displayValue;
+            if (unit === "Lv ") {
+                displayValue = unit + formattedValue;
+            } else {
+                displayValue = formattedValue + unit;
+            }
+            
+            effectDisplay.textContent = `${effectName}: ${displayValue}`;
+        }
+    }
+    
+    // Also update effect totals
+    setTimeout(updateEffectTotals, 50);
 }
 
 /* ------------- Clear buttons ------------- */
@@ -5292,6 +5344,34 @@ function getEffectValueAtLevel(effectData, level) {
     console.warn('Error calculating effect value:', error, effectData);
     return 0;
   }
+}
+
+/* ------------- EFFECT VALUE AT CURRENT LEVEL ------------- */
+function getEffectValueAtCurrentLevel(card, effectId, level) {
+  // Find the card with effects data
+  const cardWithEffects = findCardWithEffects(card.support_id);
+  
+  if (!cardWithEffects || !cardWithEffects.effects) {
+    return null;
+  }
+  
+  // Find the effect data for this effect ID
+  const effectData = cardWithEffects.effects.find(effect => effect[0] === effectId);
+  
+  if (!effectData) {
+    return 0; // Effect not found, return 0
+  }
+  
+  // Get the value at CURRENT LEVEL instead of max level
+  const currentValue = getEffectValueAtLevel(effectData, level);
+  
+  // ADD UNIQUE EFFECTS IF APPLICABLE AT CURRENT LEVEL
+  if (shouldApplyUniqueEffects(card, level)) {
+    const uniqueValue = getUniqueEffectValue(card, effectId);
+    return currentValue + uniqueValue;
+  }
+  
+  return currentValue;
 }
 
 function findCardWithEffects(supportId) {
