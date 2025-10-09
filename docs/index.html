@@ -3056,7 +3056,7 @@ function setupPresets() {
         presetsSelect.value = savedPreset;
       } else if (!hasManuallySelectedNone && sortedCups.length >= 2) {
         // On first visit, automatically select the 2nd option (Taurus Cup)
-        const secondCup = sortedCups[1]; // Index 1 is the 2nd item
+        const secondCup = sortedCups[0]; // Index 1 is the 2nd item
         presetsSelect.value = secondCup.title;
         localStorage.setItem('filter_presets', secondCup.title);
         
