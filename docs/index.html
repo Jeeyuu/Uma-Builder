@@ -3204,7 +3204,7 @@ sortBySelect.addEventListener('change', (e) => {
   
   // Update slot displays with new sort data
   setTimeout(() => {
-    updateAllSlotDisplays();
+    updateAllSlotDisplays(); // Add this line
   }, 50);
 });
 
@@ -3218,7 +3218,7 @@ sortOrderBtn.addEventListener('click', () => {
   
   // Update slot displays with new sort data
   setTimeout(() => {
-    updateAllSlotDisplays();
+    updateAllSlotDisplays(); // Add this line
   }, 50);
 });
 
@@ -3498,9 +3498,10 @@ function loadSlotsFromLocalStorage() {
   
   // Refresh slot displays to show current sort data
   setTimeout(() => {
-    updateAllSlotDisplays();
+    updateAllSlotDisplays(); // This ensures effect text is shown
   }, 100);
 }
+
 /* ------------- UNIQUE EFFECTS CALCULATION ------------- */
 function shouldApplyUniqueEffects(card, level) {
   if (!card.unique || !card.unique.effects || card.unique.effects.length === 0) {
@@ -3728,6 +3729,7 @@ const handleLevelChange = (e) => {
     updateUniqueEffectsDisplay(freeSlot, card, newLevel);
     
     // UPDATE: Refresh the slot display with new scaled values
+    updateSlotNameWithEffectData(freeSlot, card, newLevel); // Add this line
     refreshSlotDisplay(freeSlot, card, newLevel);
 };
 
@@ -4099,7 +4101,8 @@ function updateSkillVisibility() {
     }
   });
   
-  function updateAllSlotDisplays() {
+  /* ------------- UPDATE ALL SLOT DISPLAYS ------------- */
+function updateAllSlotDisplays() {
   slots.forEach(slot => {
     if (slot.dataset.supportId) {
       const supportId = slot.dataset.supportId;
@@ -4110,7 +4113,8 @@ function updateSkillVisibility() {
         const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
         const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
         
-        refreshSlotDisplay(slot, card, currentLevel);
+        // Update the name section with effect data
+        updateSlotNameWithEffectData(slot, card, currentLevel);
       }
     }
   });
@@ -4133,6 +4137,88 @@ function updateSkillVisibility() {
     }
   });
 }
+
+/* ------------- UPDATE SLOT NAME WITH EFFECT DATA ------------- */
+function updateSlotNameWithEffectData(slot, card, level) {
+  const nameContainer = slot.querySelector('.name');
+  if (!nameContainer) return;
+  
+  // Get the current sort selection
+  const sortByValue = document.getElementById('sortBy').value;
+  const hideDataOptions = ['rarity', 'name', 'type'];
+  
+  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
+  
+  // Show different data based on current sort selection (same logic as main cards)
+  if (!hideDataOptions.includes(sortByValue)) {
+    if (sortByValue === 'support_id') {
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+    } else if (sortByValue === 'release') {
+      const releaseDate = region === 'global' ? card.release_en : card.release;
+      if (releaseDate && releaseDate !== '') {
+        const formattedDate = formatDateForDisplay(releaseDate);
+        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+      }
+    } else if (!isNaN(parseInt(sortByValue))) {
+      // Effect sorting - show effect value at CURRENT LEVEL
+      const effectId = parseInt(sortByValue);
+      const effectValue = getEffectValueAtCurrentLevel(card, effectId, level);
+      
+      if (effectValue !== null) {
+        const effectName = EFFECT_TYPES[effectId];
+        const unit = EFFECT_UNITS[effectId] || "";
+        const formattedValue = Number.isInteger(effectValue) ? 
+          effectValue.toString() : effectValue.toFixed(1);
+        
+        // Format with appropriate unit
+        let displayValue;
+        if (unit === "Lv ") {
+          displayValue = unit + formattedValue;
+        } else {
+          displayValue = formattedValue + unit;
+        }
+        
+        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+      }
+    } else {
+      // Default: show character ID (only if not hidden)
+      if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+    }
+    
+    if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  }
+  
+  // Replace the name section while preserving the rest of the slot content
+  const nameParent = nameContainer.parentNode;
+  const skillsSection = slot.querySelector('.skills');
+  const typeIcon = slot.querySelector('.type-icon');
+  const img = slot.querySelector('img');
+  
+  // Rebuild the slot content with updated name section
+  slot.innerHTML = `
+    ${typeIcon ? typeIcon.outerHTML : ''}
+    ${img ? img.outerHTML : ''}
+    ${nameHtml}
+    ${skillsSection ? skillsSection.outerHTML : ''}
+  `;
+  
+  // Re-attach the click listener
+  if (slot.dataset.supportId) {
+    const slotCard = { ...card };
+    function slotClickHandler() {
+      removeFromSlot(slot, slotCard);
+    }
+    
+    // Remove existing listener if any
+    if (slotListeners.has(slot)) {
+      slot.removeEventListener('click', slotListeners.get(slot));
+    }
+    
+    slot.addEventListener('click', slotClickHandler);
+    slotListeners.set(slot, slotClickHandler);
+  }
+}
+
 
 /* ------------- FILTER BUILDING & MATCHING ------------- */
 function buildFilterTerms(filters){
