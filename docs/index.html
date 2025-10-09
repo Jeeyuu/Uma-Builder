@@ -3634,50 +3634,55 @@ function addToSlot(card, targetSlot = null, save = true) {
 
 //-------------------------------------------------------------
 
-// ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS
+// ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS (same as main grid)
 let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
 
-// Show scaled effect values based on current level
+// Show different data based on current sort selection
 const sortByValue = document.getElementById('sortBy').value;
 
-if (sortByValue === 'support_id') {
-  nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
-} else if (sortByValue === 'release') {
-  const releaseDate = region === 'global' ? card.release_en : card.release;
-  if (releaseDate && releaseDate !== '') {
-    const formattedDate = formatDateForDisplay(releaseDate);
-    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
-  }
-} else if (!isNaN(parseInt(sortByValue))) {
-  // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
-  const effectId = parseInt(sortByValue);
-  
-  // FIX: Get the current level for this card
-  const currentLevel = getCardLevel(card.support_id);
-  const effectValue = getEffectValueAtCurrentLevel(card, effectId, currentLevel);
-  
-  if (effectValue !== null) {
-    const effectName = EFFECT_TYPES[effectId];
-    const unit = EFFECT_UNITS[effectId] || "";
-    const formattedValue = Number.isInteger(effectValue) ? 
-      effectValue.toString() : effectValue.toFixed(1);
-    
-    // Format with appropriate unit
-    let displayValue;
-    if (unit === "Lv ") {
-      displayValue = unit + formattedValue;
-    } else {
-      displayValue = formattedValue + unit;
-    }
-    
-    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
-  }
-} else {
-  // Default: show character ID
-  if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
-}
+// Define which sort options should NOT show the extra data box (same as main grid)
+const hideDataOptions = ['rarity', 'name', 'type'];
 
-if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+if (!hideDataOptions.includes(sortByValue)) {
+  if (sortByValue === 'support_id') {
+    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+  } else if (sortByValue === 'release') {
+    const releaseDate = region === 'global' ? card.release_en : card.release;
+    if (releaseDate && releaseDate !== '') {
+      const formattedDate = formatDateForDisplay(releaseDate);
+      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+    }
+  } else if (!isNaN(parseInt(sortByValue))) {
+    // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
+    const effectId = parseInt(sortByValue);
+    
+    // FIX: Get the current level for this card
+    const currentLevel = getCardLevel(card.support_id);
+    const effectValue = getEffectValueAtCurrentLevel(card, effectId, currentLevel);
+    
+    if (effectValue !== null) {
+      const effectName = EFFECT_TYPES[effectId];
+      const unit = EFFECT_UNITS[effectId] || "";
+      const formattedValue = Number.isInteger(effectValue) ? 
+        effectValue.toString() : effectValue.toFixed(1);
+      
+      // Format with appropriate unit
+      let displayValue;
+      if (unit === "Lv ") {
+        displayValue = unit + formattedValue;
+      } else {
+        displayValue = formattedValue + unit;
+      }
+      
+      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+    }
+  } else {
+    // Default: show character ID (only if not hidden)
+    if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+  }
+  
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+}
 
 //-------------------------------------------------------------
     // Update slot content with character ID
