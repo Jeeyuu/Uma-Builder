@@ -1644,41 +1644,6 @@ body.dark-mode .collapse-toggle {
 body.dark-mode .collapse-toggle:hover {
   background: #666;
 }
-
-/* Card level badge styles */
-.card-level-badge {
-  position: absolute;
-  bottom: 2px;
-  left: 2px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  padding: 2px 4px;
-  border-radius: 3px;
-  z-index: 5;
-  pointer-events: none;
-}
-
-.slot-level-badge {
-  position: absolute;
-  bottom: 2px;
-  left: 2px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  padding: 2px 4px;
-  border-radius: 3px;
-  z-index: 5;
-  pointer-events: none;
-}
-
-/* Ensure the badges don't interfere with click events */
-.card, .slot {
-  position: relative;
-}
-
 </style>
 </head>
 
@@ -3322,11 +3287,8 @@ function createCardElement(card){
   const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
   const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
 
-  // Get card level - only show if > 1
-  const cardLevel = getCardLevel(card.support_id);
-  const showLevel = cardLevel > 1;
-
   // Use English skills for Global region, Japanese skills for Japan region
+  // Fall back to Japanese skills if English skills are empty
   const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
   const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
@@ -3415,7 +3377,6 @@ function createCardElement(card){
 
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
-    ${showLevel ? `<div class="card-level-badge">Lv.${cardLevel}</div>` : ''}
     <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
     ${nameHtml}
     <div class="skills">${skillsHTML}</div>
@@ -3719,14 +3680,14 @@ if (sortByValue === 'support_id') {
 if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
 //-------------------------------------------------------------
-// Update slot content with character ID
-  freeSlot.innerHTML = `
-    <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
-    ${showLevel ? `<div class="slot-level-badge">Lv.${savedLevel}</div>` : ''}
-    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
-    ${nameHtml}
-    <div class="skills">${skillsHTML}</div>
-`;
+    // Update slot content with character ID
+    freeSlot.innerHTML = `
+        <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
+        <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+        ${nameHtml}
+        <div class="skills">${skillsHTML}</div>
+    `;
+
     // Update level controls in the container
     const levelControls = slotContainer.querySelector('.slot-level-controls');
     const levelInput = levelControls.querySelector('.slot-level-input');
@@ -3835,21 +3796,6 @@ updateCardDisabledStates(); // ← ADD THIS INSTEAD
 
 /* ------------- REFRESH SLOT DISPLAY ------------- */
 function refreshSlotDisplay(slot, card, level) {
-    // Update the level badge if level > 1
-    const showLevel = level > 1;
-    let levelBadge = slot.querySelector('.slot-level-badge');
-    
-    if (showLevel) {
-        if (!levelBadge) {
-            levelBadge = document.createElement('div');
-            levelBadge.className = 'slot-level-badge';
-            slot.appendChild(levelBadge);
-        }
-        levelBadge.textContent = `Lv.${level}`;
-    } else if (levelBadge) {
-        levelBadge.remove();
-    }
-    
     // Update the effect value display in the slot
     const sortByValue = document.getElementById('sortBy').value;
     
