@@ -4128,7 +4128,24 @@ function updateSkillVisibility() {
     }
   });
   
-  /* ------------- UPDATE ALL SLOT DISPLAYS ------------- */
+  // Hide empty headers AND entire groups when hiding uncolored skills
+  document.querySelectorAll('.skills-group').forEach(group => {
+    const skills = group.querySelectorAll('.skill');
+    const visibleSkills = Array.from(skills).filter(skill => !skill.classList.contains('hidden-skill'));
+    
+    const header = group.querySelector('.skills-header');
+    if (header) {
+      if (shouldHide && visibleSkills.length === 0) {
+        header.classList.add('hidden-skill');
+        group.classList.add('hidden-skill'); // Hide the entire group
+      } else {
+        header.classList.remove('hidden-skill');
+        group.classList.remove('hidden-skill'); // Show the entire group
+      }
+    }
+  });
+} // <-- This closes the updateSkillVisibility function
+  
 /* ------------- ROBUST SLOT DISPLAY UPDATE ------------- */
 function updateAllSlotDisplays() {
   console.log('Updating all slot displays...');
@@ -4243,7 +4260,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
   
   console.log(`Slot effect text updated for: ${card.char_name}`);
 }
-}
+
 
 /* ------------- UPDATE SLOT NAME WITH EFFECT DATA ------------- */
 function updateSlotNameWithEffectData(slot, card, level) {
@@ -6276,6 +6293,59 @@ function debugSlotStatus() {
       effectText: slot.querySelector('.name')?.nextElementSibling?.textContent
     });
   });
+}
+
+/* ------------- UPDATE ALL SLOT DISPLAYS ------------- */
+function updateAllSlotDisplays() {
+  console.log('Updating all slot displays...');
+  
+  slots.forEach((slot, index) => {
+    if (slot.dataset.supportId) {
+      const supportId = slot.dataset.supportId;
+      const card = cardsData.find(c => String(c.support_id) === String(supportId));
+      
+      if (card) {
+        console.log(`Updating slot ${index} with card: ${card.char_name}`);
+        const slotContainer = slot.closest('.slot-container');
+        const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+        const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
+        
+        // Update the name section with effect data
+        updateSlotNameWithEffectData(slot, card, currentLevel);
+      }
+    } else {
+      console.log(`Slot ${index} is empty`);
+    }
+  });
+}
+
+/* ------------- ENSURE SLOTS LOAD PROPERLY ------------- */
+function ensureSlotsLoaded() {
+  console.log('Ensuring slots are properly loaded...');
+  
+  // Check if we have slots with cards but no effect text
+  const slotsWithCards = Array.from(slots).filter(slot => slot.dataset.supportId);
+  
+  if (slotsWithCards.length > 0) {
+    console.log(`Found ${slotsWithCards.length} slots with cards, verifying effect text...`);
+    
+    let needsUpdate = false;
+    slotsWithCards.forEach(slot => {
+      const nameContainer = slot.querySelector('.name');
+      if (nameContainer) {
+        const effectText = nameContainer.nextElementSibling;
+        // If there's no effect text element after the name, we need to update
+        if (!effectText || !effectText.style || effectText.style.fontSize !== '8px') {
+          needsUpdate = true;
+        }
+      }
+    });
+    
+    if (needsUpdate) {
+      console.log('Slots need effect text update, forcing refresh...');
+      updateAllSlotDisplays();
+    }
+  }
 }
 
 // Call this in console if you need to debug: debugSlotStatus()
