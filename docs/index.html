@@ -3195,7 +3195,7 @@ function setupSortingControls() {
     regionSelect.value = 'global';
   }
 
-  // Event listeners
+// In setupSortingControls, add this to both event listeners:
 sortBySelect.addEventListener('change', (e) => {
   sortBy = e.target.value;
   localStorage.setItem('sortBy', sortBy);
@@ -3204,7 +3204,9 @@ sortBySelect.addEventListener('change', (e) => {
   
   // Update slot displays with new sort data
   setTimeout(() => {
-    updateAllSlotDisplays();
+    if (typeof updateAllSlotDisplays === 'function') {
+      updateAllSlotDisplays();
+    }
   }, 50);
 });
 
@@ -3218,7 +3220,9 @@ sortOrderBtn.addEventListener('click', () => {
   
   // Update slot displays with new sort data
   setTimeout(() => {
-    updateAllSlotDisplays();
+    if (typeof updateAllSlotDisplays === 'function') {
+      updateAllSlotDisplays();
+    }
   }, 50);
 });
 
@@ -3350,7 +3354,43 @@ function createCardElement(card){
   // Define which sort options should NOT show the extra data box
   const hideDataOptions = ['rarity', 'name', 'type'];
   
-  if (!hideDataOptions.includes(sortByValue)) {
+const isEffectSort = !isNaN(parseInt(sortByValue));
+const effectId = isEffectSort ? parseInt(sortByValue) : null;
+
+if (!hideDataOptions.includes(sortByValue) || (effectId === 2)) { // 2 is Mood Effect
+  if (sortByValue === 'support_id') {
+    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+  } else if (sortByValue === 'release') {
+    const releaseDate = region === 'global' ? card.release_en : card.release;
+    if (releaseDate && releaseDate !== '') {
+      const formattedDate = formatDateForDisplay(releaseDate);
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+    }
+  } else if (isEffectSort) {
+    // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
+    const effectValue = getEffectValueForSorting(card, effectId);
+    if (effectValue !== null) {
+      const effectName = EFFECT_TYPES[effectId];
+      const unit = EFFECT_UNITS[effectId] || "";
+      const formattedValue = Number.isInteger(effectValue) ? 
+        effectValue.toString() : effectValue.toFixed(1);
+      
+      // Format with appropriate unit
+      let displayValue;
+      if (unit === "Lv ") {
+        displayValue = unit + formattedValue;
+      } else {
+        displayValue = formattedValue + unit;
+      }
+      
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+    }
+  } else {
+    // Default: show character ID (only if not hidden)
+    if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+  }
+}  
+{
     if (sortByValue === 'support_id') {
       nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
     } else if (sortByValue === 'release') {
@@ -3497,9 +3537,11 @@ function loadSlotsFromLocalStorage() {
   });
   
   // Refresh slot displays to show current sort data
-  setTimeout(() => {
+setTimeout(() => {
+  if (typeof updateAllSlotDisplays === 'function') {
     updateAllSlotDisplays();
-  }, 100);
+  }
+}, 100);
 }
 /* ------------- UNIQUE EFFECTS CALCULATION ------------- */
 function shouldApplyUniqueEffects(card, level) {
@@ -6064,6 +6106,23 @@ function needsFullRender() {
   const needsRender = window.lastFilterState !== currentFilterState;
   window.lastFilterState = currentFilterState;
   return needsRender;
+}
+
+function updateAllSlotDisplays() {
+  slots.forEach(slot => {
+    if (slot.dataset.supportId) {
+      const supportId = slot.dataset.supportId;
+      const card = cardsData.find(c => String(c.support_id) === String(supportId));
+      
+      if (card) {
+        const slotContainer = slot.closest('.slot-container');
+        const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+        const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
+        
+        refreshSlotDisplay(slot, card, currentLevel);
+      }
+    }
+  });
 }
 
 // ---------- DOCUMENT ------------------------------------------------------------------
