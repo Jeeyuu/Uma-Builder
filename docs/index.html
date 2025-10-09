@@ -3348,25 +3348,25 @@ function createCardElement(card){
         const formattedDate = formatDateForDisplay(releaseDate);
         nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
       }
-    } else if (!isNaN(parseInt(sortByValue))) {
-      // Effect sorting - show the effect value at MAX LEVEL
-      const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
-      if (effectValue !== null && effectValue !== 0) {
-        const effectName = EFFECT_TYPES[parseInt(sortByValue)];
-        const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
-        const formattedValue = Number.isInteger(effectValue) ? 
-          effectValue.toString() : effectValue.toFixed(1);
-        
-        // Format with appropriate unit
-        let displayValue;
-        if (unit === "Lv ") {
-          displayValue = unit + formattedValue;
-        } else {
-          displayValue = formattedValue + unit;
-        }
-        
-        nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
-      }
+} else if (!isNaN(parseInt(sortByValue))) {
+  // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
+  const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
+  if (effectValue !== null) {
+    const effectName = EFFECT_TYPES[parseInt(sortByValue)];
+    const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
+    const formattedValue = Number.isInteger(effectValue) ? 
+      effectValue.toString() : effectValue.toFixed(1);
+    
+    // Format with appropriate unit
+    let displayValue;
+    if (unit === "Lv ") {
+      displayValue = unit + formattedValue;
+    } else {
+      displayValue = formattedValue + unit;
+    }
+    
+    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+  }
     } else {
       // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
@@ -3649,14 +3649,14 @@ if (sortByValue === 'support_id') {
     nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
   }
 } else if (!isNaN(parseInt(sortByValue))) {
-  // Effect sorting - show the effect value AT CURRENT LEVEL
+  // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
   const effectId = parseInt(sortByValue);
   
   // FIX: Get the current level for this card
   const currentLevel = getCardLevel(card.support_id);
   const effectValue = getEffectValueAtCurrentLevel(card, effectId, currentLevel);
   
-  if (effectValue !== null && effectValue !== 0) {
+  if (effectValue !== null) {
     const effectName = EFFECT_TYPES[effectId];
     const unit = EFFECT_UNITS[effectId] || "";
     const formattedValue = Number.isInteger(effectValue) ? 
@@ -3800,27 +3800,27 @@ function refreshSlotDisplay(slot, card, level) {
     const sortByValue = document.getElementById('sortBy').value;
     
     if (!isNaN(parseInt(sortByValue))) {
-        const effectId = parseInt(sortByValue);
-        const effectValue = getEffectValueAtCurrentLevel(card, effectId, level);
+    const effectId = parseInt(sortByValue);
+    const effectValue = getEffectValueAtCurrentLevel(card, effectId, level);
+    
+    // Find and update the effect value display
+    const effectDisplay = slot.querySelector('.name + div');
+    if (effectDisplay && effectDisplay.textContent.includes(EFFECT_TYPES[effectId])) {
+        const effectName = EFFECT_TYPES[effectId];
+        const unit = EFFECT_UNITS[effectId] || "";
+        const formattedValue = Number.isInteger(effectValue) ? 
+            effectValue.toString() : effectValue.toFixed(1);
         
-        // Find and update the effect value display
-        const effectDisplay = slot.querySelector('.name + div');
-        if (effectDisplay && effectDisplay.textContent.includes(EFFECT_TYPES[effectId])) {
-            const effectName = EFFECT_TYPES[effectId];
-            const unit = EFFECT_UNITS[effectId] || "";
-            const formattedValue = Number.isInteger(effectValue) ? 
-                effectValue.toString() : effectValue.toFixed(1);
-            
-            let displayValue;
-            if (unit === "Lv ") {
-                displayValue = unit + formattedValue;
-            } else {
-                displayValue = formattedValue + unit;
-            }
-            
-            effectDisplay.textContent = `${effectName}: ${displayValue}`;
+        let displayValue;
+        if (unit === "Lv ") {
+            displayValue = unit + formattedValue;
+        } else {
+            displayValue = formattedValue + unit;
         }
+        
+        effectDisplay.textContent = `${effectName}: ${displayValue}`;
     }
+}
     
     // Also update effect totals
     setTimeout(updateEffectTotals, 50);
