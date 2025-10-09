@@ -544,7 +544,6 @@ body.dark-mode #clearFiltersBtn:hover {
   width: 32px;
   height: 32px;
   border: 1px solid #ccc;
-  background: #fff;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -4155,7 +4154,7 @@ function updateAllSlotDisplays() {
   });
 }
 
-/* ------------- FORCE UPDATE SLOT NAME WITH EFFECT DATA ------------- */
+/* ------------- FIXED SLOT UPDATE FUNCTION ------------- */
 function forceUpdateSlotNameWithEffectData(slot, card, level) {
   console.log(`Force updating slot for: ${card.char_name}`);
   
@@ -4203,25 +4202,77 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
     
     if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
   }
+
+  // Store references to the original elements BEFORE clearing
+  const originalTypeIcon = slot.querySelector('.type-icon');
+  const originalCardImage = slot.querySelector('img:not(.type-icon img)');
+  const originalSkills = slot.querySelector('.skills');
   
-  // Get existing slot elements
-  const typeIcon = slot.querySelector('.type-icon');
-  const img = slot.querySelector('img:not(.type-icon img)');
-  const skills = slot.querySelector('.skills');
+  // Store the original HTML of key elements
+  const typeIconHTML = originalTypeIcon ? originalTypeIcon.outerHTML : '';
+  const cardImageHTML = originalCardImage ? originalCardImage.outerHTML : '';
+  const skillsHTML = originalSkills ? originalSkills.outerHTML : '';
   
-  // Completely rebuild the slot content to ensure everything is fresh
-  slot.innerHTML = '';
-  
-  if (typeIcon) slot.appendChild(typeIcon.cloneNode(true));
-  if (img) slot.appendChild(img.cloneNode(true));
-  
-  // Add the name section
-  const nameContainer = document.createElement('div');
-  nameContainer.innerHTML = nameHtml;
-  slot.appendChild(nameContainer);
-  
-  if (skills) slot.appendChild(skills.cloneNode(true));
-  
+  // Create the new slot content using the same structure as addToSlot
+  const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
+  const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
+
+  // Use English skills for Global region, Japanese skills for Japan region
+  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+
+  let skillsContent = '';
+
+  // Only add skills groups if there are skills to show
+  if (card.hint_skills && card.hint_skills.length) {
+    const hintSkillsHTML = card.hint_skills.map(s => {
+      const skillText = String(s || '');
+      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
+    }).join('');
+    skillsContent += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
+  }
+
+  if (eventSkillsToUse && eventSkillsToUse.length) {
+    const eventSkillsHTML = eventSkillsToUse.map(s => {
+      const skillText = String(s || '');
+      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
+    }).join('');
+    skillsContent += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
+  }
+
+  // ADD UNIQUE EFFECTS DISPLAY IN SLOT
+  if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
+    const uniqueEffectsHTML = card.unique.effects.map(effect => {
+      const effectName = EFFECT_TYPES[effect.type];
+      if (effectName) {
+        const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
+        // Check if unique effects are active at current level
+        const isActive = shouldApplyUniqueEffects(card, level);
+        const activeStyle = isActive ? 'background: #f0fff0; border-left: 3px solid #44ff44;' : 'background: #fff0f0; border-left: 3px solid #ff4444;';
+        
+        return `<div class="skill" style="${activeStyle}">
+          <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+) ${isActive ? '✅' : '🔒'}
+        </div>`;
+      }
+      return '';
+    }).filter(html => html !== '').join('');
+
+    if (uniqueEffectsHTML) {
+      skillsContent += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
+    }
+  }
+
+  // Build the complete slot HTML using the same structure as addToSlot
+  const slotHTML = `
+    <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
+    <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
+    ${nameHtml}
+    <div class="skills">${skillsContent}</div>
+  `;
+
+  // Replace the slot content
+  slot.innerHTML = slotHTML;
+
   // Re-add the slot class and data attributes
   slot.classList.add('has-card');
   slot.dataset.cardId = card.char_id;
