@@ -2945,7 +2945,8 @@ function setupPresetReset() {
   });
 }
 
-/* ------------- Fetch JSON ------------- */
+/* ------------- ENHANCED INITIALIZATION ------------- */
+// Update your initialization section to ensure slots show correct data on page load
 fetch(JSON_FILE)
   .then(r => { 
     if (!r.ok) throw new Error(`Failed to fetch JSON: ${r.status} ${r.statusText}`); 
@@ -2991,7 +2992,7 @@ fetch(JSON_FILE)
       setTimeout(() => {
         sectionPages.clear();
         renderSections();
-        updateAllSlotDisplays();
+        updateAllSlotDisplays(); // ADD THIS LINE
       }, 200);
     } catch (error) {
       console.error('Error during setup:', error);
@@ -3158,6 +3159,7 @@ function applyPreset(cup) {
 FILTER_KEYS.push('presets');
 
 /* ------------- SETUP NEW CONTROLS ------------- */
+/* ------------- ENHANCED SORTING CONTROLS ------------- */
 function setupSortingControls() {
   const sortBySelect = document.getElementById('sortBy');
   const sortOrderBtn = document.getElementById('sortOrder');
@@ -3196,31 +3198,31 @@ function setupSortingControls() {
   }
 
   // Event listeners
-sortBySelect.addEventListener('change', (e) => {
-  sortBy = e.target.value;
-  localStorage.setItem('sortBy', sortBy);
-  sectionPages.clear();
-  renderSections();
-  
-  // Update slot displays with new sort data
-  setTimeout(() => {
-    updateAllSlotDisplays();
-  }, 50);
-});
+  sortBySelect.addEventListener('change', (e) => {
+    sortBy = e.target.value;
+    localStorage.setItem('sortBy', sortBy);
+    sectionPages.clear();
+    renderSections();
+    
+    // Update slot displays with new sort data
+    setTimeout(() => {
+      updateAllSlotDisplays();
+    }, 50);
+  });
 
-sortOrderBtn.addEventListener('click', () => {
-  sortOrder = sortOrder === 'ascending' ? 'descending' : 'ascending';
-  sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
-  sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
-  localStorage.setItem('sortOrder', sortOrder);
-  sectionPages.clear();
-  renderSections();
-  
-  // Update slot displays with new sort data
-  setTimeout(() => {
-    updateAllSlotDisplays();
-  }, 50);
-});
+  sortOrderBtn.addEventListener('click', () => {
+    sortOrder = sortOrder === 'ascending' ? 'descending' : 'ascending';
+    sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
+    sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
+    localStorage.setItem('sortOrder', sortOrder);
+    sectionPages.clear();
+    renderSections();
+    
+    // Update slot displays with new sort data
+    setTimeout(() => {
+      updateAllSlotDisplays();
+    }, 50);
+  });
 
   regionSelect.addEventListener('change', (e) => {
     region = e.target.value;
@@ -3232,10 +3234,10 @@ sortOrderBtn.addEventListener('click', () => {
     
     // Update the skills list
     updateSelectedSkillsList();
-    highlightSkills(); // Add this line
-    highlightSelectedSkills(); // Add this line
+    highlightSkills();
+    highlightSelectedSkills();
     
-    renderSections(); // This will re-render with updated data below names
+    renderSections();
   });
 }
 
@@ -3481,6 +3483,7 @@ function saveSlotsToLocalStorage() {
   localStorage.setItem(SLOT_KEY, JSON.stringify(slotData));
 }
 
+/* ------------- ENHANCED LOAD SLOTS FUNCTION ------------- */
 function loadSlotsFromLocalStorage() {
   const saved = localStorage.getItem(SLOT_KEY);
   if (!saved) return;
@@ -3501,6 +3504,7 @@ function loadSlotsFromLocalStorage() {
     updateAllSlotDisplays();
   }, 100);
 }
+
 /* ------------- UNIQUE EFFECTS CALCULATION ------------- */
 function shouldApplyUniqueEffects(card, level) {
   if (!card.unique || !card.unique.effects || card.unique.effects.length === 0) {
@@ -4099,7 +4103,8 @@ function updateSkillVisibility() {
     }
   });
   
-  function updateAllSlotDisplays() {
+/* ------------- UPDATE ALL SLOT DISPLAYS FUNCTION ------------- */
+function updateAllSlotDisplays() {
   slots.forEach(slot => {
     if (slot.dataset.supportId) {
       const supportId = slot.dataset.supportId;
