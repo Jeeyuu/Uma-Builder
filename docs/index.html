@@ -3693,12 +3693,16 @@ function addToSlot(card, targetSlot = null, save = true) {
 let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
 
 // Show different data based on current sort selection
+// Show different data based on current sort selection
 const sortByValue = document.getElementById('sortBy').value;
 
 // Define which sort options should NOT show the extra data box (same as main grid)
 const hideDataOptions = ['rarity', 'name', 'type'];
+const isEffectSort = !isNaN(parseInt(sortByValue));
+const effectId = isEffectSort ? parseInt(sortByValue) : null;
 
-if (!hideDataOptions.includes(sortByValue)) {
+// ALWAYS show effect data for effect sorting, or if it's Mood Effect (ID: 2)
+if (!hideDataOptions.includes(sortByValue) || (effectId === 2)) {
   if (sortByValue === 'support_id') {
     nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
   } else if (sortByValue === 'release') {
@@ -3707,11 +3711,8 @@ if (!hideDataOptions.includes(sortByValue)) {
       const formattedDate = formatDateForDisplay(releaseDate);
       nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
     }
-  } else if (!isNaN(parseInt(sortByValue))) {
+  } else if (isEffectSort) {
     // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
-    const effectId = parseInt(sortByValue);
-    
-    // FIX: Get the current level for this card
     const currentLevel = getCardLevel(card.support_id);
     const effectValue = getEffectValueAtCurrentLevel(card, effectId, currentLevel);
     
@@ -4157,6 +4158,7 @@ function updateSkillVisibility() {
     }
   });
 }
+
 
   // Hide empty headers AND entire groups when hiding uncolored skills
   document.querySelectorAll('.skills-group').forEach(group => {
