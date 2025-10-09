@@ -2972,10 +2972,11 @@ fetch(JSON_FILE)
     }));
 
     // Initialize all components with error handling
+    // Initialize all components with error handling
     try {
       setupFilterPersistence();
       setupToggleButtons();
-      setupSortingControls();
+      setupSortingControls(); // This sets up the controls but doesn't trigger sort
       setupDynamicSkillSearch();
       setupPresets();
       setupPresetReset();
@@ -2986,7 +2987,12 @@ fetch(JSON_FILE)
       setupClearAllSearches();
       updateSelectedSkillsList();
       setupDeckCopyPaste();
-      renderSections();
+      
+      // Trigger initial sort after all setup is complete
+      setTimeout(() => {
+        sectionPages.clear();
+        renderSections();
+      }, 100);
     } catch (error) {
       console.error('Error during setup:', error);
     }
@@ -3341,12 +3347,12 @@ function createCardElement(card){
   
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
-      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
     } else if (sortByValue === 'release') {
       const releaseDate = region === 'global' ? card.release_en : card.release;
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
-        nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
       }
 } else if (!isNaN(parseInt(sortByValue))) {
   // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
@@ -3365,15 +3371,15 @@ function createCardElement(card){
       displayValue = formattedValue + unit;
     }
     
-    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
   }
     } else {
       // Default: show character ID (only if not hidden)
-      if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+      if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
     }
   }
   
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
@@ -3645,12 +3651,12 @@ const hideDataOptions = ['rarity', 'name', 'type'];
 
 if (!hideDataOptions.includes(sortByValue)) {
   if (sortByValue === 'support_id') {
-    nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
   } else if (sortByValue === 'release') {
     const releaseDate = region === 'global' ? card.release_en : card.release;
     if (releaseDate && releaseDate !== '') {
       const formattedDate = formatDateForDisplay(releaseDate);
-      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
     }
   } else if (!isNaN(parseInt(sortByValue))) {
     // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
@@ -3674,14 +3680,14 @@ if (!hideDataOptions.includes(sortByValue)) {
         displayValue = formattedValue + unit;
       }
       
-      nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
     }
   } else {
     // Default: show character ID (only if not hidden)
-    if(!HIDE.char_id) nameHtml += `<div style="font-size:9px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+    if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
   }
   
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:9px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
 }
 
 //-------------------------------------------------------------
