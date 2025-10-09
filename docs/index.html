@@ -3343,7 +3343,7 @@ function createCardElement(card){
   `;
 
   // Replace your current card click handler in createCardElement():
-el.addEventListener('click', ()=> {
+  el.addEventListener('click', ()=> {
     const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
     if(slot) {
         removeFromSlot(slot, card);
@@ -3353,48 +3353,76 @@ el.addEventListener('click', ()=> {
     
     // INSTEAD of calling renderSections(), just update the disabled states
     updateCardDisabledStates();
-});
+  });
+
+  // Ensure initial disabled state is set when card is created
+  if(selectedCardIds.has(card.char_id)) {
+    el.classList.add('disabled');
+    // Add duplicate label if needed
+    if (!el.querySelector('[data-dup-label]')) {
+      const dupLabel = document.createElement('div');
+      dupLabel.textContent = 'Duplicate Support';
+      dupLabel.setAttribute('data-dup-label', 'true');
+      dupLabel.style.position = 'absolute';
+      dupLabel.style.top = '0';
+      dupLabel.style.left = '0';
+      dupLabel.style.width = '100%';
+      dupLabel.style.background = 'red';
+      dupLabel.style.color = 'white';
+      dupLabel.style.fontSize = '9px';
+      dupLabel.style.fontWeight = 'bold';
+      dupLabel.style.textAlign = 'center';
+      dupLabel.style.padding = '2px 0';
+      dupLabel.style.borderTopLeftRadius = '4px';
+      dupLabel.style.borderTopRightRadius = '4px';
+      dupLabel.style.zIndex = '10';
+      el.appendChild(dupLabel);
+    }
+  }
+
+  return el;
+}
 
 // Add this new function that only updates disabled states without full re-render:
 function updateCardDisabledStates() {
-    const allCards = document.querySelectorAll('.card');
-    allCards.forEach(cardEl => {
-        const cardId = parseInt(cardEl.dataset.id);
-        if (selectedCardIds.has(cardId)) {
-            cardEl.classList.add('disabled');
-            // Ensure duplicate label exists
-            if (!cardEl.querySelector('[data-dup-label]')) {
-                const dupLabel = document.createElement('div');
-                dupLabel.textContent = 'Duplicate Support';
-                dupLabel.setAttribute('data-dup-label', 'true');
-                dupLabel.style.position = 'absolute';
-                dupLabel.style.top = '0';
-                dupLabel.style.left = '0';
-                dupLabel.style.width = '100%';
-                dupLabel.style.background = 'red';
-                dupLabel.style.color = 'white';
-                dupLabel.style.fontSize = '9px';
-                dupLabel.style.fontWeight = 'bold';
-                dupLabel.style.textAlign = 'center';
-                dupLabel.style.padding = '2px 0';
-                dupLabel.style.borderTopLeftRadius = '4px';
-                dupLabel.style.borderTopRightRadius = '4px';
-                dupLabel.style.zIndex = '10';
-                cardEl.appendChild(dupLabel);
-            }
-        } else {
-            cardEl.classList.remove('disabled');
-            const dupLabel = cardEl.querySelector('[data-dup-label]');
-            if (dupLabel) {
-                dupLabel.remove();
-            }
-        }
-    });
-    
-    // Update skill highlighting without full re-render
-    highlightSkills();
-    highlightSelectedSkills();
-}}
+  const allCards = document.querySelectorAll('.card');
+  allCards.forEach(cardEl => {
+    const cardId = parseInt(cardEl.dataset.id);
+    if (selectedCardIds.has(cardId)) {
+      cardEl.classList.add('disabled');
+      // Ensure duplicate label exists
+      if (!cardEl.querySelector('[data-dup-label]')) {
+        const dupLabel = document.createElement('div');
+        dupLabel.textContent = 'Duplicate Support';
+        dupLabel.setAttribute('data-dup-label', 'true');
+        dupLabel.style.position = 'absolute';
+        dupLabel.style.top = '0';
+        dupLabel.style.left = '0';
+        dupLabel.style.width = '100%';
+        dupLabel.style.background = 'red';
+        dupLabel.style.color = 'white';
+        dupLabel.style.fontSize = '9px';
+        dupLabel.style.fontWeight = 'bold';
+        dupLabel.style.textAlign = 'center';
+        dupLabel.style.padding = '2px 0';
+        dupLabel.style.borderTopLeftRadius = '4px';
+        dupLabel.style.borderTopRightRadius = '4px';
+        dupLabel.style.zIndex = '10';
+        cardEl.appendChild(dupLabel);
+      }
+    } else {
+      cardEl.classList.remove('disabled');
+      const dupLabel = cardEl.querySelector('[data-dup-label]');
+      if (dupLabel) {
+        dupLabel.remove();
+      }
+    }
+  });
+  
+  // Update skill highlighting without full re-render
+  highlightSkills();
+  highlightSelectedSkills();
+}
 
 /* ------------- Slot handling & persistence ------------- */
 function saveSlotsToLocalStorage() {
