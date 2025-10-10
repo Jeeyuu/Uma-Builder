@@ -7138,18 +7138,21 @@ function debugDuplicateCards() {
 function setupDeckName() {
   const deckNameInput = document.getElementById('deckNameInput');
   const deckNameDisplay = document.getElementById('deckNameDisplay');
+  const MAX_LENGTH = 30; // Match your maxlength attribute
   
   // Load saved deck name
   const savedDeckName = localStorage.getItem('deckName');
   if (savedDeckName) {
     deckNameInput.value = savedDeckName;
     deckNameDisplay.textContent = savedDeckName;
+    console.log('Loaded deck name from storage:', savedDeckName);
   }
   
   deckNameInput.addEventListener('input', (e) => {
-    const name = e.target.value.trim();
+    const name = e.target.value;
     deckNameDisplay.textContent = name || 'unnamed deck';
     localStorage.setItem('deckName', name);
+    console.log('Deck name updated:', name || 'unnamed deck');
   });
 }
 
@@ -7244,29 +7247,26 @@ function pasteAllFromClipboard() {
         throw new Error('Unsupported format version');
       }
       
-      // Set deck name FIRST - CRITICAL FIX
-      if (allData.deckName) {
-        const deckNameInput = document.getElementById('deckNameInput');
-        const deckNameDisplay = document.getElementById('deckNameDisplay');
-        
-        if (deckNameInput && deckNameDisplay) {
+      // CRITICAL FIX: Set deck name PROPERLY
+      const deckNameInput = document.getElementById('deckNameInput');
+      const deckNameDisplay = document.getElementById('deckNameDisplay');
+      
+      if (deckNameInput && deckNameDisplay) {
+        if (allData.deckName && allData.deckName.trim() !== '') {
+          // Set the deck name
           deckNameInput.value = allData.deckName;
           deckNameDisplay.textContent = allData.deckName;
           localStorage.setItem('deckName', allData.deckName);
-          console.log('Deck name set to:', allData.deckName);
+          console.log('Deck name successfully set to:', allData.deckName);
         } else {
-          console.error('Deck name elements not found!');
-        }
-      } else {
-        // If no deck name in data, reset to default
-        const deckNameInput = document.getElementById('deckNameInput');
-        const deckNameDisplay = document.getElementById('deckNameDisplay');
-        
-        if (deckNameInput && deckNameDisplay) {
+          // Reset to default if no deck name
           deckNameInput.value = '';
           deckNameDisplay.textContent = 'unnamed deck';
           localStorage.removeItem('deckName');
+          console.log('No deck name in data, reset to default');
         }
+      } else {
+        console.error('Deck name elements not found!');
       }
       
       // Clear current deck first
@@ -7368,6 +7368,13 @@ function pasteAllFromClipboard() {
         }, 1500);
         
         console.log('All data pasted from clipboard:', allData);
+        
+        // FINAL CHECK: Verify deck name was set correctly
+        setTimeout(() => {
+          const finalDeckNameInput = document.getElementById('deckNameInput');
+          const finalDeckNameDisplay = document.getElementById('deckNameDisplay');
+          console.log('Final deck name check - Input:', finalDeckNameInput.value, 'Display:', finalDeckNameDisplay.textContent);
+        }, 200);
         
       }, 100);
       
@@ -7507,6 +7514,22 @@ function debugDeckNamePaste() {
     console.log('Test values set:', testName);
   }
 }
+
+// Add this to check what's in your clipboard after Copy All
+function checkClipboardData() {
+  navigator.clipboard.readText().then(text => {
+    console.log('Clipboard data:', text);
+    try {
+      const data = JSON.parse(text);
+      console.log('Parsed data:', data);
+      console.log('Deck name in clipboard:', data.deckName);
+    } catch (e) {
+      console.error('Failed to parse clipboard data:', e);
+    }
+  });
+}
+
+// Run this after Copy All: checkClipboardData()
 
 // Call this in console after paste to debug: debugDeckNamePaste()
 
