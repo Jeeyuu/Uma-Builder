@@ -6809,39 +6809,48 @@ function syncCardLevelInMainGrid(supportId, newLevel) {
 }
 
 function updateCardEffectDisplay(cardElement, supportId, newLevel) {
-    const card = cardsData.find(c => c.support_id == supportId);
-    if (!card) return;
+  const card = cardsData.find(c => c.support_id == supportId);
+  if (!card) return;
+  
+  const sortByValue = document.getElementById('sortBy').value;
+  const hideDataOptions = ['rarity', 'name', 'type'];
+  
+  // Only update if we're showing effect data
+  if (!hideDataOptions.includes(sortByValue) && !isNaN(parseInt(sortByValue))) {
+    const effectId = parseInt(sortByValue);
+    const effectValue = getEffectValueAtCurrentLevel(card, effectId, newLevel);
     
-    const sortByValue = document.getElementById('sortBy').value;
-    const hideDataOptions = ['rarity', 'name', 'type'];
-    
-    // Only update if we're showing effect data
-    if (!hideDataOptions.includes(sortByValue) && !isNaN(parseInt(sortByValue))) {
-        const effectId = parseInt(sortByValue);
-        const effectValue = getEffectValueAtCurrentLevel(card, effectId, newLevel);
-        
-        if (effectValue !== null) {
-            const effectName = EFFECT_TYPES[effectId];
-            const unit = EFFECT_UNITS[effectId] || "";
-            const formattedValue = Number.isInteger(effectValue) ? 
-                effectValue.toString() : effectValue.toFixed(1);
-            
-            let displayValue;
-            if (unit === "Lv ") {
-                displayValue = unit + formattedValue;
-            } else {
-                displayValue = formattedValue + unit;
-            }
-            
-            // Find and update the effect display
-            const nameContainer = cardElement.querySelector('.name');
-            let effectDisplay = nameContainer?.nextElementSibling;
-            
-            if (effectDisplay && effectDisplay.classList.contains('small-info-text')) {
-                effectDisplay.textContent = `${effectName}: ${displayValue}`;
-            }
+    if (effectValue !== null) {
+      const effectName = EFFECT_TYPES[effectId];
+      const unit = EFFECT_UNITS[effectId] || "";
+      const formattedValue = Number.isInteger(effectValue) ? 
+        effectValue.toString() : effectValue.toFixed(1);
+      
+      let displayValue;
+      if (unit === "Lv ") {
+        displayValue = unit + formattedValue;
+      } else {
+        displayValue = formattedValue + unit;
+      }
+      
+      // Find and update the effect display
+      const nameContainer = cardElement.querySelector('.name');
+      let effectDisplay = nameContainer?.nextElementSibling;
+      
+      // If no effect display exists, create one
+      if (!effectDisplay || !effectDisplay.classList.contains('small-info-text')) {
+        effectDisplay = document.createElement('div');
+        effectDisplay.className = 'small-info-text';
+        if (nameContainer && nameContainer.nextSibling) {
+          nameContainer.parentNode.insertBefore(effectDisplay, nameContainer.nextSibling);
+        } else if (nameContainer) {
+          nameContainer.parentNode.appendChild(effectDisplay);
         }
+      }
+      
+      effectDisplay.textContent = `${effectName}: ${displayValue}`;
     }
+  }
 }
 
 /* ------------- SMART RENDER DETECTION ------------- */
@@ -7413,11 +7422,21 @@ function setupResetLevels() {
 }
 
 function resetAllLevels() {
-  if (!confirm('Are you sure you want to reset all card levels to 1? This will refresh the display.')) {
+  if (!confirm('Are you sure you want to reset ALL card levels to 1? This will refresh the display.')) {
     return;
   }
   
-  // Reset all slot levels to 1
+  console.log('Resetting ALL card levels to 1...');
+  
+  // 1. Clear all levels from localStorage
+  localStorage.removeItem('slotLevels');
+  
+  // 2. Reset the slotLevels object
+  Object.keys(slotLevels).forEach(key => {
+    delete slotLevels[key];
+  });
+  
+  // 3. Reset all slot levels in the sidebar
   slotContainers.forEach(container => {
     const levelInput = container.querySelector('.slot-level-input');
     const slot = container.querySelector('.slot');
@@ -7429,7 +7448,6 @@ function resetAllLevels() {
       if (card) {
         // Reset level to 1
         levelInput.value = '1';
-        saveCardLevel(supportId, 1);
         
         // Update slot display
         refreshSlotDisplay(slot, card, 1);
@@ -7447,18 +7465,23 @@ function resetAllLevels() {
         
         // Update unique effects display
         updateUniqueEffectsDisplay(slot, card, 1);
-        
-        // Sync with main grid
-        syncCardLevelInMainGrid(supportId, 1);
       }
+    } else {
+      // For empty slots, just reset the input
+      levelInput.value = '1';
+      levelInput.disabled = true;
     }
   });
   
-  // Save the reset levels
-  localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+  // 4. Reset ALL main grid cards
+  resetAllMainGridCards();
   
-  // Update effect totals
+  // 5. Update effect totals
   setTimeout(updateEffectTotals, 100);
+  
+  // 6. Re-render sections to update main grid cards
+  sectionPages.clear();
+  renderSections();
   
   // Visual feedback
   const resetBtn = document.getElementById('resetLevelsBtn');
@@ -7469,10 +7492,42 @@ function resetAllLevels() {
     resetBtn.textContent = originalText;
   }, 1500);
   
-  console.log('All card levels reset to 1');
+  console.log('ALL card levels reset to 1');
 }
 
-/* ------------- CLEAR DECK WITH NAME RESET ------------- */
+/* ------------- RESET ALL MAIN GRID CARDS ------------- */
+function resetAllMainGridCards() {
+  console.log('Resetting all main grid card levels...');
+  
+  // Get all cards in the main grid
+  const mainGridCards = document.querySelectorAll('.card');
+  
+  mainGridCards.forEach(cardElement => {
+    const supportId = cardElement.dataset.supportId;
+    if (supportId) {
+      const card = cardsData.find(c => c.support_id == supportId);
+      if (card) {
+        // Update level badge
+        const levelBadge = cardElement.querySelector('.level-badge');
+        if (levelBadge) {
+          levelBadge.textContent = 'Lv 1';
+        }
+        
+        // Update diamond icons
+        const diamondIcons = cardElement.querySelector('.diamond-icons');
+        if (diamondIcons) {
+          diamondIcons.innerHTML = generateDiamondIcons(card, 1);
+        }
+        
+        // Update effect value display if showing effects
+        updateCardEffectDisplay(cardElement, supportId, 1);
+        
+        console.log(`Reset main grid card: ${card.char_name} to Lv 1`);
+      }
+    }
+  });
+}
+
 /* ------------- CLEAR DECK WITH SELECTIVE NAME RESET ------------- */
 function setupClearDeckWithNameReset() {
   let isProgrammaticClear = false;
