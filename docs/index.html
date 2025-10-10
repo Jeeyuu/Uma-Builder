@@ -1684,15 +1684,17 @@ body.dark-mode .collapse-toggle:hover {
   transform-origin: bottom left; /* ← ADD THIS LINE */
 }
 
-/* Slot selection styles */
 .slot-container.selected {
-  border: 2px solid #ff4444 !important;
+  outline: 2px solid #ff4444 !important;
+  outline-offset: 2px;
   border-radius: 8px;
   background: rgba(255, 68, 68, 0.1);
+  cursor: pointer;
 }
 
 .slot-container.selected .slot {
-  border-color: #ff4444;
+  /* Remove border change from the slot itself */
+  border-color: inherit;
 }
 
 .slot-selection-hint {
