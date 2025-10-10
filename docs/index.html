@@ -1642,6 +1642,14 @@ body.dark-mode .collapse-toggle {
 body.dark-mode .collapse-toggle:hover {
   background: #666;
 }
+
+/* Universal small info text style */
+.small-info-text {
+  font-size: 8px;
+  opacity: 0.6;
+  margin-bottom: 0px;
+}
+
 </style>
 </head>
 
@@ -3356,12 +3364,12 @@ function createCardElement(card){
   
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+      nameHtml += `<div class="small-info-text">ID: ${card.support_id}</div>`;
     } else if (sortByValue === 'release') {
       const releaseDate = region === 'global' ? card.release_en : card.release;
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
-        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+        nameHtml += `<div class="small-info-text">${formattedDate}</div>`;
       }
 } else if (!isNaN(parseInt(sortByValue))) {
   // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
@@ -3380,15 +3388,15 @@ function createCardElement(card){
       displayValue = formattedValue + unit;
     }
     
-    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+    nameHtml += `<div class="small-info-text">${effectName}: ${displayValue}</div>`;
   }
     } else {
       // Default: show character ID (only if not hidden)
-      if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+      if(!HIDE.char_id) nameHtml += `<div class="small-info-text">ID: ${card.char_id}</div>`;
     }
   }
   
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div class="small-info-text">${escapeHtml(card.url_name)}</div>`;
 
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
@@ -3686,12 +3694,12 @@ const hideDataOptions = ['rarity', 'name', 'type'];
 
 if (!hideDataOptions.includes(sortByValue)) {
   if (sortByValue === 'support_id') {
-    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+    nameHtml += `<div class="small-info-text">ID: ${card.support_id}</div>`;
   } else if (sortByValue === 'release') {
     const releaseDate = region === 'global' ? card.release_en : card.release;
     if (releaseDate && releaseDate !== '') {
       const formattedDate = formatDateForDisplay(releaseDate);
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+      nameHtml += `<div class="small-info-text">${formattedDate}</div>`;
     }
   } else if (!isNaN(parseInt(sortByValue))) {
     // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
@@ -3715,14 +3723,14 @@ if (!hideDataOptions.includes(sortByValue)) {
         displayValue = formattedValue + unit;
       }
       
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+      nameHtml += `<div class="small-info-text">${effectName}: ${displayValue}</div>`;
     }
   } else {
     // Default: show character ID (only if not hidden)
-    if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+    if(!HIDE.char_id) nameHtml += `<div class="small-info-text">ID: ${card.char_id}</div>`;
   }
   
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div class="small-info-text">${escapeHtml(card.url_name)}</div>`;
 }
 
 //-------------------------------------------------------------
@@ -4205,9 +4213,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+effectDiv.className = 'small-info-text';
         effectDiv.textContent = formattedDate;
         nameContainer.after(effectDiv);
       }
@@ -4231,9 +4237,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
         }
         
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+effectDiv.className = 'small-info-text';
         effectDiv.textContent = `${effectName}: ${displayValue}`;
         nameContainer.after(effectDiv);
       }
@@ -4241,9 +4245,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
       // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) {
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+effectDiv.className = 'small-info-text';
         effectDiv.textContent = `ID: ${card.char_id}`;
         nameContainer.after(effectDiv);
       }
@@ -4294,9 +4296,7 @@ function updateSlotNameWithEffectData(slot, card, level) {
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+effectDiv.className = 'small-info-text';
         effectDiv.textContent = formattedDate;
         nameContainer.after(effectDiv);
       }
@@ -4320,9 +4320,7 @@ function updateSlotNameWithEffectData(slot, card, level) {
         }
         
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+effectDiv.className = 'small-info-text';
         effectDiv.textContent = `${effectName}: ${displayValue}`;
         nameContainer.after(effectDiv);
       }
@@ -4330,20 +4328,17 @@ function updateSlotNameWithEffectData(slot, card, level) {
       // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) {
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+effectDiv.className = 'small-info-text';
         effectDiv.textContent = `ID: ${card.char_id}`;
         nameContainer.after(effectDiv);
       }
     }
     
     if(!HIDE.url_name && card.url_name) {
-      const urlDiv = document.createElement('div');
-      urlDiv.style.fontSize = '8px';
-      urlDiv.style.opacity = '0.6';
-      urlDiv.textContent = card.url_name;
-      nameContainer.after(urlDiv);
+      const effectDiv = document.createElement('div');
+      effectDiv.className = 'small-info-text';
+      effectDiv.textContent = card.url_name;
+      nameContainer.after(effectDiv);
     }
   }
 }
