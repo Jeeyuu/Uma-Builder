@@ -3383,7 +3383,7 @@ function createCardElement(card){
   const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
   const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
 
-  // Get current level for this card
+  // ALWAYS get current level from storage to ensure it's fresh
   const currentLevel = getCardLevel(card.support_id);
   
   // Use English skills for Global region, Japanese skills for Japan region
@@ -3893,6 +3893,9 @@ const handleLevelChange = (e) => {
     if (levelBadge) {
         levelBadge.textContent = `Lv ${newLevel}`;
     }
+    
+    // SYNC WITH MAIN GRID CARDS
+    syncCardLevelInMainGrid(card.support_id, newLevel);
 };
 
 levelInput.onchange = handleLevelChange;
@@ -5066,7 +5069,6 @@ function validateLevel(level, card) {
   return num;
 }
 
-// Enhanced level update function
 function updateSlotLevel(slotContainer, card, level) {
     const validatedLevel = validateLevel(level, card);
     
@@ -5078,6 +5080,9 @@ function updateSlotLevel(slotContainer, card, level) {
     if (levelInput) {
         levelInput.value = validatedLevel;
     }
+    
+    // SYNC WITH MAIN GRID
+    syncCardLevelInMainGrid(card.support_id, validatedLevel);
     
     // Update effect totals immediately
     setTimeout(updateEffectTotals, 50);
@@ -6368,6 +6373,69 @@ function updateSlotsForSortChange() {
   saveSlotsToLocalStorage();
 }
 
+/* ------------- SYNC CARD LEVELS WITH MAIN GRID ------------- */
+function syncCardLevelInMainGrid(supportId, newLevel) {
+    // Find all cards in main grid with this support_id
+    const mainGridCards = document.querySelectorAll(`.card[data-support-id="${supportId}"]`);
+    
+    mainGridCards.forEach(cardElement => {
+        // Update level badge
+        const levelBadge = cardElement.querySelector('.level-badge');
+        if (levelBadge) {
+            levelBadge.textContent = `Lv ${newLevel}`;
+        }
+        
+        // Update diamond icons
+        const diamondIcons = cardElement.querySelector('.diamond-icons');
+        if (diamondIcons) {
+            // Get the card data from the element
+            const cardData = cardsData.find(c => c.support_id == supportId);
+            if (cardData) {
+                diamondIcons.innerHTML = generateDiamondIcons(cardData, newLevel);
+            }
+        }
+        
+        // Update effect value display if showing effects
+        updateCardEffectDisplay(cardElement, supportId, newLevel);
+    });
+}
+
+function updateCardEffectDisplay(cardElement, supportId, newLevel) {
+    const card = cardsData.find(c => c.support_id == supportId);
+    if (!card) return;
+    
+    const sortByValue = document.getElementById('sortBy').value;
+    const hideDataOptions = ['rarity', 'name', 'type'];
+    
+    // Only update if we're showing effect data
+    if (!hideDataOptions.includes(sortByValue) && !isNaN(parseInt(sortByValue))) {
+        const effectId = parseInt(sortByValue);
+        const effectValue = getEffectValueAtCurrentLevel(card, effectId, newLevel);
+        
+        if (effectValue !== null) {
+            const effectName = EFFECT_TYPES[effectId];
+            const unit = EFFECT_UNITS[effectId] || "";
+            const formattedValue = Number.isInteger(effectValue) ? 
+                effectValue.toString() : effectValue.toFixed(1);
+            
+            let displayValue;
+            if (unit === "Lv ") {
+                displayValue = unit + formattedValue;
+            } else {
+                displayValue = formattedValue + unit;
+            }
+            
+            // Find and update the effect display
+            const nameContainer = cardElement.querySelector('.name');
+            let effectDisplay = nameContainer?.nextElementSibling;
+            
+            if (effectDisplay && effectDisplay.classList.contains('small-info-text')) {
+                effectDisplay.textContent = `${effectName}: ${displayValue}`;
+            }
+        }
+    }
+}
+
 /* ------------- SMART RENDER DETECTION ------------- */
 function needsFullRender() {
   // Check if any filters, searches, or sorting changed that would affect card visibility
@@ -6484,6 +6552,35 @@ function ensureSlotsLoaded() {
     }
   }
 }
+
+/* ------------- MANUAL LEVEL SYNC FOR DEBUGGING ------------- */
+function forceSyncAllCardLevels() {
+    console.log('Forcing sync of all card levels...');
+    
+    // Update all main grid cards
+    const allCards = document.querySelectorAll('.card');
+    allCards.forEach(cardElement => {
+        const supportId = cardElement.dataset.supportId;
+        if (supportId) {
+            const currentLevel = getCardLevel(supportId);
+            const levelBadge = cardElement.querySelector('.level-badge');
+            const diamondIcons = cardElement.querySelector('.diamond-icons');
+            const card = cardsData.find(c => c.support_id == supportId);
+            
+            if (levelBadge && card) {
+                levelBadge.textContent = `Lv ${currentLevel}`;
+            }
+            if (diamondIcons && card) {
+                diamondIcons.innerHTML = generateDiamondIcons(card, currentLevel);
+            }
+        }
+    });
+    
+    console.log('Level sync complete');
+}
+
+// Call this if you ever need to force a sync
+// forceSyncAllCardLevels();
 
 // Call this in console if you need to debug: debugSlotStatus()
 
