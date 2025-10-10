@@ -54,7 +54,7 @@ body {
 }
 
 .header-nav {
-  display: flex;
+  display: flex; /* Make sure this is visible */
   align-items: center;
   gap: 10px;
 }
@@ -101,11 +101,9 @@ body {
   background: #f5f5f5;
   border-left: 1px solid #ddd;
   align-items: center;
-  min-width: 160px;
-  max-width: 200px;
+  min-width: fit-content;
   overflow-y: auto !important;
   overflow-x: hidden;
-  transition: all 0.3s ease;
 }
 
 .right-sidebar .slots-header {
@@ -120,12 +118,10 @@ body {
   align-items: center;
   justify-content: flex-start;
   overflow-y: auto;
-  padding: 16px 0 16px 16px;
+  padding: 16px;
   box-sizing: border-box;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  position: relative;
-  z-index: 1;
 }
 
 .main-content::-webkit-scrollbar {
@@ -142,6 +138,7 @@ body {
 }
 
 /* ---------- FORM CONTROLS ---------- */
+/* Filter Groups */
 .filter-group, .toggle-button-group {
   display: flex;
   flex-direction: column;
@@ -155,6 +152,7 @@ body {
   font-size: 13px;
 }
 
+/* Inputs & Selects */
 .sidebar select, 
 .sidebar .skill-search,
 .search-input-container input {
@@ -228,6 +226,7 @@ body {
   filter: grayscale(100%) opacity(0.8);
 }
 
+/* Rarity Buttons */
 .rarity-buttons .toggle-buttons-row {
   width: 100%;
   gap: 2px;
@@ -241,6 +240,7 @@ body {
   background: none;
 }
 
+/* Type Buttons */
 .type-buttons .toggle-buttons-row {
   width: 100%;
   gap: 1px;
@@ -331,6 +331,7 @@ body {
   color: #333;
 }
 
+/* ---------- SKILL SEARCH BUTTONS ---------- */
 .skill-search-buttons {
   display: flex;
   gap: 6px;
@@ -352,16 +353,28 @@ body {
   line-height: 1;
 }
 
-/* Button Colors */
+/* Clear All Button - Dark Red */
 .clear-all, #clearAllBtn {
-  background: #8B0000 !important;
+  background: #8B0000 !important; /* Dark red */
   color: #fff;
 }
 
 .clear-all:hover, #clearAllBtn:hover {
+  background: #A52A2A !important; /* Slightly lighter dark red on hover */
+}
+
+/* Dark mode support for clear buttons */
+body.dark-mode .clear-all,
+body.dark-mode #clearAllBtn {
+  background: #8B0000 !important;
+}
+
+body.dark-mode .clear-all:hover,
+body.dark-mode #clearAllBtn:hover {
   background: #A52A2A !important;
 }
 
+/* Ensure the Clear Filters button also gets the dark red color */
 #clearFiltersBtn {
   background: #8B0000 !important;
   color: #fff;
@@ -371,29 +384,20 @@ body {
   background: #A52A2A !important;
 }
 
-#togglePresetCardsBtn {
-  background: #444 !important;
-  color: #fff;
-}
-
-#togglePresetCardsBtn:hover {
-  background: #333 !important;
-}
-
-.clear-search-btn {
+body.dark-mode #clearFiltersBtn {
   background: #8B0000 !important;
-  color: #fff;
 }
 
-.clear-search-btn:hover {
+body.dark-mode #clearFiltersBtn:hover {
   background: #A52A2A !important;
 }
 
 /* ---------- CARDS & SLOTS ---------- */
+/* Card Grids */
 .cards, .slots {
   display: grid;
   grid-template-columns: repeat(auto-fill, var(--card-w));
-  gap: var(--card-gap);
+  gap: var(--card-gap); /* Use the dynamic gap variable */
   width: 100%;
   justify-content: start;
   align-items: start;
@@ -408,12 +412,13 @@ body {
 .slots {
   grid-template-columns: repeat(3, var(--card-w));
   grid-auto-rows: min-content;
-  max-width: calc(var(--card-w) * 3 + var(--card-gap) * 2);
+  max-width: calc(var(--card-w) * 3 + var(--card-gap) * 2); /* Use dynamic gap here too */
   margin: 35px auto 0;
   height: auto;
   min-height: min-content;
 }
 
+/* Card/Slot Base Styles */
 .card, .slot {
   border: 1px solid #ddd;
   padding: 6px;
@@ -442,11 +447,11 @@ body {
   background: #fafafa;
   aspect-ratio: 1;
   height: var(--card-w);
-  transition: border 0.2s ease;
 }
 
 .slot.has-card {
-  height: auto;
+  /* Remove any height/min-height constraints */
+  height: auto; /* Let content determine height */
 }
 
 .slot .placeholder {
@@ -459,6 +464,7 @@ body {
   font-size: 11px;
 }
 
+/* Card Content */
 .card .name, .slot.has-card .name {
   margin: 6px 0 4px;
   font-weight: 700;
@@ -475,6 +481,7 @@ body {
   object-fit: contain;
 }
 
+/* Skills */
 .card .skills, .slot.has-card .skills,
 .card .skills-group, .slot.has-card .skills-group {
   display: flex;
@@ -489,16 +496,19 @@ body {
   min-height: 0;
 }
 
+/* Fix for hidden skills groups - remove gap when group is hidden */
 .skills-group.hidden-skill {
   display: none !important;
   margin: 0 !important;
   gap: 0 !important;
 }
 
+/* Ensure no gap between visible groups when a hidden group is between them */
 .skills-group:not(.hidden-skill) + .skills-group:not(.hidden-skill) {
   margin-top: 8px;
 }
 
+/* Remove top margin for first visible group */
 .skills-group:not(.hidden-skill):first-child {
   margin-top: 0;
 }
@@ -526,6 +536,7 @@ body {
   width: 100%;
 }
 
+/* Type Icon */
 .card .type-icon, .slot.has-card .type-icon {
   position: absolute;
   top: 0px;
@@ -720,28 +731,30 @@ body {
   transform: scale(1.1);
 }
 
+/* Solid colors - black text, no border */
 .color-picker.green { background: #bce934; }
 .color-picker.blue { background: #1cd8fe; }
 .color-picker.orange { background: #fdb832; }
-.color-picker.red { background: #fca5a5; }
+.color-picker.red { background: #fca5a5; } /* Updated red */
 
+/* Colors with gold border - white text */
 .color-picker.green-border { 
-  background: #57ad33;
+  background: #57ad33; /* Dark green */
   border-color: #fff96b;
   border-width: 3px;
 }
 .color-picker.blue-border { 
-  background: #14a1f7;
+  background: #14a1f7; /* Dark blue */
   border-color: #fff96b;
   border-width: 3px;
 }
 .color-picker.orange-border { 
-  background: #fa9937;
+  background: #fa9937; /* Dark orange */
   border-color: #fff96b;
   border-width: 3px;
 }
 .color-picker.red-border { 
-  background: #f75757;
+  background: #f75757; /* Dark red */
   border-color: #fff96b;
   border-width: 3px;
 }
@@ -838,6 +851,7 @@ body {
   gap: 0;
 }
 
+/* Skill Hiding */
 .skill.hidden-skill,
 .skills-header.hidden-skill,
 .skills-group.hidden-skill,
@@ -859,6 +873,7 @@ body {
   margin-top: 8px;
 }
 
+/* Skill Highlighting */
 .skill.search-highlighted {
   background: #ff4444;
   color: white;
@@ -870,6 +885,7 @@ body.dark-mode {
   color: #e0e0e0;
 }
 
+/* Header */
 body.dark-mode .header {
   background: #2d2d2d;
   border-bottom-color: #444;
@@ -880,6 +896,7 @@ body.dark-mode .header-title {
   color: #e0e0e0;
 }
 
+/* Sidebars */
 body.dark-mode .sidebar {
   background: #2d2d2d;
 }
@@ -889,6 +906,7 @@ body.dark-mode .right-sidebar {
   border-left-color: #444;
 }
 
+/* Form Controls */
 body.dark-mode select,
 body.dark-mode .skill-search,
 body.dark-mode .slot-level-input {
@@ -904,6 +922,7 @@ body.dark-mode .slot-level-input:focus {
   outline: none;
 }
 
+/* Cards & Slots */
 body.dark-mode .card,
 body.dark-mode .slot {
   background: #2d2d2d;
@@ -916,6 +935,7 @@ body.dark-mode .slot:not(.has-card) {
   border-color: #555;
 }
 
+/* Skills */
 body.dark-mode .skill {
   background: #3a3a3a;
   color: #e0e0e0;
@@ -926,6 +946,7 @@ body.dark-mode .skills-header {
   color: #e0e0e0;
 }
 
+/* Buttons */
 body.dark-mode .clear-all,
 body.dark-mode #clearFiltersBtn,
 body.dark-mode #togglePresetCardsBtn,
@@ -948,6 +969,7 @@ body.dark-mode .page-controls button:disabled {
   color: #888;
 }
 
+/* Remove Search Button */
 body.dark-mode .remove-search-btn {
   background: #3a3a3a;
   border-color: #555;
@@ -959,6 +981,7 @@ body.dark-mode .remove-search-btn:hover {
   color: #e0e0e0;
 }
 
+/* Toggle Buttons */
 body.dark-mode .toggle-button {
   background: #3a3a3a;
 }
@@ -967,6 +990,7 @@ body.dark-mode .toggle-button:hover {
   background: #444;
 }
 
+/* Sort Order Button */
 body.dark-mode .sort-order-btn {
   background: #3a3a3a;
   border-color: #555;
@@ -983,6 +1007,7 @@ body.dark-mode .sort-order-btn.ascending {
   border-color: #666;
 }
 
+/* Level Controls */
 body.dark-mode .slot-level-controls {
   background: #3a3a3a;
   border-color: #555;
@@ -992,12 +1017,14 @@ body.dark-mode .slot-level-label {
   color: #e0e0e0;
 }
 
+/* Selected Skills */
 body.dark-mode .skill-item {
   background: #3a3a3a;
   border-color: #555;
   color: #e0e0e0;
 }
 
+/* Scrollbars */
 body.dark-mode .skills-list::-webkit-scrollbar-track {
   background: #2d2d2d;
 }
@@ -1010,10 +1037,12 @@ body.dark-mode .skills-list::-webkit-scrollbar-thumb:hover {
   background: #666;
 }
 
+/* Dividers */
 body.dark-mode .skill-search-divider {
   background: #555;
 }
 
+/* Dark Mode Toggle Button */
 .dark-mode-toggle {
   background: none;
   border: 2px solid #666;
@@ -1043,6 +1072,7 @@ body.dark-mode .dark-mode-toggle:hover {
   background: #555;
 }
 
+/* Dark mode support for bordered highlights */
 body.dark-mode .skill.search-highlighted[data-has-border="true"],
 body.dark-mode .skill.highlighted[data-has-border="true"],
 body.dark-mode .skill-item.search-highlighted[data-has-border="true"],
@@ -1058,22 +1088,30 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
   z-index: 1;
 }
 
+/* Skills with gold border - white text */
 .skill.search-highlighted[data-has-border="true"],
 .skill.highlighted[data-has-border="true"] {
   border: 2px solid #fff96b;
   box-shadow: 0 0 0 1px #fff96b;
-  color: #ffffff !important;
-  padding: 1px 3px;
+  color: #ffffff !important; /* Force white text for bordered skills */
 }
 
+/* Adjust padding for bordered skills to maintain size */
+.skill.search-highlighted[data-has-border="true"],
+.skill.highlighted[data-has-border="true"] {
+  padding: 1px 3px; /* Reduced padding to account for border */
+}
+
+/* Selected skills list items with borders */
 .skill-item.search-highlighted[data-has-border="true"],
 .skill-item.highlighted[data-has-border="true"] {
   border: 2px solid #fff96b;
   box-shadow: 0 0 0 1px #fff96b;
-  padding: 5px 7px;
-  color: #ffffff !important;
+  padding: 5px 7px; /* Adjusted padding */
+  color: #ffffff !important; /* Force white text for bordered skills */
 }
 
+/* Ensure solid colors keep black text */
 .skill.search-highlighted:not([data-has-border="true"]),
 .skill.highlighted:not([data-has-border="true"]) {
   color: #000000 !important;
@@ -1113,6 +1151,7 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
   transform: translateY(1px);
 }
 
+/* Dark mode support */
 body.dark-mode .copy-paste-btn {
   background: #555;
   color: #e0e0e0;
@@ -1129,7 +1168,7 @@ body.dark-mode .copy-paste-btn:hover {
   gap: var(--gap);
   width: 100%;
   max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
-  margin-bottom: 1px;
+  margin-bottom: 1px; /* Added margin bottom */
 }
 
 .deck-btn, .slots-header .clear-all {
@@ -1154,6 +1193,7 @@ body.dark-mode .copy-paste-btn:hover {
   transform: translateY(1px);
 }
 
+/* Dark mode support */
 body.dark-mode .deck-btn,
 body.dark-mode .slots-header .clear-all {
   background: #555;
@@ -1163,6 +1203,16 @@ body.dark-mode .slots-header .clear-all {
 body.dark-mode .deck-btn:hover,
 body.dark-mode .slots-header .clear-all:hover {
   background: #666;
+}
+
+/* Clear All Button - Dark Red */
+.clear-all, #clearAllBtn {
+  background: #8B0000 !important; /* Dark red */
+  color: #fff;
+}
+
+.clear-all:hover, #clearAllBtn:hover {
+  background: #A52A2A !important; /* Slightly lighter dark red on hover */
 }
 
 /* Dark mode support for clear buttons */
@@ -1176,6 +1226,16 @@ body.dark-mode #clearAllBtn:hover {
   background: #A52A2A !important;
 }
 
+/* Ensure the Clear Filters button also gets the dark red color */
+#clearFiltersBtn {
+  background: #8B0000 !important;
+  color: #fff;
+}
+
+#clearFiltersBtn:hover {
+  background: #A52A2A !important;
+}
+
 body.dark-mode #clearFiltersBtn {
   background: #8B0000 !important;
 }
@@ -1184,12 +1244,32 @@ body.dark-mode #clearFiltersBtn:hover {
   background: #A52A2A !important;
 }
 
+/* Hide Preset Cards button should remain normal color (not red) */
+#togglePresetCardsBtn {
+  background: #444 !important; /* Normal gray color */
+  color: #fff;
+}
+
+#togglePresetCardsBtn:hover {
+  background: #333 !important;
+}
+
 body.dark-mode #togglePresetCardsBtn {
   background: #555 !important;
 }
 
 body.dark-mode #togglePresetCardsBtn:hover {
   background: #666 !important;
+}
+
+/* Search Clear button - Dark Red */
+.clear-search-btn {
+  background: #8B0000 !important; /* Dark red */
+  color: #fff;
+}
+
+.clear-search-btn:hover {
+  background: #A52A2A !important;
 }
 
 body.dark-mode .clear-search-btn {
@@ -1208,7 +1288,7 @@ body.dark-mode .clear-search-btn:hover {
   justify-content: flex-end;
   min-height: 40px;
   flex-wrap: nowrap;
-  max-width: 186px;
+  max-width: 186px; /* 6 cards * 30px + 5 gaps * 1px */
   overflow: hidden;
 }
 
@@ -1288,6 +1368,7 @@ body.dark-mode .clear-search-btn:hover {
   border: 1px solid #e0f0e0;
 }
 
+/* Compact layout for many cards - show scroll for more than 6 */
 .effect-cards.has-many-cards {
   overflow-x: auto;
   scrollbar-width: thin;
@@ -1307,6 +1388,7 @@ body.dark-mode .clear-search-btn:hover {
   border-radius: 2px;
 }
 
+/* Dark mode support */
 body.dark-mode .effect-row:hover {
   background-color: rgba(255, 255, 255, 0.05);
 }
@@ -1333,13 +1415,20 @@ body.dark-mode .effect-value {
 }
 
 /* ------------- COLLAPSIBLE SIDEBAR ------------- */
-.right-sidebar.collapsed {
-  --card-gap: 7px;
-  min-width: 140px;
-  max-width: 160px;
-  width: 160px;
+.right-sidebar {
+  position: relative;
+  transition: all 0.3s ease;
+  min-width: 160px;
+  overflow-y: auto !important;
+  height: 100%;
 }
 
+/* When right sidebar is collapsed, override the card gap */
+.right-sidebar.collapsed {
+  --card-gap: 7px;
+}
+
+/* Collapse Toggle Button - YOUR PREFERRED SETTINGS */
 .collapse-toggle {
     position: sticky;
     top: 50vh;
@@ -1348,7 +1437,7 @@ body.dark-mode .effect-value {
     height: 150px;
     margin-left: 3.95px;
     border: 2px solid #ddd;
-    border-radius: 4px 0 0 4px;
+    border-radius: 4px 0 0 4px; /* Top-left and bottom-left corners only */
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1359,7 +1448,7 @@ body.dark-mode .effect-value {
     z-index: 1000;
     transition: all 0.3s ease;
     float: left;
-    transform: translateY(-50%);
+    transform: translateY(-50%); /* This centers it properly */
 }
 
 .collapse-toggle:hover {
@@ -1367,6 +1456,36 @@ body.dark-mode .effect-value {
   transform: translateY(-50%) scale(1.1);
 }
 
+/* Make main section ignore the arrow by using proper flex layout */
+.container {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 70px);
+  overflow: hidden;
+}
+
+/* Ensure main content takes remaining space and ignores sidebar layout */
+.main-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-y: auto;
+  padding: 16px 0 16px 16px; /* top: 16px, right: 0, bottom: 16px, left: 16px */
+  box-sizing: border-box;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  /* Main content doesn't care about sidebar internal layout */
+  position: relative;
+  z-index: 1;
+}
+
+.main-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* Adjust sidebar content to account for sticky button */
 .right-sidebar-content {
   display: flex;
   flex-direction: column;
@@ -1378,7 +1497,7 @@ body.dark-mode .effect-value {
   grid-template-columns: repeat(3, var(--card-w));
   grid-auto-rows: min-content;
   max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
-  margin: 40px auto 12px;
+  margin: 40px auto 12px; /* Reduced top margin since button is sticky */
   height: auto;
   min-height: min-content;
 }
@@ -1392,14 +1511,11 @@ body.dark-mode .effect-value {
   gap: 30px;
   height: auto;
   min-height: min-content;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .right-sidebar.collapsed .slot-container {
   width: 100%;
   margin-bottom: 8px;
-  box-sizing: border-box;
 }
 
 .right-sidebar.collapsed .slot {
@@ -1408,7 +1524,6 @@ body.dark-mode .effect-value {
   height: 70px;
   padding: 6px;
   gap: 3px;
-  box-sizing: border-box;
 }
 
 .right-sidebar.collapsed .slot:not(.has-card) {
@@ -1456,8 +1571,6 @@ body.dark-mode .effect-value {
   grid-template-columns: 1fr;
   margin-bottom: 0px;
   gap: 4px;
-  width: 100%;
-  max-width: 100%;
 }
 
 .right-sidebar.collapsed .deck-btn,
@@ -1466,7 +1579,6 @@ body.dark-mode .effect-value {
   padding: 6px 8px;
   font-size: 10px;
   min-height: 32px;
-  box-sizing: border-box;
 }
 
 /* Collapsed Effect Rows */
@@ -1487,23 +1599,22 @@ body.dark-mode .effect-value {
   justify-content: space-between;
   align-items: center;
   overflow: hidden;
-  max-width: 100%;
 }
 
 .right-sidebar.collapsed .effect-name {
-  font-size: 8px;
+  font-size: 9px;
   min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
-  margin-right: 2px;
+  margin-right: 4px;
 }
 
 .right-sidebar.collapsed .effect-value {
-  font-size: 8px;
-  min-width: 18px;
-  padding: 0 1px;
+  font-size: 9px;
+  min-width: 20px;
+  padding: 0 2px;
   margin-left: 0;
   flex-shrink: 0;
 }
@@ -1512,14 +1623,17 @@ body.dark-mode .effect-value {
   display: none !important;
 }
 
+/* Hide debug buttons in collapsed mode */
 .right-sidebar.collapsed .deck-buttons:nth-child(2) {
   display: none;
 }
 
+/* Ensure proper spacing in collapsed mode */
 .right-sidebar.collapsed .skill-search-divider {
   margin-bottom: 12px;
 }
 
+/* Dark mode support for collapsed sidebar */
 body.dark-mode .collapse-toggle {
   background: #555;
   border-color: #666;
@@ -1543,8 +1657,8 @@ body.dark-mode .collapse-toggle:hover {
   right: 10px;
   display: flex;
   z-index: 5;
-  transform: scale(1);
-  transform-origin: bottom right;
+  transform: scale(1); /* ← ADD THIS LINE - change this value */
+  transform-origin: bottom right; /* ← ADD THIS LINE */
   background: rgba(0, 0, 0, 1);
   padding: 1px 6px;
 }
@@ -1566,57 +1680,36 @@ body.dark-mode .collapse-toggle:hover {
   font-size: 10px;
   font-weight: bold;
   z-index: 10;
-  transform: scale(1);
-  transform-origin: bottom left;
-}
-
-/* Collapsed Level Badge and Diamond Icons */
-.right-sidebar.collapsed .level-badge {
-  top: 6px;
-  left: 6px;
-  padding: 2px 4px;
-  font-size: 8px;
-  transform: scale(0.8);
-  transform-origin: top left;
-}
-
-.right-sidebar.collapsed .diamond-icons {
-  top: 6px;
-  right: 6px;
-  transform: scale(0.8);
-  transform-origin: top right;
-  padding: 1px 3px;
-}
-
-.right-sidebar.collapsed .diamond-icon {
-  width: 12px;
-  height: 15px;
-}
-
-/* Slot selection styles */
-.slot-container.selected .slot:not(.has-card) {
-  border: 2px solid #ff4444 !important;
-  background: rgba(255, 68, 68, 0.05);
-  cursor: pointer;
-}
-
-.slot-container.selected {
-  outline: none !important;
-  border: none !important;
-  background: transparent !important;
-  cursor: pointer;
-}
-
-.slot-container:not(.has-card) {
-  cursor: pointer;
-}
-
-.slot-container.has-card {
-  cursor: default;
+  transform: scale(1); /* ← ADD THIS LINE - change this value */
+  transform-origin: bottom left; /* ← ADD THIS LINE */
 }
 
 .slot-selection-hint {
-  display: none;
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+.slot-selection-hint::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #ff4444;
 }
 
 /* Flash warning for duplicate cards */
@@ -1630,19 +1723,96 @@ body.dark-mode .collapse-toggle:hover {
   50% { background-color: rgba(255, 0, 0, 0.6); }
 }
 
+.slot-selection-hint {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+.slot-selection-hint::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #ff4444;
+}
+
+/* Make it clear when slots are clickable for selection */
+.slot-container:not(.has-card) {
+  cursor: pointer;
+}
+
+.slot-container.has-card {
+  cursor: default;
+}
+
+/* Remove all the current .slot-container.selected styles and replace with: */
+
+.slot-container.selected .slot:not(.has-card) {
+  border: 2px solid #ff4444 !important;
+  background: rgba(255, 68, 68, 0.05);
+  cursor: pointer;
+}
+
+/* Keep the existing empty slot style but make it the unselected state */
+.slot:not(.has-card) {
+  border: 2px dashed #ccc;
+  background: #fafafa;
+  aspect-ratio: 1;
+  height: var(--card-w);
+  transition: border 0.2s ease; /* Smooth transition */
+}
+
+/* Remove the container selection styles that cause layout shift */
+.slot-container.selected {
+  /* Remove outline, border, and background from container */
+  outline: none !important;
+  border: none !important;
+  background: transparent !important;
+  cursor: pointer;
+}
+
+/* Remove the selection hint since we're simplifying */
+.slot-selection-hint {
+  display: none;
+}
+
+/* Keep the existing cursor styles */
+.slot-container:not(.has-card) {
+  cursor: pointer;
+}
+
+.slot-container.has-card {
+  cursor: default;
+}
+
 /* ---------- EFFECTS HEADER ---------- */
 .effects-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin: 0px 0 8px 0;
+  margin: 0px 0 8px 0; /* Added top margin to position below slots */
   padding: 0 4px;
   font-weight: bold;
   font-size: 12px;
   color: #333;
   border-bottom: 1px solid #ddd;
-  padding-bottom: 8px;
+  padding-bottom: 4px;
 }
 
 .effects-header .effect-label {
@@ -1661,36 +1831,10 @@ body.dark-mode .collapse-toggle:hover {
   padding-right: 8px;
 }
 
-/* Collapsed Effects Header */
-.right-sidebar.collapsed .effects-header {
-  margin: 12px 0 6px 0;
-  padding: 0 2px;
-  font-size: 11px;
-}
-
-.right-sidebar.collapsed .effects-header .effect-label {
-  min-width: 120px;
-}
-
-.right-sidebar.collapsed .effects-header .total-label {
-  min-width: 40px;
-}
-
-.right-sidebar.collapsed .effects-header .cards-label {
-  display: none;
-}
-
 /* Dark mode support */
 body.dark-mode .effects-header {
   color: #e0e0e0;
   border-bottom-color: #555;
-}
-
-/* Ensure collapsed sidebar content fits */
-.right-sidebar.collapsed .right-sidebar-content {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
 }
 
 </style>
@@ -6004,27 +6148,39 @@ function updateEffectTotals() {
     const contributions = calculateEffectContributions();
     const isCollapsed = document.getElementById('rightSidebar').classList.contains('collapsed');
     
-    // Update each effect display
+    // Check if any slots have cards
+    const hasCards = document.querySelectorAll('.slot.has-card').length > 0;
+    
+    // Update each effect display (existing code)
     Object.entries(contributions).forEach(([effectName, data]) => {
+      // Find all elements for this effect
       const effectElements = document.querySelectorAll(`[data-effect="${effectName}"]`);
       
       effectElements.forEach(element => {
-        // Hide individual effect rows if no cards contribute to them
+        // Hide entire row if total is 0 and no cards contribute
         if (data.total === 0 && data.cards.length === 0) {
           element.style.display = 'none';
+          
+          // Also reset the values to 0 when hiding
           const valueSpan = element.querySelector('.effect-value');
-          if (valueSpan) valueSpan.textContent = '0';
+          if (valueSpan) {
+            valueSpan.textContent = '0';
+          }
+          
           const cardsContainer = element.querySelector('.effect-cards');
-          if (cardsContainer) cardsContainer.innerHTML = '';
+          if (cardsContainer) {
+            cardsContainer.innerHTML = '';
+          }
           return;
         }
         
         // Show the row if it has values
         element.style.display = 'flex';
         
-        // Update the total value
+        // Update the total value with appropriate unit
         const valueSpan = element.querySelector('.effect-value');
         if (valueSpan) {
+          // Find the effect ID from the effect name
           const effectId = Object.keys(EFFECT_TYPES).find(key => 
             EFFECT_TYPES[key] === effectName
           );
@@ -6032,21 +6188,80 @@ function updateEffectTotals() {
           const formattedValue = Number.isInteger(data.total) ? 
             data.total.toString() : data.total.toFixed(1);
           
+          // Check if unit is "Lv " (prefix) or something else (suffix)
           if (unit === "Lv ") {
-            valueSpan.textContent = unit + formattedValue;
+            valueSpan.textContent = unit + formattedValue; // Lv before number
           } else {
-            valueSpan.textContent = formattedValue + unit;
+            valueSpan.textContent = formattedValue + unit; // unit after number
           }
         }
 
-        // Update card contributions - ALWAYS hide in collapsed mode
+        // Update the card contributions - hide in collapsed mode
         const cardsContainer = element.querySelector('.effect-cards');
         if (cardsContainer) {
           if (isCollapsed) {
             cardsContainer.style.display = 'none';
           } else {
             cardsContainer.style.display = 'flex';
-            // ... rest of card population code
+            cardsContainer.innerHTML = '';
+            
+            // Sort cards by value (highest first) for consistent display
+            const sortedCards = [...data.cards].sort((a, b) => b.value - a.value);
+            
+            // Add card icons for each contributing card
+            sortedCards.forEach(cardData => {
+              const cardElement = document.createElement('div');
+              cardElement.className = 'effect-card';
+              
+              // Find the effect ID for this specific card's effect
+              const card = findCardWithEffects(cardData.supportId);
+              let unit = "";
+              if (card && card.effects) {
+                const effectData = card.effects.find(effect => 
+                  EFFECT_TYPES[effect[0]] === effectName
+                );
+                if (effectData) {
+                  unit = EFFECT_UNITS[effectData[0]] || "";
+                }
+              }
+              
+              const formattedCardValue = Number.isInteger(cardData.value) ? 
+                cardData.value.toString() : cardData.value.toFixed(1);
+              
+              // Handle prefix vs suffix for tooltip
+              let tooltipValue;
+              if (unit === "Lv ") {
+                tooltipValue = unit + formattedCardValue;
+              } else {
+                tooltipValue = formattedCardValue + unit;
+              }
+              
+              cardElement.title = `${cardData.char_name} (Lv. ${cardData.level}): +${tooltipValue}`;
+              
+              // Handle prefix vs suffix for card display
+              let displayValue;
+              if (unit === "Lv ") {
+                displayValue = unit + formattedCardValue;
+              } else {
+                displayValue = "+" + formattedCardValue + unit;
+              }
+              
+              cardElement.innerHTML = `
+                <img src="https://gametora.com/images/umamusume/supports/support_card_s_${cardData.supportId}.png" 
+                    alt="${cardData.char_name}" 
+                    class="effect-card-img">
+                <div class="effect-card-value">${displayValue}</div>
+              `;
+              
+              cardsContainer.appendChild(cardElement);
+            });
+            
+            // Handle many cards - enable horizontal scroll if more than 6
+            if (sortedCards.length > 6) {
+              cardsContainer.classList.add('has-many-cards');
+            } else {
+              cardsContainer.classList.remove('has-many-cards');
+            }
           }
         }
       });
