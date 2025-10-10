@@ -1846,7 +1846,7 @@ body.dark-mode .effects-header {
   left: 0px !important;
   background: rgba(0, 0, 0, 0.9) !important;
   color: white;
-  padding: 1px 8px !important;
+  padding: 3px 7px !important;
   font-size: 12px !important;
   font-weight: bold;
   z-index: 10;
@@ -1946,6 +1946,22 @@ body.dark-mode .effects-header {
   width: 25px !important;
   height: 14px !important;
   font-size: 8px !important;
+}
+
+/* Hide the small-info-text in collapsed mode */
+.right-sidebar.collapsed .small-info-text {
+  display: none !important;
+}
+
+/* Also hide any effect data that might be showing */
+.right-sidebar.collapsed .slot .name + div {
+  display: none !important;
+}
+
+/* Ensure the name takes full width when info is hidden */
+.right-sidebar.collapsed .slot .name {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 </style>
