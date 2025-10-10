@@ -2616,6 +2616,20 @@ function setupDynamicSkillSearch() {
     }
   });
   
+  // FIX: Ensure all color pickers are properly initialized with full color sequence
+  skillSearches.forEach(search => {
+    const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
+    if (colorPicker) {
+      const savedColor = localStorage.getItem(`color_${search.id}`) || 'green';
+      // Validate and reset if needed
+      if (!colorSequence.includes(savedColor)) {
+        localStorage.setItem(`color_${search.id}`, 'green');
+        colorPicker.className = 'color-picker green';
+        colorPicker.dataset.color = 'green';
+      }
+    }
+  });
+  
   if (addSearchBtn) {
     addSearchBtn.addEventListener('click', addSearchBox);
   }
@@ -2632,7 +2646,13 @@ function createSearchBox(searchId, value = '') {
   
   // FORCE green color for all new boxes, ignore localStorage for new creations
   const isNewBox = !document.getElementById(searchId);
-  const savedColor = isNewBox ? 'green' : (localStorage.getItem(`color_${searchId}`) || 'green');
+  let savedColor = isNewBox ? 'green' : (localStorage.getItem(`color_${searchId}`) || 'green');
+  
+  // Validate the saved color
+  if (!colorSequence.includes(savedColor)) {
+    savedColor = 'green';
+    localStorage.setItem(`color_${searchId}`, 'green');
+  }
   
   searchContainer.innerHTML = `
     <div class="color-picker ${savedColor}" data-search-id="${searchId}" data-color="${savedColor}"></div>
@@ -2655,6 +2675,21 @@ function createSearchBox(searchId, value = '') {
   setupColorPicker(searchId);
 }
 
+// Add this function to fix corrupted color data
+function fixColorPickerData() {
+  skillSearches.forEach(search => {
+    const savedColor = localStorage.getItem(`color_${search.id}`);
+    if (savedColor && !colorSequence.includes(savedColor)) {
+      console.log(`Fixing corrupted color for ${search.id}: ${savedColor} -> green`);
+      localStorage.setItem(`color_${search.id}`, 'green');
+    }
+  });
+}
+
+// Call this function after skillSearches is initialized
+// Add this line in your fetch().then() block after skillSearches is set up:
+fixColorPickerData();
+
 /* ------------- COLOR PICKER FUNCTIONALITY ------------- */
 const colorSequence = [
   'green', 'blue', 'orange', 'red',
@@ -2667,8 +2702,16 @@ function setupColorPicker(searchId) {
 
   // Load saved color - default to green instead of red
   const savedColor = localStorage.getItem(`color_${searchId}`) || 'green';
-  colorPicker.className = `color-picker ${savedColor}`;
-  colorPicker.dataset.color = savedColor;
+  
+  // Ensure the saved color is valid, if not reset to green
+  if (!colorSequence.includes(savedColor)) {
+    localStorage.setItem(`color_${searchId}`, 'green');
+    colorPicker.className = `color-picker green`;
+    colorPicker.dataset.color = 'green';
+  } else {
+    colorPicker.className = `color-picker ${savedColor}`;
+    colorPicker.dataset.color = savedColor;
+  }
 
   colorPicker.addEventListener('click', () => {
     const currentColor = colorPicker.dataset.color;
