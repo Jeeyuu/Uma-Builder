@@ -1650,6 +1650,61 @@ body.dark-mode .collapse-toggle:hover {
   margin-bottom: 0px;
 }
 
+/* Level badge styles */
+.level-badge {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+  z-index: 5;
+}
+
+/* Diamond icons container */
+.diamond-icons {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  display: flex;
+  gap: 2px;
+  z-index: 5;
+}
+
+/* Individual diamond icon styles */
+.diamond-icon {
+  width: 34px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* Ensure the card image container has relative positioning */
+.card {
+  position: relative;
+}
+
+.card img:not(.type-icon img) {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Type icon positioning adjustment if needed */
+.type-icon {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  z-index: 5;
+}
+
+.type-icon img {
+  width: 24px;
+  height: 24px;
+}
+
 </style>
 </head>
 
@@ -3349,8 +3404,10 @@ function createCardElement(card){
   const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
   const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
 
+  // Get current level for this card
+  const currentLevel = getCardLevel(card.support_id);
+  
   // Use English skills for Global region, Japanese skills for Japan region
-  // Fall back to Japanese skills if English skills are empty
   const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
   const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
@@ -3410,25 +3467,25 @@ function createCardElement(card){
         const formattedDate = formatDateForDisplay(releaseDate);
         nameHtml += `<div class="small-info-text">${formattedDate}</div>`;
       }
-} else if (!isNaN(parseInt(sortByValue))) {
-  // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
-  const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
-  if (effectValue !== null) {
-    const effectName = EFFECT_TYPES[parseInt(sortByValue)];
-    const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
-    const formattedValue = Number.isInteger(effectValue) ? 
-      effectValue.toString() : effectValue.toFixed(1);
-    
-    // Format with appropriate unit
-    let displayValue;
-    if (unit === "Lv ") {
-      displayValue = unit + formattedValue;
-    } else {
-      displayValue = formattedValue + unit;
-    }
-    
-    nameHtml += `<div class="small-info-text">${effectName}: ${displayValue}</div>`;
-  }
+    } else if (!isNaN(parseInt(sortByValue))) {
+      // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
+      const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
+      if (effectValue !== null) {
+        const effectName = EFFECT_TYPES[parseInt(sortByValue)];
+        const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
+        const formattedValue = Number.isInteger(effectValue) ? 
+          effectValue.toString() : effectValue.toFixed(1);
+        
+        // Format with appropriate unit
+        let displayValue;
+        if (unit === "Lv ") {
+          displayValue = unit + formattedValue;
+        } else {
+          displayValue = formattedValue + unit;
+        }
+        
+        nameHtml += `<div class="small-info-text">${effectName}: ${displayValue}</div>`;
+      }
     } else {
       // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) nameHtml += `<div class="small-info-text">ID: ${card.char_id}</div>`;
@@ -3437,10 +3494,15 @@ function createCardElement(card){
   
   if(!HIDE.url_name && card.url_name) nameHtml += `<div class="small-info-text">${escapeHtml(card.url_name)}</div>`;
 
+  // Generate diamond icons based on card level and rarity
+  const diamondIconsHTML = generateDiamondIcons(card, currentLevel);
+
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
+    <div class="level-badge">Lv ${currentLevel}</div>
     <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
     ${nameHtml}
+    <div class="diamond-icons">${diamondIconsHTML}</div>
     <div class="skills">${skillsHTML}</div>
   `;
 
@@ -3524,6 +3586,37 @@ function updateCardDisabledStates() {
   // Update skill highlighting without full re-render
   highlightSkills();
   highlightSelectedSkills();
+}
+
+/* ------------- DIAMOND ICONS GENERATION ------------- */
+function generateDiamondIcons(card, currentLevel) {
+  // Define thresholds based on rarity
+  let thresholds;
+  switch(card.rarity) {
+    case 1: // R rarity
+      thresholds = [25, 30, 35, 40];
+      break;
+    case 2: // SR rarity  
+      thresholds = [30, 35, 40, 45];
+      break;
+    case 3: // SSR rarity
+      thresholds = [35, 40, 45, 50];
+      break;
+    default:
+      thresholds = [25, 30, 35, 40]; // fallback
+  }
+  
+  let diamondIconsHTML = '';
+  
+  // Create 4 diamond icons
+  for (let i = 0; i < 4; i++) {
+    const isFilled = currentLevel >= thresholds[i];
+    const iconSrc = isFilled ? 'diamond_filled.png' : 'diamond_empty.png';
+    
+    diamondIconsHTML += `<img src="${iconSrc}" alt="Diamond ${i+1}" class="diamond-icon" data-threshold="${thresholds[i]}">`;
+  }
+  
+  return diamondIconsHTML;
 }
 
 /* ------------- Slot handling & persistence ------------- */
@@ -3773,13 +3866,15 @@ if (!hideDataOptions.includes(sortByValue)) {
 }
 
 //-------------------------------------------------------------
-    // Update slot content with character ID
-    freeSlot.innerHTML = `
-        <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
-        <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
-        ${nameHtml}
-        <div class="skills">${skillsHTML}</div>
-    `;
+// In the addToSlot function, find where the slot content is set and update it:
+freeSlot.innerHTML = `
+    <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
+    <div class="level-badge">Lv ${savedLevel}</div>
+    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+    ${nameHtml}
+    <div class="diamond-icons">${generateDiamondIcons(card, savedLevel)}</div>
+    <div class="skills">${skillsHTML}</div>
+`;
 
     // Update level controls in the container
     const levelControls = slotContainer.querySelector('.slot-level-controls');
@@ -3805,6 +3900,18 @@ const handleLevelChange = (e) => {
     // UPDATE: Refresh the slot display with new scaled values - SIMPLIFIED
     updateSlotNameWithEffectData(freeSlot, card, newLevel);
     refreshSlotDisplay(freeSlot, card, newLevel);
+    
+    // UPDATE DIAMOND ICONS
+    const diamondIconsContainer = freeSlot.querySelector('.diamond-icons');
+    if (diamondIconsContainer) {
+        diamondIconsContainer.innerHTML = generateDiamondIcons(card, newLevel);
+    }
+    
+    // UPDATE LEVEL BADGE
+    const levelBadge = freeSlot.querySelector('.level-badge');
+    if (levelBadge) {
+        levelBadge.textContent = `Lv ${newLevel}`;
+    }
 };
 
 levelInput.onchange = handleLevelChange;
