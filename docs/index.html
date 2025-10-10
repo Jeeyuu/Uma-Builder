@@ -2286,12 +2286,13 @@ body.dark-mode .deck-name-display {
     
     <!-- ADD THIS SECTION FOR DECK NAME AND NEW BUTTONS -->
     <div class="deck-name-section">
-<input type="text" id="deckNameInput" class="deck-name-input" placeholder="Enter deck name" maxlength="30">      <div class="deck-buttons new-deck-buttons">
+        <div id="deckNameDisplay" class="deck-name-display">Unnamed Deck</div>
         <button id="copyAllBtn" class="deck-btn">Copy All</button>
         <button id="pasteAllBtn" class="deck-btn">Paste All</button>
         <button id="resetLevelsBtn" class="clear-all">Reset All Levels</button>
+                <input type="text" id="deckNameInput" class="deck-name-input" placeholder="Enter deck name" maxlength="30">      <div class="deck-buttons new-deck-buttons">
+
       </div>
-      <div id="deckNameDisplay" class="deck-name-display">Unnamed Deck</div>
     </div>
 
         <div class="skill-search-divider"></div>
@@ -7171,9 +7172,9 @@ function setupDeckName() {
   
   deckNameInput.addEventListener('input', (e) => {
     const name = e.target.value;
-    deckNameDisplay.textContent = name || 'unnamed deck';
+    deckNameDisplay.textContent = name || 'Unnamed Deck';
     localStorage.setItem('deckName', name);
-    console.log('Deck name updated:', name || 'unnamed deck');
+    console.log('Deck name updated:', name || 'Unnamed Deck');
   });
 }
 
@@ -7184,7 +7185,7 @@ function setupCopyAll() {
 }
 
 function copyAllToClipboard() {
-  const deckName = document.getElementById('deckNameInput').value.trim() || 'unnamed deck';
+  const deckName = document.getElementById('deckNameInput').value.trim() || 'Unnamed Deck';
   
   // Get deck data (cards and levels)
   const deckData = slots.map(slot => {
@@ -7289,7 +7290,7 @@ function pasteAllFromClipboard() {
           } else {
             // Reset to default if no deck name
             deckNameInput.value = '';
-            deckNameDisplay.textContent = 'unnamed deck';
+            deckNameDisplay.textContent = 'Unnamed Deck';
             localStorage.removeItem('deckName');
             console.log('No deck name in data, reset to default');
           }
@@ -7547,7 +7548,7 @@ function setupClearDeckWithNameReset() {
       
       if (deckNameInput && deckNameDisplay) {
         deckNameInput.value = '';
-        deckNameDisplay.textContent = 'unnamed deck';
+        deckNameDisplay.textContent = 'Unnamed Deck';
         localStorage.removeItem('deckName');
         console.log('Manual clear: Deck name reset to default');
       }
