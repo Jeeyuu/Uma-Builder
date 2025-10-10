@@ -1806,7 +1806,7 @@ body.dark-mode .collapse-toggle:hover {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 8px;
+  margin: 16px 0 8px 0; /* Added top margin to position below slots */
   padding: 0 4px;
   font-weight: bold;
   font-size: 12px;
@@ -2142,13 +2142,6 @@ body.dark-mode .effects-header {
   <div class="right-sidebar-content">
     <div class="skill-search-divider"></div>
     
-    <!-- Add this effects header -->
-    <div class="effects-header">
-      <span class="effect-label">Effect</span>
-      <span class="total-label">Total</span>
-      <span class="cards-label">Cards</span>
-    </div>
-
     <div class="slots-header">
       <div class="deck-buttons">
         <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
@@ -2203,6 +2196,12 @@ body.dark-mode .effects-header {
   </div>
 
   <div class="skill-search-divider"></div>
+
+    <div class="effects-header">
+      <span class="effect-label">Effect</span>
+      <span class="total-label">Total</span>
+      <span class="cards-label">Cards</span>
+    </div>
 
 <div class="effect-row" data-effect="Friendship Bonus">
   <div class="effect-info">
@@ -3215,7 +3214,6 @@ fetch(JSON_FILE)
     }));
 
     // Initialize all components with error handling
-    // Initialize all components with error handling
       try {
         setupFilterPersistence();
         setupToggleButtons();
@@ -3226,7 +3224,7 @@ fetch(JSON_FILE)
         setupTogglePresetCards();
         setupCardSearch();
         setupCopyPasteButtons();
-        loadSlotsFromLocalStorage(); // This now has proper waiting logic
+        loadSlotsFromLocalStorage();
         setupClearAllSearches();
         updateSelectedSkillsList();
         setupDeckCopyPaste();
@@ -3244,7 +3242,7 @@ fetch(JSON_FILE)
             ensureSlotsLoaded();
             updateAllSlotDisplays();
             
-            // INITIALIZE EFFECTS ON PAGE LOAD - ADD THIS LINE
+            // Initialize effects - ALWAYS SHOW HEADER, HIDE EMPTY ROWS
             updateEffectTotals();
           }, 500);
         }, 500);
@@ -6152,26 +6150,6 @@ function updateEffectTotals() {
     
     // Check if any slots have cards
     const hasCards = document.querySelectorAll('.slot.has-card').length > 0;
-    
-    // Get all effect rows and the effects header
-    const effectRows = document.querySelectorAll('.effect-row');
-    const effectsHeader = document.querySelector('.effects-header');
-    
-    // Show/hide entire effects section based on whether cards are equipped
-    if (hasCards) {
-      if (effectsHeader) effectsHeader.style.display = 'flex';
-    } else {
-      if (effectsHeader) effectsHeader.style.display = 'none';
-      // Also hide all effect rows when no cards
-      effectRows.forEach(row => {
-        row.style.display = 'none';
-        const valueSpan = row.querySelector('.effect-value');
-        if (valueSpan) valueSpan.textContent = '0';
-        const cardsContainer = row.querySelector('.effect-cards');
-        if (cardsContainer) cardsContainer.innerHTML = '';
-      });
-      return; // Exit early if no cards
-    }
     
     // Update each effect display (existing code)
     Object.entries(contributions).forEach(([effectName, data]) => {
