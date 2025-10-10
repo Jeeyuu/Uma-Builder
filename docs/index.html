@@ -3588,6 +3588,37 @@ function updateCardDisabledStates() {
   highlightSelectedSkills();
 }
 
+/* ------------- DIAMOND ICONS GENERATION ------------- */
+function generateDiamondIcons(card, currentLevel) {
+  // Define thresholds based on rarity
+  let thresholds;
+  switch(card.rarity) {
+    case 1: // R rarity
+      thresholds = [25, 30, 35, 40];
+      break;
+    case 2: // SR rarity  
+      thresholds = [30, 35, 40, 45];
+      break;
+    case 3: // SSR rarity
+      thresholds = [35, 40, 45, 50];
+      break;
+    default:
+      thresholds = [25, 30, 35, 40]; // fallback
+  }
+  
+  let diamondIconsHTML = '';
+  
+  // Create 4 diamond icons
+  for (let i = 0; i < 4; i++) {
+    const isFilled = currentLevel >= thresholds[i];
+    const iconSrc = isFilled ? 'diamond_filled.png' : 'diamond_empty.png';
+    
+    diamondIconsHTML += `<img src="${iconSrc}" alt="Diamond ${i+1}" class="diamond-icon" data-threshold="${thresholds[i]}">`;
+  }
+  
+  return diamondIconsHTML;
+}
+
 /* ------------- Slot handling & persistence ------------- */
 function saveSlotsToLocalStorage() {
   const slotData = slots.map(s => s.dataset.supportId || null);
@@ -3716,8 +3747,6 @@ function calculateEffectContributions() {
   return contributions;
 }
 
-// Update the card display in slots to show unique effects
-// Enhanced addToSlot function with better level persistence
 function addToSlot(card, targetSlot = null, save = true) {
     const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
     if (!freeSlot) return;
@@ -3782,6 +3811,12 @@ function addToSlot(card, targetSlot = null, save = true) {
     freeSlot.dataset.supportId = card.support_id;
     freeSlot.classList.add('has-card');
 
+    // Get the saved level BEFORE using it in the template
+    const savedLevel = getCardLevel(card.support_id);
+
+    // Generate diamond icons based on current level
+    const diamondIconsHTML = generateDiamondIcons(card, savedLevel);
+
 //-------------------------------------------------------------
 
 // ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS (same as main grid)
@@ -3835,15 +3870,15 @@ if (!hideDataOptions.includes(sortByValue)) {
 }
 
 //-------------------------------------------------------------
-// In the addToSlot function, find where the slot content is set and update it:
-freeSlot.innerHTML = `
-    <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
-    <div class="level-badge">Lv ${savedLevel}</div>
-    <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
-    ${nameHtml}
-    <div class="diamond-icons">${generateDiamondIcons(card, savedLevel)}</div>
-    <div class="skills">${skillsHTML}</div>
-`;
+    // Update slot content with character ID, level badge, and diamond icons
+    freeSlot.innerHTML = `
+        <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
+        <div class="level-badge">Lv ${savedLevel}</div>
+        <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+        ${nameHtml}
+        <div class="diamond-icons">${diamondIconsHTML}</div>
+        <div class="skills">${skillsHTML}</div>
+    `;
 
     // Update level controls in the container
     const levelControls = slotContainer.querySelector('.slot-level-controls');
@@ -3855,7 +3890,6 @@ freeSlot.innerHTML = `
     levelInput.max = getMaxLevel(card);
     
     // CRITICAL: Use the saved level for this specific card, or default to 1
-    const savedLevel = getCardLevel(card.support_id);
     levelInput.value = savedLevel;
 
 // Enhanced level input event listeners
@@ -3870,14 +3904,13 @@ const handleLevelChange = (e) => {
     updateSlotNameWithEffectData(freeSlot, card, newLevel);
     refreshSlotDisplay(freeSlot, card, newLevel);
     
-    // UPDATE DIAMOND ICONS
+    // UPDATE DIAMOND ICONS AND LEVEL BADGE
     const diamondIconsContainer = freeSlot.querySelector('.diamond-icons');
+    const levelBadge = freeSlot.querySelector('.level-badge');
+    
     if (diamondIconsContainer) {
         diamondIconsContainer.innerHTML = generateDiamondIcons(card, newLevel);
     }
-    
-    // UPDATE LEVEL BADGE
-    const levelBadge = freeSlot.querySelector('.level-badge');
     if (levelBadge) {
         levelBadge.textContent = `Lv ${newLevel}`;
     }
@@ -3917,7 +3950,6 @@ updateCardDisabledStates(); // ← ADD THIS INSTEAD
     setTimeout(updateEffectTotals, 100);
 }
 
-// Enhanced removeFromSlot function
 function removeFromSlot(slot, card) {
     if (!slot) return;
 
@@ -3940,6 +3972,8 @@ function removeFromSlot(slot, card) {
     
     delete slot.dataset.cardId;
     delete slot.dataset.supportId;
+    
+    // Reset to basic placeholder (without level badge and diamond icons)
     slot.innerHTML = '<div class="placeholder">Empty</div>';
 
     // Reset level controls UI (but keep the data)
@@ -6472,36 +6506,7 @@ function ensureSlotsLoaded() {
   }
 }
 
-/* ------------- DIAMOND ICONS GENERATION ------------- */
-function generateDiamondIcons(card, currentLevel) {
-  // Define thresholds based on rarity
-  let thresholds;
-  switch(card.rarity) {
-    case 1: // R rarity
-      thresholds = [25, 30, 35, 40];
-      break;
-    case 2: // SR rarity  
-      thresholds = [30, 35, 40, 45];
-      break;
-    case 3: // SSR rarity
-      thresholds = [35, 40, 45, 50];
-      break;
-    default:
-      thresholds = [25, 30, 35, 40]; // fallback
-  }
-  
-  let diamondIconsHTML = '';
-  
-  // Create 4 diamond icons
-  for (let i = 0; i < 4; i++) {
-    const isFilled = currentLevel >= thresholds[i];
-    const iconSrc = isFilled ? 'diamond_filled.png' : 'diamond_empty.png';
-    
-    diamondIconsHTML += `<img src="${iconSrc}" alt="Diamond ${i+1}" class="diamond-icon" data-threshold="${thresholds[i]}">`;
-  }
-  
-  return diamondIconsHTML;
-}
+// Call this in console if you need to debug: debugSlotStatus()
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
