@@ -1684,6 +1684,58 @@ body.dark-mode .collapse-toggle:hover {
   transform-origin: bottom left; /* ← ADD THIS LINE */
 }
 
+/* Slot selection styles */
+.slot-container.selected {
+  border: 2px solid #ff4444 !important;
+  border-radius: 8px;
+  background: rgba(255, 68, 68, 0.1);
+}
+
+.slot-container.selected .slot {
+  border-color: #ff4444;
+}
+
+.slot-selection-hint {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+.slot-selection-hint::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #ff4444;
+}
+
+.slot-container.selected.has-card {
+  border-color: #ff8888 !important;
+  background: rgba(255, 68, 68, 0.05);
+}
+
+.slot-container.selected.has-card .slot-selection-hint {
+  background: #ff8888;
+}
+
+.slot-container.selected.has-card .slot-selection-hint::after {
+  border-top-color: #ff8888;
+}
+
 </style>
 </head>
 
@@ -2256,6 +2308,8 @@ const SLOT_KEY = 'saved_slots';
 const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
 let SKILL_SEARCH_KEYS = []; // This will be populated from localStorage
 let showPresetCards = true; // Start with preset cards visible
+let selectedSlot = null;
+const SLOT_SELECTION_KEY = 'selected_slot';
 
 /* ------------- CARD SEARCH STATE ------------- */
 let cardSearchValue = '';
@@ -3065,7 +3119,9 @@ fetch(JSON_FILE)
       setupClearAllSearches();
       updateSelectedSkillsList();
       setupDeckCopyPaste();
-      
+      setupSlotSelection();
+setupKeyboardShortcuts();
+
       // Final refresh to ensure everything is synced - ADD THESE LINES:
       setTimeout(() => {
         sectionPages.clear();
@@ -3486,17 +3542,29 @@ function createCardElement(card){
   `;
 
   // Replace your current card click handler in createCardElement():
-  el.addEventListener('click', ()=> {
-    const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
-    if(slot) {
-        removeFromSlot(slot, card);
+el.addEventListener('click', ()=> {
+  // If a slot is selected, add card to that specific slot
+  if (selectedSlot) {
+    const slot = selectedSlot.querySelector('.slot');
+    if (slot && !slot.dataset.cardId) { // Only if slot is empty
+      addToSlot(card, slot);
+      clearSlotSelection(); // Clear selection after adding card
     } else {
-        addToSlot(card);
+      // Selected slot already has a card, show message or handle differently
+      console.log('Selected slot already has a card');
+      // Optionally: swap cards or show error
     }
-    
-    // INSTEAD of calling renderSections(), just update the disabled states
-    updateCardDisabledStates();
-  });
+  } else {
+    // Original behavior - find first available slot
+    const slot = slots.find(s => !s.dataset.cardId);
+    if (slot) {
+      addToSlot(card, slot);
+    } else {
+      // No empty slots available
+      console.log('No empty slots available');
+    }
+  }
+});
 
   // Ensure initial disabled state is set when card is created
   if(selectedCardIds.has(card.char_id)) {
@@ -3727,8 +3795,25 @@ function calculateEffectContributions() {
 }
 
 function addToSlot(card, targetSlot = null, save = true) {
-    const freeSlot = targetSlot || slots.find(s => !s.dataset.cardId);
-    if (!freeSlot) return;
+    let freeSlot;
+
+    
+    if (targetSlot) {
+      // Use the provided target slot
+      freeSlot = targetSlot;
+    } else if (selectedSlot) {
+      // Use the selected slot
+      freeSlot = selectedSlot.querySelector('.slot');
+      clearSlotSelection(); // Clear selection after adding card
+    } else {
+      // Find first available slot (original behavior)
+      freeSlot = slots.find(s => !s.dataset.cardId);
+    }
+    
+    if (!freeSlot) {
+      console.log('No available slot found');
+      return;
+    }
 
     // Find the container for this slot
     const slotContainer = freeSlot.closest('.slot-container');
@@ -3933,7 +4018,11 @@ updateCardDisabledStates(); // ← ADD THIS INSTEAD
 }
 
 function removeFromSlot(slot, card) {
-    if (!slot) return;
+    // Clear selection if we're removing from the selected slot
+    if (selectedSlot && selectedSlot.contains(slot)) {
+      clearSlotSelection();
+    }
+      if (!slot) return;
 
     // Find the container for this slot
     const slotContainer = slot.closest('.slot-container');
@@ -6577,6 +6666,87 @@ function forceSyncAllCardLevels() {
     });
     
     console.log('Level sync complete');
+}
+
+/* ------------- SLOT SELECTION FUNCTIONALITY ------------- */
+function setupSlotSelection() {
+  // Add click listeners to all slot containers
+  slotContainers.forEach((container, index) => {
+    container.addEventListener('click', (e) => {
+      // Don't trigger if clicking on level input or card removal
+      if (e.target.closest('.slot-level-input') || e.target.closest('.slot.has-card')) {
+        return;
+      }
+      
+      handleSlotSelection(container, index);
+    });
+  });
+  
+  // Load saved selection state
+  const savedSelection = localStorage.getItem(SLOT_SELECTION_KEY);
+  if (savedSelection !== null) {
+    const slotIndex = parseInt(savedSelection);
+    if (!isNaN(slotIndex) && slotContainers[slotIndex]) {
+      selectedSlot = slotContainers[slotIndex];
+      selectedSlot.classList.add('selected');
+      addSelectionHint(selectedSlot);
+    }
+  }
+}
+
+function handleSlotSelection(container, index) {
+  // If clicking the same slot, deselect it
+  if (selectedSlot === container) {
+    clearSlotSelection();
+    return;
+  }
+  
+  // Clear previous selection
+  clearSlotSelection();
+  
+  // Set new selection
+  selectedSlot = container;
+  container.classList.add('selected');
+  addSelectionHint(container);
+  
+  // Save selection state
+  localStorage.setItem(SLOT_SELECTION_KEY, index.toString());
+  
+  console.log(`Slot ${index + 1} selected - next card clicked will go here`);
+}
+
+function clearSlotSelection() {
+  if (selectedSlot) {
+    selectedSlot.classList.remove('selected');
+    removeSelectionHint(selectedSlot);
+    selectedSlot = null;
+    localStorage.removeItem(SLOT_SELECTION_KEY);
+  }
+}
+
+function addSelectionHint(container) {
+  const hint = document.createElement('div');
+  hint.className = 'slot-selection-hint';
+  hint.textContent = 'Selected - Next card goes here';
+  hint.id = 'slot-selection-hint';
+  container.style.position = 'relative';
+  container.appendChild(hint);
+}
+
+function removeSelectionHint(container) {
+  const hint = container.querySelector('#slot-selection-hint');
+  if (hint) {
+    hint.remove();
+  }
+}
+
+/* ------------- KEYBOARD SHORTCUTS ------------- */
+function setupKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      clearSlotSelection();
+    }
+  });
 }
 
 // Call this if you ever need to force a sync
