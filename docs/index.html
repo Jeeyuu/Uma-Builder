@@ -4115,6 +4115,12 @@ function addToSlot(card, targetSlot = null, save = true) {
     return;
   }
 
+    // Get the saved level BEFORE using it in the template
+    const savedLevel = getCardLevel(card.support_id);
+
+    // Generate diamond icons based on current level
+    const diamondIconsHTML = generateDiamondIcons(card, savedLevel);
+
     // Find the container for this slot
     const slotContainer = freeSlot.closest('.slot-container');
     if (!slotContainer) return;
@@ -4174,12 +4180,6 @@ function addToSlot(card, targetSlot = null, save = true) {
     freeSlot.dataset.cardId = card.char_id;
     freeSlot.dataset.supportId = card.support_id;
     freeSlot.classList.add('has-card');
-
-    // Get the saved level BEFORE using it in the template
-    const savedLevel = getCardLevel(card.support_id);
-
-    // Generate diamond icons based on current level
-    const diamondIconsHTML = generateDiamondIcons(card, savedLevel);
 
 //-------------------------------------------------------------
 
@@ -5942,7 +5942,7 @@ function pasteDeckFromClipboard() {
         alert('Invalid deck format! Expected 6 slots.');
         return;
       }
-      
+
 // Instead of: clearAllBtn.click();
 // Use:
 if (window.programmaticClearDeck) {
@@ -7282,26 +7282,37 @@ function pasteAllFromClipboard() {
         }
         
         // Now populate the deck
-        allData.deck.forEach((slotData, index) => {
-          if (slotData.supportId !== 'empty') {
-            const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
-            if (card) {
-              const slot = slots[index];
-              addToSlot(card, slot, false);
-              
-              // Set level if provided and valid
-              if (slotData.level && slotData.level !== '1') {
-                const slotContainer = slot.closest('.slot-container');
-                const levelInput = slotContainer.querySelector('.slot-level-input');
-                if (levelInput) {
-                  const validatedLevel = validateLevel(slotData.level, card);
-                  levelInput.value = validatedLevel;
-                  slotLevels[card.support_id] = validatedLevel;
-                }
-              }
-            }
-          }
-        });
+        // In your pasteAllFromClipboard function, after populating the deck:
+allData.deck.forEach((slotData, index) => {
+  if (slotData.supportId !== 'empty') {
+    const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
+    if (card) {
+      const slot = slots[index];
+      addToSlot(card, slot, false);
+      
+      // Set level if provided and valid
+      if (slotData.level && slotData.level !== '1') {
+        const slotContainer = slot.closest('.slot-container');
+        const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+        if (levelInput) {
+          const validatedLevel = validateLevel(slotData.level, card);
+          levelInput.value = validatedLevel;
+          slotLevels[card.support_id] = validatedLevel;
+          
+          // CRITICAL: Update the level display immediately
+          const levelBadge = slot.querySelector('.level-badge');
+          const diamondIcons = slot.querySelector('.diamond-icons');
+          
+          if (levelBadge) levelBadge.textContent = `Lv ${validatedLevel}`;
+          if (diamondIcons) diamondIcons.innerHTML = generateDiamondIcons(card, validatedLevel);
+        }
+      }
+    }
+  }
+});
+
+// ADD THIS LINE: Refresh all slot displays after populating
+refreshAllSlotLevelDisplays();
         
         // Clear existing skill searches first
         clearAllSkillSearches();
@@ -7575,6 +7586,41 @@ function checkClipboardData() {
       console.log('Deck name in clipboard:', data.deckName);
     } catch (e) {
       console.error('Failed to parse clipboard data:', e);
+    }
+  });
+}
+
+/* ------------- REFRESH ALL SLOT LEVEL DISPLAYS ------------- */
+function refreshAllSlotLevelDisplays() {
+  console.log('Refreshing all slot level displays...');
+  
+  slots.forEach((slot, index) => {
+    if (slot.dataset.supportId) {
+      const supportId = slot.dataset.supportId;
+      const card = cardsData.find(c => String(c.support_id) === String(supportId));
+      
+      if (card) {
+        const slotContainer = slot.closest('.slot-container');
+        const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+        const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
+        
+        // Update level badge
+        const levelBadge = slot.querySelector('.level-badge');
+        if (levelBadge) {
+          levelBadge.textContent = `Lv ${currentLevel}`;
+        }
+        
+        // Update diamond icons
+        const diamondIcons = slot.querySelector('.diamond-icons');
+        if (diamondIcons) {
+          diamondIcons.innerHTML = generateDiamondIcons(card, currentLevel);
+        }
+        
+        // Update unique effects display
+        updateUniqueEffectsDisplay(slot, card, currentLevel);
+        
+        console.log(`Refreshed slot ${index}: ${card.char_name} Lv ${currentLevel}`);
+      }
     }
   });
 }
