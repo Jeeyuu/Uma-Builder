@@ -2608,11 +2608,19 @@ function setupDynamicSkillSearch() {
   // CRITICAL FIX: Update SKILL_SEARCH_KEYS array with ACTUAL current values
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
-  // CRITICAL FIX: Also update the search values in the inputs
+  // CRITICAL FIX: Also update the search values in the inputs AND colors
   skillSearches.forEach(search => {
     const input = document.getElementById(search.id);
     if (input) {
       input.value = search.value;
+    }
+    
+    // FIX: Ensure color picker is properly initialized for ALL search boxes
+    const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
+    if (colorPicker) {
+      const savedColor = localStorage.getItem(`color_${search.id}`) || 'green';
+      colorPicker.className = `color-picker ${savedColor}`;
+      colorPicker.dataset.color = savedColor;
     }
   });
   
@@ -6309,6 +6317,25 @@ function updateAllSlotDisplays() {
   });
 }
 
+/* ------------- EMERGENCY FIX FOR FIRST SEARCH BOX ------------- */
+function fixFirstSearchBoxColors() {
+  const firstSearchBox = document.getElementById('skillSearch1');
+  if (!firstSearchBox) return;
+  
+  const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
+  if (firstColorPicker) {
+    // Force reset to ensure all 8 colors are available
+    const savedColor = localStorage.getItem('color_skillSearch1') || 'green';
+    firstColorPicker.className = `color-picker ${savedColor}`;
+    firstColorPicker.dataset.color = savedColor;
+    
+    console.log('First search box color fixed:', savedColor);
+  }
+}
+
+// Call this after setupDynamicSkillSearch()
+setTimeout(fixFirstSearchBoxColors, 500);
+
 /* ------------- ENSURE SLOTS LOAD PROPERLY ------------- */
 function ensureSlotsLoaded() {
   console.log('Ensuring slots are properly loaded...');
@@ -6351,12 +6378,11 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         setupEffectCalculation();
         updateEffectTotals();
+        highlightSkills(); // ADD THIS LINE to ensure skills are highlighted on load
       }, 1000);
     }
   }, 100);
 });
-
-
   
   // Update when pasting decks
   const originalPasteDeck = window.pasteDeckFromClipboard;
