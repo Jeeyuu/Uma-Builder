@@ -1856,33 +1856,32 @@ body.dark-mode .effects-header {
   line-height: 1;
 }
 
-/* Best fix for diamond spacing */
+/* FIXED: Diamond icons in collapsed mode */
 .right-sidebar.collapsed .diamond-icons {
   position: absolute;
   top: 53px !important;
   right: 0px !important;
-  display: flex;
+  display: flex !important; /* Force display */
   z-index: 10;
-  transform: scale(1) !important; /* Slightly smaller scale */
+  transform: scale(0.8) !important; /* Slightly smaller scale */
   transform-origin: top right !important;
   background: rgba(0, 0, 0, 0.9) !important;
-  padding: 1px 2px !important; /* No vertical padding, minimal horizontal */
+  padding: 1px 2px !important;
   border-radius: 3px;
-  gap: 0px; /* Remove gap between diamonds */
+  gap: 0px;
 }
 
 .right-sidebar.collapsed .diamond-icon {
   width: 9px !important;
   height: 12px !important;
   object-fit: contain;
-  margin: 0 -0.5px !important; /* Negative margin to tighten spacing */
+  margin: 0 -0.5px !important;
 }
 
-/* Ensure the slot content doesn't overflow */
+/* Ensure the slot has proper positioning context */
 .right-sidebar.collapsed .slot.has-card {
-  padding: 12px !important;
-  min-height: 70px !important;
-  height: 70px !important;
+  position: relative !important;
+  overflow: visible !important;
 }
 
 /* Fix image size in collapsed mode */
