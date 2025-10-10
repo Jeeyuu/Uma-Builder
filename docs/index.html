@@ -4107,17 +4107,19 @@ levelInput.onblur = handleLevelChange;
 
 // In the addToSlot function, replace the slotClickHandler:
 function slotClickHandler(e) {
+  // CRITICAL: Stop event propagation to prevent slot selection
+  e.stopPropagation();
+  
   // Don't remove if clicking on level input or other controls
   if (e.target.closest('.slot-level-input') || 
-      e.target.closest('.slot-level-controls')) {
+      e.target.closest('.slot-level-controls') ||
+      e.target.closest('.type-icon') ||
+      e.target.closest('.level-badge') ||
+      e.target.closest('.diamond-icons')) {
     return;
   }
   
-  // Only remove if this slot is not currently selected
-  const slotContainer = freeSlot.closest('.slot-container');
-  if (!slotContainer || !slotContainer.classList.contains('selected')) {
-    removeFromSlot(freeSlot, slotCard);
-  }
+  removeFromSlot(freeSlot, slotCard);
 }
 
     // Attach the event listener to the slot element only
@@ -6804,18 +6806,20 @@ function setupSlotSelection() {
     container.addEventListener('click', (e) => {
       const slot = container.querySelector('.slot');
       
-      // Don't trigger selection if clicking on any card elements
+      // CRITICAL: Don't trigger selection if clicking on ANY card content
       if (e.target.closest('.slot-level-input') || 
           e.target.closest('.type-icon') ||
           e.target.closest('.level-badge') ||
           e.target.closest('.diamond-icons') ||
           e.target.closest('.skills') ||
-          e.target.closest('.name')) {
+          e.target.closest('.name') ||
+          e.target.closest('img') || // Card image
+          slot.classList.contains('has-card')) { // OR if slot has card
         return;
       }
       
-      // Only allow selection on empty slots or the container background
-      if (!slot.classList.contains('has-card') || e.target === container) {
+      // Only allow selection on truly empty slots
+      if (!slot.classList.contains('has-card')) {
         handleSlotSelection(container, index);
       }
     });
