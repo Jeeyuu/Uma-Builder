@@ -1689,15 +1689,6 @@ body.dark-mode .effects-header {
   box-sizing: border-box;
 }
 
-/* TEMPORARY DEBUG - Remove after cards show */
-.card {
-  border: 2px solid red !important; /* Make cards visible for debugging */
-}
-
-.slots .slot.has-card {
-  border: 2px solid blue !important; /* Make slots with cards visible */
-}
-
 </style>
 </head>
 
@@ -3402,8 +3393,8 @@ function setupHideUncoloredCheckbox() {
 
 // Update the card display to show unique effects
 /* ------------- UPDATE createCardElement FUNCTION ------------- */
-function createCardElement(card) {
-  const el = document.createElement('div'); // Make sure this line exists
+function createCardElement(card){
+  const el = document.createElement('div');
   el.className = 'card';
   el.dataset.id = card.char_id;
   el.dataset.supportId = card.support_id;
@@ -3514,41 +3505,41 @@ function createCardElement(card) {
     <div class="skills">${skillsHTML}</div>
   `;
 
-  // FIXED: Card click handler
-  el.addEventListener('click', () => {
-    // CRITICAL: Check if card is already in a slot - if so, REMOVE it
-    if (selectedCardIds.has(card.char_id)) {
-      console.log(`Removing ${card.char_name} from slot`);
-      
-      // Find the slot containing this card and remove it
-      const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
-      if (existingSlot) {
-        removeFromSlot(existingSlot, card);
-      }
-      return;
-    }
+  // Replace your card click handler in createCardElement():
+el.addEventListener('click', ()=> {
+  // CRITICAL: Check if card is already in a slot - if so, REMOVE it
+  if (selectedCardIds.has(card.char_id)) {
+    console.log(`Removing ${card.char_name} from slot`);
     
-    // If a slot is selected, add card to that specific slot
-    if (selectedSlot) {
-      const slot = selectedSlot.querySelector('.slot');
-      if (slot && !slot.dataset.cardId) { // Only if slot is empty
-        addToSlot(card, slot);
-        clearSlotSelection(); // Clear selection after adding card
-      } else {
-        // Selected slot already has a card, show message
-        console.log('Selected slot already has a card');
-      }
-    } else {
-      // Original behavior - find first available slot
-      const slot = slots.find(s => !s.dataset.cardId);
-      if (slot) {
-        addToSlot(card, slot);
-      } else {
-        // No empty slots available
-        console.log('No empty slots available');
-      }
+    // Find the slot containing this card and remove it
+    const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
+    if (existingSlot) {
+      removeFromSlot(existingSlot, card);
     }
-  });
+    return;
+  }
+  
+  // If a slot is selected, add card to that specific slot
+  if (selectedSlot) {
+    const slot = selectedSlot.querySelector('.slot');
+    if (slot && !slot.dataset.cardId) { // Only if slot is empty
+      addToSlot(card, slot);
+      clearSlotSelection(); // Clear selection after adding card
+    } else {
+      // Selected slot already has a card, show message
+      console.log('Selected slot already has a card');
+    }
+  } else {
+    // Original behavior - find first available slot
+    const slot = slots.find(s => !s.dataset.cardId);
+    if (slot) {
+      addToSlot(card, slot);
+    } else {
+      // No empty slots available
+      console.log('No empty slots available');
+    }
+  }
+});
 
   // Ensure initial disabled state is set when card is created
   if(selectedCardIds.has(card.char_id)) {
