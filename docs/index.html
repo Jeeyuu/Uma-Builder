@@ -1736,6 +1736,38 @@ body.dark-mode .collapse-toggle:hover {
   border-top-color: #ff8888;
 }
 
+/* Selected empty slot */
+.slot-container.selected:not(.has-card) {
+  border: 2px solid #ff4444 !important;
+  border-radius: 8px;
+  background: rgba(255, 68, 68, 0.1);
+}
+
+.slot-container.selected:not(.has-card) .slot-selection-hint {
+  background: #ff4444;
+}
+
+/* Selected occupied slot (shouldn't normally happen, but just in case) */
+.slot-container.selected.has-card {
+  border: 2px solid #ff8888 !important;
+  background: rgba(255, 68, 68, 0.05);
+}
+
+.slot-container.selected.has-card .slot-selection-hint {
+  background: #ff8888;
+}
+
+/* Flash warning for duplicate cards */
+.slot-container.flash-warning {
+  animation: flashRed 1s ease-in-out;
+}
+
+@keyframes flashRed {
+  0%, 100% { background-color: transparent; }
+  25%, 75% { background-color: rgba(255, 0, 0, 0.3); }
+  50% { background-color: rgba(255, 0, 0, 0.6); }
+}
+
 </style>
 </head>
 
@@ -3541,8 +3573,20 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  // Replace your current card click handler in createCardElement():
+  // Replace your card click handler in createCardElement():
 el.addEventListener('click', ()=> {
+  // CRITICAL: Check if card is already in a slot
+  if (selectedCardIds.has(card.char_id)) {
+    console.log(`Card ${card.char_name} is already equipped!`);
+    
+    // Find and flash the slot containing this card
+    const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
+    if (existingSlot) {
+      flashSlot(existingSlot);
+    }
+    return;
+  }
+  
   // If a slot is selected, add card to that specific slot
   if (selectedSlot) {
     const slot = selectedSlot.querySelector('.slot');
@@ -3550,9 +3594,8 @@ el.addEventListener('click', ()=> {
       addToSlot(card, slot);
       clearSlotSelection(); // Clear selection after adding card
     } else {
-      // Selected slot already has a card, show message or handle differently
+      // Selected slot already has a card, show message
       console.log('Selected slot already has a card');
-      // Optionally: swap cards or show error
     }
   } else {
     // Original behavior - find first available slot
@@ -3795,25 +3838,38 @@ function calculateEffectContributions() {
 }
 
 function addToSlot(card, targetSlot = null, save = true) {
-    let freeSlot;
-
+  // CRITICAL: Check if card is already in any slot BEFORE proceeding
+  if (selectedCardIds.has(card.char_id)) {
+    console.log(`Card ${card.char_name} is already in a slot!`);
     
-    if (targetSlot) {
-      // Use the provided target slot
-      freeSlot = targetSlot;
-    } else if (selectedSlot) {
-      // Use the selected slot
-      freeSlot = selectedSlot.querySelector('.slot');
-      clearSlotSelection(); // Clear selection after adding card
-    } else {
-      // Find first available slot (original behavior)
-      freeSlot = slots.find(s => !s.dataset.cardId);
+    // Optional: Find which slot it's in and highlight it
+    const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
+    if (existingSlot) {
+      // Flash the existing slot to show user where the duplicate is
+      flashSlot(existingSlot);
     }
     
-    if (!freeSlot) {
-      console.log('No available slot found');
-      return;
-    }
+    return; // Stop here - don't add duplicate
+  }
+  
+  let freeSlot;
+  
+  if (targetSlot) {
+    // Use the provided target slot
+    freeSlot = targetSlot;
+  } else if (selectedSlot) {
+    // Use the selected slot
+    freeSlot = selectedSlot.querySelector('.slot');
+    clearSlotSelection();
+  } else {
+    // Find first available slot (original behavior)
+    freeSlot = slots.find(s => !s.dataset.cardId);
+  }
+  
+  if (!freeSlot) {
+    console.log('No available slot found');
+    return;
+  }
 
     // Find the container for this slot
     const slotContainer = freeSlot.closest('.slot-container');
@@ -4007,66 +4063,67 @@ levelInput.onblur = handleLevelChange;
     freeSlot.addEventListener('click', slotClickHandler);
     slotListeners.set(freeSlot, slotClickHandler);
 
-    selectedCardIds.add(card.char_id);
-    if (save) saveSlotsToLocalStorage();
+  // Add to selected cards set
+  selectedCardIds.add(card.char_id);
+  if (save) saveSlotsToLocalStorage();
 
-updateSelectedSkillsList();
-updateCardDisabledStates(); // ← ADD THIS INSTEAD
-
-    // Update effect totals after adding card
-    setTimeout(updateEffectTotals, 100);
+  updateSelectedSkillsList();
+  updateCardDisabledStates(); // This should disable the card in main grid
+  
+  // Update effect totals after adding card
+  setTimeout(updateEffectTotals, 100);
 }
 
 function removeFromSlot(slot, card) {
-    // Clear selection if we're removing from the selected slot
-    if (selectedSlot && selectedSlot.contains(slot)) {
-      clearSlotSelection();
-    }
-      if (!slot) return;
+  if (!slot) return;
 
-    // Find the container for this slot
-    const slotContainer = slot.closest('.slot-container');
-    if (!slotContainer) return;
+  // Find the container for this slot
+  const slotContainer = slot.closest('.slot-container');
+  if (!slotContainer) return;
 
-    // Remove existing listener if any
-    if (slotListeners.has(slot)) {
-        slot.removeEventListener('click', slotListeners.get(slot));
-        slotListeners.delete(slot);
-    }
+  // Remove existing listener if any
+  if (slotListeners.has(slot)) {
+    slot.removeEventListener('click', slotListeners.get(slot));
+    slotListeners.delete(slot);
+  }
 
-    // Reset slot content
-    slot.classList.remove('has-card');
-    
-    // IMPORTANT: Don't remove the level data when unequipping!
-    // The level is preserved by support_id in slotLevels
-    const supportId = slot.dataset.supportId;
-    
-    delete slot.dataset.cardId;
-    delete slot.dataset.supportId;
-    
-    // Reset to basic placeholder (without level badge and diamond icons)
-    slot.innerHTML = '<div class="placeholder">Empty</div>';
+  // Reset slot content
+  slot.classList.remove('has-card');
+  
+  // IMPORTANT: Remove from selected cards set
+  if (card) {
+    selectedCardIds.delete(card.char_id);
+  } else if (slot.dataset.cardId) {
+    // Fallback: remove by card ID from dataset
+    selectedCardIds.delete(Number(slot.dataset.cardId));
+  }
+  
+  // Remove card data from slot
+  const supportId = slot.dataset.supportId;
+  delete slot.dataset.cardId;
+  delete slot.dataset.supportId;
+  slot.innerHTML = '<div class="placeholder">Empty</div>';
 
-    // Reset level controls UI (but keep the data)
-    const levelInput = slotContainer.querySelector('.slot-level-input');
-    if (levelInput) {
-        levelInput.disabled = true;
-        levelInput.value = '1';
-        levelInput.min = '1';
-        levelInput.max = '50';
-    }
+  // Reset level controls UI (but keep the data)
+  const levelInput = slotContainer.querySelector('.slot-level-input');
+  if (levelInput) {
+    levelInput.disabled = true;
+    levelInput.value = '1';
+    levelInput.min = '1';
+    levelInput.max = '50';
+  }
 
-    // Remove from selected cards
-    if (card) {
-        selectedCardIds.delete(card.char_id);
-    }
+  // Clear selection if we're removing from the selected slot
+  if (selectedSlot && selectedSlot.contains(slot)) {
+    clearSlotSelection();
+  }
 
-saveSlotsToLocalStorage();
-updateSelectedSkillsList();
-updateCardDisabledStates(); // ← ADD THIS INSTEAD
-    
-    // Update effect totals after removal
-    setTimeout(updateEffectTotals, 100);
+  saveSlotsToLocalStorage();
+  updateSelectedSkillsList();
+  updateCardDisabledStates(); // This should re-enable the card in main grid
+  
+  // Update effect totals after removal
+  setTimeout(updateEffectTotals, 100);
 }
 
 /* ------------- REFRESH SLOT DISPLAY ------------- */
@@ -6673,8 +6730,15 @@ function setupSlotSelection() {
   // Add click listeners to all slot containers
   slotContainers.forEach((container, index) => {
     container.addEventListener('click', (e) => {
-      // Don't trigger if clicking on level input or card removal
-      if (e.target.closest('.slot-level-input') || e.target.closest('.slot.has-card')) {
+      // Don't trigger if clicking on:
+      // - Level input
+      // - Card removal (slot with card)
+      // - Any element inside a card
+      if (e.target.closest('.slot-level-input') || 
+          e.target.closest('.slot.has-card') ||
+          e.target.closest('.type-icon') ||
+          e.target.closest('.level-badge') ||
+          e.target.closest('.diamond-icons')) {
         return;
       }
       
@@ -6695,16 +6759,20 @@ function setupSlotSelection() {
 }
 
 function handleSlotSelection(container, index) {
-  // If clicking the same slot, deselect it
-  if (selectedSlot === container) {
+  const slot = container.querySelector('.slot');
+  const isSameSlot = selectedSlot === container;
+  
+  // If clicking the same slot that's already selected
+  if (isSameSlot) {
     clearSlotSelection();
+    console.log(`Slot ${index + 1} deselected`);
     return;
   }
   
-  // Clear previous selection
+  // Clear any existing selection
   clearSlotSelection();
   
-  // Set new selection
+  // Select the new slot
   selectedSlot = container;
   container.classList.add('selected');
   addSelectionHint(container);
@@ -6749,10 +6817,49 @@ function setupKeyboardShortcuts() {
   });
 }
 
+/* ------------- SLOT FLASH EFFECT ------------- */
+function flashSlot(slot) {
+  const container = slot.closest('.slot-container');
+  if (!container) return;
+  
+  // Add flash class
+  container.classList.add('flash-warning');
+  
+  // Remove after animation
+  setTimeout(() => {
+    container.classList.remove('flash-warning');
+  }, 1000);
+}
+
 // Call this if you ever need to force a sync
 // forceSyncAllCardLevels();
 
 // Call this in console if you need to debug: debugSlotStatus()
+
+/* ------------- DEBUG DUPLICATE CARDS ------------- */
+function debugDuplicateCards() {
+  console.log('=== DUPLICATE CARD DEBUG ===');
+  console.log('selectedCardIds:', Array.from(selectedCardIds));
+  
+  slots.forEach((slot, index) => {
+    console.log(`Slot ${index}:`, {
+      cardId: slot.dataset.cardId,
+      supportId: slot.dataset.supportId,
+      hasCard: slot.classList.contains('has-card')
+    });
+  });
+  
+  // Check for actual duplicates
+  const cardIdsInSlots = slots
+    .map(slot => slot.dataset.cardId)
+    .filter(id => id)
+    .map(Number);
+  
+  const uniqueIds = new Set(cardIdsInSlots);
+  if (cardIdsInSlots.length !== uniqueIds.size) {
+    console.error('DUPLICATE CARDS FOUND IN SLOTS!');
+  }
+}
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
