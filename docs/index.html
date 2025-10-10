@@ -3319,6 +3319,10 @@ function setupHideUncoloredCheckbox() {
   });
 }
 
+
+// Update the card display to show unique effects
+/* ------------- UPDATE createCardElement FUNCTION ------------- */
+// In createCardElement function, replace the nameHtml generation:
 let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
 
 // Show different data based on current sort selection
@@ -4905,154 +4909,6 @@ function updateSlotLevel(slotContainer, card, level) {
     setTimeout(updateEffectTotals, 50);
     
     return validatedLevel;
-}
-
-// Update the card display to show unique effects
-/* ------------- UPDATE createCardElement FUNCTION ------------- */
-function createCardElement(card){
-  const el = document.createElement('div');
-  el.className = 'card';
-  el.dataset.id = card.char_id;
-  el.dataset.supportId = card.support_id;
-  el.dataset.name = card.char_name;
-
-  const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
-  const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
-
-  // Use English skills for Global region, Japanese skills for Japan region
-  // Fall back to Japanese skills if English skills are empty
-  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
-
-  let skillsHTML = '';
-  
-  // FIX: Handle hint_skills with safe string conversion
-  if(card.hint_skills && card.hint_skills.length) {
-    const hintSkillsHTML = card.hint_skills.map(s => {
-      const skillText = String(s || '');
-      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-    }).join('');
-    skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
-  }
-
-  // FIX: Handle event skills with safe string conversion
-  if(eventSkillsToUse && eventSkillsToUse.length) {
-    const eventSkillsHTML = eventSkillsToUse.map(s => {
-      const skillText = String(s || '');
-      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-    }).join('');
-    skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
-  }
-  
-  // ADD UNIQUE EFFECTS DISPLAY
-  if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
-    const uniqueEffectsHTML = card.unique.effects.map(effect => {
-      const effectName = EFFECT_TYPES[effect.type];
-      if (effectName) {
-        const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
-        return `<div class="skill" style="background: #fff0f0; border-left: 3px solid #ff4444;">
-          <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+)
-        </div>`;
-      }
-      return '';
-    }).filter(html => html !== '').join('');
-    
-    if (uniqueEffectsHTML) {
-      skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
-    }
-  }
-  
-  // ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS
-  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
-  
-  // Show different data based on current sort selection
-  const sortByValue = document.getElementById('sortBy').value;
-  
-  // Define which sort options should NOT show the extra data box
-  const hideDataOptions = ['rarity', 'name', 'type'];
-  
-  if (!hideDataOptions.includes(sortByValue)) {
-    if (sortByValue === 'support_id') {
-      nameHtml += `<div class="effect-text">ID: ${card.support_id}</div>`;
-    } else if (sortByValue === 'release') {
-      const releaseDate = region === 'global' ? card.release_en : card.release;
-      if (releaseDate && releaseDate !== '') {
-        const formattedDate = formatDateForDisplay(releaseDate);
-        nameHtml += `<div class="effect-text">${formattedDate}</div>`;
-      }
-    } else if (!isNaN(parseInt(sortByValue))) {
-      // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
-      const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
-      if (effectValue !== null) {
-        const effectName = EFFECT_TYPES[parseInt(sortByValue)];
-        const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
-        const formattedValue = Number.isInteger(effectValue) ? 
-          effectValue.toString() : effectValue.toFixed(1);
-        
-        // Format with appropriate unit
-        let displayValue;
-        if (unit === "Lv ") {
-          displayValue = unit + formattedValue;
-        } else {
-          displayValue = formattedValue + unit;
-        }
-        
-        nameHtml += `<div class="effect-text">${effectName}: ${displayValue}</div>`;
-      }
-    } else {
-      // Default: show character ID (only if not hidden)
-      if(!HIDE.char_id) nameHtml += `<div class="effect-text">ID: ${card.char_id}</div>`;
-    }
-    
-    if(!HIDE.url_name && card.url_name) nameHtml += `<div class="effect-text">${escapeHtml(card.url_name)}</div>`;
-  }
-
-  el.innerHTML = `
-    <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
-    <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
-    ${nameHtml}
-    <div class="skills">${skillsHTML}</div>
-  `;
-
-  // Replace your current card click handler in createCardElement():
-  el.addEventListener('click', ()=> {
-    const slot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
-    if(slot) {
-        removeFromSlot(slot, card);
-    } else {
-        addToSlot(card);
-    }
-    
-    // INSTEAD of calling renderSections(), just update the disabled states
-    updateCardDisabledStates();
-  });
-
-  // Ensure initial disabled state is set when card is created
-  if(selectedCardIds.has(card.char_id)) {
-    el.classList.add('disabled');
-    // Add duplicate label if needed
-    if (!el.querySelector('[data-dup-label]')) {
-      const dupLabel = document.createElement('div');
-      dupLabel.textContent = 'Duplicate Support';
-      dupLabel.setAttribute('data-dup-label', 'true');
-      dupLabel.style.position = 'absolute';
-      dupLabel.style.top = '0';
-      dupLabel.style.left = '0';
-      dupLabel.style.width = '100%';
-      dupLabel.style.background = 'red';
-      dupLabel.style.color = 'white';
-      dupLabel.style.fontSize = '9px';
-      dupLabel.style.fontWeight = 'bold';
-      dupLabel.style.textAlign = 'center';
-      dupLabel.style.padding = '2px 0';
-      dupLabel.style.borderTopLeftRadius = '4px';
-      dupLabel.style.borderTopRightRadius = '4px';
-      dupLabel.style.zIndex = '10';
-      el.appendChild(dupLabel);
-    }
-  }
-
-  return el;
 }
 
 function createLevelControls(slot, card) {
