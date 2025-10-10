@@ -1642,18 +1642,6 @@ body.dark-mode .collapse-toggle {
 body.dark-mode .collapse-toggle:hover {
   background: #666;
 }
-
-.effect-text {
-  font-size: 8px;
-  opacity: 0.6;
-  margin-bottom: 0px;
-  width: fit-content;
-  max-width: 100%;
-  text-align: center;
-  margin-left: auto;
-  margin-right: auto;
-  white-space: nowrap;
-}
 </style>
 </head>
 
@@ -3368,12 +3356,12 @@ function createCardElement(card){
   
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
-      nameHtml += `<div class="effect-text">ID: ${card.support_id}</div>`;
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
     } else if (sortByValue === 'release') {
       const releaseDate = region === 'global' ? card.release_en : card.release;
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
-        nameHtml += `<div class="effect-text">${formattedDate}</div>`;
+        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
       }
 } else if (!isNaN(parseInt(sortByValue))) {
   // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
@@ -3392,11 +3380,11 @@ function createCardElement(card){
       displayValue = formattedValue + unit;
     }
     
-    nameHtml += `<div class="effect-text">${effectName}: ${displayValue}</div>`;
+    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
   }
     } else {
       // Default: show character ID (only if not hidden)
-      if(!HIDE.char_id) nameHtml += `<div class="effect-text">ID: ${card.char_id}</div>`;
+      if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
     }
   }
   
@@ -3698,12 +3686,12 @@ const hideDataOptions = ['rarity', 'name', 'type'];
 
 if (!hideDataOptions.includes(sortByValue)) {
   if (sortByValue === 'support_id') {
-    nameHtml += `<div class="effect-text">ID: ${card.support_id}</div>`;
+    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
   } else if (sortByValue === 'release') {
     const releaseDate = region === 'global' ? card.release_en : card.release;
     if (releaseDate && releaseDate !== '') {
       const formattedDate = formatDateForDisplay(releaseDate);
-      nameHtml += `<div class="effect-text">${formattedDate}</div>`;
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
     }
   } else if (!isNaN(parseInt(sortByValue))) {
     // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
@@ -3727,11 +3715,11 @@ if (!hideDataOptions.includes(sortByValue)) {
         displayValue = formattedValue + unit;
       }
       
-      nameHtml += `<div class="effect-text">${effectName}: ${displayValue}</div>`;
+      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
     }
   } else {
     // Default: show character ID (only if not hidden)
-    if(!HIDE.char_id) nameHtml += `<div class="effect-text">ID: ${card.char_id}</div>`;
+    if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
   }
   
   if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
