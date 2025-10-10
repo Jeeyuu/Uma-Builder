@@ -5943,8 +5943,13 @@ function pasteDeckFromClipboard() {
         return;
       }
       
-      // Clear current deck first
-      clearAllBtn.click(); // Use the existing clear function
+// Instead of: clearAllBtn.click();
+// Use:
+if (window.programmaticClearDeck) {
+  window.programmaticClearDeck();
+} else {
+  clearAllBtn.click();
+}
       
       // Add a small delay to ensure clear completes
       setTimeout(() => {
@@ -7247,34 +7252,36 @@ function pasteAllFromClipboard() {
         throw new Error('Unsupported format version');
       }
       
-      // CRITICAL FIX: Set deck name PROPERLY
-      const deckNameInput = document.getElementById('deckNameInput');
-      const deckNameDisplay = document.getElementById('deckNameDisplay');
+      console.log('Pasting data with deck name:', allData.deckName);
       
-      if (deckNameInput && deckNameDisplay) {
-        if (allData.deckName && allData.deckName.trim() !== '') {
-          // Set the deck name
-          deckNameInput.value = allData.deckName;
-          deckNameDisplay.textContent = allData.deckName;
-          localStorage.setItem('deckName', allData.deckName);
-          console.log('Deck name successfully set to:', allData.deckName);
-        } else {
-          // Reset to default if no deck name
-          deckNameInput.value = '';
-          deckNameDisplay.textContent = 'unnamed deck';
-          localStorage.removeItem('deckName');
-          console.log('No deck name in data, reset to default');
-        }
-      } else {
-        console.error('Deck name elements not found!');
-      }
-      
-      // Clear current deck first
+      // Clear current deck first (but DON'T clear the deck name yet)
       clearAllBtn.click();
       
-      // Add a small delay to ensure clear completes
+      // Add a small delay to ensure clear completes, THEN set deck name
       setTimeout(() => {
-        // Populate deck
+        // CRITICAL FIX: Set deck name AFTER clear deck operation
+        const deckNameInput = document.getElementById('deckNameInput');
+        const deckNameDisplay = document.getElementById('deckNameDisplay');
+        
+        if (deckNameInput && deckNameDisplay) {
+          if (allData.deckName && allData.deckName.trim() !== '') {
+            // Set the deck name
+            deckNameInput.value = allData.deckName;
+            deckNameDisplay.textContent = allData.deckName;
+            localStorage.setItem('deckName', allData.deckName);
+            console.log('Deck name successfully set to:', allData.deckName);
+          } else {
+            // Reset to default if no deck name
+            deckNameInput.value = '';
+            deckNameDisplay.textContent = 'unnamed deck';
+            localStorage.removeItem('deckName');
+            console.log('No deck name in data, reset to default');
+          }
+        } else {
+          console.error('Deck name elements not found!');
+        }
+        
+        // Now populate the deck
         allData.deck.forEach((slotData, index) => {
           if (slotData.supportId !== 'empty') {
             const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
@@ -7373,7 +7380,7 @@ function pasteAllFromClipboard() {
         setTimeout(() => {
           const finalDeckNameInput = document.getElementById('deckNameInput');
           const finalDeckNameDisplay = document.getElementById('deckNameDisplay');
-          console.log('Final deck name check - Input:', finalDeckNameInput.value, 'Display:', finalDeckNameDisplay.textContent);
+          console.log('Final deck name check - Input:', finalDeckNameInput.value, 'Display:', finalDeckNameDisplay.textContent, 'LocalStorage:', localStorage.getItem('deckName'));
         }, 200);
         
       }, 100);
@@ -7455,26 +7462,69 @@ function resetAllLevels() {
 }
 
 /* ------------- CLEAR DECK WITH NAME RESET ------------- */
+/* ------------- CLEAR DECK WITH SELECTIVE NAME RESET ------------- */
 function setupClearDeckWithNameReset() {
-  const originalClearAll = clearAllBtn.onclick;
+  let isProgrammaticClear = false;
   
   clearAllBtn.addEventListener('click', () => {
-    // Reset deck name to empty/unnamed
-    const deckNameInput = document.getElementById('deckNameInput');
-    const deckNameDisplay = document.getElementById('deckNameDisplay');
-    
-    if (deckNameInput && deckNameDisplay) {
-      deckNameInput.value = '';
-      deckNameDisplay.textContent = 'unnamed deck';
-      localStorage.removeItem('deckName');
-      console.log('Deck name reset to default');
+    // Only reset deck name if this is a MANUAL clear (not programmatic)
+    if (!isProgrammaticClear) {
+      const deckNameInput = document.getElementById('deckNameInput');
+      const deckNameDisplay = document.getElementById('deckNameDisplay');
+      
+      if (deckNameInput && deckNameDisplay) {
+        deckNameInput.value = '';
+        deckNameDisplay.textContent = 'unnamed deck';
+        localStorage.removeItem('deckName');
+        console.log('Manual clear: Deck name reset to default');
+      }
     }
     
-    // Call the original clear function
-    if (originalClearAll) {
-      originalClearAll();
-    }
+    // Reset all slots (original clear functionality)
+    selectedCardIds.clear();
+
+    // IMPORTANT: Don't clear level data when clearing deck!
+    // The levels are preserved by support_id for future use
+
+    // Reset all level controls and slots
+    slotContainers.forEach(container => {
+      const levelInput = container.querySelector('.slot-level-input');
+      levelInput.disabled = true;
+      levelInput.value = '1';
+      levelInput.min = '1';
+      levelInput.max = '50';
+
+      const slot = container.querySelector('.slot');
+      if (slotListeners.has(slot)) {
+        slot.removeEventListener('click', slotListeners.get(slot));
+        slotListeners.delete(slot);
+      }
+      slot.classList.remove('has-card');
+      delete slot.dataset.cardId;
+      delete slot.dataset.supportId;
+      slot.innerHTML = '<div class="placeholder">Empty</div>';
+    });
+
+    localStorage.removeItem(SLOT_KEY);
+    updateSelectedSkillsList();
+    highlightSkills();
+    highlightSelectedSkills();
+    renderSections();
+
+    // Update effect totals after clearing
+    setTimeout(() => {
+      updateEffectTotals();
+    }, 100);
+    
+    // Reset the flag
+    isProgrammaticClear = false;
   });
+  
+  // Expose a method for programmatic clearing (without resetting deck name)
+  window.programmaticClearDeck = function() {
+    isProgrammaticClear = true;
+    clearAllBtn.click();
+  };
 }
 
 /* ------------- DEBUG DECK NAME FUNCTION ------------- */
