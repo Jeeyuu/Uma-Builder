@@ -1800,6 +1800,44 @@ body.dark-mode .collapse-toggle:hover {
   cursor: default;
 }
 
+/* ---------- EFFECTS HEADER ---------- */
+.effects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 0 4px;
+  font-weight: bold;
+  font-size: 12px;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 4px;
+}
+
+.effects-header .effect-label {
+  flex: 1;
+  text-align: left;
+  min-width: 150px;
+}
+
+.effects-header .total-label {
+  min-width: 50px;
+  text-align: center;
+}
+
+.effects-header .cards-label {
+  min-width: 120px;
+  text-align: right;
+  padding-right: 8px;
+}
+
+/* Dark mode support */
+body.dark-mode .effects-header {
+  color: #e0e0e0;
+  border-bottom-color: #555;
+}
+
 </style>
 </head>
 
@@ -2103,6 +2141,14 @@ body.dark-mode .collapse-toggle:hover {
   
   <div class="right-sidebar-content">
     <div class="skill-search-divider"></div>
+    
+    <!-- Add this effects header -->
+    <div class="effects-header">
+      <span class="effect-label">Effect</span>
+      <span class="total-label">Total</span>
+      <span class="cards-label">Cards</span>
+    </div>
+
     <div class="slots-header">
       <div class="deck-buttons">
         <button id="copyDeckBtn" class="deck-btn">Copy Deck</button>
@@ -3169,38 +3215,42 @@ fetch(JSON_FILE)
     }));
 
     // Initialize all components with error handling
-    try {
-      setupFilterPersistence();
-      setupToggleButtons();
-      setupSortingControls();
-      setupDynamicSkillSearch();
-      setupPresets();
-      setupPresetReset();
-      setupTogglePresetCards();
-      setupCardSearch();
-      setupCopyPasteButtons();
-      loadSlotsFromLocalStorage(); // This now has proper waiting logic
-      setupClearAllSearches();
-      updateSelectedSkillsList();
-      setupDeckCopyPaste();
-      setupSlotSelection();
-setupKeyboardShortcuts();
+    // Initialize all components with error handling
+      try {
+        setupFilterPersistence();
+        setupToggleButtons();
+        setupSortingControls();
+        setupDynamicSkillSearch();
+        setupPresets();
+        setupPresetReset();
+        setupTogglePresetCards();
+        setupCardSearch();
+        setupCopyPasteButtons();
+        loadSlotsFromLocalStorage(); // This now has proper waiting logic
+        setupClearAllSearches();
+        updateSelectedSkillsList();
+        setupDeckCopyPaste();
+        setupSlotSelection();
+        setupKeyboardShortcuts();
 
-      // Final refresh to ensure everything is synced - ADD THESE LINES:
-      setTimeout(() => {
-        sectionPages.clear();
-        renderSections();
-        updateAllSlotDisplays();
-        
-        // Double check after everything settles
+        // Final refresh to ensure everything is synced
         setTimeout(() => {
-          ensureSlotsLoaded();
+          sectionPages.clear();
+          renderSections();
           updateAllSlotDisplays();
+          
+          // Double check after everything settles
+          setTimeout(() => {
+            ensureSlotsLoaded();
+            updateAllSlotDisplays();
+            
+            // INITIALIZE EFFECTS ON PAGE LOAD - ADD THIS LINE
+            updateEffectTotals();
+          }, 500);
         }, 500);
-      }, 500);
-    } catch (error) {
-      console.error('Error during setup:', error);
-    }
+      } catch (error) {
+        console.error('Error during setup:', error);
+      }
   })
   .catch(err => {
     console.error('Could not load JSON:', err);
@@ -6103,14 +6153,34 @@ function updateEffectTotals() {
     // Check if any slots have cards
     const hasCards = document.querySelectorAll('.slot.has-card').length > 0;
     
-    // Update each effect display
+    // Get all effect rows and the effects header
+    const effectRows = document.querySelectorAll('.effect-row');
+    const effectsHeader = document.querySelector('.effects-header');
+    
+    // Show/hide entire effects section based on whether cards are equipped
+    if (hasCards) {
+      if (effectsHeader) effectsHeader.style.display = 'flex';
+    } else {
+      if (effectsHeader) effectsHeader.style.display = 'none';
+      // Also hide all effect rows when no cards
+      effectRows.forEach(row => {
+        row.style.display = 'none';
+        const valueSpan = row.querySelector('.effect-value');
+        if (valueSpan) valueSpan.textContent = '0';
+        const cardsContainer = row.querySelector('.effect-cards');
+        if (cardsContainer) cardsContainer.innerHTML = '';
+      });
+      return; // Exit early if no cards
+    }
+    
+    // Update each effect display (existing code)
     Object.entries(contributions).forEach(([effectName, data]) => {
       // Find all elements for this effect
       const effectElements = document.querySelectorAll(`[data-effect="${effectName}"]`);
       
       effectElements.forEach(element => {
-        // Hide entire row if total is 0 and no cards contribute, OR if deck is empty
-        if ((data.total === 0 && data.cards.length === 0) || !hasCards) {
+        // Hide entire row if total is 0 and no cards contribute
+        if (data.total === 0 && data.cards.length === 0) {
           element.style.display = 'none';
           
           // Also reset the values to 0 when hiding
@@ -6219,16 +6289,6 @@ function updateEffectTotals() {
       });
     });
     
-    // If no cards at all, ensure all effects are hidden and reset
-    if (!hasCards) {
-      document.querySelectorAll('.effect-row').forEach(row => {
-        row.style.display = 'none';
-        const valueSpan = row.querySelector('.effect-value');
-        if (valueSpan) valueSpan.textContent = '0';
-        const cardsContainer = row.querySelector('.effect-cards');
-        if (cardsContainer) cardsContainer.innerHTML = '';
-      });
-    }
   } catch (error) {
     console.error('Error updating effect totals:', error);
   }
