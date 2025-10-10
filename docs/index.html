@@ -1664,32 +1664,24 @@ body.dark-mode .collapse-toggle:hover {
   z-index: 5;
 }
 
-/* One property to rule them all */
-.diamond-scale {
-  transform: scale(0.85);
-  transform-origin: bottom right;
-}
-
-.level-scale {
-  transform: scale(0.85);
-  transform-origin: bottom left;
-}
-
+/* Diamond icons container */
 .diamond-icons {
   position: absolute;
-  bottom: 5px;
+  top: 70px;
   right: 5px;
   display: flex;
-  gap: 2px;
   z-index: 5;
+  transform: scale(1); /* ← ADD THIS LINE - change this value */
+  transform-origin: bottom right; /* ← ADD THIS LINE */
 }
 
 .diamond-icon {
-  width: 28px;
-  height: 36px;
+  width: 14px;
+  height: 18px;
   object-fit: contain;
 }
 
+/* Level badge with scaling */
 .level-badge {
   position: absolute;
   bottom: 5px;
@@ -1701,6 +1693,8 @@ body.dark-mode .collapse-toggle:hover {
   font-size: 10px;
   font-weight: bold;
   z-index: 5;
+  transform: scale(1); /* ← ADD THIS LINE - change this value */
+  transform-origin: bottom left; /* ← ADD THIS LINE */
 }
 
 </style>
