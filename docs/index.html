@@ -2240,12 +2240,6 @@ let sortBy = 'rarity';
 let sortOrder = 'descending'; // CHANGED TO DESCENDING
 let region = 'global';
 
-/* ------------- COLOR PICKER FUNCTIONALITY ------------- */
-const colorSequence = [
-  'green', 'blue', 'orange', 'red',
-  'green-border', 'blue-border', 'orange-border', 'red-border'
-];
-
 /* ------------- ENHANCED LEVEL PERSISTENCE ------------- */
 // This replaces the existing slotLevels initialization
 const slotLevels = JSON.parse(localStorage.getItem('slotLevels')) || {};
@@ -2696,6 +2690,11 @@ function fixColorPickerData() {
 // Add this line in your fetch().then() block after skillSearches is set up:
 fixColorPickerData();
 
+/* ------------- COLOR PICKER FUNCTIONALITY ------------- */
+const colorSequence = [
+  'green', 'blue', 'orange', 'red',
+  'green-border', 'blue-border', 'orange-border', 'red-border'
+];
 
 function setupColorPicker(searchId) {
   const colorPicker = document.querySelector(`.color-picker[data-search-id="${searchId}"]`);
