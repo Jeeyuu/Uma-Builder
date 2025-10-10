@@ -7244,11 +7244,15 @@ function pasteAllFromClipboard() {
         throw new Error('Unsupported format version');
       }
       
-      // Set deck name
+      // Set deck name FIRST - this was missing the localStorage update
       if (allData.deckName) {
-        document.getElementById('deckNameInput').value = allData.deckName;
-        document.getElementById('deckNameDisplay').textContent = allData.deckName;
+        const deckNameInput = document.getElementById('deckNameInput');
+        const deckNameDisplay = document.getElementById('deckNameDisplay');
+        
+        deckNameInput.value = allData.deckName;
+        deckNameDisplay.textContent = allData.deckName;
         localStorage.setItem('deckName', allData.deckName);
+        console.log('Deck name set to:', allData.deckName); // Debug log
       }
       
       // Clear current deck first
@@ -7446,6 +7450,24 @@ function setupClearDeckWithNameReset() {
     }
   });
 }
+
+/* ------------- DEBUG DECK NAME FUNCTION ------------- */
+function debugDeckName() {
+  const deckNameInput = document.getElementById('deckNameInput');
+  const deckNameDisplay = document.getElementById('deckNameDisplay');
+  const savedDeckName = localStorage.getItem('deckName');
+  
+  console.log('=== DECK NAME DEBUG ===');
+  console.log('Input value:', deckNameInput.value);
+  console.log('Display text:', deckNameDisplay.textContent);
+  console.log('LocalStorage:', savedDeckName);
+  console.log('Elements found:', {
+    input: !!deckNameInput,
+    display: !!deckNameDisplay
+  });
+}
+
+// Call this in console if you need to debug: debugDeckName()
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
