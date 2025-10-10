@@ -3684,16 +3684,16 @@ function generateDiamondIcons(card, currentLevel) {
   let thresholds;
   switch(card.rarity) {
     case 1: // R rarity
-      thresholds = [25, 30, 35, 40];
+      thresholds = [21, 26, 31, 36];
       break;
     case 2: // SR rarity  
-      thresholds = [30, 35, 40, 45];
+      thresholds = [26, 31, 36, 41];
       break;
     case 3: // SSR rarity
-      thresholds = [35, 40, 45, 50];
+      thresholds = [31, 36, 41, 46];
       break;
     default:
-      thresholds = [25, 30, 35, 40]; // fallback
+      thresholds = [21, 26, 31, 36];
   }
   
   let diamondIconsHTML = '';
