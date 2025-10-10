@@ -4193,7 +4193,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
   // Remove any existing effect text (elements after the name)
   let nextElement = nameContainer.nextElementSibling;
   while (nextElement) {
-    if (nextElement.style && nextElement.style.fontSize === '8px') {
+    if (nextElement.classList && nextElement.classList.contains('small-info-text')) {
       nextElement.remove();
     }
     nextElement = nextElement.nextElementSibling;
@@ -4203,9 +4203,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
       const effectDiv = document.createElement('div');
-      effectDiv.style.fontSize = '8px';
-      effectDiv.style.opacity = '0.6';
-      effectDiv.style.marginBottom = '0px';
+      effectDiv.className = 'small-info-text';
       effectDiv.textContent = `ID: ${card.support_id}`;
       nameContainer.after(effectDiv);
     } else if (sortByValue === 'release') {
@@ -4213,7 +4211,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
         const effectDiv = document.createElement('div');
-effectDiv.className = 'small-info-text';
+        effectDiv.className = 'small-info-text';
         effectDiv.textContent = formattedDate;
         nameContainer.after(effectDiv);
       }
@@ -4237,7 +4235,7 @@ effectDiv.className = 'small-info-text';
         }
         
         const effectDiv = document.createElement('div');
-effectDiv.className = 'small-info-text';
+        effectDiv.className = 'small-info-text';
         effectDiv.textContent = `${effectName}: ${displayValue}`;
         nameContainer.after(effectDiv);
       }
@@ -4245,7 +4243,7 @@ effectDiv.className = 'small-info-text';
       // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) {
         const effectDiv = document.createElement('div');
-effectDiv.className = 'small-info-text';
+        effectDiv.className = 'small-info-text';
         effectDiv.textContent = `ID: ${card.char_id}`;
         nameContainer.after(effectDiv);
       }
@@ -4253,8 +4251,7 @@ effectDiv.className = 'small-info-text';
     
     if(!HIDE.url_name && card.url_name) {
       const urlDiv = document.createElement('div');
-      urlDiv.style.fontSize = '8px';
-      urlDiv.style.opacity = '0.6';
+      urlDiv.className = 'small-info-text';
       urlDiv.textContent = card.url_name;
       nameContainer.after(urlDiv);
     }
@@ -4276,7 +4273,7 @@ function updateSlotNameWithEffectData(slot, card, level) {
   // Remove any existing effect text (elements after the name)
   let nextElement = nameContainer.nextElementSibling;
   while (nextElement) {
-    if (nextElement.style && nextElement.style.fontSize === '8px') {
+    if (nextElement.classList && nextElement.classList.contains('small-info-text')) {
       nextElement.remove();
     }
     nextElement = nextElement.nextElementSibling;
@@ -4286,9 +4283,7 @@ function updateSlotNameWithEffectData(slot, card, level) {
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
       const effectDiv = document.createElement('div');
-      effectDiv.style.fontSize = '8px';
-      effectDiv.style.opacity = '0.6';
-      effectDiv.style.marginBottom = '0px';
+      effectDiv.className = 'small-info-text';
       effectDiv.textContent = `ID: ${card.support_id}`;
       nameContainer.after(effectDiv);
     } else if (sortByValue === 'release') {
@@ -4296,7 +4291,7 @@ function updateSlotNameWithEffectData(slot, card, level) {
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
         const effectDiv = document.createElement('div');
-effectDiv.className = 'small-info-text';
+        effectDiv.className = 'small-info-text';
         effectDiv.textContent = formattedDate;
         nameContainer.after(effectDiv);
       }
@@ -4320,7 +4315,7 @@ effectDiv.className = 'small-info-text';
         }
         
         const effectDiv = document.createElement('div');
-effectDiv.className = 'small-info-text';
+        effectDiv.className = 'small-info-text';
         effectDiv.textContent = `${effectName}: ${displayValue}`;
         nameContainer.after(effectDiv);
       }
@@ -4328,7 +4323,7 @@ effectDiv.className = 'small-info-text';
       // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) {
         const effectDiv = document.createElement('div');
-effectDiv.className = 'small-info-text';
+        effectDiv.className = 'small-info-text';
         effectDiv.textContent = `ID: ${card.char_id}`;
         nameContainer.after(effectDiv);
       }
