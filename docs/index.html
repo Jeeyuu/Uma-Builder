@@ -3779,29 +3779,36 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  // Replace your card click handler in createCardElement():
+  // === MERGED CLICK HANDLER - BEST OF BOTH VERSIONS ===
   el.addEventListener('click', ()=> {
-    // CRITICAL: Check if card is already in a slot - if so, REMOVE it
+    // CRITICAL: Check if card is already in a slot
     if (selectedCardIds.has(card.char_id)) {
-      console.log(`Removing ${card.char_name} from slot`);
+      console.log(`Card ${card.char_name} is already equipped!`);
       
-      // Find the slot containing this card and remove it
+      // Find and flash the slot containing this card
       const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
       if (existingSlot) {
-        removeFromSlot(existingSlot, card);
+        flashSlot(existingSlot);
       }
       return;
     }
     
-    // If a slot is selected, add card to that specific slot
+    // If a slot is selected AND it's empty, add card to that specific slot
     if (selectedSlot) {
       const slot = selectedSlot.querySelector('.slot');
-      if (slot && !slot.dataset.cardId) { // Only if slot is empty
+      if (slot && !slot.dataset.cardId) {
         addToSlot(card, slot);
-        clearSlotSelection(); // Clear selection after adding card
+        // DON'T clear selection here - let user decide
       } else {
-        // Selected slot already has a card, show message
-        console.log('Selected slot already has a card');
+        // Selected slot has a card - clear selection and use normal behavior
+        console.log('Selected slot has card, using normal placement');
+        clearSlotSelection();
+        
+        // Fall back to normal behavior
+        const availableSlot = slots.find(s => !s.dataset.cardId);
+        if (availableSlot) {
+          addToSlot(card, availableSlot);
+        }
       }
     } else {
       // Original behavior - find first available slot
@@ -3809,7 +3816,6 @@ function createCardElement(card){
       if (slot) {
         addToSlot(card, slot);
       } else {
-        // No empty slots available
         console.log('No empty slots available');
       }
     }
@@ -7016,50 +7022,6 @@ function handleSlotSelection(container, index) {
   
   console.log(`Slot ${index + 1} selected - next card clicked will go here`);
 }
-
-// Update the card click handler to be more explicit
-// In your createCardElement function, update the click handler:
-el.addEventListener('click', ()=> {
-  // CRITICAL: Check if card is already in a slot
-  if (selectedCardIds.has(card.char_id)) {
-    console.log(`Card ${card.char_name} is already equipped!`);
-    
-    // Find and flash the slot containing this card
-    const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
-    if (existingSlot) {
-      flashSlot(existingSlot);
-    }
-    return;
-  }
-  
-  // If a slot is selected AND it's empty, add card to that specific slot
-  if (selectedSlot) {
-    const slot = selectedSlot.querySelector('.slot');
-    if (slot && !slot.dataset.cardId) {
-      addToSlot(card, slot);
-      // DON'T clear selection here - let user decide
-    } else {
-      // Selected slot has a card - clear selection and use normal behavior
-      console.log('Selected slot has card, using normal placement');
-      clearSlotSelection();
-      
-      // Fall back to normal behavior
-      const availableSlot = slots.find(s => !s.dataset.cardId);
-      if (availableSlot) {
-        addToSlot(card, availableSlot);
-      }
-    }
-  } else {
-    // Original behavior - find first available slot
-    const slot = slots.find(s => !s.dataset.cardId);
-    if (slot) {
-      addToSlot(card, slot);
-    } else {
-      console.log('No empty slots available');
-    }
-  }
-});
-
 
 function clearSlotSelection() {
   if (selectedSlot) {
