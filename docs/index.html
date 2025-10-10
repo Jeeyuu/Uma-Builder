@@ -3588,37 +3588,6 @@ function updateCardDisabledStates() {
   highlightSelectedSkills();
 }
 
-/* ------------- DIAMOND ICONS GENERATION ------------- */
-function generateDiamondIcons(card, currentLevel) {
-  // Define thresholds based on rarity
-  let thresholds;
-  switch(card.rarity) {
-    case 1: // R rarity
-      thresholds = [25, 30, 35, 40];
-      break;
-    case 2: // SR rarity  
-      thresholds = [30, 35, 40, 45];
-      break;
-    case 3: // SSR rarity
-      thresholds = [35, 40, 45, 50];
-      break;
-    default:
-      thresholds = [25, 30, 35, 40]; // fallback
-  }
-  
-  let diamondIconsHTML = '';
-  
-  // Create 4 diamond icons
-  for (let i = 0; i < 4; i++) {
-    const isFilled = currentLevel >= thresholds[i];
-    const iconSrc = isFilled ? 'diamond_filled.png' : 'diamond_empty.png';
-    
-    diamondIconsHTML += `<img src="${iconSrc}" alt="Diamond ${i+1}" class="diamond-icon" data-threshold="${thresholds[i]}">`;
-  }
-  
-  return diamondIconsHTML;
-}
-
 /* ------------- Slot handling & persistence ------------- */
 function saveSlotsToLocalStorage() {
   const slotData = slots.map(s => s.dataset.supportId || null);
@@ -6503,7 +6472,36 @@ function ensureSlotsLoaded() {
   }
 }
 
-// Call this in console if you need to debug: debugSlotStatus()
+/* ------------- DIAMOND ICONS GENERATION ------------- */
+function generateDiamondIcons(card, currentLevel) {
+  // Define thresholds based on rarity
+  let thresholds;
+  switch(card.rarity) {
+    case 1: // R rarity
+      thresholds = [25, 30, 35, 40];
+      break;
+    case 2: // SR rarity  
+      thresholds = [30, 35, 40, 45];
+      break;
+    case 3: // SSR rarity
+      thresholds = [35, 40, 45, 50];
+      break;
+    default:
+      thresholds = [25, 30, 35, 40]; // fallback
+  }
+  
+  let diamondIconsHTML = '';
+  
+  // Create 4 diamond icons
+  for (let i = 0; i < 4; i++) {
+    const isFilled = currentLevel >= thresholds[i];
+    const iconSrc = isFilled ? 'diamond_filled.png' : 'diamond_empty.png';
+    
+    diamondIconsHTML += `<img src="${iconSrc}" alt="Diamond ${i+1}" class="diamond-icon" data-threshold="${thresholds[i]}">`;
+  }
+  
+  return diamondIconsHTML;
+}
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
