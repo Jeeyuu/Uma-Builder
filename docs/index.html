@@ -2660,8 +2660,28 @@ function createSearchBox(searchId, value = '') {
 
   setupSearchInput(searchId);
   setupRemoveButton(searchId);
-  setupColorPicker(searchId);
+  setupColorPicker(searchId); // This will now properly set up the color picker
 }
+
+/* ------------- DEBUG COLOR PICKERS ------------- */
+function debugColorPickers() {
+  console.log('=== COLOR PICKER DEBUG ===');
+  const colorPickers = document.querySelectorAll('.color-picker');
+  colorPickers.forEach((picker, index) => {
+    const searchId = picker.dataset.searchId;
+    const savedColor = localStorage.getItem(`color_${searchId}`);
+    console.log(`Picker ${index}:`, {
+      searchId: searchId,
+      currentColor: picker.dataset.color,
+      savedColor: savedColor,
+      className: picker.className,
+      eventListeners: picker._clickHandler ? 'Has handler' : 'No handler'
+    });
+  });
+}
+
+// Call this after page load to check the state
+setTimeout(debugColorPickers, 1000);
 
 /* ------------- COLOR PICKER FUNCTIONALITY ------------- */
 const colorSequence = [
@@ -2673,25 +2693,36 @@ function setupColorPicker(searchId) {
   const colorPicker = document.querySelector(`.color-picker[data-search-id="${searchId}"]`);
   if (!colorPicker) return;
 
+  // Remove any existing event listeners to prevent duplicates
+  const newColorPicker = colorPicker.cloneNode(true);
+  colorPicker.parentNode.replaceChild(newColorPicker, colorPicker);
+
   // Load saved color - default to green instead of red
   const savedColor = localStorage.getItem(`color_${searchId}`) || 'green';
-  colorPicker.className = `color-picker ${savedColor}`;
-  colorPicker.dataset.color = savedColor;
+  newColorPicker.className = `color-picker ${savedColor}`;
+  newColorPicker.dataset.color = savedColor;
 
-  colorPicker.addEventListener('click', () => {
-    const currentColor = colorPicker.dataset.color;
+  // Add click event listener with proper cleanup
+  let clickHandler;
+  newColorPicker.addEventListener('click', clickHandler = () => {
+    const currentColor = newColorPicker.dataset.color;
     const currentIndex = colorSequence.indexOf(currentColor);
     const nextIndex = (currentIndex + 1) % colorSequence.length;
     const nextColor = colorSequence[nextIndex];
     
-    colorPicker.className = `color-picker ${nextColor}`;
-    colorPicker.dataset.color = nextColor;
+    console.log(`Color picker ${searchId}: ${currentColor} -> ${nextColor}`); // Debug log
+    
+    newColorPicker.className = `color-picker ${nextColor}`;
+    newColorPicker.dataset.color = nextColor;
     
     localStorage.setItem(`color_${searchId}`, nextColor);
     
     // Update highlighting immediately
     highlightSkills();
   });
+
+  // Store the handler for potential cleanup
+  newColorPicker._clickHandler = clickHandler;
 }
 
 function addSearchBox() {
