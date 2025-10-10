@@ -4202,12 +4202,11 @@ if (!hideDataOptions.includes(sortByValue)) {
     freeSlot.innerHTML = `
         <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
         <div class="level-badge">Lv ${savedLevel}</div>
+        <div class="diamond-icons">${diamondIconsHTML}</div> <!-- MOVED UP HERE -->
         <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
         ${nameHtml}
-        <div class="diamond-icons">${diamondIconsHTML}</div>
         <div class="skills">${skillsHTML}</div>
     `;
-
     // Update level controls in the container
     const levelControls = slotContainer.querySelector('.slot-level-controls');
     const levelInput = levelControls.querySelector('.slot-level-input');
