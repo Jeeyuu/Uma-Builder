@@ -1684,19 +1684,6 @@ body.dark-mode .collapse-toggle:hover {
   transform-origin: bottom left; /* ← ADD THIS LINE */
 }
 
-.slot-container.selected {
-  outline: 2px solid #ff4444 !important;
-  outline-offset: 2px;
-  border-radius: 8px;
-  background: rgba(255, 68, 68, 0.1);
-  cursor: pointer;
-}
-
-.slot-container.selected .slot {
-  /* Remove border change from the slot itself */
-  border-color: inherit;
-}
-
 .slot-selection-hint {
   position: absolute;
   top: -25px;
@@ -1725,40 +1712,6 @@ body.dark-mode .collapse-toggle:hover {
   border-top: 5px solid #ff4444;
 }
 
-.slot-container.selected.has-card {
-  border-color: #ff8888 !important;
-  background: rgba(255, 68, 68, 0.05);
-}
-
-.slot-container.selected.has-card .slot-selection-hint {
-  background: #ff8888;
-}
-
-.slot-container.selected.has-card .slot-selection-hint::after {
-  border-top-color: #ff8888;
-}
-
-/* Selected empty slot */
-.slot-container.selected:not(.has-card) {
-  border: 2px solid #ff4444 !important;
-  border-radius: 8px;
-  background: rgba(255, 68, 68, 0.1);
-}
-
-.slot-container.selected:not(.has-card) .slot-selection-hint {
-  background: #ff4444;
-}
-
-/* Selected occupied slot (shouldn't normally happen, but just in case) */
-.slot-container.selected.has-card {
-  border: 2px solid #ff8888 !important;
-  background: rgba(255, 68, 68, 0.05);
-}
-
-.slot-container.selected.has-card .slot-selection-hint {
-  background: #ff8888;
-}
-
 /* Flash warning for duplicate cards */
 .slot-container.flash-warning {
   animation: flashRed 1s ease-in-out;
@@ -1768,22 +1721,6 @@ body.dark-mode .collapse-toggle:hover {
   0%, 100% { background-color: transparent; }
   25%, 75% { background-color: rgba(255, 0, 0, 0.3); }
   50% { background-color: rgba(255, 0, 0, 0.6); }
-}
-
-/* Slot selection styles */
-.slot-container.selected {
-  border: 2px solid #ff4444 !important;
-  border-radius: 8px;
-  background: rgba(255, 68, 68, 0.1);
-  cursor: pointer;
-}
-
-.slot-container:not(.selected) {
-  cursor: default;
-}
-
-.slot-container.selected .slot {
-  border-color: #ff4444;
 }
 
 .slot-selection-hint {
@@ -1815,6 +1752,46 @@ body.dark-mode .collapse-toggle:hover {
 }
 
 /* Make it clear when slots are clickable for selection */
+.slot-container:not(.has-card) {
+  cursor: pointer;
+}
+
+.slot-container.has-card {
+  cursor: default;
+}
+
+/* Remove all the current .slot-container.selected styles and replace with: */
+
+.slot-container.selected .slot:not(.has-card) {
+  border: 2px solid #ff4444 !important;
+  background: rgba(255, 68, 68, 0.05);
+  cursor: pointer;
+}
+
+/* Keep the existing empty slot style but make it the unselected state */
+.slot:not(.has-card) {
+  border: 2px dashed #ccc;
+  background: #fafafa;
+  aspect-ratio: 1;
+  height: var(--card-w);
+  transition: border 0.2s ease; /* Smooth transition */
+}
+
+/* Remove the container selection styles that cause layout shift */
+.slot-container.selected {
+  /* Remove outline, border, and background from container */
+  outline: none !important;
+  border: none !important;
+  background: transparent !important;
+  cursor: pointer;
+}
+
+/* Remove the selection hint since we're simplifying */
+.slot-selection-hint {
+  display: none;
+}
+
+/* Keep the existing cursor styles */
 .slot-container:not(.has-card) {
   cursor: pointer;
 }
@@ -6808,15 +6785,15 @@ function setupSlotSelection() {
     container.addEventListener('click', (e) => {
       const slot = container.querySelector('.slot');
       
-      // CRITICAL: Don't trigger selection if clicking on ANY card content
+      // Don't trigger selection if clicking on ANY card content
       if (e.target.closest('.slot-level-input') || 
           e.target.closest('.type-icon') ||
           e.target.closest('.level-badge') ||
           e.target.closest('.diamond-icons') ||
           e.target.closest('.skills') ||
           e.target.closest('.name') ||
-          e.target.closest('img') || // Card image
-          slot.classList.contains('has-card')) { // OR if slot has card
+          e.target.closest('img') ||
+          slot.classList.contains('has-card')) {
         return;
       }
       
@@ -6833,10 +6810,10 @@ function setupSlotSelection() {
     const slotIndex = parseInt(savedSelection);
     if (!isNaN(slotIndex) && slotContainers[slotIndex]) {
       selectedSlot = slotContainers[slotIndex];
+      const slot = selectedSlot.querySelector('.slot');
       // Only restore selection if the slot is empty
-      if (!selectedSlot.querySelector('.slot').classList.contains('has-card')) {
+      if (!slot.classList.contains('has-card')) {
         selectedSlot.classList.add('selected');
-        addSelectionHint(selectedSlot);
       } else {
         // Clear invalid selection (slot has card)
         localStorage.removeItem(SLOT_SELECTION_KEY);
@@ -6848,6 +6825,12 @@ function setupSlotSelection() {
 
 function handleSlotSelection(container, index) {
   const slot = container.querySelector('.slot');
+  
+  // Don't allow selection if this slot has a card
+  if (slot.classList.contains('has-card')) {
+    return;
+  }
+  
   const isSameSlot = selectedSlot === container;
   
   // If clicking the same slot that's already selected
@@ -6860,20 +6843,14 @@ function handleSlotSelection(container, index) {
   // Clear any existing selection
   clearSlotSelection();
   
-  // Allow selection of ANY slot (empty or occupied)
-  // But only show selection hint for empty slots
+  // Select the empty slot - this will now only affect the slot's border
   selectedSlot = container;
   container.classList.add('selected');
-  
-  // Only show "next card goes here" hint for empty slots
-  if (!slot.classList.contains('has-card')) {
-    addSelectionHint(container);
-  }
   
   // Save selection state
   localStorage.setItem(SLOT_SELECTION_KEY, index.toString());
   
-  console.log(`Slot ${index + 1} selected`);
+  console.log(`Slot ${index + 1} selected - next card clicked will go here`);
 }
 
 // Update the card click handler to be more explicit
@@ -6923,7 +6900,6 @@ el.addEventListener('click', ()=> {
 function clearSlotSelection() {
   if (selectedSlot) {
     selectedSlot.classList.remove('selected');
-    removeSelectionHint(selectedSlot);
     selectedSlot = null;
     localStorage.removeItem(SLOT_SELECTION_KEY);
   }
