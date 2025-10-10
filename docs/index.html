@@ -1642,6 +1642,36 @@ body.dark-mode .collapse-toggle {
 body.dark-mode .collapse-toggle:hover {
   background: #666;
 }
+
+/* Effect text styling for cards and slots */
+.effect-text {
+  font-size: 8px;
+  opacity: 0.6;
+  margin-bottom: 0px;
+  width: fit-content;
+  max-width: 100%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  white-space: nowrap;
+  display: block;
+}
+
+/* Optional: Add some padding for very small containers */
+.card .effect-text,
+.slot .effect-text {
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+
+/* Ensure the name container handles the effect text properly */
+.card .name-container,
+.slot .name-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
 </style>
 </head>
 
@@ -3292,103 +3322,47 @@ function setupHideUncoloredCheckbox() {
 
 // Update the card display to show unique effects
 /* ------------- UPDATE createCardElement FUNCTION ------------- */
-function createCardElement(card){
-  const el = document.createElement('div');
-  el.className = 'card';
-  el.dataset.id = card.char_id;
-  el.dataset.supportId = card.support_id;
-  el.dataset.name = card.char_name;
+// In createCardElement function, replace the nameHtml generation:
+let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
 
-  const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
-  const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
+// Show different data based on current sort selection
+const sortByValue = document.getElementById('sortBy').value;
+const hideDataOptions = ['rarity', 'name', 'type'];
 
-  // Use English skills for Global region, Japanese skills for Japan region
-  // Fall back to Japanese skills if English skills are empty
-  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
-
-  let skillsHTML = '';
-  
-  // FIX: Handle hint_skills with safe string conversion
-  if(card.hint_skills && card.hint_skills.length) {
-    const hintSkillsHTML = card.hint_skills.map(s => {
-      const skillText = String(s || '');
-      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-    }).join('');
-    skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
-  }
-
-  // FIX: Handle event skills with safe string conversion
-  if(eventSkillsToUse && eventSkillsToUse.length) {
-    const eventSkillsHTML = eventSkillsToUse.map(s => {
-      const skillText = String(s || '');
-      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-    }).join('');
-    skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
-  }
-  
-  // ADD UNIQUE EFFECTS DISPLAY
-  if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
-    const uniqueEffectsHTML = card.unique.effects.map(effect => {
-      const effectName = EFFECT_TYPES[effect.type];
-      if (effectName) {
-        const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
-        return `<div class="skill" style="background: #fff0f0; border-left: 3px solid #ff4444;">
-          <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+)
-        </div>`;
+if (!hideDataOptions.includes(sortByValue)) {
+  if (sortByValue === 'support_id') {
+    nameHtml += `<div class="effect-text">ID: ${card.support_id}</div>`;
+  } else if (sortByValue === 'release') {
+    const releaseDate = region === 'global' ? card.release_en : card.release;
+    if (releaseDate && releaseDate !== '') {
+      const formattedDate = formatDateForDisplay(releaseDate);
+      nameHtml += `<div class="effect-text">${formattedDate}</div>`;
+    }
+  } else if (!isNaN(parseInt(sortByValue))) {
+    // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
+    const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
+    if (effectValue !== null) {
+      const effectName = EFFECT_TYPES[parseInt(sortByValue)];
+      const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
+      const formattedValue = Number.isInteger(effectValue) ? 
+        effectValue.toString() : effectValue.toFixed(1);
+      
+      // Format with appropriate unit
+      let displayValue;
+      if (unit === "Lv ") {
+        displayValue = unit + formattedValue;
+      } else {
+        displayValue = formattedValue + unit;
       }
-      return '';
-    }).filter(html => html !== '').join('');
-    
-    if (uniqueEffectsHTML) {
-      skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
+      
+      nameHtml += `<div class="effect-text">${effectName}: ${displayValue}</div>`;
     }
+  } else {
+    // Default: show character ID (only if not hidden)
+    if(!HIDE.char_id) nameHtml += `<div class="effect-text">ID: ${card.char_id}</div>`;
   }
   
-  // ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS
-  let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
-  
-  // Show different data based on current sort selection
-  const sortByValue = document.getElementById('sortBy').value;
-  
-  // Define which sort options should NOT show the extra data box
-  const hideDataOptions = ['rarity', 'name', 'type'];
-  
-  if (!hideDataOptions.includes(sortByValue)) {
-    if (sortByValue === 'support_id') {
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
-    } else if (sortByValue === 'release') {
-      const releaseDate = region === 'global' ? card.release_en : card.release;
-      if (releaseDate && releaseDate !== '') {
-        const formattedDate = formatDateForDisplay(releaseDate);
-        nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
-      }
-} else if (!isNaN(parseInt(sortByValue))) {
-  // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
-  const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
-  if (effectValue !== null) {
-    const effectName = EFFECT_TYPES[parseInt(sortByValue)];
-    const unit = EFFECT_UNITS[parseInt(sortByValue)] || "";
-    const formattedValue = Number.isInteger(effectValue) ? 
-      effectValue.toString() : effectValue.toFixed(1);
-    
-    // Format with appropriate unit
-    let displayValue;
-    if (unit === "Lv ") {
-      displayValue = unit + formattedValue;
-    } else {
-      displayValue = formattedValue + unit;
-    }
-    
-    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
-  }
-    } else {
-      // Default: show character ID (only if not hidden)
-      if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
-    }
-  }
-  
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div class="effect-text">${escapeHtml(card.url_name)}</div>`;
 
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
@@ -3675,23 +3649,21 @@ function addToSlot(card, targetSlot = null, save = true) {
 
 //-------------------------------------------------------------
 
-// ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS (same as main grid)
+// In addToSlot function, replace the nameHtml generation:
 let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
 
 // Show different data based on current sort selection
 const sortByValue = document.getElementById('sortBy').value;
-
-// Define which sort options should NOT show the extra data box (same as main grid)
 const hideDataOptions = ['rarity', 'name', 'type'];
 
 if (!hideDataOptions.includes(sortByValue)) {
   if (sortByValue === 'support_id') {
-    nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.support_id}</div>`;
+    nameHtml += `<div class="effect-text">ID: ${card.support_id}</div>`;
   } else if (sortByValue === 'release') {
     const releaseDate = region === 'global' ? card.release_en : card.release;
     if (releaseDate && releaseDate !== '') {
       const formattedDate = formatDateForDisplay(releaseDate);
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${formattedDate}</div>`;
+      nameHtml += `<div class="effect-text">${formattedDate}</div>`;
     }
   } else if (!isNaN(parseInt(sortByValue))) {
     // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
@@ -3715,14 +3687,14 @@ if (!hideDataOptions.includes(sortByValue)) {
         displayValue = formattedValue + unit;
       }
       
-      nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">${effectName}: ${displayValue}</div>`;
+      nameHtml += `<div class="effect-text">${effectName}: ${displayValue}</div>`;
     }
   } else {
     // Default: show character ID (only if not hidden)
-    if(!HIDE.char_id) nameHtml += `<div style="font-size:8px;opacity:0.6;margin-bottom: 0px;">ID: ${card.char_id}</div>`;
+    if(!HIDE.char_id) nameHtml += `<div class="effect-text">ID: ${card.char_id}</div>`;
   }
   
-  if(!HIDE.url_name && card.url_name) nameHtml += `<div style="font-size:8px;opacity:0.6;">${escapeHtml(card.url_name)}</div>`;
+  if(!HIDE.url_name && card.url_name) nameHtml += `<div class="effect-text">${escapeHtml(card.url_name)}</div>`;
 }
 
 //-------------------------------------------------------------
@@ -4178,26 +4150,19 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
   const sortByValue = document.getElementById('sortBy').value;
   const hideDataOptions = ['rarity', 'name', 'type'];
   
-  // Find the name container and the existing effect text
+  // Find the name container and remove any existing effect text
   const nameContainer = slot.querySelector('.name');
   if (!nameContainer) return;
   
-  // Remove any existing effect text (elements after the name)
-  let nextElement = nameContainer.nextElementSibling;
-  while (nextElement) {
-    if (nextElement.style && nextElement.style.fontSize === '8px') {
-      nextElement.remove();
-    }
-    nextElement = nextElement.nextElementSibling;
-  }
+  // Remove any existing effect text (elements with effect-text class)
+  const existingEffectTexts = slot.querySelectorAll('.effect-text');
+  existingEffectTexts.forEach(element => element.remove());
   
   // Add new effect data based on current sort selection
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
       const effectDiv = document.createElement('div');
-      effectDiv.style.fontSize = '8px';
-      effectDiv.style.opacity = '0.6';
-      effectDiv.style.marginBottom = '0px';
+      effectDiv.className = 'effect-text';
       effectDiv.textContent = `ID: ${card.support_id}`;
       nameContainer.after(effectDiv);
     } else if (sortByValue === 'release') {
@@ -4205,9 +4170,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+        effectDiv.className = 'effect-text';
         effectDiv.textContent = formattedDate;
         nameContainer.after(effectDiv);
       }
@@ -4231,9 +4194,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
         }
         
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+        effectDiv.className = 'effect-text';
         effectDiv.textContent = `${effectName}: ${displayValue}`;
         nameContainer.after(effectDiv);
       }
@@ -4241,9 +4202,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
       // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) {
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+        effectDiv.className = 'effect-text';
         effectDiv.textContent = `ID: ${card.char_id}`;
         nameContainer.after(effectDiv);
       }
@@ -4251,8 +4210,7 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
     
     if(!HIDE.url_name && card.url_name) {
       const urlDiv = document.createElement('div');
-      urlDiv.style.fontSize = '8px';
-      urlDiv.style.opacity = '0.6';
+      urlDiv.className = 'effect-text';
       urlDiv.textContent = card.url_name;
       nameContainer.after(urlDiv);
     }
@@ -4271,22 +4229,15 @@ function updateSlotNameWithEffectData(slot, card, level) {
   const sortByValue = document.getElementById('sortBy').value;
   const hideDataOptions = ['rarity', 'name', 'type'];
   
-  // Remove any existing effect text (elements after the name)
-  let nextElement = nameContainer.nextElementSibling;
-  while (nextElement) {
-    if (nextElement.style && nextElement.style.fontSize === '8px') {
-      nextElement.remove();
-    }
-    nextElement = nextElement.nextElementSibling;
-  }
+  // Remove any existing effect text (elements with effect-text class)
+  const existingEffectTexts = slot.querySelectorAll('.effect-text');
+  existingEffectTexts.forEach(element => element.remove());
   
   // Add new effect data based on current sort selection
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
       const effectDiv = document.createElement('div');
-      effectDiv.style.fontSize = '8px';
-      effectDiv.style.opacity = '0.6';
-      effectDiv.style.marginBottom = '0px';
+      effectDiv.className = 'effect-text';
       effectDiv.textContent = `ID: ${card.support_id}`;
       nameContainer.after(effectDiv);
     } else if (sortByValue === 'release') {
@@ -4294,9 +4245,7 @@ function updateSlotNameWithEffectData(slot, card, level) {
       if (releaseDate && releaseDate !== '') {
         const formattedDate = formatDateForDisplay(releaseDate);
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+        effectDiv.className = 'effect-text';
         effectDiv.textContent = formattedDate;
         nameContainer.after(effectDiv);
       }
@@ -4320,9 +4269,7 @@ function updateSlotNameWithEffectData(slot, card, level) {
         }
         
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+        effectDiv.className = 'effect-text';
         effectDiv.textContent = `${effectName}: ${displayValue}`;
         nameContainer.after(effectDiv);
       }
@@ -4330,9 +4277,7 @@ function updateSlotNameWithEffectData(slot, card, level) {
       // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) {
         const effectDiv = document.createElement('div');
-        effectDiv.style.fontSize = '8px';
-        effectDiv.style.opacity = '0.6';
-        effectDiv.style.marginBottom = '0px';
+        effectDiv.className = 'effect-text';
         effectDiv.textContent = `ID: ${card.char_id}`;
         nameContainer.after(effectDiv);
       }
@@ -4340,8 +4285,7 @@ function updateSlotNameWithEffectData(slot, card, level) {
     
     if(!HIDE.url_name && card.url_name) {
       const urlDiv = document.createElement('div');
-      urlDiv.style.fontSize = '8px';
-      urlDiv.style.opacity = '0.6';
+      urlDiv.className = 'effect-text';
       urlDiv.textContent = card.url_name;
       nameContainer.after(urlDiv);
     }
