@@ -2246,38 +2246,6 @@ const colorSequence = [
   'green-border', 'blue-border', 'orange-border', 'red-border'
 ];
 
-// Comprehensive color picker reset function
-function resetAllColorPickers() {
-  console.log('Resetting all color pickers...');
-  
-  // Reset localStorage for all search boxes
-  for (let i = 1; i <= 30; i++) {
-    const searchId = `skillSearch${i}`;
-    const currentColor = localStorage.getItem(`color_${searchId}`);
-    
-    // If color exists but is corrupted, reset it to green
-    if (currentColor && !colorSequence.includes(currentColor)) {
-      console.log(`Resetting corrupted color for ${searchId}: ${currentColor} -> green`);
-      localStorage.setItem(`color_${searchId}`, 'green');
-    }
-    
-    // If no color exists for this slot, set it to green
-    if (!currentColor && i === 1) {
-      localStorage.setItem(`color_skillSearch1`, 'green');
-    }
-  }
-  
-  // Also reset the current skillSearches array colors
-  skillSearches.forEach((search, index) => {
-    const searchId = search.id;
-    const currentColor = localStorage.getItem(`color_${searchId}`);
-    
-    if (!currentColor || !colorSequence.includes(currentColor)) {
-      localStorage.setItem(`color_${searchId}`, 'green');
-    }
-  });
-}
-
 /* ------------- ENHANCED LEVEL PERSISTENCE ------------- */
 // This replaces the existing slotLevels initialization
 const slotLevels = JSON.parse(localStorage.getItem('slotLevels')) || {};
@@ -2634,20 +2602,13 @@ function setupDynamicSkillSearch() {
     return;
   }
   
-  // RESET ALL COLOR PICKERS FIRST
-  resetAllColorPickers();
-  
   // Clear existing search boxes first
   const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
   existingContainers.forEach(container => container.remove());
   
-  // Recreate search boxes from saved state with FORCED color reset
+  // Recreate search boxes from saved state
   skillSearches.forEach((search, index) => {
-    // Force reset the color for this search box
-    const searchId = search.id;
-    localStorage.setItem(`color_${searchId}`, 'green');
-    
-    createSearchBox(searchId, search.value, index === 0);
+    createSearchBox(search.id, search.value, index === 0); // First one can't be removed
   });
   
   // CRITICAL FIX: Update SKILL_SEARCH_KEYS array with ACTUAL current values
@@ -2661,16 +2622,19 @@ function setupDynamicSkillSearch() {
     }
   });
   
-  // FORCE UPDATE ALL COLOR PICKERS IN DOM
-  setTimeout(() => {
-    skillSearches.forEach(search => {
-      const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
-      if (colorPicker) {
+  // FIX: Ensure all color pickers are properly initialized with full color sequence
+  skillSearches.forEach(search => {
+    const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
+    if (colorPicker) {
+      const savedColor = localStorage.getItem(`color_${search.id}`) || 'green';
+      // Validate and reset if needed
+      if (!colorSequence.includes(savedColor)) {
+        localStorage.setItem(`color_${search.id}`, 'green');
         colorPicker.className = 'color-picker green';
         colorPicker.dataset.color = 'green';
       }
-    });
-  }, 100);
+    }
+  });
   
   if (addSearchBtn) {
     addSearchBtn.addEventListener('click', addSearchBox);
@@ -2686,11 +2650,18 @@ function createSearchBox(searchId, value = '') {
   const searchContainer = document.createElement('div');
   searchContainer.className = 'search-input-container';
   
-  // FORCE GREEN COLOR for all boxes on creation
-  localStorage.setItem(`color_${searchId}`, 'green');
+  // FORCE green color for all new boxes, ignore localStorage for new creations
+  const isNewBox = !document.getElementById(searchId);
+  let savedColor = isNewBox ? 'green' : (localStorage.getItem(`color_${searchId}`) || 'green');
+  
+  // Validate the saved color
+  if (!colorSequence.includes(savedColor)) {
+    savedColor = 'green';
+    localStorage.setItem(`color_${searchId}`, 'green');
+  }
   
   searchContainer.innerHTML = `
-    <div class="color-picker green" data-search-id="${searchId}" data-color="green"></div>
+    <div class="color-picker ${savedColor}" data-search-id="${searchId}" data-color="${savedColor}"></div>
     <input type="text" id="${searchId}" class="skill-search" placeholder="Search skill" value="${value}">
     <button class="remove-search-btn" data-search-id="${searchId}" title="Remove search">
       ×
@@ -2730,15 +2701,18 @@ function setupColorPicker(searchId) {
   const colorPicker = document.querySelector(`.color-picker[data-search-id="${searchId}"]`);
   if (!colorPicker) return;
 
-  // Force reset to green if anything is wrong
-  let savedColor = localStorage.getItem(`color_${searchId}`);
-  if (!savedColor || !colorSequence.includes(savedColor)) {
-    savedColor = 'green';
+  // Load saved color - default to green instead of red
+  const savedColor = localStorage.getItem(`color_${searchId}`) || 'green';
+  
+  // Ensure the saved color is valid, if not reset to green
+  if (!colorSequence.includes(savedColor)) {
     localStorage.setItem(`color_${searchId}`, 'green');
+    colorPicker.className = `color-picker green`;
+    colorPicker.dataset.color = 'green';
+  } else {
+    colorPicker.className = `color-picker ${savedColor}`;
+    colorPicker.dataset.color = savedColor;
   }
-
-  colorPicker.className = `color-picker ${savedColor}`;
-  colorPicker.dataset.color = savedColor;
 
   colorPicker.addEventListener('click', () => {
     const currentColor = colorPicker.dataset.color;
@@ -3033,29 +3007,37 @@ fetch(JSON_FILE)
     }
     
     cardsData = data.map(card => ({
-      // ... your existing card data mapping
+      ...card,
+      char_id: card.char_id || 0,
+      char_name: card.char_name || 'Unknown',
+      hint_skills: card.hint_skills || [],
+      event_skills: card.event_skills || [],
+      event_skills_en: card.event_skills_en || [],
+      rarity: card.rarity || 1,
+      release: card.release || '',
+      release_en: card.release_en || '',
+      support_id: card.support_id || 0,
+      type: (card.type || '').toLowerCase(),
+      url_name: card.url_name || ''
     }));
 
     // Initialize all components with error handling
     try {
-      // RESET COLOR PICKERS FIRST
-      resetAllColorPickers();
-      
       setupFilterPersistence();
       setupToggleButtons();
       setupSortingControls();
-      setupDynamicSkillSearch(); // This will also reset colors
+      setupDynamicSkillSearch();
       setupPresets();
       setupPresetReset();
       setupTogglePresetCards();
       setupCardSearch();
       setupCopyPasteButtons();
-      loadSlotsFromLocalStorage();
+      loadSlotsFromLocalStorage(); // This now has proper waiting logic
       setupClearAllSearches();
       updateSelectedSkillsList();
       setupDeckCopyPaste();
       
-      // Final refresh to ensure everything is synced
+      // Final refresh to ensure everything is synced - ADD THESE LINES:
       setTimeout(() => {
         sectionPages.clear();
         renderSections();
