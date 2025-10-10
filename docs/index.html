@@ -1279,7 +1279,6 @@ body.dark-mode .clear-search-btn:hover {
   background: #A52A2A !important;
 }
 
-/* Effect cards styling */
 .effect-cards {
   display: flex;
   gap: 1px;
@@ -1287,8 +1286,10 @@ body.dark-mode .clear-search-btn:hover {
   justify-content: flex-end;
   min-height: 40px;
   flex-wrap: nowrap;
-  max-width: 186px; /* 6 cards * 30px + 5 gaps * 1px */
+  max-width: 186px;
   overflow: hidden;
+  flex-shrink: 0; /* ADD THIS - prevent cards from affecting layout */
+  margin-left: 8px; /* ADD THIS - spacing between value and cards */
 }
 
 .effect-card {
@@ -1323,7 +1324,7 @@ body.dark-mode .clear-search-btn:hover {
   border: 0.5px solid #e0e0e0;
 }
 
-/* Effect row styling */
+/* FIXED: Effect row styling - prevents layout pushing */
 .effect-row {
   display: flex;
   justify-content: space-between;
@@ -1334,6 +1335,8 @@ body.dark-mode .clear-search-btn:hover {
   border-radius: 3px;
   transition: background-color 0.2s ease;
   min-height: 36px;
+  max-width: 100%; /* ADD THIS - prevent overflow */
+  box-sizing: border-box; /* ADD THIS - include padding in width */
 }
 
 .effect-row:hover {
@@ -1343,28 +1346,35 @@ body.dark-mode .clear-search-btn:hover {
 .effect-info {
   display: flex;
   align-items: center;
-  min-width: 150px;
-  flex-shrink: 0;
+  min-width: 0; /* CHANGE THIS - allow shrinking */
+  flex: 1; /* ADD THIS - take available space */
+  flex-shrink: 1; /* ADD THIS - allow shrinking */
+  overflow: hidden; /* ADD THIS - contain content */
 }
 
 .effect-name {
   font-size: 11px;
   font-weight: 500;
   color: #333;
-  min-width: 130px;
+  min-width: 0; /* CHANGE THIS - allow shrinking */
+  flex: 1; /* ADD THIS - take available space */
+  white-space: nowrap; /* ADD THIS - prevent wrapping */
+  overflow: hidden; /* ADD THIS - hide overflow */
+  text-overflow: ellipsis; /* ADD THIS - show ellipsis */
+  margin-right: 8px; /* ADD THIS - spacing between name and value */
 }
 
 .effect-value {
   font-size: 11px;
   font-weight: bold;
   color: #2c5e1a;
-  min-width: 30px;
+  min-width: 40px; /* INCREASE THIS - ensure value has enough space */
   text-align: center;
   background: #f0f8f0;
-  margin-left: 3px;
   padding: 13px 4px;
   border-radius: 2px;
   border: 1px solid #e0f0e0;
+  flex-shrink: 0; /* ADD THIS - prevent value from shrinking */
 }
 
 /* Compact layout for many cards - show scroll for more than 6 */
