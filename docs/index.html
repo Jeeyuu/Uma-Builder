@@ -3628,14 +3628,14 @@ function createCardElement(card){
 
   // Replace your card click handler in createCardElement():
 el.addEventListener('click', ()=> {
-  // CRITICAL: Check if card is already in a slot
+  // CRITICAL: Check if card is already in a slot - if so, REMOVE it
   if (selectedCardIds.has(card.char_id)) {
-    console.log(`Card ${card.char_name} is already equipped!`);
+    console.log(`Removing ${card.char_name} from slot`);
     
-    // Find and flash the slot containing this card
+    // Find the slot containing this card and remove it
     const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
     if (existingSlot) {
-      flashSlot(existingSlot);
+      removeFromSlot(existingSlot, card);
     }
     return;
   }
@@ -4105,9 +4105,20 @@ levelInput.onblur = handleLevelChange;
     // Create and attach the click handler
     const slotCard = { ...card };
 
-    function slotClickHandler() {
-        removeFromSlot(freeSlot, slotCard);
-    }
+// In the addToSlot function, replace the slotClickHandler:
+function slotClickHandler(e) {
+  // Don't remove if clicking on level input or other controls
+  if (e.target.closest('.slot-level-input') || 
+      e.target.closest('.slot-level-controls')) {
+    return;
+  }
+  
+  // Only remove if this slot is not currently selected
+  const slotContainer = freeSlot.closest('.slot-container');
+  if (!slotContainer || !slotContainer.classList.contains('selected')) {
+    removeFromSlot(freeSlot, slotCard);
+  }
+}
 
     // Attach the event listener to the slot element only
     freeSlot.addEventListener('click', slotClickHandler);
@@ -4143,7 +4154,7 @@ function removeFromSlot(slot, card) {
     slotListeners.delete(slot);
   }
 
-  // Reset slot content
+  // Reset slot content - USE THE SAME CLEAN PLACEHOLDER
   slot.classList.remove('has-card');
   
   // IMPORTANT: Remove from selected cards set
@@ -4158,6 +4169,8 @@ function removeFromSlot(slot, card) {
   const supportId = slot.dataset.supportId;
   delete slot.dataset.cardId;
   delete slot.dataset.supportId;
+  
+  // CRITICAL: Use the SAME placeholder as initial state, no red border
   slot.innerHTML = '<div class="placeholder">Empty</div>';
 
   // Reset level controls UI (but keep the data)
@@ -6841,17 +6854,20 @@ function handleSlotSelection(container, index) {
   // Clear any existing selection
   clearSlotSelection();
   
-  // Only select if the slot is empty
+  // Allow selection of ANY slot (empty or occupied)
+  // But only show selection hint for empty slots
+  selectedSlot = container;
+  container.classList.add('selected');
+  
+  // Only show "next card goes here" hint for empty slots
   if (!slot.classList.contains('has-card')) {
-    selectedSlot = container;
-    container.classList.add('selected');
     addSelectionHint(container);
-    
-    // Save selection state
-    localStorage.setItem(SLOT_SELECTION_KEY, index.toString());
-    
-    console.log(`Slot ${index + 1} selected - next card clicked will go here`);
   }
+  
+  // Save selection state
+  localStorage.setItem(SLOT_SELECTION_KEY, index.toString());
+  
+  console.log(`Slot ${index + 1} selected`);
 }
 
 // Update the card click handler to be more explicit
