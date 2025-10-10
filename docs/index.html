@@ -1842,12 +1842,12 @@ body.dark-mode .effects-header {
 /* Fix level badge positioning in collapsed mode */
 .right-sidebar.collapsed .level-badge {
   position: absolute;
-  top: 2px !important; /* Move higher up */
-  left: 2px !important;
+  top: 56px !important; /* Move higher up */
+  left: 0px !important;
   background: rgba(0, 0, 0, 0.9) !important;
   color: white;
-  padding: 2px 4px !important;
-  font-size: 8px !important;
+  padding: 2px 8px !important;
+  font-size: 12px !important;
   font-weight: bold;
   z-index: 10;
   transform: scale(0.8) !important; /* Make it smaller */
@@ -1856,25 +1856,26 @@ body.dark-mode .effects-header {
   line-height: 1;
 }
 
-/* Fix diamond icons positioning in collapsed mode */
+/* Best fix for diamond spacing */
 .right-sidebar.collapsed .diamond-icons {
   position: absolute;
-  top: 2px !important; /* Move higher up */
+  top: 2px !important;
   right: 2px !important;
   display: flex;
   z-index: 10;
-  transform: scale(0.7) !important; /* Make them smaller */
+  transform: scale(0.65) !important; /* Slightly smaller scale */
   transform-origin: top right !important;
   background: rgba(0, 0, 0, 0.9) !important;
-  padding: 1px 3px !important;
-  border-radius: 2px;
-  gap: 1px;
+  padding: 0px 2px !important; /* No vertical padding, minimal horizontal */
+  border-radius: 1px;
+  gap: 0px; /* Remove gap between diamonds */
 }
 
 .right-sidebar.collapsed .diamond-icon {
-  width: 10px !important; /* Smaller icons */
-  height: 13px !important;
+  width: 9px !important;
+  height: 12px !important;
   object-fit: contain;
+  margin: 0 -0.5px !important; /* Negative margin to tighten spacing */
 }
 
 /* Ensure the slot content doesn't overflow */
