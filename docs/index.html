@@ -1768,6 +1768,59 @@ body.dark-mode .collapse-toggle:hover {
   50% { background-color: rgba(255, 0, 0, 0.6); }
 }
 
+/* Slot selection styles */
+.slot-container.selected {
+  border: 2px solid #ff4444 !important;
+  border-radius: 8px;
+  background: rgba(255, 68, 68, 0.1);
+  cursor: pointer;
+}
+
+.slot-container:not(.selected) {
+  cursor: default;
+}
+
+.slot-container.selected .slot {
+  border-color: #ff4444;
+}
+
+.slot-selection-hint {
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  z-index: 100;
+}
+
+.slot-selection-hint::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #ff4444;
+}
+
+/* Make it clear when slots are clickable for selection */
+.slot-container:not(.has-card) {
+  cursor: pointer;
+}
+
+.slot-container.has-card {
+  cursor: default;
+}
+
 </style>
 </head>
 
@@ -3854,15 +3907,12 @@ function addToSlot(card, targetSlot = null, save = true) {
   
   let freeSlot;
   
-  if (targetSlot) {
-    // Use the provided target slot
+    if (targetSlot) {
     freeSlot = targetSlot;
   } else if (selectedSlot) {
-    // Use the selected slot
     freeSlot = selectedSlot.querySelector('.slot');
-    clearSlotSelection();
+    // DON'T clear selection here - let user keep selecting if they want
   } else {
-    // Find first available slot (original behavior)
     freeSlot = slots.find(s => !s.dataset.cardId);
   }
   
@@ -4072,6 +4122,12 @@ levelInput.onblur = handleLevelChange;
   
   // Update effect totals after adding card
   setTimeout(updateEffectTotals, 100);
+
+  // Only clear selection if explicitly requested or if using selected slot
+  if (targetSlot && selectedSlot && selectedSlot.contains(targetSlot)) {
+    // Clear selection when card is added to specifically selected slot
+    clearSlotSelection();
+  }
 }
 
 function removeFromSlot(slot, card) {
@@ -4113,9 +4169,12 @@ function removeFromSlot(slot, card) {
     levelInput.max = '50';
   }
 
-  // Clear selection if we're removing from the selected slot
+  // CRITICAL FIX: Don't clear selection when removing card
+  // Only clear selection if we're specifically removing from the selected slot
+  // AND the user intended to remove (not deselect)
   if (selectedSlot && selectedSlot.contains(slot)) {
-    clearSlotSelection();
+    // Keep the selection - user might want to put another card here
+    console.log('Card removed from selected slot - selection maintained');
   }
 
   saveSlotsToLocalStorage();
@@ -6725,24 +6784,27 @@ function forceSyncAllCardLevels() {
     console.log('Level sync complete');
 }
 
-/* ------------- SLOT SELECTION FUNCTIONALITY ------------- */
+/* ------------- IMPROVED SLOT SELECTION FUNCTIONALITY ------------- */
 function setupSlotSelection() {
   // Add click listeners to all slot containers
   slotContainers.forEach((container, index) => {
     container.addEventListener('click', (e) => {
-      // Don't trigger if clicking on:
-      // - Level input
-      // - Card removal (slot with card)
-      // - Any element inside a card
+      const slot = container.querySelector('.slot');
+      
+      // Don't trigger selection if clicking on any card elements
       if (e.target.closest('.slot-level-input') || 
-          e.target.closest('.slot.has-card') ||
           e.target.closest('.type-icon') ||
           e.target.closest('.level-badge') ||
-          e.target.closest('.diamond-icons')) {
+          e.target.closest('.diamond-icons') ||
+          e.target.closest('.skills') ||
+          e.target.closest('.name')) {
         return;
       }
       
-      handleSlotSelection(container, index);
+      // Only allow selection on empty slots or the container background
+      if (!slot.classList.contains('has-card') || e.target === container) {
+        handleSlotSelection(container, index);
+      }
     });
   });
   
@@ -6752,8 +6814,15 @@ function setupSlotSelection() {
     const slotIndex = parseInt(savedSelection);
     if (!isNaN(slotIndex) && slotContainers[slotIndex]) {
       selectedSlot = slotContainers[slotIndex];
-      selectedSlot.classList.add('selected');
-      addSelectionHint(selectedSlot);
+      // Only restore selection if the slot is empty
+      if (!selectedSlot.querySelector('.slot').classList.contains('has-card')) {
+        selectedSlot.classList.add('selected');
+        addSelectionHint(selectedSlot);
+      } else {
+        // Clear invalid selection (slot has card)
+        localStorage.removeItem(SLOT_SELECTION_KEY);
+        selectedSlot = null;
+      }
     }
   }
 }
@@ -6772,16 +6841,62 @@ function handleSlotSelection(container, index) {
   // Clear any existing selection
   clearSlotSelection();
   
-  // Select the new slot
-  selectedSlot = container;
-  container.classList.add('selected');
-  addSelectionHint(container);
-  
-  // Save selection state
-  localStorage.setItem(SLOT_SELECTION_KEY, index.toString());
-  
-  console.log(`Slot ${index + 1} selected - next card clicked will go here`);
+  // Only select if the slot is empty
+  if (!slot.classList.contains('has-card')) {
+    selectedSlot = container;
+    container.classList.add('selected');
+    addSelectionHint(container);
+    
+    // Save selection state
+    localStorage.setItem(SLOT_SELECTION_KEY, index.toString());
+    
+    console.log(`Slot ${index + 1} selected - next card clicked will go here`);
+  }
 }
+
+// Update the card click handler to be more explicit
+// In your createCardElement function, update the click handler:
+el.addEventListener('click', ()=> {
+  // CRITICAL: Check if card is already in a slot
+  if (selectedCardIds.has(card.char_id)) {
+    console.log(`Card ${card.char_name} is already equipped!`);
+    
+    // Find and flash the slot containing this card
+    const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
+    if (existingSlot) {
+      flashSlot(existingSlot);
+    }
+    return;
+  }
+  
+  // If a slot is selected AND it's empty, add card to that specific slot
+  if (selectedSlot) {
+    const slot = selectedSlot.querySelector('.slot');
+    if (slot && !slot.dataset.cardId) {
+      addToSlot(card, slot);
+      // DON'T clear selection here - let user decide
+    } else {
+      // Selected slot has a card - clear selection and use normal behavior
+      console.log('Selected slot has card, using normal placement');
+      clearSlotSelection();
+      
+      // Fall back to normal behavior
+      const availableSlot = slots.find(s => !s.dataset.cardId);
+      if (availableSlot) {
+        addToSlot(card, availableSlot);
+      }
+    }
+  } else {
+    // Original behavior - find first available slot
+    const slot = slots.find(s => !s.dataset.cardId);
+    if (slot) {
+      addToSlot(card, slot);
+    } else {
+      console.log('No empty slots available');
+    }
+  }
+});
+
 
 function clearSlotSelection() {
   if (selectedSlot) {
