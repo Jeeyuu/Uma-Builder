@@ -1956,7 +1956,7 @@ body.dark-mode .deck-name-display {
 /* ---------- COMBINED LEVEL AND DIAMONDS DISPLAY ---------- */
 .level-diamond-container {
   position: absolute;
-  top: 84px;
+  top: 78px;
   left: 0;
   right: 0;
   display: flex;
@@ -1964,36 +1964,29 @@ body.dark-mode .deck-name-display {
   align-items: center;
   z-index: 5;
   background: rgba(0, 0, 0, 0.9);
-  padding: 4px 8px;
-  gap: 8px;
+  padding: 3px;
+  border-radius: 4px;
 }
 
 .level-badge-combined {
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
+  color: #8b0000;
+  font-size: 11px;
+  font-weight: bolder;
   flex-shrink: 0;
-  min-width: 30px;
+  min-width: 28px;
   text-align: center;
 }
 
 .diamond-icons-combined {
   display: flex;
-  gap: 2px;
-  justify-content: flex-end;
-  flex: 1;
+  margin: 0 2px;
 }
 
 .diamond-icon-combined {
-  width: 14px;
-  height: 18px;
-  object-fit: contain;
-}
-
-/* Adjust positioning for the new combined container */
-.card .level-diamond-container,
-.slot.has-card .level-diamond-container {
-  top: 84px;
+  width: 11.25px;
+    height: auto;
+    aspect-ratio: 40 / 34; /* or whatever the original ratio is */
+    object-fit: contain;
 }
 
 /* Collapsed mode adjustments */
