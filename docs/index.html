@@ -2945,6 +2945,7 @@ body.dark-mode .character-skill {
 // More flexible file matching - will look for files starting with these patterns
 const SUPPORT_CARDS_PATTERN = "support-cards";
 const SKILLS_PATTERN = "skills";
+const PRESETS_JSON_FILE = "data/champions_meeting.json";
 const HIDE = { char_id: false, url_name: true };
 
 /* ------------- STATE ------------- */
@@ -3157,63 +3158,69 @@ Current error: ${error.message}
 }
 
 /* ------------- Initialize Application ------------- */
-loadDataFiles()
-.then(() => {
-    // Initialize all components with error handling
-    try {
-        setupFilterPersistence();
-        setupToggleButtons();
-        setupSortingControls();
-        setupDynamicSkillSearch();
-        setupPresets();
-        setupPresetReset();
-        setupTogglePresetCards();
-        setupCardSearch();
-        setupCopyPasteButtons();
-        loadSlotsFromLocalStorage();
-        setupClearAllSearches();
-        updateSelectedSkillsList();
-        setupDeckCopyPaste();
-        setupSlotSelection();
-        setupKeyboardShortcuts();
+document.addEventListener('DOMContentLoaded', function() {
+    loadDataFiles()
+    .then(() => {
+        // Initialize all components with error handling
+        try {
+            setupFilterPersistence();
+            setupToggleButtons();
+            setupSortingControls();
+            setupDynamicSkillSearch();
+            setupPresets();
+            setupPresetReset();
+            setupTogglePresetCards();
+            setupCardSearch();
+            setupCopyPasteButtons();
+            loadSlotsFromLocalStorage();
+            setupClearAllSearches();
+            updateSelectedSkillsList();
+            setupDeckCopyPaste();
+            setupSlotSelection();
+            setupKeyboardShortcuts();
 
-        // Add these to your existing initialization code
-        setupDeckName();
-        setupCopyAll();
-        setupPasteAll();
-        setupResetLevels();
-        setupClearDeckWithNameReset();
+            // Add these to your existing initialization code
+            setupDeckName();
+            setupCopyAll();
+            setupPasteAll();
+            setupResetLevels();
+            setupClearDeckWithNameReset();
 
-        // Final refresh to ensure everything is synced
-        setTimeout(() => {
-            sectionPages.clear();
-            renderSections();
-            updateAllSlotDisplays();
-            
-            // Double check after everything settles
+            // Final refresh to ensure everything is synced
             setTimeout(() => {
-                ensureSlotsLoaded();
+                sectionPages.clear();
+                renderSections();
                 updateAllSlotDisplays();
                 
-                // Initialize effects - ALWAYS SHOW HEADER, HIDE EMPTY ROWS
-                updateEffectTotals();
+                // Double check after everything settles
+                setTimeout(() => {
+                    ensureSlotsLoaded();
+                    updateAllSlotDisplays();
+                    
+                    // Initialize effects - ALWAYS SHOW HEADER, HIDE EMPTY ROWS
+                    updateEffectTotals();
+                }, 500);
             }, 500);
-        }, 500);
-    } catch (error) {
-        console.error('Error during setup:', error);
-    }
-})
-.catch(err => {
-    console.error('Could not load JSON:', err);
-    cardSections.innerHTML = `
-        <div style="opacity:0.7;padding:12px;text-align:center;">
-        <h3>Error loading data</h3>
-        <p>${err.message}</p>
-        <p>Please check that your data files exist and are properly named.</p>
-        <p>Required files: support-cards.*.json and skills.*.json in the data folder</p>
-        </div>
-    `;
+        } catch (error) {
+            console.error('Error during setup:', error);
+        }
+    })
+    .catch(err => {
+        console.error('Could not load JSON:', err);
+        cardSections.innerHTML = `
+            <div style="opacity:0.7;padding:12px;text-align:center;">
+            <h3>Error loading data</h3>
+            <p>${err.message}</p>
+            <p>Please check that your data files exist and are properly named.</p>
+            <p>Required files: support-cards.*.json and skills.*.json in the data folder</p>
+            </div>
+        `;
+    });
 });
+
+// ... REST OF YOUR ORIGINAL FUNCTIONS GO HERE ...
+// All your existing functions like setupFilterPersistence(), setupToggleButtons(), etc.
+// should be included exactly as they were in your original script
 
 /* ------------- DYNAMIC PAGINATION ------------- */
 function calculateCardsPerPage() {
@@ -3227,7 +3234,7 @@ function calculateCardsPerPage() {
   // Calculate how many cards fit in one row
   const cardsPerRow = Math.floor((gridWidth + gap) / (cardWidth + gap));
   
-  // Always show at least 1 row, but you can adjust this if you want multiple rows
+  // Always show at least 1 row, but you can adjust this if you want multiple rows per page
   const rowsPerPage = 1; // Change this to 2 or more if you want multiple rows per page
   
   return cardsPerRow * rowsPerPage;
