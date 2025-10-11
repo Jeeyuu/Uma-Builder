@@ -1960,6 +1960,10 @@ body.dark-mode .deck-name-display {
   pointer-events: auto;
 }
 
+.level-diamond-container * {
+  pointer-events: none; /* Children don't handle clicks */
+}
+
 .level-badge-combined {
   color: rgb(255, 255, 255);
   font-size: 11px;
@@ -4319,17 +4323,15 @@ levelInput.onblur = handleLevelChange;
     // Create and attach the click handler
     const slotCard = { ...card };
 
-// In the addToSlot function, replace the slotClickHandler:
 function slotClickHandler(e) {
   // CRITICAL: Stop event propagation to prevent slot selection
   e.stopPropagation();
   
-  // Don't remove if clicking on level input or other controls
-  if (e.target.closest('.slot-level-input') || 
+  // Don't remove if clicking on level-diamond container or any of its children
+  if (e.target.closest('.level-diamond-container') ||
+      e.target.closest('.slot-level-input') || 
       e.target.closest('.slot-level-controls') ||
-      e.target.closest('.type-icon') ||
-      e.target.closest('.level-badge') ||
-      e.target.closest('.diamond-icons')) {
+      e.target.closest('.type-icon')) {
     return;
   }
   
@@ -7467,25 +7469,22 @@ function resetAllLevels() {
       const card = cardsData.find(c => String(c.support_id) === String(supportId));
       
       if (card) {
-        // Reset level to 1
+        // Reset level to 1 in storage
+        slotLevels[card.support_id] = 1;
+        
+        // Reset level input
         levelInput.value = '1';
         
-        // Update slot display
-        refreshSlotDisplay(slot, card, 1);
-        
-        // Update diamond icons and level badge
-        const diamondIconsContainer = slot.querySelector('.diamond-icons');
-        const levelBadge = slot.querySelector('.level-badge');
-        
-        if (diamondIconsContainer) {
-          diamondIconsContainer.innerHTML = generateDiamondIcons(card, 1);
-        }
-        if (levelBadge) {
-          levelBadge.textContent = 'Lv 1';
-        }
+        // Update the combined level display
+        refreshCombinedLevelDisplay(slot, card, 1);
         
         // Update unique effects display
         updateUniqueEffectsDisplay(slot, card, 1);
+        
+        // Update effect value display
+        updateSlotNameWithEffectData(slot, card, 1);
+        
+        console.log(`Reset slot: ${card.char_name} to Lv 1`);
       }
     } else {
       // For empty slots, just reset the input
@@ -7495,12 +7494,25 @@ function resetAllLevels() {
   });
   
   // 4. Reset ALL main grid cards
-  resetAllMainGridCards();
+  const mainGridCards = document.querySelectorAll('.card');
+  mainGridCards.forEach(cardElement => {
+    const supportId = cardElement.dataset.supportId;
+    if (supportId) {
+      const card = cardsData.find(c => c.support_id == supportId);
+      if (card) {
+        refreshCombinedLevelDisplay(cardElement, card, 1);
+        updateCardEffectDisplay(cardElement, supportId, 1);
+      }
+    }
+  });
   
-  // 5. Update effect totals
+  // 5. Save the reset levels
+  localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+  
+  // 6. Update effect totals
   setTimeout(updateEffectTotals, 100);
   
-  // 6. Re-render sections to update main grid cards
+  // 7. Re-render sections to update main grid cards
   sectionPages.clear();
   renderSections();
   
@@ -7520,6 +7532,7 @@ function resetAllLevels() {
 function refreshCombinedLevelDisplay(element, card, newLevel) {
   const container = element.querySelector('.level-diamond-container');
   if (container) {
+    // Use the same function that creates the initial display
     container.innerHTML = generateCombinedLevelDisplay(card, newLevel);
   }
 }
