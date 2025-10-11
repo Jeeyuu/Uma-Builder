@@ -3009,65 +3009,43 @@ function removeCardLevel(supportId) {
 
 /* ------------- FLEXIBLE FILE DISCOVERY ------------- */
 async function discoverDataFiles() {
-    try {
-        // First, try to get a list of all files in the data directory
-        const dataDirResponse = await fetch('data/');
-        if (!dataDirResponse.ok) {
-            throw new Error('Cannot access data directory');
+    // Common filename patterns to try
+    const commonPatterns = [
+        // Your actual files
+        { support: 'data/support-cards.36dc3929.json', skills: 'data/skills.c34f831c.json' },
+        // Standard names as fallback
+        { support: 'data/support-cards.json', skills: 'data/skills.json' },
+        // Additional common patterns
+        { support: 'support-cards.json', skills: 'skills.json' },
+        { support: 'data/support_cards.json', skills: 'data/skills.json' }
+    ];
+
+    // Test each pattern to see which files exist
+    for (const pattern of commonPatterns) {
+        try {
+            console.log(`Trying pattern: ${pattern.support}, ${pattern.skills}`);
+            
+            const [supportTest, skillsTest] = await Promise.allSettled([
+                fetch(pattern.support).then(r => r.ok ? r.json() : Promise.reject('Not found')),
+                fetch(pattern.skills).then(r => r.ok ? r.json() : Promise.reject('Not found'))
+            ]);
+
+            if (supportTest.status === 'fulfilled' && skillsTest.status === 'fulfilled') {
+                console.log(`Found working pattern: ${pattern.support}, ${pattern.skills}`);
+                return {
+                    supportCardsFile: pattern.support,
+                    skillsFile: pattern.skills,
+                    supportData: supportTest.value,
+                    skillsData: skillsTest.value
+                };
+            }
+        } catch (error) {
+            console.log(`Pattern failed: ${pattern.support}, ${pattern.skills}`, error);
+            continue;
         }
-        
-        const html = await dataDirResponse.text();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const links = doc.querySelectorAll('a');
-        
-        const files = Array.from(links)
-            .map(link => link.href.split('/').pop())
-            .filter(file => file && file.endsWith('.json'));
-        
-        console.log('Found JSON files in data directory:', files);
-        
-        // Find files matching our patterns
-        const supportCardsFile = files.find(file => 
-            file.startsWith(SUPPORT_CARDS_PATTERN) && file.endsWith('.json')
-        );
-        const skillsFile = files.find(file => 
-            file.startsWith(SKILLS_PATTERN) && file.endsWith('.json')
-        );
-        
-        if (!supportCardsFile) {
-            throw new Error(`No file found matching pattern: ${SUPPORT_CARDS_PATTERN}*.json`);
-        }
-        if (!skillsFile) {
-            throw new Error(`No file found matching pattern: ${SKILLS_PATTERN}*.json`);
-        }
-        
-        return {
-            supportCardsFile: `data/${supportCardsFile}`,
-            skillsFile: `data/${skillsFile}`
-        };
-        
-    } catch (error) {
-        console.warn('Could not auto-discover files, trying fallback patterns:', error);
-        
-        // Fallback: try common patterns
-        const fallbackFiles = {
-            supportCardsFile: 'data/support-cards.json',
-            skillsFile: 'data/skills.json'
-        };
-        
-        // Test if fallback files exist
-        const [supportTest, skillsTest] = await Promise.allSettled([
-            fetch(fallbackFiles.supportCardsFile),
-            fetch(fallbackFiles.skillsFile)
-        ]);
-        
-        if (supportTest.status === 'fulfilled' && skillsTest.status === 'fulfilled') {
-            return fallbackFiles;
-        }
-        
-        throw new Error('Could not find required data files. Please ensure support-cards.*.json and skills.*.json exist in the data directory.');
     }
+
+    throw new Error('Could not find required data files. Please ensure support-cards.*.json and skills.*.json exist.');
 }
 
 /* ------------- SKILL ID TO NAME MAPPING ------------- */
@@ -3140,31 +3118,18 @@ function processSupportCardData(supportCards, skills) {
 /* ------------- Fetch JSON ------------- */
 async function loadDataFiles() {
     try {
-        // Discover the actual file names
-        const filePaths = await discoverDataFiles();
-        console.log('Discovered data files:', filePaths);
+        // Discover the actual file names and load data in one step
+        const discoveredFiles = await discoverDataFiles();
+        console.log('Discovered and loaded data files:', discoveredFiles.supportCardsFile, discoveredFiles.skillsFile);
         
-        // Load both files
-        const [supportCardsResponse, skillsResponse] = await Promise.all([
-            fetch(filePaths.supportCardsFile),
-            fetch(filePaths.skillsFile)
-        ]);
-        
-        if (!supportCardsResponse.ok) {
-            throw new Error(`Failed to fetch ${filePaths.supportCardsFile}: ${supportCardsResponse.status} ${supportCardsResponse.statusText}`);
-        }
-        if (!skillsResponse.ok) {
-            throw new Error(`Failed to fetch ${filePaths.skillsFile}: ${skillsResponse.status} ${skillsResponse.statusText}`);
-        }
-        
-        const supportCardsData = await supportCardsResponse.json();
-        const skillsData = await skillsResponse.json();
-        
+        const supportCardsData = discoveredFiles.supportData;
+        const skillsData = discoveredFiles.skillsData;
+
         if (!Array.isArray(supportCardsData)) {
-            throw new Error('support-cards.json data is not an array');
+            throw new Error('support-cards data is not an array');
         }
         if (!Array.isArray(skillsData)) {
-            throw new Error('skills.json data is not an array');
+            throw new Error('skills data is not an array');
         }
         
         // Process the data to convert skill IDs to names
@@ -3175,7 +3140,19 @@ async function loadDataFiles() {
         
     } catch (error) {
         console.error('Error loading data files:', error);
-        throw error;
+        
+        // Provide helpful error message
+        const errorMsg = `
+Error: Could not load data files.
+
+Please ensure you have both files in your data folder:
+- support-cards.36dc3929.json (or similar)
+- skills.c34f831c.json (or similar)
+
+Current error: ${error.message}
+        `.trim();
+        
+        throw new Error(errorMsg);
     }
 }
 
@@ -3232,10 +3209,12 @@ loadDataFiles()
         <div style="opacity:0.7;padding:12px;text-align:center;">
         <h3>Error loading data</h3>
         <p>${err.message}</p>
-        <p>Check browser console for details.</p>
+        <p>Please check that your data files exist and are properly named.</p>
+        <p>Required files: support-cards.*.json and skills.*.json in the data folder</p>
         </div>
     `;
 });
+
 /* ------------- DYNAMIC PAGINATION ------------- */
 function calculateCardsPerPage() {
   const grid = document.querySelector('.cards');
