@@ -1710,11 +1710,6 @@ body.dark-mode .collapse-toggle:hover {
   border-top: 5px solid #ff4444;
 }
 
-/* Make it clear when slots are clickable for selection */
-.slot-container:not(.has-card) {
-  cursor: pointer;
-}
-
 .slot-container.has-card {
   cursor: default;
 }
@@ -1956,17 +1951,13 @@ body.dark-mode .deck-name-display {
 /* ---------- COMBINED LEVEL AND DIAMONDS DISPLAY ---------- */
 .level-diamond-container {
   position: absolute;
-  top: 78px;
-  left: 0;
-  right: 0;
+  top: 81px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   z-index: 5;
   background: rgba(0, 0, 0, 0.9);
   padding: 3px;
-  border-radius: 4px;
-  pointer-events: none;
+  border-radius: 6%;
+  pointer-events: auto;
 }
 
 .level-badge-combined {
@@ -1976,7 +1967,7 @@ body.dark-mode .deck-name-display {
   flex-shrink: 0;
   min-width: 28px;
   text-align: center;
-    pointer-events: none;
+  pointer-events: auto;
 }
 
 .diamond-icons-combined {
