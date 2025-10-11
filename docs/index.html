@@ -2942,11 +2942,14 @@ body.dark-mode .character-skill {
 
 <script>
 /* ------------- CONFIG ------------- */
-const JSON_FILE = "data/transformed_supports.json";
+// More flexible file matching - will look for files starting with these patterns
+const SUPPORT_CARDS_PATTERN = "support-cards";
+const SKILLS_PATTERN = "skills";
 const HIDE = { char_id: false, url_name: true };
 
 /* ------------- STATE ------------- */
 let cardsData = [];
+let skillsData = []; // Store skills data for lookup
 const cardSections = document.getElementById('cardSections');
 const slotContainers = Array.from(document.querySelectorAll('.slot-container'));
 const slots = Array.from(document.querySelectorAll('.right-sidebar .slot'));
@@ -3003,6 +3006,236 @@ function removeCardLevel(supportId) {
         localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
     }
 }
+
+/* ------------- FLEXIBLE FILE DISCOVERY ------------- */
+async function discoverDataFiles() {
+    try {
+        // First, try to get a list of all files in the data directory
+        const dataDirResponse = await fetch('data/');
+        if (!dataDirResponse.ok) {
+            throw new Error('Cannot access data directory');
+        }
+        
+        const html = await dataDirResponse.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const links = doc.querySelectorAll('a');
+        
+        const files = Array.from(links)
+            .map(link => link.href.split('/').pop())
+            .filter(file => file && file.endsWith('.json'));
+        
+        console.log('Found JSON files in data directory:', files);
+        
+        // Find files matching our patterns
+        const supportCardsFile = files.find(file => 
+            file.startsWith(SUPPORT_CARDS_PATTERN) && file.endsWith('.json')
+        );
+        const skillsFile = files.find(file => 
+            file.startsWith(SKILLS_PATTERN) && file.endsWith('.json')
+        );
+        
+        if (!supportCardsFile) {
+            throw new Error(`No file found matching pattern: ${SUPPORT_CARDS_PATTERN}*.json`);
+        }
+        if (!skillsFile) {
+            throw new Error(`No file found matching pattern: ${SKILLS_PATTERN}*.json`);
+        }
+        
+        return {
+            supportCardsFile: `data/${supportCardsFile}`,
+            skillsFile: `data/${skillsFile}`
+        };
+        
+    } catch (error) {
+        console.warn('Could not auto-discover files, trying fallback patterns:', error);
+        
+        // Fallback: try common patterns
+        const fallbackFiles = {
+            supportCardsFile: 'data/support-cards.json',
+            skillsFile: 'data/skills.json'
+        };
+        
+        // Test if fallback files exist
+        const [supportTest, skillsTest] = await Promise.allSettled([
+            fetch(fallbackFiles.supportCardsFile),
+            fetch(fallbackFiles.skillsFile)
+        ]);
+        
+        if (supportTest.status === 'fulfilled' && skillsTest.status === 'fulfilled') {
+            return fallbackFiles;
+        }
+        
+        throw new Error('Could not find required data files. Please ensure support-cards.*.json and skills.*.json exist in the data directory.');
+    }
+}
+
+/* ------------- SKILL ID TO NAME MAPPING ------------- */
+function getSkillName(skillId) {
+    if (!skillsData || skillsData.length === 0) {
+        console.warn('Skills data not loaded yet');
+        return `Skill ${skillId}`; // Fallback
+    }
+    
+    const skill = skillsData.find(s => s.id === skillId);
+    if (skill) {
+        // Return appropriate name based on region
+        if (region === 'global') {
+            return skill.name_en || skill.jpname || `Skill ${skillId}`;
+        } else {
+            return skill.jpname || skill.name_en || `Skill ${skillId}`;
+        }
+    }
+    
+    return `Skill ${skillId}`; // Fallback if skill not found
+}
+
+function getSkillDescription(skillId) {
+    if (!skillsData || skillsData.length === 0) return '';
+    
+    const skill = skillsData.find(s => s.id === skillId);
+    if (skill) {
+        // Return appropriate description based on region
+        if (region === 'global') {
+            return skill.desc_en || skill.jpdesc || '';
+        } else {
+            return skill.jpdesc || skill.desc_en || '';
+        }
+    }
+    
+    return '';
+}
+
+/* ------------- PROCESS SUPPORT CARD DATA ------------- */
+function processSupportCardData(supportCards, skills) {
+    skillsData = skills; // Store skills for lookup
+    
+    return supportCards.map(card => {
+        // Convert skill IDs to skill names
+        const hint_skills = (card.hints?.hint_skills || []).map(skillId => getSkillName(skillId));
+        const event_skills = (card.event_skills || []).map(skillId => getSkillName(skillId));
+        
+        // For English region, we might need to handle English skill names differently
+        // This would require your skills.json to have English names populated
+        const event_skills_en = (card.event_skills || []).map(skillId => getSkillName(skillId));
+        
+        return {
+            ...card,
+            char_id: card.char_id || 0,
+            char_name: card.char_name || 'Unknown',
+            hint_skills: hint_skills,
+            event_skills: event_skills,
+            event_skills_en: event_skills_en, // Using same as Japanese for now
+            rarity: card.rarity || 1,
+            release: card.release || '',
+            release_en: card.release_en || '',
+            support_id: card.support_id || 0,
+            type: (card.type || '').toLowerCase(),
+            url_name: card.url_name || '',
+            effects: card.effects || [] // Keep the effects array as-is
+        };
+    });
+}
+
+/* ------------- Fetch JSON ------------- */
+async function loadDataFiles() {
+    try {
+        // Discover the actual file names
+        const filePaths = await discoverDataFiles();
+        console.log('Discovered data files:', filePaths);
+        
+        // Load both files
+        const [supportCardsResponse, skillsResponse] = await Promise.all([
+            fetch(filePaths.supportCardsFile),
+            fetch(filePaths.skillsFile)
+        ]);
+        
+        if (!supportCardsResponse.ok) {
+            throw new Error(`Failed to fetch ${filePaths.supportCardsFile}: ${supportCardsResponse.status} ${supportCardsResponse.statusText}`);
+        }
+        if (!skillsResponse.ok) {
+            throw new Error(`Failed to fetch ${filePaths.skillsFile}: ${skillsResponse.status} ${skillsResponse.statusText}`);
+        }
+        
+        const supportCardsData = await supportCardsResponse.json();
+        const skillsData = await skillsResponse.json();
+        
+        if (!Array.isArray(supportCardsData)) {
+            throw new Error('support-cards.json data is not an array');
+        }
+        if (!Array.isArray(skillsData)) {
+            throw new Error('skills.json data is not an array');
+        }
+        
+        // Process the data to convert skill IDs to names
+        cardsData = processSupportCardData(supportCardsData, skillsData);
+        
+        console.log(`Loaded ${cardsData.length} support cards and ${skillsData.length} skills`);
+        return true;
+        
+    } catch (error) {
+        console.error('Error loading data files:', error);
+        throw error;
+    }
+}
+
+/* ------------- Initialize Application ------------- */
+loadDataFiles()
+.then(() => {
+    // Initialize all components with error handling
+    try {
+        setupFilterPersistence();
+        setupToggleButtons();
+        setupSortingControls();
+        setupDynamicSkillSearch();
+        setupPresets();
+        setupPresetReset();
+        setupTogglePresetCards();
+        setupCardSearch();
+        setupCopyPasteButtons();
+        loadSlotsFromLocalStorage();
+        setupClearAllSearches();
+        updateSelectedSkillsList();
+        setupDeckCopyPaste();
+        setupSlotSelection();
+        setupKeyboardShortcuts();
+
+        // Add these to your existing initialization code
+        setupDeckName();
+        setupCopyAll();
+        setupPasteAll();
+        setupResetLevels();
+        setupClearDeckWithNameReset();
+
+        // Final refresh to ensure everything is synced
+        setTimeout(() => {
+            sectionPages.clear();
+            renderSections();
+            updateAllSlotDisplays();
+            
+            // Double check after everything settles
+            setTimeout(() => {
+                ensureSlotsLoaded();
+                updateAllSlotDisplays();
+                
+                // Initialize effects - ALWAYS SHOW HEADER, HIDE EMPTY ROWS
+                updateEffectTotals();
+            }, 500);
+        }, 500);
+    } catch (error) {
+        console.error('Error during setup:', error);
+    }
+})
+.catch(err => {
+    console.error('Could not load JSON:', err);
+    cardSections.innerHTML = `
+        <div style="opacity:0.7;padding:12px;text-align:center;">
+        <h3>Error loading data</h3>
+        <p>${err.message}</p>
+        <p>Check browser console for details.</p>
+        </div>
+    `;
+});
 /* ------------- DYNAMIC PAGINATION ------------- */
 function calculateCardsPerPage() {
   const grid = document.querySelector('.cards');
@@ -5679,41 +5912,42 @@ function updateSelectedSkillsList() {
   updateSelectedSkillsVisibility();
 }
 
+/* ------------- UPDATE getAllSkillsFromSelectedCards FUNCTION ------------- */
 function getAllSkillsFromSelectedCards() {
-  const allSkills = new Set();
-  
-  // Iterate through all slots with cards
-  slots.forEach(slot => {
-    if (slot.dataset.supportId) {
-      const supportId = slot.dataset.supportId;
-      const card = cardsData.find(c => String(c.support_id) === String(supportId));
-      
-      if (card) {
-        // Use English skills for Global region, Japanese skills for Japan region
-        const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-        const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
-        
-        // Add hint skills
-        if (card.hint_skills) {
-          card.hint_skills.forEach(skill => {
-            const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
-            if (cleanSkill) allSkills.add(properCaseSkill(cleanSkill));
-          });
+    const allSkills = new Set();
+    
+    // Iterate through all slots with cards
+    slots.forEach(slot => {
+        if (slot.dataset.supportId) {
+            const supportId = slot.dataset.supportId;
+            const card = cardsData.find(c => String(c.support_id) === String(supportId));
+            
+            if (card) {
+                // Use English skills for Global region, Japanese skills for Japan region
+                const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+                const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+                
+                // Add hint skills
+                if (card.hint_skills) {
+                    card.hint_skills.forEach(skill => {
+                        const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
+                        if (cleanSkill) allSkills.add(properCaseSkill(cleanSkill));
+                    });
+                }
+                
+                // Add event skills
+                if (eventSkillsToUse) {
+                    eventSkillsToUse.forEach(skill => {
+                        const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
+                        if (cleanSkill) allSkills.add(properCaseSkill(cleanSkill));
+                    });
+                }
+            }
         }
-        
-        // Add event skills
-        if (eventSkillsToUse) {
-          eventSkillsToUse.forEach(skill => {
-            const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
-            if (cleanSkill) allSkills.add(properCaseSkill(cleanSkill));
-          });
-        }
-      }
-    }
-  });
-  
-  // Convert Set to Array and sort alphabetically
-  return Array.from(allSkills).sort();
+    });
+    
+    // Convert Set to Array and sort alphabetically
+    return Array.from(allSkills).sort();
 }
 
 function highlightSelectedSkills() {
