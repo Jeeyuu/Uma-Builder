@@ -2409,7 +2409,6 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
 
 <script>
 /* --------------------------------------- CONFIG --------------------------------------- */
-// More flexible file matching - will look for files starting with these patterns
 const SUPPORT_CARDS_PATTERN = "support-cards";
 const SKILLS_PATTERN = "skills";
 const PRESETS_JSON_FILE = "data/champions_meeting.json";
@@ -2417,9 +2416,9 @@ const HIDE = { char_id: false, url_name: true };
 
 /* ------------- STATE ------------- */
 let cardsData = [];
-let skillsData = []; // Store skills data for lookup
-let presetRaceNumbers = new Map(); // Store race numbers by title
-let supportsDataWithEffects = []; // For effect calculations
+let skillsData = [];
+let presetRaceNumbers = new Map();
+let supportsDataWithEffects = [];
 
 const cardSections = document.getElementById('cardSections');
 const slotContainers = Array.from(document.querySelectorAll('.slot-container'));
@@ -2431,39 +2430,30 @@ const sectionPages = new Map();
 const slotListeners = new Map();
 const SLOT_KEY = 'saved_slots';
 const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
-let SKILL_SEARCH_KEYS = []; // This will be populated from localStorage
-let showPresetCards = true; // Start with preset cards visible
+let SKILL_SEARCH_KEYS = [];
+let showPresetCards = true;
 let selectedSlot = null;
 const SLOT_SELECTION_KEY = 'selected_slot';
 
-/* ------------- CARD SEARCH STATE ------------- */
 let cardSearchValue = '';
-
-/* ------------- SKILL SEARCH STATE ------------- */
 let skillSearches = JSON.parse(localStorage.getItem('skillSearches')) || [{ id: 'skillSearch1', value: '' }];
 let searchCounter = skillSearches.length + 1;
 
-/* ------------- TOGGLE BUTTON STATE ------------- */
 const selectedRarities = new Set();
 const selectedTypes = new Set();
 
-/* ------------- NEW STATE VARIABLES ------------- */
 let hideUncolored = false;
 let sortBy = 'rarity';
-let sortOrder = 'descending'; // CHANGED TO DESCENDING
+let sortOrder = 'descending';
 let region = 'global';
 
-/* ------------- ENHANCED LEVEL PERSISTENCE ------------- */
-// This replaces the existing slotLevels initialization
 const slotLevels = JSON.parse(localStorage.getItem('slotLevels')) || {};
 const MAX_LEVELS = { 'R': 40, 'SR': 45, 'SSR': 50 };
 
-// Store levels by support_id instead of by slot position
 function saveCardLevel(supportId, level) {
     if (supportId) {
         slotLevels[supportId] = parseInt(level) || 1;
         localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
-        console.log(`Saved level ${level} for card ${supportId}`);
     }
 }
 
@@ -2478,31 +2468,23 @@ function removeCardLevel(supportId) {
     }
 }
 
-/* ------------- FLEXIBLE FILE DISCOVERY ------------- */
+/* ------------- DATA LOADING ------------- */
 async function discoverDataFiles() {
-    // Common filename patterns to try
     const commonPatterns = [
-        // Your actual files
         { support: 'data/support-cards.36dc3929.json', skills: 'data/skills.c34f831c.json' },
-        // Standard names as fallback
         { support: 'data/support-cards.json', skills: 'data/skills.json' },
-        // Additional common patterns
         { support: 'support-cards.json', skills: 'skills.json' },
         { support: 'data/support_cards.json', skills: 'data/skills.json' }
     ];
 
-    // Test each pattern to see which files exist
     for (const pattern of commonPatterns) {
         try {
-            console.log(`Trying pattern: ${pattern.support}, ${pattern.skills}`);
-            
             const [supportTest, skillsTest] = await Promise.allSettled([
                 fetch(pattern.support).then(r => r.ok ? r.json() : Promise.reject('Not found')),
                 fetch(pattern.skills).then(r => r.ok ? r.json() : Promise.reject('Not found'))
             ]);
 
             if (supportTest.status === 'fulfilled' && skillsTest.status === 'fulfilled') {
-                console.log(`Found working pattern: ${pattern.support}, ${pattern.skills}`);
                 return {
                     supportCardsFile: pattern.support,
                     skillsFile: pattern.skills,
@@ -2511,24 +2493,20 @@ async function discoverDataFiles() {
                 };
             }
         } catch (error) {
-            console.log(`Pattern failed: ${pattern.support}, ${pattern.skills}`, error);
             continue;
         }
     }
 
-    throw new Error('Could not find required data files. Please ensure support-cards.*.json and skills.*.json exist.');
+    throw new Error('Could not find required data files.');
 }
 
-/* ------------- SKILL ID TO NAME MAPPING ------------- */
 function getSkillName(skillId) {
     if (!skillsData || skillsData.length === 0) {
-        console.warn('Skills data not loaded yet');
-        return `Skill ${skillId}`; // Fallback
+        return `Skill ${skillId}`;
     }
     
     const skill = skillsData.find(s => s.id === skillId);
     if (skill) {
-        // Return appropriate name based on region
         if (region === 'global') {
             return skill.name_en || skill.jpname || `Skill ${skillId}`;
         } else {
@@ -2536,7 +2514,7 @@ function getSkillName(skillId) {
         }
     }
     
-    return `Skill ${skillId}`; // Fallback if skill not found
+    return `Skill ${skillId}`;
 }
 
 function getSkillDescription(skillId) {
@@ -2544,7 +2522,6 @@ function getSkillDescription(skillId) {
     
     const skill = skillsData.find(s => s.id === skillId);
     if (skill) {
-        // Return appropriate description based on region
         if (region === 'global') {
             return skill.desc_en || skill.jpdesc || '';
         } else {
@@ -2555,18 +2532,13 @@ function getSkillDescription(skillId) {
     return '';
 }
 
-/* ------------- PROCESS SUPPORT CARD DATA ------------- */
 function processSupportCardData(supportCards, skills) {
-    skillsData = skills; // Store skills for lookup
-    supportsDataWithEffects = supportCards; // Store for effect calculations
+    skillsData = skills;
+    supportsDataWithEffects = supportCards;
     
     return supportCards.map(card => {
-        // Convert skill IDs to skill names
         const hint_skills = (card.hints?.hint_skills || []).map(skillId => getSkillName(skillId));
         const event_skills = (card.event_skills || []).map(skillId => getSkillName(skillId));
-        
-        // For English region, we might need to handle English skill names differently
-        // This would require your skills.json to have English names populated
         const event_skills_en = (card.event_skills || []).map(skillId => getSkillName(skillId));
         
         return {
@@ -2575,25 +2547,21 @@ function processSupportCardData(supportCards, skills) {
             char_name: card.char_name || 'Unknown',
             hint_skills: hint_skills,
             event_skills: event_skills,
-            event_skills_en: event_skills_en, // Using same as Japanese for now
+            event_skills_en: event_skills_en,
             rarity: card.rarity || 1,
             release: card.release || '',
             release_en: card.release_en || '',
             support_id: card.support_id || 0,
             type: (card.type || '').toLowerCase(),
             url_name: card.url_name || '',
-            effects: card.effects || [] // Keep the effects array as-is
+            effects: card.effects || []
         };
     });
 }
 
-/* ------------- Fetch JSON ------------- */
 async function loadDataFiles() {
     try {
-        // Discover the actual file names and load data in one step
         const discoveredFiles = await discoverDataFiles();
-        console.log('Discovered and loaded data files:', discoveredFiles.supportCardsFile, discoveredFiles.skillsFile);
-        
         const supportCardsData = discoveredFiles.supportData;
         const skillsData = discoveredFiles.skillsData;
 
@@ -2604,35 +2572,19 @@ async function loadDataFiles() {
             throw new Error('skills data is not an array');
         }
         
-        // Process the data to convert skill IDs to names
         cardsData = processSupportCardData(supportCardsData, skillsData);
-        
-        console.log(`Loaded ${cardsData.length} support cards and ${skillsData.length} skills`);
         return true;
         
     } catch (error) {
         console.error('Error loading data files:', error);
-        
-        // Provide helpful error message
-        const errorMsg = `
-Error: Could not load data files.
-
-Please ensure you have both files in your data folder:
-- support-cards.36dc3929.json (or similar)
-- skills.c34f831c.json (or similar)
-
-Current error: ${error.message}
-        `.trim();
-        
-        throw new Error(errorMsg);
+        throw new Error(`Error: Could not load data files. Please ensure you have both files in your data folder. Current error: ${error.message}`);
     }
 }
 
-/* ------------- Initialize Application ------------- */
+/* ------------- INITIALIZATION ------------- */
 document.addEventListener('DOMContentLoaded', function() {
     loadDataFiles()
     .then(() => {
-        // Initialize all components with error handling
         try {
             setupFilterPersistence();
             setupToggleButtons();
@@ -2650,25 +2602,20 @@ document.addEventListener('DOMContentLoaded', function() {
             setupSlotSelection();
             setupKeyboardShortcuts();
 
-            // Add these to your existing initialization code
             setupDeckName();
             setupCopyAll();
             setupPasteAll();
             setupResetLevels();
             setupClearDeckWithNameReset();
 
-            // Final refresh to ensure everything is synced
             setTimeout(() => {
                 sectionPages.clear();
                 renderSections();
                 updateAllSlotDisplays();
                 
-                // Double check after everything settles
                 setTimeout(() => {
                     ensureSlotsLoaded();
                     updateAllSlotDisplays();
-                    
-                    // Initialize effects - ALWAYS SHOW HEADER, HIDE EMPTY ROWS
                     updateEffectTotals();
                 }, 500);
             }, 500);
@@ -2683,29 +2630,22 @@ document.addEventListener('DOMContentLoaded', function() {
             <h3>Error loading data</h3>
             <p>${err.message}</p>
             <p>Please check that your data files exist and are properly named.</p>
-            <p>Required files: support-cards.*.json and skills.*.json in the data folder</p>
             </div>
         `;
     });
 });
 
-// ========== ADD ALL YOUR ORIGINAL FUNCTIONS BELOW THIS LINE ==========
-// Make sure to remove any duplicate variable declarations from your functions
-
-/* ------------- DYNAMIC PAGINATION ------------- */
+/* ------------- PAGINATION ------------- */
 function calculateCardsPerPage() {
   const grid = document.querySelector('.cards');
-  if (!grid) return 6; // fallback
+  if (!grid) return 6;
   
   const gridWidth = grid.clientWidth;
   const cardWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 120;
   const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 8;
   
-  // Calculate how many cards fit in one row
   const cardsPerRow = Math.floor((gridWidth + gap) / (cardWidth + gap));
-  
-  // Always show at least 1 row, but you can adjust this if you want multiple rows per page
-  const rowsPerPage = 1; // Change this to 2 or more if you want multiple rows per page
+  const rowsPerPage = 1;
   
   return cardsPerRow * rowsPerPage;
 }
@@ -2720,8 +2660,6 @@ function renderFilterPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
   pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
   const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-
-  // Show/hide pagination controls based on whether pagination is needed
   const needsPagination = totalPages > 1;
   leftBtn.style.display = needsPagination ? 'flex' : 'none';
   rightBtn.style.display = needsPagination ? 'flex' : 'none';
@@ -2755,8 +2693,6 @@ function renderCardSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
   pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
   const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-  
-  // Show/hide pagination controls
   const needsPagination = totalPages > 1;
   leftBtn.style.display = needsPagination ? 'flex' : 'none';
   rightBtn.style.display = needsPagination ? 'flex' : 'none';
@@ -2774,8 +2710,6 @@ function renderSkillSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) 
   pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
   const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
-  
-  // Show/hide pagination controls
   const needsPagination = totalPages > 1;
   leftBtn.style.display = needsPagination ? 'flex' : 'none';
   rightBtn.style.display = needsPagination ? 'flex' : 'none';
@@ -2785,7 +2719,7 @@ function renderSkillSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) 
   highlightSkills();
 }
 
-/* ------------- SORTING FUNCTION ------------- */
+/* ------------- SORTING ------------- */
 function sortCards(cards, sortBy, order) {
   const sortedCards = [...cards];
   
@@ -2797,7 +2731,6 @@ function sortCards(cards, sortBy, order) {
         if (a.rarity !== b.rarity) {
           return order === 'ascending' ? a.rarity - b.rarity : b.rarity - a.rarity;
         }
-        // If same rarity, sort by appropriate release date
         aValue = region === 'global' ? a.release_en : a.release;
         bValue = region === 'global' ? b.release_en : b.release;
         break;
@@ -2806,30 +2739,25 @@ function sortCards(cards, sortBy, order) {
         aValue = a.char_name.toLowerCase();
         bValue = b.char_name.toLowerCase();
         
-        // First, compare by name based on the sort order
         if (aValue !== bValue) {
           if (aValue < bValue) return order === 'ascending' ? -1 : 1;
           if (aValue > bValue) return order === 'ascending' ? 1 : -1;
         }
         
-        // If names are exactly the same, ALWAYS sort by rarity descending (SSR first)
-        return b.rarity - a.rarity; // SSR > SR > R always
+        return b.rarity - a.rarity;
         
       case 'type':
         aValue = a.type;
         bValue = b.type;
         
-        // First, compare by type based on the sort order
         if (aValue !== bValue) {
           if (aValue < bValue) return order === 'ascending' ? -1 : 1;
           if (aValue > bValue) return order === 'ascending' ? 1 : -1;
         }
         
-        // If types are exactly the same, ALWAYS sort by rarity descending (SSR first)
-        return b.rarity - a.rarity; // SSR > SR > R always
+        return b.rarity - a.rarity;
         
       case 'release':
-        // Use appropriate release date based on region
         aValue = region === 'global' ? a.release_en : a.release;
         bValue = region === 'global' ? b.release_en : b.release;
         break;
@@ -2840,7 +2768,6 @@ function sortCards(cards, sortBy, order) {
         break;
         
       default:
-        // Handle effect sorting (numeric values)
         if (!isNaN(parseInt(sortBy))) {
           const effectId = parseInt(sortBy);
           aValue = getEffectValueForSorting(a, effectId) || 0;
@@ -2850,12 +2777,10 @@ function sortCards(cards, sortBy, order) {
         return 0;
     }
     
-    // Handle empty values
     if (!aValue && bValue) return order === 'ascending' ? -1 : 1;
     if (aValue && !bValue) return order === 'ascending' ? 1 : -1;
     if (!aValue && !bValue) return 0;
     
-    // For dates, convert to timestamps for proper comparison
     if (sortBy === 'release' || (sortBy === 'rarity' && a.rarity === b.rarity)) {
       try {
         const aDate = new Date(aValue);
@@ -2871,7 +2796,6 @@ function sortCards(cards, sortBy, order) {
       }
     }
     
-    // Compare values
     if (aValue < bValue) return order === 'ascending' ? -1 : 1;
     if (aValue > bValue) return order === 'ascending' ? 1 : -1;
     return 0;
@@ -2880,7 +2804,7 @@ function sortCards(cards, sortBy, order) {
   return sortedCards;
 }
 
-/* ------------- CARD NAME SEARCH ------------- */
+/* ------------- CARD SEARCH ------------- */
 function setupCardSearch() {
   const cardSearchInput = document.getElementById('cardSearch');
   const savedCardSearch = localStorage.getItem('cardSearch');
@@ -2899,14 +2823,11 @@ function setupCardSearch() {
 }
 
 function renderCardSearchSection() {
-  // Get the current filtered cards based on all active filters
   let filteredCards = cardsData.filter(card => {
     if (region === 'global') {
-      // For Global, only show cards that have release_en date (released globally)
       if (!card.release_en || card.release_en === '') return false;
     }
     
-    // Apply rarity filters
     if (selectedRarities.size > 0) {
       const hasRarity = 
         (selectedRarities.has('R') && card.rarity === 1) ||
@@ -2915,7 +2836,6 @@ function renderCardSearchSection() {
       if (!hasRarity) return false;
     }
     
-    // Apply type filters
     if (selectedTypes.size > 0 && !selectedTypes.has(card.type)) {
       return false;
     }
@@ -2923,30 +2843,24 @@ function renderCardSearchSection() {
     return true;
   });
   
-  // Filter by card name search
   const matches = filteredCards.filter(card => {
     const cardName = card.char_name.toLowerCase();
     return cardName.includes(cardSearchValue);
   });
   
-  // Sort matches: SSR > SR > R, then by type order
   const typeOrder = { 'speed': 0, 'stamina': 1, 'power': 2, 'guts': 3, 'intelligence': 4, 'friend': 5, 'group': 6 };
   
   matches.sort((a, b) => {
-    // First by rarity (SSR first)
     if (a.rarity !== b.rarity) {
-      return b.rarity - a.rarity; // SSR (3) > SR (2) > R (1)
+      return b.rarity - a.rarity;
     }
-    // Then by type order
     return typeOrder[a.type] - typeOrder[b.type];
   });
 
-  // COMPLETELY HIDE SECTION IF NO MATCHES
   if (matches.length === 0) {
-    return; // Don't create any section at all
+    return;
   }
 
-  // Convert search value to proper case for display
   const displaySearchValue = cardSearchValue
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -3012,7 +2926,7 @@ rightBtn.addEventListener('click', () => {
 });
 }
 
-/* ------------- DYNAMIC SKILL SEARCH ------------- */
+/* ------------- SKILL SEARCH ------------- */
 const maxSearches = 30;
 
 function setupDynamicSkillSearch() {
@@ -3024,26 +2938,21 @@ function setupDynamicSkillSearch() {
     return;
   }
   
-  // Clear existing search boxes first
   const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
   existingContainers.forEach(container => container.remove());
   
-  // Recreate search boxes from saved state
   skillSearches.forEach((search, index) => {
-    createSearchBox(search.id, search.value, index === 0); // First one can't be removed
+    createSearchBox(search.id, search.value, index === 0);
   });
   
-  // CRITICAL FIX: Update SKILL_SEARCH_KEYS array with ACTUAL current values
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
-  // CRITICAL FIX: Also update the search values in the inputs AND colors
   skillSearches.forEach(search => {
     const input = document.getElementById(search.id);
     if (input) {
       input.value = search.value;
     }
     
-    // FIX: Ensure color picker is properly initialized for ALL search boxes
     const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
     if (colorPicker) {
       const savedColor = localStorage.getItem(`color_${search.id}`) || 'green';
@@ -3056,7 +2965,6 @@ function setupDynamicSkillSearch() {
     addSearchBtn.addEventListener('click', addSearchBox);
   }
   
-  // Setup color picker for all search boxes
   skillSearches.forEach(search => {
     setupColorPicker(search.id);
   });
@@ -3066,7 +2974,6 @@ function createSearchBox(searchId, value = '') {
   const searchContainer = document.createElement('div');
   searchContainer.className = 'search-input-container';
   
-  // FORCE green color for all new boxes, ignore localStorage for new creations
   const isNewBox = !document.getElementById(searchId);
   const savedColor = isNewBox ? 'green' : (localStorage.getItem(`color_${searchId}`) || 'green');
   
@@ -3088,10 +2995,9 @@ function createSearchBox(searchId, value = '') {
 
   setupSearchInput(searchId);
   setupRemoveButton(searchId);
-  setupColorPicker(searchId); // This will now properly set up the color picker
+  setupColorPicker(searchId);
 }
 
-/* ------------- COLOR PICKER FUNCTIONALITY ------------- */
 const colorSequence = [
   'green', 'blue', 'orange', 'red',
   'green-border', 'blue-border', 'orange-border', 'red-border'
@@ -3101,16 +3007,13 @@ function setupColorPicker(searchId) {
   const colorPicker = document.querySelector(`.color-picker[data-search-id="${searchId}"]`);
   if (!colorPicker) return;
 
-  // Remove any existing event listeners to prevent duplicates
   const newColorPicker = colorPicker.cloneNode(true);
   colorPicker.parentNode.replaceChild(newColorPicker, colorPicker);
 
-  // Load saved color - default to green instead of red
   const savedColor = localStorage.getItem(`color_${searchId}`) || 'green';
   newColorPicker.className = `color-picker ${savedColor}`;
   newColorPicker.dataset.color = savedColor;
 
-  // Add click event listener with proper cleanup
   let clickHandler;
   newColorPicker.addEventListener('click', clickHandler = () => {
     const currentColor = newColorPicker.dataset.color;
@@ -3118,18 +3021,14 @@ function setupColorPicker(searchId) {
     const nextIndex = (currentIndex + 1) % colorSequence.length;
     const nextColor = colorSequence[nextIndex];
     
-    console.log(`Color picker ${searchId}: ${currentColor} -> ${nextColor}`); // Debug log
-    
     newColorPicker.className = `color-picker ${nextColor}`;
     newColorPicker.dataset.color = nextColor;
     
     localStorage.setItem(`color_${searchId}`, nextColor);
     
-    // Update highlighting immediately
     highlightSkills();
   });
 
-  // Store the handler for potential cleanup
   newColorPicker._clickHandler = clickHandler;
 }
 
@@ -3139,14 +3038,11 @@ function addSearchBox() {
   const newId = `skillSearch${searchCounter}`;
   searchCounter++;
   
-  // Add to our state with empty value
   skillSearches.push({ id: newId, value: '' });
   saveSkillSearches();
   
-  // Create the UI element - ALWAYS use default green color for new boxes
   createSearchBox(newId, '');
   
-  // CRITICAL: Force the new box to be green, regardless of what's in localStorage
   const newColorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
   if (newColorPicker) {
     newColorPicker.className = 'color-picker green';
@@ -3154,7 +3050,6 @@ function addSearchBox() {
     localStorage.setItem(`color_${newId}`, 'green');
   }
   
-  // CRITICAL: Update the global array immediately
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
   sectionPages.clear();
@@ -3164,7 +3059,6 @@ function addSearchBox() {
 }
 
 function saveSkillSearches() {
-  // Update values from current inputs before saving
   skillSearches.forEach(search => {
     const input = document.getElementById(search.id);
     if (input) {
@@ -3174,19 +3068,16 @@ function saveSkillSearches() {
   localStorage.setItem('skillSearches', JSON.stringify(skillSearches));
 }
 
-// Modified setupSearchInput to use our persistence system
 function setupSearchInput(searchId) {
   const input = document.getElementById(searchId);
   if (!input) return;
 
-  // Find the saved value
   const savedSearch = skillSearches.find(search => search.id === searchId);
   if (savedSearch) {
     input.value = savedSearch.value;
   }
 
   input.addEventListener('input', () => {
-    // Update our state
     const search = skillSearches.find(s => s.id === searchId);
     if (search) {
       search.value = input.value;
@@ -3195,17 +3086,15 @@ function setupSearchInput(searchId) {
     
     sectionPages.clear();
     renderSections();
-    highlightSkills(); // Add this line
-    highlightSelectedSkills(); // Add this line
+    highlightSkills();
+    highlightSelectedSkills();
   });
 }
 
-// Modified setupRemoveButton
 function setupRemoveButton(searchId) {
   const removeBtn = document.querySelector(`.remove-search-btn[data-search-id="${searchId}"]`);
   if (!removeBtn) return;
 
-  // Remove any existing listeners to prevent duplicates
   const newRemoveBtn = removeBtn.cloneNode(true);
   removeBtn.parentNode.replaceChild(newRemoveBtn, removeBtn);
 
@@ -3214,11 +3103,8 @@ function setupRemoveButton(searchId) {
   });
 }
 
-// Update the existing removeSearchBox function to use our new system
 function removeSearchBox(searchId) {
-  // Don't remove if it's the last search box
   if (skillSearches.length <= 1) {
-    // If it's the last one, just clear the value and reset color
     const input = document.getElementById(searchId);
     const colorPicker = document.querySelector(`.color-picker[data-search-id="${searchId}"]`);
     
@@ -3229,7 +3115,6 @@ function removeSearchBox(searchId) {
       localStorage.setItem(`color_${searchId}`, 'green');
     }
     
-    // Update state
     const search = skillSearches.find(s => s.id === searchId);
     if (search) {
       search.value = '';
@@ -3243,29 +3128,22 @@ function removeSearchBox(searchId) {
     return;
   }
   
-  // Remove from UI first
   const container = document.querySelector(`.search-input-container input[id="${searchId}"]`)?.parentElement;
   if (container) {
     container.remove();
   }
   
-  // Then update state
   skillSearches = skillSearches.filter(search => search.id !== searchId);
   saveSkillSearches();
   
-  // Remove from localStorage
   localStorage.removeItem(`color_${searchId}`);
   
-  // Update global array
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
   
-  // Only reorganize if we removed a box that's NOT the last one
-  // This prevents unnecessary reorganization when removing the last box
   const removedIndex = parseInt(searchId.replace('skillSearch', '')) || 0;
   if (removedIndex < skillSearches.length + 1) {
     reorganizeSearchBoxes();
   } else {
-    // If we removed the last box, just update the UI
     sectionPages.clear();
     renderSections();
     highlightSkills();
@@ -3274,14 +3152,12 @@ function removeSearchBox(searchId) {
 }
 
 function reorganizeSearchBoxes() {
-  // Sort searches by their numeric ID to maintain order
   skillSearches.sort((a, b) => {
     const aNum = parseInt(a.id.replace('skillSearch', '')) || 0;
     const bNum = parseInt(b.id.replace('skillSearch', '')) || 0;
     return aNum - bNum;
   });
   
-  // Get all current search containers and their colors BEFORE removing them
   const existingContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
   const currentColors = [];
   
@@ -3291,24 +3167,16 @@ function reorganizeSearchBoxes() {
     currentColors.push(color);
   });
   
-  // Clear all existing search containers
   existingContainers.forEach(container => container.remove());
   
-  // Recreate all search boxes with new sequential IDs and PRESERVE their colors
   skillSearches.forEach((search, index) => {
     const newId = `skillSearch${index + 1}`;
-    
-    // Get the color from the current position (not the old ID)
-    // If we have more boxes than saved colors, use green for new ones
     const color = currentColors[index] || 'green';
     
-    // Update the search ID in our state
     search.id = newId;
     
-    // Create new search box with the preserved color
     createSearchBox(newId, search.value);
     
-    // Immediately set the color to match the preserved one
     const newColorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
     if (newColorPicker) {
       newColorPicker.className = `color-picker ${color}`;
@@ -3317,23 +3185,16 @@ function reorganizeSearchBoxes() {
     }
   });
   
-  // Update the global array
   SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
-  
-  // Update search counter
   searchCounter = skillSearches.length + 1;
-  
-  // Save the reorganized state
   saveSkillSearches();
   
-  // Update highlighting
   highlightSkills();
   highlightSelectedSkills();
 }
 
-/* ------------- TOGGLE BUTTON SETUP ------------- */
+/* ------------- TOGGLE BUTTONS ------------- */
 function setupToggleButtons() {
-  // Rarity buttons
   document.querySelectorAll('.rarity-buttons .toggle-button').forEach(button => {
     button.addEventListener('click', () => {
       const rarity = button.dataset.rarity;
@@ -3349,7 +3210,6 @@ function setupToggleButtons() {
     });
   });
 
-  // Type buttons
   document.querySelectorAll('.type-buttons .toggle-button').forEach(button => {
     button.addEventListener('click', () => {
       const type = button.dataset.type;
@@ -3366,7 +3226,7 @@ function setupToggleButtons() {
   });
 }
 
-/* ------------- UTIL ------------- */
+/* ------------- UTILITIES ------------- */
 function normalizeSkill(s){ return String(s||'').replace(/[◎○]/g,'').trim().toLowerCase(); }
 function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase(); }
 function getLengthCategory(distance){ if(distance<=1400)return'Sprint'; if(distance<=1800)return'Mile'; if(distance<=2400)return'Medium'; return'Long'; }
@@ -3374,9 +3234,8 @@ function isStandardDistance(distance){ return distance%400===0; }
 const typeMap = { "speed":"00","stamina":"01","power":"02","guts":"03","intelligence":"04","friend":"05","group":"06" };
 function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
-/* ------------- AUTO-RESET PRESETS ------------- */
+/* ------------- PRESETS ------------- */
 function setupPresetReset() {
-  // Get all filter elements that should reset presets
   const resetFilters = [
     'racecourse', 'length', 'direction', 'track', 'season', 'weather'
   ];
@@ -3385,7 +3244,6 @@ function setupPresetReset() {
     const element = document.getElementById(filterId);
     if (element) {
       element.addEventListener('change', () => {
-        // Only reset if the filter actually has a value selected
         if (element.value) {
           const presetsSelect = document.getElementById('presets');
           if (presetsSelect && presetsSelect.value) {
@@ -3410,7 +3268,6 @@ function createPresetLabel(cup, index) {
   const trackType = cup.aptitude === "Turf" ? "Turf" : "Dirt";
   const length = cup.length.replace(/\s*m/g, 'm');
   
-  // Store the race number for this cup title
   presetRaceNumbers.set(cup.title, index + 1);
   
   return `${index + 1}. ${cup.title} — ${cup.racecourse} ${trackType} ${length} ${cup.track_conditions}`;
@@ -3431,7 +3288,6 @@ function setupPresets() {
     .then(data => {
       presetsSelect.innerHTML = '<option value="">-- Select --</option>';
       
-      // Sort cups by start_date to ensure proper numbering
       const sortedCups = data.cups.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
       
       sortedCups.forEach((cup, index) => {
@@ -3442,16 +3298,13 @@ function setupPresets() {
         presetsSelect.appendChild(option);
       });
       
-      // Set default selection logic
       if (savedPreset) {
         presetsSelect.value = savedPreset;
       } else if (!hasManuallySelectedNone && sortedCups.length >= 2) {
-        // On first visit, automatically select the 2nd option (Taurus Cup)
-        const secondCup = sortedCups[0]; // Index 1 is the 2nd item
+        const secondCup = sortedCups[0];
         presetsSelect.value = secondCup.title;
         localStorage.setItem('filter_presets', secondCup.title);
         
-        // Apply the preset immediately
         applyPreset(secondCup);
       }
       
@@ -3464,10 +3317,8 @@ function setupPresets() {
           const cup = JSON.parse(selectedOption.dataset.cupData);
           applyPreset(cup);
           
-          // Clear the manual selection flag when a preset is chosen
           localStorage.removeItem('manuallySelectedNone');
         } else {
-          // User manually selected "-- Select --"
           localStorage.setItem('manuallySelectedNone', 'true');
           clearPresetFilters();
           sectionPages.clear();
@@ -3485,7 +3336,6 @@ function setupPresets() {
 }
 
 function clearPresetFilters() {
-  // Only clear the preset filters (racecourse through strategy)
   const presetFilterIds = ['racecourse', 'length', 'direction', 'track', 'season', 'weather', 'strategy'];
   
   presetFilterIds.forEach(id => {
@@ -3496,7 +3346,6 @@ function clearPresetFilters() {
     }
   });
   
-  // Update UI without affecting other filters
   sectionPages.clear();
   renderSections();
   highlightSkills();
@@ -3508,19 +3357,17 @@ function applyPreset(cup) {
   document.getElementById('direction').value = cup.direction;
   document.getElementById('track').value = cup.track_conditions;
   
-  // Fix season mapping: JSON has "Autumn" but dropdown uses "Fall"
   const seasonMap = {
-    'Autumn': 'Fall', // Map JSON "Autumn" to dropdown "Fall"
+    'Autumn': 'Fall',
     'Spring': 'Spring', 
     'Summer': 'Summer',
     'Winter': 'Winter'
   };
   document.getElementById('season').value = seasonMap[cup.season] || cup.season;
   
-  // Fix weather mapping: JSON has "Rain"/"Snow" but dropdown uses "Rainy"/"Snowy"
   const weatherMap = {
-    'Rain': 'Rainy', // Map JSON "Rain" to dropdown "Rainy"
-    'Snow': 'Snowy', // Map JSON "Snow" to dropdown "Snowy"
+    'Rain': 'Rainy',
+    'Snow': 'Snowy',
     'Sunny': 'Sunny',
     'Cloudy': 'Cloudy'
   };
@@ -3533,7 +3380,6 @@ function applyPreset(cup) {
     if (el && el.value) localStorage.setItem('filter_' + id, el.value);
   });
   
-  // Clear manual selection flag when applying a preset
   localStorage.removeItem('manuallySelectedNone');
   
   sectionPages.clear();
@@ -3542,13 +3388,12 @@ function applyPreset(cup) {
 
 FILTER_KEYS.push('presets');
 
-/* ------------- SETUP NEW CONTROLS ------------- */
+/* ------------- SORTING CONTROLS ------------- */
 function setupSortingControls() {
   const sortBySelect = document.getElementById('sortBy');
   const sortOrderBtn = document.getElementById('sortOrder');
   const regionSelect = document.getElementById('region');
 
-  // Load saved values
   const savedSortBy = localStorage.getItem('sortBy');
   const savedSortOrder = localStorage.getItem('sortOrder');
   const savedRegion = localStorage.getItem('region');
@@ -3557,7 +3402,6 @@ function setupSortingControls() {
     sortBy = savedSortBy;
     sortBySelect.value = savedSortBy;
   } else {
-    // SET DEFAULT TO RARITY
     sortBySelect.value = 'rarity';
   }
   
@@ -3566,7 +3410,6 @@ function setupSortingControls() {
     sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
     sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
   } else {
-    // SET DEFAULT TO DESCENDING
     sortOrder = 'descending';
     sortOrderBtn.textContent = '↓';
     sortOrderBtn.classList.remove('ascending');
@@ -3576,20 +3419,17 @@ function setupSortingControls() {
     region = savedRegion;
     regionSelect.value = savedRegion;
   } else {
-    // SET DEFAULT TO GLOBAL
     regionSelect.value = 'global';
   }
 
-  // Event listeners
 sortBySelect.addEventListener('change', (e) => {
   sortBy = e.target.value;
   localStorage.setItem('sortBy', sortBy);
   sectionPages.clear();
   renderSections();
   
-  // Update slot displays with new sort data
   setTimeout(() => {
-    updateAllSlotDisplays(); // Add this line
+    updateAllSlotDisplays();
   }, 50);
 });
 
@@ -3601,9 +3441,8 @@ sortOrderBtn.addEventListener('click', () => {
   sectionPages.clear();
   renderSections();
   
-  // Update slot displays with new sort data
   setTimeout(() => {
-    updateAllSlotDisplays(); // Add this line
+    updateAllSlotDisplays();
   }, 50);
 });
 
@@ -3612,19 +3451,16 @@ sortOrderBtn.addEventListener('click', () => {
     localStorage.setItem('region', region);
     sectionPages.clear();
     
-    // Update all slots with the new region's skills
     updateSlotsForRegion();
     
-    // Update the skills list
     updateSelectedSkillsList();
-    highlightSkills(); // Add this line
-    highlightSelectedSkills(); // Add this line
+    highlightSkills();
+    highlightSelectedSkills();
     
-    renderSections(); // This will re-render with updated data below names
+    renderSections();
   });
 }
 
-// Add updateSlotsForRegion function here
 function updateSlotsForRegion() {
   slots.forEach(slot => {
     if (slot.dataset.supportId) {
@@ -3632,27 +3468,22 @@ function updateSlotsForRegion() {
       const card = cardsData.find(c => String(c.support_id) === String(supportId));
       
       if (card) {
-        // Remove the existing slot content
         if (slotListeners.has(slot)) {
           slot.removeEventListener('click', slotListeners.get(slot));
           slotListeners.delete(slot);
         }
         
-        // Re-add the card with updated skills for the current region
-        addToSlot(card, slot, false); // false to not trigger save (we'll do it once at the end)
+        addToSlot(card, slot, false);
       }
     }
   });
   
-  // Save the updated slots
   saveSlotsToLocalStorage();
   
-  // Re-apply highlighting to show/hide skills based on new region
   highlightSkills();
   updateSkillVisibility();
 }
 
-// In setupHideUncoloredCheckbox
 function setupHideUncoloredCheckbox() {
   const hideUncoloredCheckbox = document.getElementById('hideUncolored');
   const savedHideUncolored = localStorage.getItem('hideUncolored');
@@ -3665,14 +3496,12 @@ function setupHideUncoloredCheckbox() {
   hideUncoloredCheckbox.addEventListener('change', (e) => {
     hideUncolored = e.target.checked;
     localStorage.setItem('hideUncolored', hideUncolored);
-    updateSkillVisibility(); // Update visibility when checkbox changes
-    updateSelectedSkillsVisibility(); // NEW: Also update selected skills visibility
+    updateSkillVisibility();
+    updateSelectedSkillsVisibility();
   });
 }
 
-
-// Update the card display to show unique effects
-/* ------------- UPDATE createCardElement FUNCTION ------------- */
+/* ------------- CARD ELEMENT CREATION ------------- */
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -3683,16 +3512,13 @@ function createCardElement(card){
   const imgSrc = `https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png`;
   const typeImg = `https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type]||"xx"}.png`;
 
-  // ALWAYS get current level from storage to ensure it's fresh
   const currentLevel = getCardLevel(card.support_id);
   
-  // Use English skills for Global region, Japanese skills for Japan region
   const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
   const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
   let skillsHTML = '';
   
-  // FIX: Handle hint_skills with safe string conversion
   if(card.hint_skills && card.hint_skills.length) {
     const hintSkillsHTML = card.hint_skills.map(s => {
       const skillText = String(s || '');
@@ -3701,7 +3527,6 @@ function createCardElement(card){
     skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
   }
 
-  // FIX: Handle event skills with safe string conversion
   if(eventSkillsToUse && eventSkillsToUse.length) {
     const eventSkillsHTML = eventSkillsToUse.map(s => {
       const skillText = String(s || '');
@@ -3710,7 +3535,6 @@ function createCardElement(card){
     skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
   }
   
-  // ADD UNIQUE EFFECTS DISPLAY
   if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
     const uniqueEffectsHTML = card.unique.effects.map(effect => {
       const effectName = EFFECT_TYPES[effect.type];
@@ -3728,16 +3552,11 @@ function createCardElement(card){
     }
   }
   
-  // Generate combined level and diamonds display
   const combinedLevelHTML = generateCombinedLevelDisplay(card, currentLevel);
 
-  // ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
   
-  // Show different data based on current sort selection
   const sortByValue = document.getElementById('sortBy').value;
-  
-  // Define which sort options should NOT show the extra data box
   const hideDataOptions = ['rarity', 'name', 'type'];
   
   if (!hideDataOptions.includes(sortByValue)) {
@@ -3750,7 +3569,6 @@ function createCardElement(card){
         nameHtml += `<div class="small-info-text">${formattedDate}</div>`;
       }
     } else if (!isNaN(parseInt(sortByValue))) {
-      // Effect sorting - ALWAYS show the effect value at MAX LEVEL, even if 0
       const effectValue = getEffectValueForSorting(card, parseInt(sortByValue));
       if (effectValue !== null) {
         const effectName = EFFECT_TYPES[parseInt(sortByValue)];
@@ -3758,7 +3576,6 @@ function createCardElement(card){
         const formattedValue = Number.isInteger(effectValue) ? 
           effectValue.toString() : effectValue.toFixed(1);
         
-        // Format with appropriate unit
         let displayValue;
         if (unit === "Lv ") {
           displayValue = unit + formattedValue;
@@ -3769,14 +3586,12 @@ function createCardElement(card){
         nameHtml += `<div class="small-info-text">${effectName}: ${displayValue}</div>`;
       }
     } else {
-      // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) nameHtml += `<div class="small-info-text">ID: ${card.char_id}</div>`;
     }
   }
   
   if(!HIDE.url_name && card.url_name) nameHtml += `<div class="small-info-text">${escapeHtml(card.url_name)}</div>`;
 
-  // Generate diamond icons based on card level and rarity
   const diamondIconsHTML = generateDiamondIcons(card, currentLevel);
 
   el.innerHTML = `
@@ -3789,13 +3604,10 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
-  // === CORRECTED CLICK HANDLER - FIXES REMOVAL FUNCTIONALITY ===
 el.addEventListener('click', ()=> {
-    // CRITICAL: Check if card is already in a slot - THIS IS WHERE REMOVAL SHOULD HAPPEN
     if (selectedCardIds.has(card.char_id)) {
         console.log(`Removing ${card.char_name} from slot`);
         
-        // Find the slot containing this card and REMOVE IT
         const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
         if (existingSlot) {
             removeFromSlot(existingSlot);
@@ -3803,25 +3615,20 @@ el.addEventListener('click', ()=> {
         return;
     }
     
-    // If a slot is selected AND it's empty, add card to that specific slot
     if (selectedSlot) {
         const slot = selectedSlot.querySelector('.slot');
         if (slot && !slot.dataset.cardId) {
             addToSlot(card, slot);
-            // DON'T clear selection here - let user decide
         } else {
-            // Selected slot has a card - clear selection and use normal behavior
             console.log('Selected slot has card, using normal placement');
             clearSlotSelection();
             
-            // Fall back to normal behavior
             const availableSlot = slots.find(s => !s.dataset.cardId);
             if (availableSlot) {
                 addToSlot(card, availableSlot);
             }
         }
     } else {
-        // Original behavior - find first available slot
         const slot = slots.find(s => !s.dataset.cardId);
         if (slot) {
             addToSlot(card, slot);
@@ -3831,10 +3638,8 @@ el.addEventListener('click', ()=> {
     }
 });
 
-  // Ensure initial disabled state is set when card is created
   if(selectedCardIds.has(card.char_id)) {
     el.classList.add('disabled');
-    // Add duplicate label if needed
     if (!el.querySelector('[data-dup-label]')) {
       const dupLabel = document.createElement('div');
       dupLabel.textContent = 'Duplicate Support';
@@ -3859,14 +3664,12 @@ el.addEventListener('click', ()=> {
   return el;
 }
 
-// Add this new function that only updates disabled states without full re-render:
 function updateCardDisabledStates() {
   const allCards = document.querySelectorAll('.card');
   allCards.forEach(cardEl => {
     const cardId = parseInt(cardEl.dataset.id);
     if (selectedCardIds.has(cardId)) {
       cardEl.classList.add('disabled');
-      // Ensure duplicate label exists
       if (!cardEl.querySelector('[data-dup-label]')) {
         const dupLabel = document.createElement('div');
         dupLabel.textContent = 'Duplicate Support';
@@ -3895,23 +3698,21 @@ function updateCardDisabledStates() {
     }
   });
   
-  // Update skill highlighting without full re-render
   highlightSkills();
   highlightSelectedSkills();
 }
 
-/* ------------- DIAMOND ICONS GENERATION ------------- */
+/* ------------- DIAMOND ICONS ------------- */
 function generateDiamondIcons(card, currentLevel) {
-  // Define thresholds based on rarity
   let thresholds;
   switch(card.rarity) {
-    case 1: // R rarity
+    case 1:
       thresholds = [21, 26, 31, 36];
       break;
-    case 2: // SR rarity  
+    case 2:
       thresholds = [26, 31, 36, 41];
       break;
-    case 3: // SSR rarity
+    case 3:
       thresholds = [31, 36, 41, 46];
       break;
     default:
@@ -3920,7 +3721,6 @@ function generateDiamondIcons(card, currentLevel) {
   
   let diamondIconsHTML = '';
   
-  // Create 4 diamond icons
   for (let i = 0; i < 4; i++) {
     const isFilled = currentLevel >= thresholds[i];
     const iconSrc = isFilled ? 'images/diamond_filled.png' : 'images/diamond_empty.png';
@@ -3931,13 +3731,12 @@ function generateDiamondIcons(card, currentLevel) {
   return diamondIconsHTML;
 }
 
-/* ------------- Slot handling & persistence ------------- */
+/* ------------- SLOT MANAGEMENT ------------- */
 function saveSlotsToLocalStorage() {
   const slotData = slots.map(s => s.dataset.supportId || null);
   localStorage.setItem(SLOT_KEY, JSON.stringify(slotData));
 }
 
-/* ------------- ENHANCED SLOT LOADING ------------- */
 function loadSlotsFromLocalStorage() {
   const saved = localStorage.getItem(SLOT_KEY);
   if (!saved) return;
@@ -3945,7 +3744,6 @@ function loadSlotsFromLocalStorage() {
   const slotData = JSON.parse(saved);
   let loadedCount = 0;
   
-  // Wait for cardsData to be available
   const waitForData = setInterval(() => {
     if (cardsData && cardsData.length > 0) {
       clearInterval(waitForData);
@@ -3963,16 +3761,13 @@ function loadSlotsFromLocalStorage() {
       
       console.log(`Loaded ${loadedCount} cards into slots`);
       
-      // Force refresh slot displays after a short delay to ensure DOM is ready
       setTimeout(() => {
         updateAllSlotDisplays();
-        // Double check after everything is settled
         setTimeout(updateAllSlotDisplays, 200);
       }, 300);
     }
   }, 100);
   
-  // Timeout after 5 seconds
   setTimeout(() => {
     clearInterval(waitForData);
     if (loadedCount === 0) {
@@ -3981,97 +3776,16 @@ function loadSlotsFromLocalStorage() {
   }, 5000);
 }
 
-/* ------------- UNIQUE EFFECTS CALCULATION ------------- */
-function shouldApplyUniqueEffects(card, level) {
-  if (!card.unique || !card.unique.effects || card.unique.effects.length === 0) {
-    return false;
-  }
-  
-  const rarity = card.rarity;
-  const threshold = rarity === 1 ? 20 : rarity === 2 ? 25 : 30;
-  
-  return level >= threshold;
-}
-
-function getUniqueEffectValue(card, effectType) {
-  if (!card.unique || !card.unique.effects) return 0;
-  
-  const uniqueEffect = card.unique.effects.find(effect => effect.type === effectType);
-  return uniqueEffect ? uniqueEffect.value : 0;
-}
-
-function calculateEffectContributions() {
-  console.log('Calculating effect contributions...');
-  const contributions = {};
-  
-  // Initialize structure for each effect type
-  Object.values(EFFECT_TYPES).forEach(effectName => {
-    contributions[effectName] = {
-      total: 0,
-      cards: [] // Array of { supportId, value, level, char_name }
-    };
-  });
-
-  // Iterate through all slots with cards
-  const slots = document.querySelectorAll('.slot');
-  
-  slots.forEach(slot => {
-    if (slot.dataset.supportId) {
-      const supportId = slot.dataset.supportId;
-      const slotContainer = slot.closest('.slot-container');
-      const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
-      const level = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
-      
-      // Find card in supports.json (which has the effects data)
-      const card = findCardWithEffects(supportId);
-      
-      if (card && card.effects) {
-        // Calculate values for each effect at this card's level
-        card.effects.forEach(effectData => {
-          const effectId = effectData[0];
-          const effectName = EFFECT_TYPES[effectId];
-          
-          if (effectName) {
-            let value = getEffectValueAtLevel(effectData, level);
-            
-            // ADD UNIQUE EFFECTS IF LEVEL THRESHOLD IS MET
-            if (shouldApplyUniqueEffects(card, level)) {
-              const uniqueValue = getUniqueEffectValue(card, effectId);
-              value += uniqueValue;
-            }
-            
-            if (value > 0) { // Only show cards that actually contribute
-              contributions[effectName].total += value;
-              contributions[effectName].cards.push({
-                supportId: supportId,
-                value: value,
-                level: level,
-                char_name: card.char_name,
-                hasUnique: shouldApplyUniqueEffects(card, level) && getUniqueEffectValue(card, effectId) > 0
-              });
-            }
-          }
-        });
-      }
-    }
-  });
-  
-  return contributions;
-}
-
 function addToSlot(card, targetSlot = null, save = true) {
-  // CRITICAL: Check if card is already in any slot BEFORE proceeding
   if (selectedCardIds.has(card.char_id)) {
     console.log(`Card ${card.char_name} is already in a slot!`);
     
-    // Optional: Find which slot it's in and highlight it
     const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
     if (existingSlot) {
-      // Flash the existing slot to show user where the duplicate is
       flashSlot(existingSlot);
     }
     
-    return; // Stop here - don't add duplicate
+    return;
   }
   
   let freeSlot;
@@ -4080,7 +3794,6 @@ function addToSlot(card, targetSlot = null, save = true) {
     freeSlot = targetSlot;
   } else if (selectedSlot) {
     freeSlot = selectedSlot.querySelector('.slot');
-    // DON'T clear selection here - let user keep selecting if they want
   } else {
     freeSlot = slots.find(s => !s.dataset.cardId);
   }
@@ -4089,29 +3802,23 @@ function addToSlot(card, targetSlot = null, save = true) {
     console.log('No available slot found');
     return;
   }
-  // Get the saved level BEFORE using it in the template
   const savedLevel = getCardLevel(card.support_id);
 
-  // Generate combined level and diamonds display
   const combinedLevelHTML = generateCombinedLevelDisplay(card, savedLevel);
 
-    // Find the container for this slot
     const slotContainer = freeSlot.closest('.slot-container');
     if (!slotContainer) return;
 
-    // Remove existing listener if any
     if (slotListeners.has(freeSlot)) {
         freeSlot.removeEventListener('click', slotListeners.get(freeSlot));
         slotListeners.delete(freeSlot);
     }
 
-    // Use English skills for Global region, Japanese skills for Japan region
     const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
     const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
     let skillsHTML = '';
 
-    // Only add skills groups if there are skills to show
     if (card.hint_skills && card.hint_skills.length) {
         const hintSkillsHTML = card.hint_skills.map(s => {
             const skillText = String(s || '');
@@ -4128,13 +3835,11 @@ function addToSlot(card, targetSlot = null, save = true) {
         skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
     }
 
-    // ADD UNIQUE EFFECTS DISPLAY IN SLOT
     if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
         const uniqueEffectsHTML = card.unique.effects.map(effect => {
             const effectName = EFFECT_TYPES[effect.type];
             if (effectName) {
                 const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
-                // Check if unique effects are active at current level
                 const currentLevel = getCardLevel(card.support_id);
                 const isActive = shouldApplyUniqueEffects(card, currentLevel);
                 const activeStyle = isActive ? 'background: #f0fff0; border-left: 3px solid #44ff44;' : 'background: #fff0f0; border-left: 3px solid #ff4444;';
@@ -4155,15 +3860,9 @@ function addToSlot(card, targetSlot = null, save = true) {
     freeSlot.dataset.supportId = card.support_id;
     freeSlot.classList.add('has-card');
 
-//-------------------------------------------------------------
-
-// ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS (same as main grid)
 let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
 
-// Show different data based on current sort selection
 const sortByValue = document.getElementById('sortBy').value;
-
-// Define which sort options should NOT show the extra data box (same as main grid)
 const hideDataOptions = ['rarity', 'name', 'type'];
 
 if (!hideDataOptions.includes(sortByValue)) {
@@ -4176,10 +3875,7 @@ if (!hideDataOptions.includes(sortByValue)) {
       nameHtml += `<div class="small-info-text">${formattedDate}</div>`;
     }
   } else if (!isNaN(parseInt(sortByValue))) {
-    // Effect sorting - ALWAYS show the effect value AT CURRENT LEVEL, even if 0
     const effectId = parseInt(sortByValue);
-    
-    // FIX: Get the current level for this card
     const currentLevel = getCardLevel(card.support_id);
     const effectValue = getEffectValueAtCurrentLevel(card, effectId, currentLevel);
     
@@ -4189,7 +3885,6 @@ if (!hideDataOptions.includes(sortByValue)) {
       const formattedValue = Number.isInteger(effectValue) ? 
         effectValue.toString() : effectValue.toFixed(1);
       
-      // Format with appropriate unit
       let displayValue;
       if (unit === "Lv ") {
         displayValue = unit + formattedValue;
@@ -4200,15 +3895,12 @@ if (!hideDataOptions.includes(sortByValue)) {
       nameHtml += `<div class="small-info-text">${effectName}: ${displayValue}</div>`;
     }
   } else {
-    // Default: show character ID (only if not hidden)
     if(!HIDE.char_id) nameHtml += `<div class="small-info-text">ID: ${card.char_id}</div>`;
   }
   
   if(!HIDE.url_name && card.url_name) nameHtml += `<div class="small-info-text">${escapeHtml(card.url_name)}</div>`;
 }
 
-//-------------------------------------------------------------
-  // Update slot content with combined level display
   freeSlot.innerHTML = `
       <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
       <div class="level-diamond-container">
@@ -4218,41 +3910,32 @@ if (!hideDataOptions.includes(sortByValue)) {
       ${nameHtml}
       <div class="skills">${skillsHTML}</div>
   `;
-    // Update level controls in the container
     const levelControls = slotContainer.querySelector('.slot-level-controls');
     const levelInput = levelControls.querySelector('.slot-level-input');
 
-    // Enable and configure level input - USE SAVED LEVEL IF AVAILABLE
     levelInput.disabled = false;
     levelInput.min = '1';
     levelInput.max = getMaxLevel(card);
     
-    // CRITICAL: Use the saved level for this specific card, or default to 1
     levelInput.value = savedLevel;
 
-// Enhanced level input event listeners
 const handleLevelChange = (e) => {
   const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
   e.target.value = newLevel;
   
-  // Update unique effects display to show if they're active
   updateUniqueEffectsDisplay(freeSlot, card, newLevel);
   
-  // UPDATE: Refresh the slot display with new scaled values
   updateSlotNameWithEffectData(freeSlot, card, newLevel);
   refreshSlotDisplay(freeSlot, card, newLevel);
   
-  // UPDATE COMBINED LEVEL DISPLAY
   refreshCombinedLevelDisplay(freeSlot, card, newLevel);
   
-  // SYNC WITH MAIN GRID CARDS
   syncCardLevelInMainGrid(card.support_id, newLevel);
 };
 
 levelInput.onchange = handleLevelChange;
 levelInput.onblur = handleLevelChange;
     levelInput.oninput = (e) => {
-        // Real-time validation for better UX
         const value = parseInt(e.target.value);
         const maxLevel = getMaxLevel(card);
         if (value > maxLevel) {
@@ -4262,14 +3945,11 @@ levelInput.onblur = handleLevelChange;
         }
     };
 
-    // Create and attach the click handler
     const slotCard = { ...card };
 
 function slotClickHandler(e) {
-  // CRITICAL: Stop event propagation to prevent slot selection
   e.stopPropagation();
   
-  // Don't remove if clicking on level-diamond container or any of its children
   if (e.target.closest('.level-diamond-container') ||
       e.target.closest('.slot-level-input') || 
       e.target.closest('.slot-level-controls') ||
@@ -4280,23 +3960,18 @@ function slotClickHandler(e) {
   removeFromSlot(freeSlot, slotCard);
 }
 
-    // Attach the event listener to the slot element only
     freeSlot.addEventListener('click', slotClickHandler);
     slotListeners.set(freeSlot, slotClickHandler);
 
-  // Add to selected cards set
   selectedCardIds.add(card.char_id);
   if (save) saveSlotsToLocalStorage();
 
   updateSelectedSkillsList();
-  updateCardDisabledStates(); // This should disable the card in main grid
+  updateCardDisabledStates();
   
-  // Update effect totals after adding card
   setTimeout(updateEffectTotals, 100);
 
-  // Only clear selection if explicitly requested or if using selected slot
   if (targetSlot && selectedSlot && selectedSlot.contains(targetSlot)) {
-    // Clear selection when card is added to specifically selected slot
     clearSlotSelection();
   }
 }
@@ -4304,36 +3979,28 @@ function slotClickHandler(e) {
 function removeFromSlot(slot, card) {
   if (!slot) return;
 
-  // Find the container for this slot
   const slotContainer = slot.closest('.slot-container');
   if (!slotContainer) return;
 
-  // Remove existing listener if any
   if (slotListeners.has(slot)) {
     slot.removeEventListener('click', slotListeners.get(slot));
     slotListeners.delete(slot);
   }
 
-  // Reset slot content - USE THE SAME CLEAN PLACEHOLDER
   slot.classList.remove('has-card');
   
-  // IMPORTANT: Remove from selected cards set
   if (card) {
     selectedCardIds.delete(card.char_id);
   } else if (slot.dataset.cardId) {
-    // Fallback: remove by card ID from dataset
     selectedCardIds.delete(Number(slot.dataset.cardId));
   }
   
-  // Remove card data from slot
   const supportId = slot.dataset.supportId;
   delete slot.dataset.cardId;
   delete slot.dataset.supportId;
   
-  // CRITICAL: Use the SAME placeholder as initial state, no red border
   slot.innerHTML = '<div class="placeholder">Empty</div>';
 
-  // Reset level controls UI (but keep the data)
   const levelInput = slotContainer.querySelector('.slot-level-input');
   if (levelInput) {
     levelInput.disabled = true;
@@ -4342,32 +4009,24 @@ function removeFromSlot(slot, card) {
     levelInput.max = '50';
   }
 
-  // CRITICAL FIX: Don't clear selection when removing card
-  // Only clear selection if we're specifically removing from the selected slot
-  // AND the user intended to remove (not deselect)
   if (selectedSlot && selectedSlot.contains(slot)) {
-    // Keep the selection - user might want to put another card here
     console.log('Card removed from selected slot - selection maintained');
   }
 
   saveSlotsToLocalStorage();
   updateSelectedSkillsList();
-  updateCardDisabledStates(); // This should re-enable the card in main grid
+  updateCardDisabledStates();
   
-  // Update effect totals after removal
   setTimeout(updateEffectTotals, 100);
 }
 
-/* ------------- REFRESH SLOT DISPLAY ------------- */
 function refreshSlotDisplay(slot, card, level) {
-    // Update the effect value display in the slot
     const sortByValue = document.getElementById('sortBy').value;
     
     if (!isNaN(parseInt(sortByValue))) {
     const effectId = parseInt(sortByValue);
     const effectValue = getEffectValueAtCurrentLevel(card, effectId, level);
     
-    // Find and update the effect value display
     const effectDisplay = slot.querySelector('.name + div');
     if (effectDisplay && effectDisplay.textContent.includes(EFFECT_TYPES[effectId])) {
         const effectName = EFFECT_TYPES[effectId];
@@ -4386,19 +4045,13 @@ function refreshSlotDisplay(slot, card, level) {
     }
 }
     
-    // Also update effect totals
     setTimeout(updateEffectTotals, 50);
 }
 
-/* ------------- Clear buttons ------------- */
-// Enhanced clear all function - FIXED VERSION
+/* ------------- CLEAR BUTTONS ------------- */
 clearAllBtn.addEventListener('click', () => {
     selectedCardIds.clear();
 
-    // IMPORTANT: Don't clear level data when clearing deck!
-    // The levels are preserved by support_id for future use
-
-    // Reset all level controls and slots
     slotContainers.forEach(container => {
         const levelInput = container.querySelector('.slot-level-input');
         levelInput.disabled = true;
@@ -4423,14 +4076,12 @@ clearAllBtn.addEventListener('click', () => {
     highlightSelectedSkills();
     renderSections();
 
-    // Update effect totals after clearing
     setTimeout(() => {
         updateEffectTotals();
     }, 100);
 });
 
 clearFiltersBtn.addEventListener('click', () => {
-  // Only clear the preset filters (racecourse through strategy)
   const presetFilterIds = ['racecourse', 'length', 'direction', 'track', 'season', 'weather', 'strategy'];
   
   presetFilterIds.forEach(id => {
@@ -4441,7 +4092,6 @@ clearFiltersBtn.addEventListener('click', () => {
     }
   });
 
-  // Clear card name search
   const cardSearchInput = document.getElementById('cardSearch');
   if (cardSearchInput) {
     cardSearchInput.value = '';
@@ -4449,33 +4099,24 @@ clearFiltersBtn.addEventListener('click', () => {
     localStorage.removeItem('cardSearch');
   }
 
-  // DO NOT clear skill searches - keep them as they are
-  // DO NOT clear toggle buttons (rarity and type) - keep them as they are
-
-  // Reset preset cards to visible state when clearing filters
   showPresetCards = true;
   localStorage.setItem('showPresetCards', 'true');
   updateTogglePresetCardsButton();
   updateSidebarFiltersVisibility();
 
-  // DO NOT clear sorting and region controls - keep them as they are
-  
-  // Clear the preset selection but preserve manual selection state
   const presetsSelect = document.getElementById('presets');
   if (presetsSelect) {
     presetsSelect.value = '';
     localStorage.removeItem('filter_presets');
-    // Set manual selection flag when clearing filters
     localStorage.setItem('manuallySelectedNone', 'true');
   }
   
-  // Batch UI updates
   sectionPages.clear();
   renderSections();
   updateSkillVisibility();
 });
 
-/* ------------- Filter persistence ------------- */
+/* ------------- FILTER PERSISTENCE ------------- */
 function setupFilterPersistence(){
   FILTER_KEYS.forEach(id=>{
     const el=document.getElementById(id); if(!el)return;
@@ -4488,9 +4129,8 @@ function setupFilterPersistence(){
   });
 }
 
-/* ------------- CONCISE HIGHLIGHTING LOGIC ------------- */
+/* ------------- SKILL HIGHLIGHTING ------------- */
 function highlightSkills() {
-  // Process ALL skills (both in main content and slots)
   document.querySelectorAll('.skill').forEach(skill => {
     skill.classList.remove('highlighted', 'search-highlighted');
     skill.removeAttribute('data-has-border');
@@ -4508,12 +4148,11 @@ function highlightSkills() {
     strategy: document.getElementById('strategy').value || ''
   };
 
-// In both highlightSkills() and highlightSelectedSkills() functions:
 const searchTerms = SKILL_SEARCH_KEYS
   .map(id => {
     const input = document.getElementById(id);
     const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
-    const color = colorPicker ? colorPicker.dataset.color : 'green'; // default to green
+    const color = colorPicker ? colorPicker.dataset.color : 'green';
     return {
       term: input?.value.trim().toLowerCase(),
       color: color
@@ -4523,12 +4162,12 @@ const searchTerms = SKILL_SEARCH_KEYS
 
   const colorMap = {
     racecourse: '#bce934',
-    length: '#fdb832',        // corners/straightaways
+    length: '#fdb832',
     direction: '#bce934',
     track: '#bce934',
     season: '#bce934',
     weather: '#bce934',
-    strategy: '#fdb832'       // corners/straightaways (savvy will be handled separately)
+    strategy: '#fdb832'
   };
 
   const dropdownTerms = [];
@@ -4544,35 +4183,30 @@ const searchTerms = SKILL_SEARCH_KEYS
   if (filters.season) dropdownTerms.push({ term: `${filters.season} Runner`, color: colorMap.season });
   if (filters.weather) dropdownTerms.push({ term: `${capitalize(filters.weather)} Days`, color: colorMap.weather });
   
-  // Handle strategy separately for savvy vs corners/straightaways
   if (filters.strategy) {
     const s = filters.strategy;
     dropdownTerms.push(
-      { term: `${s} Corners`, color: colorMap.strategy },        // #fdb832
-      { term: `${s} Straightaways`, color: colorMap.strategy }, // #fdb832
-      { term: `${s} Savvy`, color: colorMap.racecourse }        // #bce934 (using racecourse color)
+      { term: `${s} Corners`, color: colorMap.strategy },
+      { term: `${s} Straightaways`, color: colorMap.strategy },
+      { term: `${s} Savvy`, color: colorMap.racecourse }
     );
   }
   
-  // Handle length with separate colors for distance type vs corners/straightaways
   if (filters.length) {
     const dist = parseInt(filters.length, 10);
     const label = getLengthCategory(dist);
     const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
     dropdownTerms.push(
-      { term: `${label} Corners`, color: colorMap.length },        // #fdb832
-      { term: `${label} Straightaways`, color: colorMap.length },  // #fdb832
-      { term: distType, color: colorMap.racecourse }               // #bce934 (using racecourse color)
+      { term: `${label} Corners`, color: colorMap.length },
+      { term: `${label} Straightaways`, color: colorMap.length },
+      { term: distType, color: colorMap.racecourse }
     );
   }
 
     document.querySelectorAll('.skill').forEach(skill => {
     const skillText = normalizeSkill(skill.textContent || '');
     
-    // Check search terms with custom colors
     for (const { term, color } of searchTerms) {
-// In both highlightSkills() and highlightSelectedSkills() functions:
-// Update this part:
 if (skillText.includes(term)) {
   const colorValue = getColorValue(color);
   const textColor = getTextColor(color);
@@ -4589,7 +4223,6 @@ if (skillText.includes(term)) {
 }
     }
     
-    // Check dropdown terms
     for (const { term, color } of dropdownTerms) {
       if (skillText === normalizeSkill(term)) {
         skill.style.background = color;
@@ -4600,20 +4233,15 @@ if (skillText.includes(term)) {
     }
   });
 
-  // NEW: Update skill visibility for ALL skills (main content and slots)
   updateSkillVisibility();
 }
 
-// Helper functions for colors
 function getColorValue(colorName) {
   const colorMap = {
-    // Solid colors - no border
     green: '#bce934',
     blue: '#1cd8fe', 
     orange: '#fdb832',
-    red: '#fca5a5', // Updated red
-    
-    // Border colors - dark backgrounds
+    red: '#fca5a5',
     'green-border': '#57ad33',
     'blue-border': '#14a1f7',
     'orange-border': '#fa9937', 
@@ -4623,17 +4251,15 @@ function getColorValue(colorName) {
 }
 
 function getTextColor(colorName) {
-  // Use white text for border colors, black text for solid colors
   if (colorName.includes('-border')) {
-    return '#ffffff'; // White text for bordered colors
+    return '#ffffff';
   }
-  return '#000000'; // Black text for solid colors
+  return '#000000';
 }
 
 function updateSkillVisibility() {
   const shouldHide = hideUncolored;
   
-  // Process ALL skills (both in main content and slots)
   document.querySelectorAll('.skill').forEach(skill => {
     const isHighlighted = skill.classList.contains('highlighted') || 
                          skill.classList.contains('search-highlighted');
@@ -4645,7 +4271,6 @@ function updateSkillVisibility() {
     }
   });
   
-  // Hide empty headers AND entire groups when hiding uncolored skills
   document.querySelectorAll('.skills-group').forEach(group => {
     const skills = group.querySelectorAll('.skill');
     const visibleSkills = Array.from(skills).filter(skill => !skill.classList.contains('hidden-skill'));
@@ -4654,16 +4279,15 @@ function updateSkillVisibility() {
     if (header) {
       if (shouldHide && visibleSkills.length === 0) {
         header.classList.add('hidden-skill');
-        group.classList.add('hidden-skill'); // Hide the entire group
+        group.classList.add('hidden-skill');
       } else {
         header.classList.remove('hidden-skill');
-        group.classList.remove('hidden-skill'); // Show the entire group
+        group.classList.remove('hidden-skill');
       }
     }
   });
-} // <-- This closes the updateSkillVisibility function
-  
-/* ------------- ROBUST SLOT DISPLAY UPDATE ------------- */
+}
+
 function updateAllSlotDisplays() {
   console.log('Updating all slot displays...');
   
@@ -4678,7 +4302,6 @@ function updateAllSlotDisplays() {
         const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
         const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
         
-        // Force update the name section with effect data
         forceUpdateSlotNameWithEffectData(slot, card, currentLevel);
       }
     } else {
@@ -4687,19 +4310,15 @@ function updateAllSlotDisplays() {
   });
 }
 
-/* ------------- SIMPLIFIED SLOT NAME UPDATE ------------- */
 function forceUpdateSlotNameWithEffectData(slot, card, level) {
   console.log(`Updating slot effect text for: ${card.char_name}`);
   
-  // Get the current sort selection
   const sortByValue = document.getElementById('sortBy').value;
   const hideDataOptions = ['rarity', 'name', 'type'];
   
-  // Find the name container and the existing effect text
   const nameContainer = slot.querySelector('.name');
   if (!nameContainer) return;
   
-  // Remove any existing effect text (elements after the name)
   let nextElement = nameContainer.nextElementSibling;
   while (nextElement) {
     if (nextElement.classList && nextElement.classList.contains('small-info-text')) {
@@ -4708,7 +4327,6 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
     nextElement = nextElement.nextElementSibling;
   }
   
-  // Add new effect data based on current sort selection
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
       const effectDiv = document.createElement('div');
@@ -4725,7 +4343,6 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
         nameContainer.after(effectDiv);
       }
     } else if (!isNaN(parseInt(sortByValue))) {
-      // Effect sorting - show effect value at CURRENT LEVEL
       const effectId = parseInt(sortByValue);
       const effectValue = getEffectValueAtCurrentLevel(card, effectId, level);
       
@@ -4735,7 +4352,6 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
         const formattedValue = Number.isInteger(effectValue) ? 
           effectValue.toString() : effectValue.toFixed(1);
         
-        // Format with appropriate unit
         let displayValue;
         if (unit === "Lv ") {
           displayValue = unit + formattedValue;
@@ -4749,7 +4365,6 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
         nameContainer.after(effectDiv);
       }
     } else {
-      // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) {
         const effectDiv = document.createElement('div');
         effectDiv.className = 'small-info-text';
@@ -4769,17 +4384,13 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
   console.log(`Slot effect text updated for: ${card.char_name}`);
 }
 
-
-/* ------------- UPDATE SLOT NAME WITH EFFECT DATA ------------- */
 function updateSlotNameWithEffectData(slot, card, level) {
   const nameContainer = slot.querySelector('.name');
   if (!nameContainer) return;
   
-  // Get the current sort selection
   const sortByValue = document.getElementById('sortBy').value;
   const hideDataOptions = ['rarity', 'name', 'type'];
   
-  // Remove any existing effect text (elements after the name)
   let nextElement = nameContainer.nextElementSibling;
   while (nextElement) {
     if (nextElement.classList && nextElement.classList.contains('small-info-text')) {
@@ -4788,7 +4399,6 @@ function updateSlotNameWithEffectData(slot, card, level) {
     nextElement = nextElement.nextElementSibling;
   }
   
-  // Add new effect data based on current sort selection
   if (!hideDataOptions.includes(sortByValue)) {
     if (sortByValue === 'support_id') {
       const effectDiv = document.createElement('div');
@@ -4805,7 +4415,6 @@ function updateSlotNameWithEffectData(slot, card, level) {
         nameContainer.after(effectDiv);
       }
     } else if (!isNaN(parseInt(sortByValue))) {
-      // Effect sorting - show effect value at CURRENT LEVEL
       const effectId = parseInt(sortByValue);
       const effectValue = getEffectValueAtCurrentLevel(card, effectId, level);
       
@@ -4815,7 +4424,6 @@ function updateSlotNameWithEffectData(slot, card, level) {
         const formattedValue = Number.isInteger(effectValue) ? 
           effectValue.toString() : effectValue.toFixed(1);
         
-        // Format with appropriate unit
         let displayValue;
         if (unit === "Lv ") {
           displayValue = unit + formattedValue;
@@ -4829,7 +4437,6 @@ function updateSlotNameWithEffectData(slot, card, level) {
         nameContainer.after(effectDiv);
       }
     } else {
-      // Default: show character ID (only if not hidden)
       if(!HIDE.char_id) {
         const effectDiv = document.createElement('div');
         effectDiv.className = 'small-info-text';
@@ -4847,7 +4454,6 @@ function updateSlotNameWithEffectData(slot, card, level) {
   }
 }
 
-
 /* ------------- FILTER BUILDING & MATCHING ------------- */
 function buildFilterTerms(filters){
   const terms=[];
@@ -4855,12 +4461,10 @@ function buildFilterTerms(filters){
   if(filters.direction) terms.push(filters.direction==='Clockwise'?'Right-Handed':'Left-Handed');
   if(filters.track) terms.push(filters.track==='Firm'?'Firm Conditions':'Wet Conditions');
   
-  // Handle season - dropdown uses "Fall" but skills use "Fall Runner"
   if(filters.season) {
     terms.push(`${filters.season} Runner`);
   }
   
-  // Handle weather - dropdown uses "Rainy"/"Snowy" but skills use "Rainy Days"/"Snowy Days"
   if(filters.weather) {
     terms.push(`${filters.weather} Days`);
   }
@@ -4888,7 +4492,7 @@ function filterCardsWithRules(cards,filters){
   });
 }
 
-/* ------------- UPDATED RENDER SECTIONS WITH CARD SEARCH AT TOP ------------- */
+/* ------------- RENDER SECTIONS ------------- */
 function renderSections() {
   cardSections.innerHTML='';
 
@@ -4926,18 +4530,14 @@ const anyCardSearchActive = cardSearchValue.length > 0;
     return;
   }
 
-// Apply region filter first - CORRECTED
 let baseFilteredCards = cardsData.filter(card => {
   if (region === 'global') {
-    // For Global, only show cards that have release_en date (released globally)
     return card.release_en && card.release_en !== '';
-  } else { // japan
-    // For Japan, show ALL cards (including those not released globally)
+  } else {
     return true;
   }
 });
   
-  // Apply rarity and type filters to base cards
   if (anyRarityActive) {
     baseFilteredCards = baseFilteredCards.filter(card => {
       if (selectedRarities.has('R') && card.rarity === 1) return true;
@@ -4953,20 +4553,16 @@ let baseFilteredCards = cardsData.filter(card => {
     });
   }
 
-  // APPLY SORTING to base cards
   baseFilteredCards = sortCards(baseFilteredCards, sortBy, sortOrder);
 
-  // ADD THIS NEW SECTION AT THE TOP - Render Card Name Search FIRST
   if (anyCardSearchActive) {
     renderCardSearchSection();
   }
 
-// Render dropdown filter sections (separated as before)
 const filterOrder = ['racecourse','length','direction','track','season','weather','strategy'];
 filterOrder.forEach(catId => {
   if (!filters[catId]) return;
 
-  // ADD THIS CHECK - only render if preset cards should be shown
   if (!shouldShowFilterSection(catId)) return;
 
   if (catId === 'length') {
@@ -5002,20 +4598,16 @@ filterOrder.forEach(catId => {
     }
   });
 
-// Render skill search sections (separated as before)
 SKILL_SEARCH_KEYS.forEach((key, i) => {
   const val = document.getElementById(key)?.value.trim();
   if (!val) return;
 
   const normalized = normalizeSkill(val);
   
-  // Use a Set to track unique cards by support_id to avoid duplicates
   const uniqueMatches = new Set();
   const matches = [];
   
   baseFilteredCards.forEach(card => {
-    // Use English skills for Global region, Japanese skills for Japan region
-    // Fall back to Japanese skills if English skills are empty
     const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
     const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
     
@@ -5033,7 +4625,7 @@ SKILL_SEARCH_KEYS.forEach((key, i) => {
 });
 
   highlightSkills();
-} // This closes the renderSections function
+}
 
 function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   const termsNormalized = termList.map(normalizeSkill);
@@ -5046,9 +4638,8 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
     return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
   });
 
-  // COMPLETELY HIDE SECTION IF NO MATCHES
   if(matches.length === 0){
-    return; // Don't create any section at all
+    return;
   }
 
   const section = document.createElement('div');
@@ -5096,26 +4687,22 @@ function properCaseSkill(s) {
   return String(s || '')
     .split(' ')
     .map(word => {
-      // Handle hyphenated words like "fast-paced"
       if (word.includes('-')) {
         return word
           .split('-')
           .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
           .join('-');
       }
-      // Regular words
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
     .join(' ');
 }
 
 function renderSkillSearchRow(key, headerText, matches, rowIndex) {
-  // COMPLETELY HIDE SECTION IF NO MATCHES
   if (matches.length === 0) {
-    return; // Don't create any section at all
+    return;
   }
 
-  // Get the actual search value and convert to proper case for display
   const input = document.getElementById(key);
   const searchValue = input ? input.value.trim() : '';
   const displaySearchValue = searchValue
@@ -5183,23 +4770,22 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
   });
 }
 
-/* ------------- TOGGLE PRESET CARDS FUNCTIONALITY ------------- */
+/* ------------- TOGGLE PRESET CARDS ------------- */
 function setupTogglePresetCards() {
   const togglePresetCardsBtn = document.getElementById('togglePresetCardsBtn');
   
-  // Load saved state
   const savedState = localStorage.getItem('showPresetCards');
   if (savedState !== null) {
     showPresetCards = savedState === 'true';
     updateTogglePresetCardsButton();
-    updateSidebarFiltersVisibility(); // ADD THIS
+    updateSidebarFiltersVisibility();
   }
 
   togglePresetCardsBtn.addEventListener('click', () => {
     showPresetCards = !showPresetCards;
     localStorage.setItem('showPresetCards', showPresetCards);
     updateTogglePresetCardsButton();
-    updateSidebarFiltersVisibility(); // ADD THIS
+    updateSidebarFiltersVisibility();
     renderSections();
   });
 }
@@ -5211,7 +4797,6 @@ function updateTogglePresetCardsButton() {
     'Show Preset Cards';
 }
 
-// ADD THIS NEW FUNCTION
 function updateSidebarFiltersVisibility() {
   const sidebarFiltersSection = document.getElementById('sidebarFiltersSection');
   if (sidebarFiltersSection) {
@@ -5224,11 +4809,10 @@ function updateSidebarFiltersVisibility() {
 }
 
 function shouldShowFilterSection(catId) {
-  // If we're hiding preset cards, only show skill search sections
   if (!showPresetCards) {
-    return false; // Hide all filter-based sections (racecourse, length, etc.)
+    return false;
   }
-  return true; // Show all sections when preset cards are visible
+  return true;
 }
 
 /* ------------- SELECTED SKILLS MANAGEMENT ------------- */
@@ -5238,13 +4822,10 @@ function updateSelectedSkillsList() {
   
   if (!skillsList) return;
   
-  // Get all unique skills from selected cards
   const allSkills = getAllSkillsFromSelectedCards();
   
-  // Clear current list
   skillsList.innerHTML = '';
   
-  // Create skill elements
   allSkills.forEach(skill => {
     const skillElement = document.createElement('div');
     skillElement.className = 'skill-item';
@@ -5252,32 +4833,26 @@ function updateSelectedSkillsList() {
     skillsList.appendChild(skillElement);
   });
   
-  // Update count
   if (skillsCount) {
     skillsCount.textContent = allSkills.length;
   }
   
-  // NEW: Also highlight selected skills
   highlightSelectedSkills();
   updateSelectedSkillsVisibility();
 }
 
-/* ------------- UPDATE getAllSkillsFromSelectedCards FUNCTION ------------- */
 function getAllSkillsFromSelectedCards() {
     const allSkills = new Set();
     
-    // Iterate through all slots with cards
     slots.forEach(slot => {
         if (slot.dataset.supportId) {
             const supportId = slot.dataset.supportId;
             const card = cardsData.find(c => String(c.support_id) === String(supportId));
             
             if (card) {
-                // Use English skills for Global region, Japanese skills for Japan region
                 const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
                 const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
                 
-                // Add hint skills
                 if (card.hint_skills) {
                     card.hint_skills.forEach(skill => {
                         const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
@@ -5285,7 +4860,6 @@ function getAllSkillsFromSelectedCards() {
                     });
                 }
                 
-                // Add event skills
                 if (eventSkillsToUse) {
                     eventSkillsToUse.forEach(skill => {
                         const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
@@ -5296,7 +4870,6 @@ function getAllSkillsFromSelectedCards() {
         }
     });
     
-    // Convert Set to Array and sort alphabetically
     return Array.from(allSkills).sort();
 }
 
@@ -5314,12 +4887,11 @@ function highlightSelectedSkills() {
     strategy: document.getElementById('strategy').value || ''
   };
   
-// In both highlightSkills() and highlightSelectedSkills() functions:
 const searchTerms = SKILL_SEARCH_KEYS
   .map(id => {
     const input = document.getElementById(id);
     const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
-    const color = colorPicker ? colorPicker.dataset.color : 'green'; // default to green
+    const color = colorPicker ? colorPicker.dataset.color : 'green';
     return {
       term: input?.value.trim().toLowerCase(),
       color: color
@@ -5329,12 +4901,12 @@ const searchTerms = SKILL_SEARCH_KEYS
   
   const colorMap = {
     racecourse: '#bce934',
-    length: '#fdb832',        // corners/straightaways
+    length: '#fdb832',
     direction: '#bce934',
     track: '#bce934',
     season: '#bce934',
     weather: '#bce934',
-    strategy: '#fdb832'       // corners/straightaways (savvy will be handled separately)
+    strategy: '#fdb832'
   };
   
   const dropdownTerms = [];
@@ -5350,25 +4922,23 @@ const searchTerms = SKILL_SEARCH_KEYS
   if (filters.season) dropdownTerms.push({ term: `${filters.season} Runner`, color: colorMap.season });
   if (filters.weather) dropdownTerms.push({ term: `${capitalize(filters.weather)} Days`, color: colorMap.weather });
   
-  // Handle strategy separately for savvy vs corners/straightaways
   if (filters.strategy) {
     const s = filters.strategy;
     dropdownTerms.push(
-      { term: `${s} Corners`, color: colorMap.strategy },        // #fdb832
-      { term: `${s} Straightaways`, color: colorMap.strategy }, // #fdb832
-      { term: `${s} Savvy`, color: colorMap.racecourse }        // #bce934 (using racecourse color)
+      { term: `${s} Corners`, color: colorMap.strategy },
+      { term: `${s} Straightaways`, color: colorMap.strategy },
+      { term: `${s} Savvy`, color: colorMap.racecourse }
     );
   }
   
-  // Handle length with separate colors for distance type vs corners/straightaways
   if (filters.length) {
     const dist = parseInt(filters.length, 10);
     const label = getLengthCategory(dist);
     const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
     dropdownTerms.push(
-      { term: `${label} Corners`, color: colorMap.length },        // #fdb832
-      { term: `${label} Straightaways`, color: colorMap.length },  // #fdb832
-      { term: distType, color: colorMap.racecourse }               // #bce934 (using racecourse color)
+      { term: `${label} Corners`, color: colorMap.length },
+      { term: `${label} Straightaways`, color: colorMap.length },
+      { term: distType, color: colorMap.racecourse }
     );
   }
   
@@ -5380,26 +4950,23 @@ const searchTerms = SKILL_SEARCH_KEYS
     
     const skillText = normalizeSkill(skillItem.textContent || '');
     
-    // Check search terms with custom colors
     for (const { term, color } of searchTerms) {
-      // FIX: Change 'skill' to 'skillItem'
       if (skillText.includes(term)) {
         const colorValue = getColorValue(color);
         const textColor = getTextColor(color);
         const hasBorder = color.includes('-border');
         
-        skillItem.style.setProperty('background', colorValue, 'important'); // FIX: skillItem
-        skillItem.style.setProperty('color', textColor, 'important'); // FIX: skillItem
-        skillItem.classList.add('search-highlighted'); // FIX: skillItem
+        skillItem.style.setProperty('background', colorValue, 'important');
+        skillItem.style.setProperty('color', textColor, 'important');
+        skillItem.classList.add('search-highlighted');
         
         if (hasBorder) {
-          skillItem.setAttribute('data-has-border', 'true'); // FIX: skillItem
+          skillItem.setAttribute('data-has-border', 'true');
         }
         return;
       }
     }
     
-    // Check dropdown terms
     for (const { term, color } of dropdownTerms) {
       if (skillText === normalizeSkill(term)) {
         skillItem.style.background = color;
@@ -5451,19 +5018,15 @@ function validateLevel(level, card) {
 function updateSlotLevel(slotContainer, card, level) {
     const validatedLevel = validateLevel(level, card);
     
-    // Save the level for this specific card (by support_id)
     saveCardLevel(card.support_id, validatedLevel);
     
-    // Update the input display
     const levelInput = slotContainer.querySelector('.slot-level-input');
     if (levelInput) {
         levelInput.value = validatedLevel;
     }
     
-    // SYNC WITH MAIN GRID
     syncCardLevelInMainGrid(card.support_id, validatedLevel);
     
-    // Update effect totals immediately
     setTimeout(updateEffectTotals, 50);
     
     return validatedLevel;
@@ -5486,12 +5049,12 @@ function createLevelControls(slot, card) {
   
   levelInput.addEventListener('change', (e) => {
     const newLevel = updateSlotLevel(slot, card, e.target.value);
-    e.target.value = newLevel; // Ensure valid value is displayed
+    e.target.value = newLevel;
   });
   
   levelInput.addEventListener('blur', (e) => {
     const newLevel = updateSlotLevel(slot, card, e.target.value);
-    e.target.value = newLevel; // Ensure valid value is displayed
+    e.target.value = newLevel;
   });
   
   levelControls.appendChild(levelLabel);
@@ -5505,30 +5068,25 @@ function setupDarkMode() {
   const darkModeToggle = document.getElementById('darkModeToggle');
   const savedDarkMode = localStorage.getItem('darkMode') === 'true';
   
-  // Apply saved dark mode state
   if (savedDarkMode) {
     document.body.classList.add('dark-mode');
-    darkModeToggle.textContent = '☀️'; // Sun icon for light mode
+    darkModeToggle.textContent = '☀️';
   } else {
-    darkModeToggle.textContent = '🌙'; // Moon icon for dark mode
+    darkModeToggle.textContent = '🌙';
   }
   
   darkModeToggle.addEventListener('click', () => {
     const isDarkMode = document.body.classList.toggle('dark-mode');
     localStorage.setItem('darkMode', isDarkMode);
     
-    // Update button icon
     darkModeToggle.textContent = isDarkMode ? '☀️' : '🌙';
   });
 }
 
-// Initialize dark mode when the page loads
 document.addEventListener('DOMContentLoaded', setupDarkMode);
 
-// Initialize the hide uncolored checkbox
 setupHideUncoloredCheckbox();
 
-// Auto-update whenever a filter dropdown changes
 ['racecourse','length','direction','track','season','weather','strategy']
   .forEach(id => {
     const element = document.getElementById(id);
@@ -5543,23 +5101,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.addEventListener('resize', renderSections);
 
-// Initialize skill search persistence when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-  // This will be called by the existing DOMContentLoaded listener
 });
 
-/* ------------- RESPONSIVE PAGINATION ------------- */
 let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
-    // Re-render all sections to update pagination when window resizes
     sectionPages.clear();
     renderSections();
   }, 250);
 });
 
-/* ------------- SKILL SEARCH COPY/PASTE FUNCTIONALITY ------------- */
+/* ------------- SKILL SEARCH COPY/PASTE ------------- */
 function setupCopyPasteButtons() {
   const copyBtn = document.getElementById('copySkillsBtn');
   const pasteBtn = document.getElementById('pasteSkillsBtn');
@@ -5582,20 +5136,14 @@ function copySkillsToClipboard() {
     return null;
   }).filter(item => item !== null);
   
-  console.log('Skills to copy:', skillsData); // Debug log
-  
   if (skillsData.length === 0) {
     alert('No skills to copy!');
     return;
   }
   
-  // Format: skill1|color1,skill2|color2,skill3|color3
   const copyText = skillsData.map(item => `${item.skill}|${item.color}`).join(',');
   
-  console.log('Copy text format:', copyText); // Debug log
-  
   navigator.clipboard.writeText(copyText).then(() => {
-    // Visual feedback
     const copyBtn = document.getElementById('copySkillsBtn');
     const originalText = copyBtn.textContent;
     copyBtn.textContent = 'Copied!';
@@ -5623,14 +5171,11 @@ function pasteSkillsFromClipboard() {
         return;
       }
       
-      // Clear existing searches first using the main clear function
       clearAllSkillSearches();
       
-      // Create new searches for each pasted skill
       skillsData.forEach((skillItem, index) => {
         if (index < maxSearches) {
           if (index === 0) {
-            // Update first search box
             const firstInput = document.getElementById('skillSearch1');
             const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
             
@@ -5641,22 +5186,17 @@ function pasteSkillsFromClipboard() {
               localStorage.setItem('color_skillSearch1', skillItem.color);
             }
             
-            // Update state for first search
             const firstSearch = skillSearches.find(s => s.id === 'skillSearch1');
             if (firstSearch) {
               firstSearch.value = skillItem.skill;
             }
           } else {
-            // Add new search boxes
             const newId = `skillSearch${index + 1}`;
             
-            // Add to state
             skillSearches.push({ id: newId, value: skillItem.skill });
             
-            // Create UI element
             createSearchBox(newId, skillItem.skill);
             
-            // Set color
             const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
             if (colorPicker) {
               colorPicker.className = `color-picker ${skillItem.color}`;
@@ -5667,20 +5207,16 @@ function pasteSkillsFromClipboard() {
         }
       });
       
-      // Update search counter and global array
       searchCounter = skillSearches.length + 1;
       SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
       
-      // Save the updated state
       saveSkillSearches();
       
-      // Update UI
       sectionPages.clear();
       renderSections();
       highlightSkills();
       highlightSelectedSkills();
       
-      // Visual feedback
       const pasteBtn = document.getElementById('pasteSkillsBtn');
       const originalText = pasteBtn.textContent;
       pasteBtn.textContent = `Pasted ${skillsData.length}`;
@@ -5708,7 +5244,6 @@ function parseSkillsFromClipboard(text) {
     throw new Error('Invalid clipboard data');
   }
   
-  // Expected format: skill1|color1,skill2|color2,skill3|color3
   const skills = text.split(',').map(item => {
     if (!item || !item.includes('|')) return null;
     
@@ -5732,51 +5267,41 @@ function setupClearAllSearches() {
   clearAllSearchesBtn.addEventListener('click', clearAllSkillSearches);
 }
 
-/* ------------- CLEAR ALL SKILL SEARCHES - OPTIMIZED ------------- */
 function clearAllSkillSearches() {
-  // Get all search containers at once
   const searchContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
   
-  // If no containers or only one, just reset the first one
   if (searchContainers.length === 0) return;
   
-  // Clear and reset the first search box - ALWAYS reset to green
   const firstContainer = searchContainers[0];
   const firstInput = firstContainer.querySelector('.skill-search');
   const firstColorPicker = firstContainer.querySelector('.color-picker');
   
   if (firstInput) firstInput.value = '';
   if (firstColorPicker) {
-    firstColorPicker.className = 'color-picker green'; // ALWAYS reset to green
-    firstColorPicker.dataset.color = 'green'; // ALWAYS reset to green
+    firstColorPicker.className = 'color-picker green';
+    firstColorPicker.dataset.color = 'green';
   }
   
-  // Remove all search boxes except the first one
   for (let i = searchContainers.length - 1; i > 0; i--) {
     searchContainers[i].remove();
   }
   
-  // Reset state
   skillSearches = [{ id: 'skillSearch1', value: '' }];
   searchCounter = 2;
   SKILL_SEARCH_KEYS = ['skillSearch1'];
   
-  // Save to localStorage - ALWAYS reset first color to green
   localStorage.setItem('skillSearches', JSON.stringify(skillSearches));
-  localStorage.setItem('color_skillSearch1', 'green'); // ALWAYS reset to green
+  localStorage.setItem('color_skillSearch1', 'green');
   
-  // Clear any orphaned color picker data from localStorage
   for (let i = 2; i <= 30; i++) {
     localStorage.removeItem(`color_skillSearch${i}`);
   }
   
-  // Update UI
   sectionPages.clear();
   renderSections();
   highlightSkills();
   highlightSelectedSkills();
   
-  // Visual feedback
   const clearBtn = document.getElementById('clearAllSearchesBtn');
   const originalText = clearBtn.textContent;
   clearBtn.textContent = 'Cleared!';
@@ -5788,7 +5313,7 @@ function clearAllSkillSearches() {
   }, 1500);
 }
 
-/* ------------- DECK COPY/PASTE FUNCTIONALITY ------------- */
+/* ------------- DECK COPY/PASTE ------------- */
 function setupDeckCopyPaste() {
   const copyDeckBtn = document.getElementById('copyDeckBtn');
   const pasteDeckBtn = document.getElementById('pasteDeckBtn');
@@ -5797,11 +5322,9 @@ function setupDeckCopyPaste() {
   pasteDeckBtn.addEventListener('click', pasteDeckFromClipboard);
 }
 
-// Enhanced deck copy/paste to include levels
 function copyDeckToClipboard() {
     const deckData = slots.map(slot => {
         const supportId = slot.dataset.supportId;
-        // Use the saved level from slotLevels, or current input value as fallback
         let level = '1';
         if (supportId) {
             level = getCardLevel(supportId).toString();
@@ -5816,11 +5339,9 @@ function copyDeckToClipboard() {
         };
     });
 
-    // Format: supportId1|level1,supportId2|level2,...,supportId6|level6
     const copyText = deckData.map(slot => `${slot.supportId}|${slot.level}`).join(',');
 
     navigator.clipboard.writeText(copyText).then(() => {
-        // Visual feedback
         const copyBtn = document.getElementById('copyDeckBtn');
         const originalText = copyBtn.textContent;
         copyBtn.textContent = 'Copied!';
@@ -5848,19 +5369,15 @@ function pasteDeckFromClipboard() {
         return;
       }
 
-// Instead of: clearAllBtn.click();
-// Use:
 if (window.programmaticClearDeck) {
   window.programmaticClearDeck();
 } else {
   clearAllBtn.click();
 }
       
-      // Add a small delay to ensure clear completes
       setTimeout(() => {
         let hasValidCards = false;
         
-        // Populate slots with pasted data
         deckData.forEach((slotData, index) => {
           if (slotData.supportId !== 'empty') {
             const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
@@ -5868,7 +5385,6 @@ if (window.programmaticClearDeck) {
               const slot = slots[index];
               addToSlot(card, slot, false);
               
-              // Set level if provided and valid
               if (slotData.level && slotData.level !== '1') {
                 const slotContainer = slot.closest('.slot-container');
                 const levelInput = slotContainer.querySelector('.slot-level-input');
@@ -5884,20 +5400,16 @@ if (window.programmaticClearDeck) {
               console.warn(`Card with support_id ${slotData.supportId} not found`);
             }
           }
-          // Empty slots are already handled by the clear operation
         });
         
-        // Save the final state
         saveSlotsToLocalStorage();
         localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
         
-        // Update UI
         updateSelectedSkillsList();
         highlightSkills();
         highlightSelectedSkills();
         renderSections();
         
-        // Visual feedback
         const pasteBtn = document.getElementById('pasteDeckBtn');
         const originalText = pasteBtn.textContent;
         const validCardCount = deckData.filter(slot => slot.supportId !== 'empty').length;
@@ -5926,7 +5438,6 @@ if (window.programmaticClearDeck) {
 }
 
 function parseDeckFromClipboard(text) {
-  // Expected format: supportId1|level1,supportId2|level2,...,supportId6|level6
   const slots = text.split(',').map((item, index) => {
     const [supportId, level] = item.split('|');
     
@@ -5940,7 +5451,6 @@ function parseDeckFromClipboard(text) {
     };
   });
   
-  // Validate we have exactly 6 slots
   if (slots.length !== 6) {
     throw new Error(`Expected 6 slots, got ${slots.length}`);
   }
@@ -5948,18 +5458,7 @@ function parseDeckFromClipboard(text) {
   return slots;
 }
 
-// Update the validateLevel function to handle string inputs
-function validateLevel(level, card) {
-  let num = parseInt(level);
-  if (isNaN(num) || num < 1) return 1;
-  
-  const maxLevel = getMaxLevel(card);
-  if (num > maxLevel) return maxLevel;
-  
-  return num;
-}
-
-/* ------------- EFFECT PROGRESSION CALCULATION ------------- */
+/* ------------- EFFECT CALCULATION ------------- */
 const EFFECT_TYPES = {
   1: "Friendship Bonus",
   2: "Mood Effect", 
@@ -5980,29 +5479,21 @@ const EFFECT_TYPES = {
   17: "Hint Levels",
   18: "Hint Frequency",
   19: "Specialty Priority",
-  // NOTE THE GAPS: 20-24 are missing
   25: "Event Recovery",
   26: "Event Effectiveness", 
   27: "Failure Protection",
   28: "Energy Cost Reduction",
-  // 29 is missing
   30: "Skill Point Bonus",
   31: "Wit Friendship Recovery",
   32: "Initial Skill Points Up",
-  // 33-40 are missing
   41: "All Stats Bonus"
 };
 
-/* ------------- EFFECT CALCULATION FUNCTIONS - UPDATED FOR NEW DATA SOURCE ------------- */
-
-// Remove the old loadSupportsData function and replace it with:
 function loadEffectsData() {
-    // We already have the effects data in supportsDataWithEffects (populated in processSupportCardData)
     console.log('Effects data already loaded from support-cards.json');
     return Promise.resolve(supportsDataWithEffects);
 }
 
-// Update findCardWithEffects to use our new data source
 function findCardWithEffects(supportId) {
     if (!supportsDataWithEffects || supportsDataWithEffects.length === 0) {
         console.warn('supportsDataWithEffects not loaded yet');
@@ -6013,7 +5504,6 @@ function findCardWithEffects(supportId) {
     return card;
 }
 
-// Update initializeEffectCalculation to use the new loader
 function initializeEffectCalculation() {
     console.log('Initializing effect calculation system...');
     
@@ -6022,15 +5512,10 @@ function initializeEffectCalculation() {
         setupEffectCalculation();
     }).catch(error => {
         console.warn('Error loading effects data, continuing without effect calculations:', error);
-        // Continue without effect calculations - the app will still work
         setupEffectCalculation();
     });
 }
 
-// Keep the rest of your effect calculation functions as they are, but make sure
-// they use findCardWithEffects which now points to supportsDataWithEffects
-
-// Progression calculation functions
 function clamp(x, min, max) {
   return Math.max(min, Math.min(x, max));
 }
@@ -6097,26 +5582,21 @@ function getEffectValueAtLevel(effectData, level) {
   }
 }
 
-/* ------------- EFFECT VALUE AT CURRENT LEVEL ------------- */
 function getEffectValueAtCurrentLevel(card, effectId, level) {
-  // Find the card with effects data
   const cardWithEffects = findCardWithEffects(card.support_id);
   
   if (!cardWithEffects || !cardWithEffects.effects) {
     return null;
   }
   
-  // Find the effect data for this effect ID
   const effectData = cardWithEffects.effects.find(effect => effect[0] === effectId);
   
   if (!effectData) {
-    return 0; // Effect not found, return 0
+    return 0;
   }
   
-  // Get the value at CURRENT LEVEL instead of max level
   const currentValue = getEffectValueAtLevel(effectData, level);
   
-  // ADD UNIQUE EFFECTS IF APPLICABLE AT CURRENT LEVEL
   if (shouldApplyUniqueEffects(card, level)) {
     const uniqueValue = getUniqueEffectValue(card, effectId);
     return currentValue + uniqueValue;
@@ -6125,121 +5605,51 @@ function getEffectValueAtCurrentLevel(card, effectId, level) {
   return currentValue;
 }
 
-function findCardWithEffects(supportId) {
-  if (!supportsDataWithEffects || supportsDataWithEffects.length === 0) {
-    console.warn('supportsDataWithEffects not loaded yet');
-    return null;
-  }
-  
-  const card = supportsDataWithEffects.find(c => c.support_id == supportId);
-  return card;
-}
-
-// Calculate individual card contributions for each effect
-function calculateEffectContributions() {
-  console.log('Calculating effect contributions...');
-  const contributions = {};
-  
-  // Initialize structure for each effect type
-  Object.values(EFFECT_TYPES).forEach(effectName => {
-    contributions[effectName] = {
-      total: 0,
-      cards: [] // Array of { supportId, value, level, char_name }
-    };
-  });
-
-  // Iterate through all slots with cards
-  const slots = document.querySelectorAll('.slot');
-  
-  slots.forEach(slot => {
-    if (slot.dataset.supportId) {
-      const supportId = slot.dataset.supportId;
-      const slotContainer = slot.closest('.slot-container');
-      const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
-      const level = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
-      
-      // Find card in supports.json (which has the effects data)
-      const card = findCardWithEffects(supportId);
-      
-      if (card && card.effects) {
-        // Calculate values for each effect at this card's level
-        card.effects.forEach(effectData => {
-          const effectId = effectData[0];
-          const effectName = EFFECT_TYPES[effectId];
-          
-          if (effectName) {
-            const value = getEffectValueAtLevel(effectData, level);
-            
-            if (value > 0) { // Only show cards that actually contribute
-              contributions[effectName].total += value;
-              contributions[effectName].cards.push({
-                supportId: supportId,
-                value: value,
-                level: level,
-                char_name: card.char_name
-              });
-            }
-          }
-        });
-      }
-    }
-  });
-  
-  return contributions;
-}
-
-// Update the unit mapping to put Lv before the number
 const EFFECT_UNITS = {
-  1: "%",   // Friendship Bonus
-  2: "%",   // Mood Effect
-  3: "",    // Speed Bonus
-  4: "",    // Stamina Bonus
-  5: "",    // Power Bonus
-  6: "",    // Guts Bonus
-  7: "",    // Wit Bonus
-  8: "%",   // Training Effectiveness
-  9: "",    // Initial Speed
-  10: "",   // Initial Stamina
-  11: "",   // Initial Power
-  12: "",   // Initial Guts
-  13: "",   // Initial Wit
-  14: "",   // Initial Friendship Gauge
-  15: "%",  // Race Bonus
-  16: "%",  // Fan Bonus
-  17: "Lv ", // Hint Levels
-  18: "%",  // Hint Frequency
-  19: "",   // Specialty Priority
-  25: "%",  // Event Recovery
-  26: "%",  // Event Effectiveness
-  27: "%",  // Failure Protection
-  28: "%",  // Energy Cost Reduction
-  30: "",   // Skill Point Bonus
-  31: "%",  // Wit Friendship Recovery
-  32: "",   // Initial Skill Points Up
-  41: ""    // All Stats Bonus
+  1: "%",
+  2: "%",
+  3: "",
+  4: "",
+  5: "",
+  6: "",
+  7: "",
+  8: "%",
+  9: "",
+  10: "",
+  11: "",
+  12: "",
+  13: "",
+  14: "",
+  15: "%",
+  16: "%",
+  17: "Lv ",
+  18: "%",
+  19: "",
+  25: "%",
+  26: "%",
+  27: "%",
+  28: "%",
+  30: "",
+  31: "%",
+  32: "",
+  41: ""
 };
 
-// Then update the display logic to handle prefix vs suffix units
 function updateEffectTotals() {
   try {
     console.log('Updating effect totals UI with card contributions...');
     const contributions = calculateEffectContributions();
     const isCollapsed = document.getElementById('rightSidebar').classList.contains('collapsed');
     
-    // Check if any slots have cards
     const hasCards = document.querySelectorAll('.slot.has-card').length > 0;
     
-    // Update each effect display (existing code)
     Object.entries(contributions).forEach(([effectName, data]) => {
-      // Find all elements for this effect
       const effectElements = document.querySelectorAll(`[data-effect="${effectName}"]`);
       
       effectElements.forEach(element => {
-        // Hide entire row if total is 0 and no cards contribute
         if (data.total === 0 && data.cards.length === 0) {
           element.style.display = 'none';
           
-          // Also reset the values to 0 when hiding
           const valueSpan = element.querySelector('.effect-value');
           if (valueSpan) {
             valueSpan.textContent = '0';
@@ -6252,13 +5662,10 @@ function updateEffectTotals() {
           return;
         }
         
-        // Show the row if it has values
         element.style.display = 'flex';
         
-        // Update the total value with appropriate unit
         const valueSpan = element.querySelector('.effect-value');
         if (valueSpan) {
-          // Find the effect ID from the effect name
           const effectId = Object.keys(EFFECT_TYPES).find(key => 
             EFFECT_TYPES[key] === effectName
           );
@@ -6266,15 +5673,13 @@ function updateEffectTotals() {
           const formattedValue = Number.isInteger(data.total) ? 
             data.total.toString() : data.total.toFixed(1);
           
-          // Check if unit is "Lv " (prefix) or something else (suffix)
           if (unit === "Lv ") {
-            valueSpan.textContent = unit + formattedValue; // Lv before number
+            valueSpan.textContent = unit + formattedValue;
           } else {
-            valueSpan.textContent = formattedValue + unit; // unit after number
+            valueSpan.textContent = formattedValue + unit;
           }
         }
 
-        // Update the card contributions - hide in collapsed mode
         const cardsContainer = element.querySelector('.effect-cards');
         if (cardsContainer) {
           if (isCollapsed) {
@@ -6283,15 +5688,12 @@ function updateEffectTotals() {
             cardsContainer.style.display = 'flex';
             cardsContainer.innerHTML = '';
             
-            // Sort cards by value (highest first) for consistent display
             const sortedCards = [...data.cards].sort((a, b) => b.value - a.value);
             
-            // Add card icons for each contributing card
             sortedCards.forEach(cardData => {
               const cardElement = document.createElement('div');
               cardElement.className = 'effect-card';
               
-              // Find the effect ID for this specific card's effect
               const card = findCardWithEffects(cardData.supportId);
               let unit = "";
               if (card && card.effects) {
@@ -6306,7 +5708,6 @@ function updateEffectTotals() {
               const formattedCardValue = Number.isInteger(cardData.value) ? 
                 cardData.value.toString() : cardData.value.toFixed(1);
               
-              // Handle prefix vs suffix for tooltip
               let tooltipValue;
               if (unit === "Lv ") {
                 tooltipValue = unit + formattedCardValue;
@@ -6316,7 +5717,6 @@ function updateEffectTotals() {
               
               cardElement.title = `${cardData.char_name} (Lv. ${cardData.level}): +${tooltipValue}`;
               
-              // Handle prefix vs suffix for card display
               let displayValue;
               if (unit === "Lv ") {
                 displayValue = unit + formattedCardValue;
@@ -6334,7 +5734,6 @@ function updateEffectTotals() {
               cardsContainer.appendChild(cardElement);
             });
             
-            // Handle many cards - enable horizontal scroll if more than 6
             if (sortedCards.length > 6) {
               cardsContainer.classList.add('has-many-cards');
             } else {
@@ -6350,15 +5749,12 @@ function updateEffectTotals() {
   }
 }
 
-// Override the existing functions to include effect calculation
 function setupEffectCalculation() {
   console.log('Setting up effect calculation with card contributions...');
   
-  // Store original functions
   const originalAddToSlot = window.addToSlot;
   const originalRemoveFromSlot = window.removeFromSlot;
   
-  // Override addToSlot to include effect calculation
   window.addToSlot = function(card, targetSlot = null, save = true) {
     const result = originalAddToSlot(card, targetSlot, save);
     
@@ -6379,7 +5775,6 @@ function setupEffectCalculation() {
     return result;
   };
   
-  // Override removeFromSlot to include effect calculation
   window.removeFromSlot = function(slot, card) {
     const result = originalRemoveFromSlot(slot, card);
     
@@ -6390,38 +5785,17 @@ function setupEffectCalculation() {
     return result;
   };
   
-  // Set up level input listeners for existing slots
   document.querySelectorAll('.slot-level-input').forEach(input => {
     input.addEventListener('change', updateEffectTotals);
     input.addEventListener('input', updateEffectTotals);
   });
 
   
-  // Initial calculation after data is loaded
   setTimeout(updateEffectTotals, 1500);
 }
 
-// Initialize when both datasets are loaded
-function initializeEffectCalculation() {
-  console.log('Initializing effect calculation system...');
-  
-  loadEffectsData().then(() => {
-    console.log('supports.json loaded, waiting for transformed_supports.json...');
-    
-    const checkDataLoaded = setInterval(() => {
-      if (window.cardsData && window.cardsData.length > 0) {
-        clearInterval(checkDataLoaded);
-        console.log('Both datasets loaded, setting up effect calculation');
-        setupEffectCalculation();
-      }
-    }, 100);
-  });
-}
-
-// Start initialization
 document.addEventListener('DOMContentLoaded', initializeEffectCalculation);
 
-// Also trigger calculation when deck is pasted
 document.addEventListener('DOMContentLoaded', function() {
   if (window.pasteDeckFromClipboard) {
     const originalPasteDeck = window.pasteDeckFromClipboard;
@@ -6433,25 +5807,22 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Manual trigger for debugging
 window.updateEffects = updateEffectTotals;
 window.getCardEffects = findCardWithEffects;
 
-/* ------------- COLLAPSIBLE SIDEBAR FUNCTIONALITY ------------- */
+/* ------------- COLLAPSIBLE SIDEBAR ------------- */
 function setupCollapsibleSidebar() {
   const rightSidebar = document.getElementById('rightSidebar');
   const collapseToggle = document.getElementById('collapseSidebar');
   
-  // Load saved state
   const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
-  // Set initial state
   if (isCollapsed) {
     rightSidebar.classList.add('collapsed');
-    collapseToggle.textContent = '◀'; // Arrow pointing LEFT when collapsed
+    collapseToggle.textContent = '◀';
     collapseToggle.title = 'Expand sidebar';
   } else {
-    collapseToggle.textContent = '▶'; // Arrow pointing RIGHT when expanded
+    collapseToggle.textContent = '▶';
     collapseToggle.title = 'Collapse sidebar';
   }
 
@@ -6470,23 +5841,20 @@ function setupCollapsibleSidebar() {
       localStorage.setItem('sidebarCollapsed', 'false');
     }
     
-    // Update effect totals to ensure proper display
     setTimeout(updateEffectTotals, 50);
     
-    // SIMPLE FIX: Force cards to recalculate layout after sidebar animation
     setTimeout(() => {
       sectionPages.clear();
       renderSections();
-    }, 100); // Small delay to ensure CSS transition completes
+    }, 100);
   });
 }
 
-// Initialize when the page loads
 document.addEventListener('DOMContentLoaded', function() {
   setupCollapsibleSidebar();
 });
 
-/* ------------- UNIQUE EFFECTS CALCULATION ------------- */
+/* ------------- UNIQUE EFFECTS ------------- */
 function shouldApplyUniqueEffects(card, level) {
   if (!card.unique || !card.unique.effects || card.unique.effects.length === 0) {
     return false;
@@ -6509,15 +5877,13 @@ function calculateEffectContributions() {
   console.log('Calculating effect contributions...');
   const contributions = {};
   
-  // Initialize structure for each effect type
   Object.values(EFFECT_TYPES).forEach(effectName => {
     contributions[effectName] = {
       total: 0,
-      cards: [] // Array of { supportId, value, level, char_name }
+      cards: []
     };
   });
 
-  // Iterate through all slots with cards
   const slots = document.querySelectorAll('.slot');
   
   slots.forEach(slot => {
@@ -6527,11 +5893,9 @@ function calculateEffectContributions() {
       const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
       const level = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
       
-      // Find card in supports.json (which has the effects data)
       const card = findCardWithEffects(supportId);
       
       if (card && card.effects) {
-        // Calculate values for each effect at this card's level
         card.effects.forEach(effectData => {
           const effectId = effectData[0];
           const effectName = EFFECT_TYPES[effectId];
@@ -6539,13 +5903,12 @@ function calculateEffectContributions() {
           if (effectName) {
             let value = getEffectValueAtLevel(effectData, level);
             
-            // ADD UNIQUE EFFECTS IF LEVEL THRESHOLD IS MET
             if (shouldApplyUniqueEffects(card, level)) {
               const uniqueValue = getUniqueEffectValue(card, effectId);
               value += uniqueValue;
             }
             
-            if (value > 0) { // Only show cards that actually contribute
+            if (value > 0) {
               contributions[effectName].total += value;
               contributions[effectName].cards.push({
                 supportId: supportId,
@@ -6564,7 +5927,6 @@ function calculateEffectContributions() {
   return contributions;
 }
 
-// Function to update unique effects display based on current level
 function updateUniqueEffectsDisplay(slot, card, level) {
     const uniqueEffects = slot.querySelectorAll('.skills-group:last-child .skill');
     if (uniqueEffects.length > 0 && card.unique && card.unique.effects) {
@@ -6576,7 +5938,6 @@ function updateUniqueEffectsDisplay(slot, card, level) {
                 const activeStyle = isActive ? 'background: #f0fff0; border-left: 3px solid #44ff44;' : 'background: #fff0f0; border-left: 3px solid #ff4444;';
                 
                 effectElement.style.cssText = activeStyle;
-                // Update the status indicator
                 const text = effectElement.textContent;
                 const newText = text.replace(/✅|🔒/g, isActive ? '✅' : '🔒');
                 effectElement.textContent = newText;
@@ -6585,13 +5946,13 @@ function updateUniqueEffectsDisplay(slot, card, level) {
     }
 }
 
-/* ------------- SORTING HELPER FUNCTIONS ------------- */
+/* ------------- SORTING HELPERS ------------- */
 function formatDateForDisplay(dateString) {
   if (!dateString) return 'Unknown';
   
   try {
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString; // Return original if invalid
+    if (isNaN(date.getTime())) return dateString;
     
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -6599,31 +5960,26 @@ function formatDateForDisplay(dateString) {
       day: 'numeric'
     });
   } catch (e) {
-    return dateString; // Return original if parsing fails
+    return dateString;
   }
 }
 
-/* ------------- UPDATE getEffectValueForSorting FUNCTION ------------- */
 function getEffectValueForSorting(card, effectId) {
-  // Find the card with effects data
   const cardWithEffects = findCardWithEffects(card.support_id);
   
   if (!cardWithEffects || !cardWithEffects.effects) {
     return null;
   }
   
-  // Find the effect data for this effect ID
   const effectData = cardWithEffects.effects.find(effect => effect[0] === effectId);
   
   if (!effectData) {
-    return 0; // Effect not found, return 0
+    return 0;
   }
   
-  // Get the MAX LEVEL value instead of base value
   const maxLevel = getMaxLevel(card);
   const maxValue = getEffectValueAtLevel(effectData, maxLevel);
   
-  // ADD UNIQUE EFFECTS AT MAX LEVEL
   if (shouldApplyUniqueEffects(card, maxLevel)) {
     const uniqueValue = getUniqueEffectValue(card, effectId);
     return maxValue + uniqueValue;
@@ -6632,24 +5988,19 @@ function getEffectValueForSorting(card, effectId) {
   return maxValue;
 }
 
-
-/* ------------- SYNC CARD LEVELS WITH MAIN GRID ------------- */
+/* ------------- SYNC CARD LEVELS ------------- */
 function syncCardLevelInMainGrid(supportId, newLevel) {
-    // Find all cards in main grid with this support_id
     const mainGridCards = document.querySelectorAll(`.card[data-support-id="${supportId}"]`);
     
     mainGridCards.forEach(cardElement => {
-        // Get the card data
         const card = cardsData.find(c => c.support_id == supportId);
         if (!card) return;
         
-        // Update the combined level display (level badge + diamonds)
         const levelDiamondContainer = cardElement.querySelector('.level-diamond-container');
         if (levelDiamondContainer) {
             levelDiamondContainer.innerHTML = generateCombinedLevelDisplay(card, newLevel);
         }
         
-        // Update effect value display if showing effects
         updateCardEffectDisplay(cardElement, supportId, newLevel);
         
         console.log(`Synced main grid card: ${card.char_name} to Lv ${newLevel}`);
@@ -6663,7 +6014,6 @@ function updateCardEffectDisplay(cardElement, supportId, newLevel) {
   const sortByValue = document.getElementById('sortBy').value;
   const hideDataOptions = ['rarity', 'name', 'type'];
   
-  // Only update if we're showing effect data
   if (!hideDataOptions.includes(sortByValue) && !isNaN(parseInt(sortByValue))) {
     const effectId = parseInt(sortByValue);
     const effectValue = getEffectValueAtCurrentLevel(card, effectId, newLevel);
@@ -6681,17 +6031,13 @@ function updateCardEffectDisplay(cardElement, supportId, newLevel) {
         displayValue = formattedValue + unit;
       }
       
-      // Find and update the effect display
       const nameContainer = cardElement.querySelector('.name');
       let effectDisplay = nameContainer?.nextElementSibling;
       
-      // If no effect display exists, create one
       if (!effectDisplay || !effectDisplay.classList.contains('small-info-text')) {
-        // Remove any existing small-info-text elements first
         const existingInfoTexts = cardElement.querySelectorAll('.name + .small-info-text');
         existingInfoTexts.forEach(el => el.remove());
         
-        // Create new effect display
         effectDisplay = document.createElement('div');
         effectDisplay.className = 'small-info-text';
         if (nameContainer) {
@@ -6704,38 +6050,12 @@ function updateCardEffectDisplay(cardElement, supportId, newLevel) {
   }
 }
 
-/* ------------- UPDATE ALL SLOT DISPLAYS ------------- */
-function updateAllSlotDisplays() {
-  console.log('Updating all slot displays...');
-  
-  slots.forEach((slot, index) => {
-    if (slot.dataset.supportId) {
-      const supportId = slot.dataset.supportId;
-      const card = cardsData.find(c => String(c.support_id) === String(supportId));
-      
-      if (card) {
-        console.log(`Updating slot ${index} with card: ${card.char_name}`);
-        const slotContainer = slot.closest('.slot-container');
-        const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
-        const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
-        
-        // Update the name section with effect data
-        updateSlotNameWithEffectData(slot, card, currentLevel);
-      }
-    } else {
-      console.log(`Slot ${index} is empty`);
-    }
-  });
-}
-
-/* ------------- EMERGENCY FIX FOR FIRST SEARCH BOX ------------- */
 function fixFirstSearchBoxColors() {
   const firstSearchBox = document.getElementById('skillSearch1');
   if (!firstSearchBox) return;
   
   const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
   if (firstColorPicker) {
-    // Force reset to ensure all 8 colors are available
     const savedColor = localStorage.getItem('color_skillSearch1') || 'green';
     firstColorPicker.className = `color-picker ${savedColor}`;
     firstColorPicker.dataset.color = savedColor;
@@ -6744,14 +6064,11 @@ function fixFirstSearchBoxColors() {
   }
 }
 
-// Call this after setupDynamicSkillSearch()
 setTimeout(fixFirstSearchBoxColors, 500);
 
-/* ------------- ENSURE SLOTS LOAD PROPERLY ------------- */
 function ensureSlotsLoaded() {
   console.log('Ensuring slots are properly loaded...');
   
-  // Check if we have slots with cards but no effect text
   const slotsWithCards = Array.from(slots).filter(slot => slot.dataset.supportId);
   
   if (slotsWithCards.length > 0) {
@@ -6762,7 +6079,6 @@ function ensureSlotsLoaded() {
       const nameContainer = slot.querySelector('.name');
       if (nameContainer) {
         const effectText = nameContainer.nextElementSibling;
-        // If there's no effect text element after the name, we need to update
         if (!effectText || !effectText.style || effectText.style.fontSize !== '8px') {
           needsUpdate = true;
         }
@@ -6776,14 +6092,12 @@ function ensureSlotsLoaded() {
   }
 }
 
-/* ------------- IMPROVED SLOT SELECTION FUNCTIONALITY ------------- */
+/* ------------- SLOT SELECTION ------------- */
 function setupSlotSelection() {
-  // Add click listeners to all slot containers
   slotContainers.forEach((container, index) => {
     container.addEventListener('click', (e) => {
       const slot = container.querySelector('.slot');
       
-      // Don't trigger selection if clicking on ANY card content
       if (e.target.closest('.slot-level-input') || 
           e.target.closest('.type-icon') ||
           e.target.closest('.level-badge') ||
@@ -6795,25 +6109,21 @@ function setupSlotSelection() {
         return;
       }
       
-      // Only allow selection on truly empty slots
       if (!slot.classList.contains('has-card')) {
         handleSlotSelection(container, index);
       }
     });
   });
   
-  // Load saved selection state
   const savedSelection = localStorage.getItem(SLOT_SELECTION_KEY);
   if (savedSelection !== null) {
     const slotIndex = parseInt(savedSelection);
     if (!isNaN(slotIndex) && slotContainers[slotIndex]) {
       selectedSlot = slotContainers[slotIndex];
       const slot = selectedSlot.querySelector('.slot');
-      // Only restore selection if the slot is empty
       if (!slot.classList.contains('has-card')) {
         selectedSlot.classList.add('selected');
       } else {
-        // Clear invalid selection (slot has card)
         localStorage.removeItem(SLOT_SELECTION_KEY);
         selectedSlot = null;
       }
@@ -6824,28 +6134,23 @@ function setupSlotSelection() {
 function handleSlotSelection(container, index) {
   const slot = container.querySelector('.slot');
   
-  // Don't allow selection if this slot has a card
   if (slot.classList.contains('has-card')) {
     return;
   }
   
   const isSameSlot = selectedSlot === container;
   
-  // If clicking the same slot that's already selected
   if (isSameSlot) {
     clearSlotSelection();
     console.log(`Slot ${index + 1} deselected`);
     return;
   }
   
-  // Clear any existing selection
   clearSlotSelection();
   
-  // Select the empty slot - this will now only affect the slot's border
   selectedSlot = container;
   container.classList.add('selected');
   
-  // Save selection state
   localStorage.setItem(SLOT_SELECTION_KEY, index.toString());
   
   console.log(`Slot ${index + 1} selected - next card clicked will go here`);
@@ -6868,28 +6173,23 @@ function setupKeyboardShortcuts() {
   });
 }
 
-/* ------------- SLOT FLASH EFFECT ------------- */
 function flashSlot(slot) {
   const container = slot.closest('.slot-container');
   if (!container) return;
   
-  // Add flash class
   container.classList.add('flash-warning');
   
-  // Remove after animation
   setTimeout(() => {
     container.classList.remove('flash-warning');
   }, 1000);
 }
 
-
-/* ------------- DECK NAME MANAGEMENT ------------- */
+/* ------------- DECK NAME ------------- */
 function setupDeckName() {
   const deckNameInput = document.getElementById('deckNameInput');
   const deckNameDisplay = document.getElementById('deckNameDisplay');
-  const MAX_LENGTH = 30; // Match your maxlength attribute
+  const MAX_LENGTH = 30;
   
-  // Load saved deck name
   const savedDeckName = localStorage.getItem('deckName');
   if (savedDeckName) {
     deckNameInput.value = savedDeckName;
@@ -6905,7 +6205,7 @@ function setupDeckName() {
   });
 }
 
-/* ------------- COPY ALL FUNCTIONALITY ------------- */
+/* ------------- COPY ALL ------------- */
 function setupCopyAll() {
   const copyAllBtn = document.getElementById('copyAllBtn');
   copyAllBtn.addEventListener('click', copyAllToClipboard);
@@ -6914,7 +6214,6 @@ function setupCopyAll() {
 function copyAllToClipboard() {
   const deckName = document.getElementById('deckNameInput').value.trim() || 'Unnamed Deck';
   
-  // Get deck data (cards and levels)
   const deckData = slots.map(slot => {
     const supportId = slot.dataset.supportId;
     let level = '1';
@@ -6931,7 +6230,6 @@ function copyAllToClipboard() {
     };
   });
 
-  // Get skill searches data
   const skillsData = skillSearches.map(search => {
     const input = document.getElementById(search.id);
     const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
@@ -6945,7 +6243,6 @@ function copyAllToClipboard() {
     return null;
   }).filter(item => item !== null);
 
-  // Create the comprehensive data object
   const allData = {
     version: '1.0',
     deckName: deckName,
@@ -6954,11 +6251,9 @@ function copyAllToClipboard() {
     timestamp: new Date().toISOString()
   };
 
-  // Convert to string for clipboard
   const copyText = JSON.stringify(allData);
 
   navigator.clipboard.writeText(copyText).then(() => {
-    // Visual feedback
     const copyBtn = document.getElementById('copyAllBtn');
     const originalText = copyBtn.textContent;
     copyBtn.textContent = 'Copied!';
@@ -6976,7 +6271,7 @@ function copyAllToClipboard() {
   });
 }
 
-/* ------------- PASTE ALL FUNCTIONALITY ------------- */
+/* ------------- PASTE ALL ------------- */
 function setupPasteAll() {
   const pasteAllBtn = document.getElementById('pasteAllBtn');
   pasteAllBtn.addEventListener('click', pasteAllFromClipboard);
@@ -6987,7 +6282,6 @@ function pasteAllFromClipboard() {
     try {
       const allData = JSON.parse(text);
       
-      // Validate the format
       if (!allData.deck || !allData.skills || !allData.version) {
         throw new Error('Invalid format: Missing required fields');
       }
@@ -6998,24 +6292,19 @@ function pasteAllFromClipboard() {
       
       console.log('Pasting data with deck name:', allData.deckName);
       
-      // Clear current deck first (but DON'T clear the deck name yet)
       clearAllBtn.click();
       
-      // Add a small delay to ensure clear completes, THEN set deck name
       setTimeout(() => {
-        // CRITICAL FIX: Set deck name AFTER clear deck operation
         const deckNameInput = document.getElementById('deckNameInput');
         const deckNameDisplay = document.getElementById('deckNameDisplay');
         
         if (deckNameInput && deckNameDisplay) {
           if (allData.deckName && allData.deckName.trim() !== '') {
-            // Set the deck name
             deckNameInput.value = allData.deckName;
             deckNameDisplay.textContent = allData.deckName;
             localStorage.setItem('deckName', allData.deckName);
             console.log('Deck name successfully set to:', allData.deckName);
           } else {
-            // Reset to default if no deck name
             deckNameInput.value = '';
             deckNameDisplay.textContent = 'Unnamed Deck';
             localStorage.removeItem('deckName');
@@ -7025,8 +6314,6 @@ function pasteAllFromClipboard() {
           console.error('Deck name elements not found!');
         }
         
-        // Now populate the deck
-        // In your pasteAllFromClipboard function, after populating the deck:
 allData.deck.forEach((slotData, index) => {
   if (slotData.supportId !== 'empty') {
     const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
@@ -7034,7 +6321,6 @@ allData.deck.forEach((slotData, index) => {
       const slot = slots[index];
       addToSlot(card, slot, false);
       
-      // Set level if provided and valid
       if (slotData.level && slotData.level !== '1') {
         const slotContainer = slot.closest('.slot-container');
         const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
@@ -7043,7 +6329,6 @@ allData.deck.forEach((slotData, index) => {
           levelInput.value = validatedLevel;
           slotLevels[card.support_id] = validatedLevel;
           
-          // CRITICAL: Update the level display immediately
           const levelBadge = slot.querySelector('.level-badge');
           const diamondIcons = slot.querySelector('.diamond-icons');
           
@@ -7055,17 +6340,13 @@ allData.deck.forEach((slotData, index) => {
   }
 });
 
-// ADD THIS LINE: Refresh all slot displays after populating
 refreshAllSlotLevelDisplays();
         
-        // Clear existing skill searches first
         clearAllSkillSearches();
         
-        // Populate skill searches
         allData.skills.forEach((skillItem, index) => {
           if (index < maxSearches) {
             if (index === 0) {
-              // Update first search box
               const firstInput = document.getElementById('skillSearch1');
               const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
               
@@ -7076,22 +6357,17 @@ refreshAllSlotLevelDisplays();
                 localStorage.setItem('color_skillSearch1', skillItem.color);
               }
               
-              // Update state for first search
               const firstSearch = skillSearches.find(s => s.id === 'skillSearch1');
               if (firstSearch) {
                 firstSearch.value = skillItem.skill;
               }
             } else {
-              // Add new search boxes
               const newId = `skillSearch${index + 1}`;
               
-              // Add to state
               skillSearches.push({ id: newId, value: skillItem.skill });
               
-              // Create UI element
               createSearchBox(newId, skillItem.skill);
               
-              // Set color
               const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
               if (colorPicker) {
                 colorPicker.className = `color-picker ${skillItem.color}`;
@@ -7102,23 +6378,19 @@ refreshAllSlotLevelDisplays();
           }
         });
         
-        // Update search counter and global array
         searchCounter = skillSearches.length + 1;
         SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
         
-        // Save the updated state
         saveSkillSearches();
         saveSlotsToLocalStorage();
         localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
         
-        // Update UI
         updateSelectedSkillsList();
         highlightSkills();
         highlightSelectedSkills();
         renderSections();
         updateEffectTotals();
         
-        // Visual feedback
         const pasteBtn = document.getElementById('pasteAllBtn');
         const originalText = pasteBtn.textContent;
         pasteBtn.textContent = 'Pasted!';
@@ -7131,7 +6403,6 @@ refreshAllSlotLevelDisplays();
         
         console.log('All data pasted from clipboard:', allData);
         
-        // FINAL CHECK: Verify deck name was set correctly
         setTimeout(() => {
           const finalDeckNameInput = document.getElementById('deckNameInput');
           const finalDeckNameDisplay = document.getElementById('deckNameDisplay');
@@ -7150,7 +6421,7 @@ refreshAllSlotLevelDisplays();
   });
 }
 
-/* ------------- RESET LEVELS FUNCTIONALITY ------------- */
+/* ------------- RESET LEVELS ------------- */
 function setupResetLevels() {
   const resetLevelsBtn = document.getElementById('resetLevelsBtn');
   resetLevelsBtn.addEventListener('click', resetAllLevels);
@@ -7163,15 +6434,12 @@ function resetAllLevels() {
   
   console.log('Resetting ALL card levels to 1...');
   
-  // 1. Clear all levels from localStorage
   localStorage.removeItem('slotLevels');
   
-  // 2. Reset the slotLevels object
   Object.keys(slotLevels).forEach(key => {
     delete slotLevels[key];
   });
   
-  // 3. Reset all slot levels in the sidebar
   slotContainers.forEach(container => {
     const levelInput = container.querySelector('.slot-level-input');
     const slot = container.querySelector('.slot');
@@ -7181,47 +6449,36 @@ function resetAllLevels() {
       const card = cardsData.find(c => String(c.support_id) === String(supportId));
       
       if (card) {
-        // Reset level to 1 in storage
         slotLevels[card.support_id] = 1;
         
-        // Reset level input
         levelInput.value = '1';
         
-        // Update the combined level display
         refreshCombinedLevelDisplay(slot, card, 1);
         
-        // Update unique effects display
         updateUniqueEffectsDisplay(slot, card, 1);
         
-        // Update effect value display
         updateSlotNameWithEffectData(slot, card, 1);
         
         console.log(`Reset slot: ${card.char_name} to Lv 1`);
       }
     } else {
-      // For empty slots, just reset the input
       levelInput.value = '1';
       levelInput.disabled = true;
     }
   });
   
-  // 4. Reset ALL main grid cards - ENHANCED VERSION
   resetAllMainGridCards();
   
-  // 5. Save the reset levels
   localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
   
-  // 6. Update effect totals
   setTimeout(updateEffectTotals, 100);
   
-  // 7. Force re-render of all sections to ensure main grid is updated
   setTimeout(() => {
     sectionPages.clear();
     renderSections();
     console.log('Sections re-rendered with reset levels');
   }, 200);
   
-  // Visual feedback
   const resetBtn = document.getElementById('resetLevelsBtn');
   const originalText = resetBtn.textContent;
   resetBtn.textContent = 'Reset!';
@@ -7233,11 +6490,9 @@ function resetAllLevels() {
   console.log('ALL card levels reset to 1');
 }
 
-/* ------------- COMPREHENSIVE MAIN GRID RESET ------------- */
 function resetAllMainGridCards() {
   console.log('Resetting ALL main grid card levels...');
   
-  // Method 1: Update existing DOM elements
   const mainGridCards = document.querySelectorAll('.card');
   let updatedCount = 0;
   
@@ -7246,10 +6501,8 @@ function resetAllMainGridCards() {
     if (supportId) {
       const card = cardsData.find(c => c.support_id == supportId);
       if (card) {
-        // Update combined level display
         refreshCombinedLevelDisplay(cardElement, card, 1);
         
-        // Update effect value display if showing effects
         updateCardEffectDisplay(cardElement, supportId, 1);
         
         updatedCount++;
@@ -7260,9 +6513,7 @@ function resetAllMainGridCards() {
   
   console.log(`Updated ${updatedCount} main grid cards`);
   
-  // Method 2: Also update the cardsData reference levels
   cardsData.forEach(card => {
-    // This ensures any future card creations will use level 1
     slotLevels[card.support_id] = 1;
   });
 }
@@ -7275,12 +6526,10 @@ function refreshCombinedLevelDisplay(element, card, newLevel) {
   } else {
     console.warn(`No level-diamond-container found for ${card.char_name}, creating one`);
     
-    // If container doesn't exist, create it
     const newContainer = document.createElement('div');
     newContainer.className = 'level-diamond-container';
     newContainer.innerHTML = generateCombinedLevelDisplay(card, newLevel);
     
-    // Try to insert it in the appropriate place
     const typeIcon = element.querySelector('.type-icon');
     if (typeIcon && typeIcon.nextElementSibling) {
       typeIcon.parentNode.insertBefore(newContainer, typeIcon.nextElementSibling);
@@ -7290,12 +6539,11 @@ function refreshCombinedLevelDisplay(element, card, newLevel) {
   }
 }
 
-/* ------------- CLEAR DECK WITH SELECTIVE NAME RESET ------------- */
+/* ------------- CLEAR DECK WITH NAME RESET ------------- */
 function setupClearDeckWithNameReset() {
   let isProgrammaticClear = false;
   
   clearAllBtn.addEventListener('click', () => {
-    // Only reset deck name if this is a MANUAL clear (not programmatic)
     if (!isProgrammaticClear) {
       const deckNameInput = document.getElementById('deckNameInput');
       const deckNameDisplay = document.getElementById('deckNameDisplay');
@@ -7308,13 +6556,8 @@ function setupClearDeckWithNameReset() {
       }
     }
     
-    // Reset all slots (original clear functionality)
     selectedCardIds.clear();
 
-    // IMPORTANT: Don't clear level data when clearing deck!
-    // The levels are preserved by support_id for future use
-
-    // Reset all level controls and slots
     slotContainers.forEach(container => {
       const levelInput = container.querySelector('.slot-level-input');
       levelInput.disabled = true;
@@ -7339,16 +6582,13 @@ function setupClearDeckWithNameReset() {
     highlightSelectedSkills();
     renderSections();
 
-    // Update effect totals after clearing
     setTimeout(() => {
       updateEffectTotals();
     }, 100);
     
-    // Reset the flag
     isProgrammaticClear = false;
   });
   
-  // Expose a method for programmatic clearing (without resetting deck name)
   window.programmaticClearDeck = function() {
     isProgrammaticClear = true;
     clearAllBtn.click();
@@ -7369,10 +6609,8 @@ function refreshAllSlotLevelDisplays() {
         const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
         const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
         
-        // Update combined level display
         refreshCombinedLevelDisplay(slot, card, currentLevel);
         
-        // Update unique effects display
         updateUniqueEffectsDisplay(slot, card, currentLevel);
         
         console.log(`Refreshed slot ${index}: ${card.char_name} Lv ${currentLevel}`);
@@ -7381,18 +6619,17 @@ function refreshAllSlotLevelDisplays() {
   });
 }
 
-/* ------------- COMBINED DIAMOND ICONS AND LEVEL BADGE ------------- */
+/* ------------- COMBINED LEVEL DISPLAY ------------- */
 function generateCombinedLevelDisplay(card, currentLevel) {
-  // Define thresholds based on rarity
   let thresholds;
   switch(card.rarity) {
-    case 1: // R rarity
+    case 1:
       thresholds = [21, 26, 31, 36];
       break;
-    case 2: // SR rarity  
+    case 2:
       thresholds = [26, 31, 36, 41];
       break;
-    case 3: // SSR rarity
+    case 3:
       thresholds = [31, 36, 41, 46];
       break;
     default:
@@ -7401,7 +6638,6 @@ function generateCombinedLevelDisplay(card, currentLevel) {
   
   let diamondIconsHTML = '';
   
-  // Create 4 diamond icons
   for (let i = 0; i < 4; i++) {
     const isFilled = currentLevel >= thresholds[i];
     const iconSrc = isFilled ? 'images/diamond_filled.png' : 'images/diamond_empty.png';
@@ -7409,7 +6645,6 @@ function generateCombinedLevelDisplay(card, currentLevel) {
     diamondIconsHTML += `<img src="${iconSrc}" alt="Diamond ${i+1}" class="diamond-icon-combined" data-threshold="${thresholds[i]}">`;
   }
   
-  // Return combined HTML with level badge and diamonds
   return `
     <div class="level-badge-combined">Lv ${currentLevel}</div>
     <div class="diamond-icons-combined">${diamondIconsHTML}</div>
@@ -7434,24 +6669,19 @@ function refreshAllMainGridCardLevels() {
   });
 }
 
-// ---------- DOCUMENT ------------------------------------------------------------------
-
-// Initialize when the page loads
 document.addEventListener('DOMContentLoaded', function() {
-  // Wait for cards data to be loaded
   const checkDataLoaded = setInterval(() => {
     if (cardsData && cardsData.length > 0) {
       clearInterval(checkDataLoaded);
       setTimeout(() => {
         setupEffectCalculation();
         updateEffectTotals();
-        highlightSkills(); // ADD THIS LINE to ensure skills are highlighted on load
+        highlightSkills();
       }, 1000);
     }
   }, 100);
 });
   
-  // Update when pasting decks
   const originalPasteDeck = window.pasteDeckFromClipboard;
   if (originalPasteDeck) {
     window.pasteDeckFromClipboard = function() {
@@ -7461,10 +6691,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
   }
 
-
-// Initialize the copy/paste buttons when the page loads
 document.addEventListener('DOMContentLoaded', setupCopyPasteButtons);
-
 </script>
 </body>
 </html>
