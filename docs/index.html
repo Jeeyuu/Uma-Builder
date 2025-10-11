@@ -2003,6 +2003,149 @@ body.dark-mode .deck-name-display {
   pointer-events: auto;
 }
 
+/* ------------- CHARACTER PICKER SECTION ------------- */
+.character-picker-section {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  margin-bottom: 16px;
+  align-items: flex-start;
+}
+
+/* Empty box on the left */
+.character-picker-empty-box {
+  width: var(--card-w);
+  height: var(--card-w);
+  border: 2px dashed #ccc;
+  background: #fafafa;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Right side - 10 rows container */
+.character-picker-rows {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: var(--card-w);
+}
+
+/* Base row styling */
+.character-picker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  background: #f8f8f8;
+  border-radius: 4px;
+  min-height: 24px;
+}
+
+/* Specific row layouts */
+
+/* Row 1: Character Name */
+.character-picker-row-1 {
+  font-weight: bold;
+  font-size: 14px;
+  justify-content: center;
+  background: #eef2ff;
+}
+
+/* Row 2: Character Costume */
+.character-picker-row-2 {
+  font-size: 12px;
+  justify-content: center;
+  background: #f0f8ff;
+}
+
+/* Rows 3 & 4: 5 equally spaced items */
+.character-picker-row-3,
+.character-picker-row-4 {
+  padding: 4px 12px;
+}
+
+.character-picker-five-items {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.character-picker-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.character-picker-percentage {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  flex: 1;
+}
+
+/* Rows 5 & 6: 2 equally spaced items */
+.character-picker-row-5,
+.character-picker-row-6 {
+  padding: 4px 16px;
+}
+
+.character-picker-two-items {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.character-picker-title {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  flex: 1;
+}
+
+.character-picker-grade {
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  flex: 1;
+}
+
+/* Rows 7-10: 4 equally spaced items */
+.character-picker-row-7,
+.character-picker-row-8,
+.character-picker-row-9,
+.character-picker-row-10 {
+  padding: 4px 8px;
+}
+
+.character-picker-four-items {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Dark mode support */
+body.dark-mode .character-picker-empty-box {
+  background: #252525;
+  border-color: #555;
+}
+
+body.dark-mode .character-picker-row {
+  background: #2d2d2d;
+}
+
+body.dark-mode .character-picker-row-1 {
+  background: #3a3a3a;
+}
+
+body.dark-mode .character-picker-row-2 {
+  background: #2a3a3a;
+}
+
 </style>
 </head>
 
@@ -2318,7 +2461,102 @@ body.dark-mode .deck-name-display {
 
         <div class="skill-search-divider"></div>
 
-<!-- character picker -->
+        <!-- Character Picker Section -->
+<div class="character-picker-section">
+  <!-- Empty box on the left -->
+  <div class="character-picker-empty-box"></div>
+  
+  <!-- 10 rows on the right -->
+  <div class="character-picker-rows">
+    <!-- Row 1: Character Name -->
+    <div class="character-picker-row character-picker-row-1">
+      Character Name
+    </div>
+    
+    <!-- Row 2: Character Costume -->
+    <div class="character-picker-row character-picker-row-2">
+      Character Costume
+    </div>
+    
+    <!-- Row 3: 5 Icons -->
+    <div class="character-picker-row character-picker-row-3">
+      <div class="character-picker-five-items">
+        <div class="character-picker-icon"></div>
+        <div class="character-picker-icon"></div>
+        <div class="character-picker-icon"></div>
+        <div class="character-picker-icon"></div>
+        <div class="character-picker-icon"></div>
+      </div>
+    </div>
+    
+    <!-- Row 4: 5 Percentages -->
+    <div class="character-picker-row character-picker-row-4">
+      <div class="character-picker-five-items">
+        <div class="character-picker-percentage">20%</div>
+        <div class="character-picker-percentage">20%</div>
+        <div class="character-picker-percentage">20%</div>
+        <div class="character-picker-percentage">20%</div>
+        <div class="character-picker-percentage">20%</div>
+      </div>
+    </div>
+    
+    <!-- Row 5: 2 Titles -->
+    <div class="character-picker-row character-picker-row-5">
+      <div class="character-picker-two-items">
+        <div class="character-picker-title">Turf</div>
+        <div class="character-picker-title">Dirt</div>
+      </div>
+    </div>
+    
+    <!-- Row 6: 2 Grades -->
+    <div class="character-picker-row character-picker-row-6">
+      <div class="character-picker-two-items">
+        <div class="character-picker-grade">A</div>
+        <div class="character-picker-grade">A</div>
+      </div>
+    </div>
+    
+    <!-- Row 7: 4 Titles -->
+    <div class="character-picker-row character-picker-row-7">
+      <div class="character-picker-four-items">
+        <div class="character-picker-title">Title 1</div>
+        <div class="character-picker-title">Title 2</div>
+        <div class="character-picker-title">Title 3</div>
+        <div class="character-picker-title">Title 4</div>
+      </div>
+    </div>
+    
+    <!-- Row 8: 4 Grades -->
+    <div class="character-picker-row character-picker-row-8">
+      <div class="character-picker-four-items">
+        <div class="character-picker-grade">A</div>
+        <div class="character-picker-grade">A</div>
+        <div class="character-picker-grade">A</div>
+        <div class="character-picker-grade">A</div>
+      </div>
+    </div>
+    
+    <!-- Row 9: 4 Titles -->
+    <div class="character-picker-row character-picker-row-9">
+      <div class="character-picker-four-items">
+        <div class="character-picker-title">Title 1</div>
+        <div class="character-picker-title">Title 2</div>
+        <div class="character-picker-title">Title 3</div>
+        <div class="character-picker-title">Title 4</div>
+      </div>
+    </div>
+    
+    <!-- Row 10: 4 Grades -->
+    <div class="character-picker-row character-picker-row-10">
+      <div class="character-picker-four-items">
+        <div class="character-picker-grade">A</div>
+        <div class="character-picker-grade">A</div>
+        <div class="character-picker-grade">A</div>
+        <div class="character-picker-grade">A</div>
+      </div>
+    </div>
+  </div>
+</div>
         
         <div class="skill-search-divider"></div>
 
