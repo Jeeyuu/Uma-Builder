@@ -1991,6 +1991,18 @@ body.dark-mode .deck-name-display {
   object-fit: contain;
 }
 
+/* Collapsed mode adjustments - FIXED FOR DIAMOND ICONS */
+.right-sidebar.collapsed .level-diamond-container {
+  position: absolute;
+  top: 60px; /* Your current value for main section */
+  display: flex;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 3px;
+  border-radius: 6px;
+  pointer-events: auto;
+}
+
 </style>
 </head>
 
