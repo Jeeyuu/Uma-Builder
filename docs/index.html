@@ -6810,24 +6810,20 @@ function syncCardLevelInMainGrid(supportId, newLevel) {
     const mainGridCards = document.querySelectorAll(`.card[data-support-id="${supportId}"]`);
     
     mainGridCards.forEach(cardElement => {
-        // Update level badge
-        const levelBadge = cardElement.querySelector('.level-badge');
-        if (levelBadge) {
-            levelBadge.textContent = `Lv ${newLevel}`;
-        }
+        // Get the card data
+        const card = cardsData.find(c => c.support_id == supportId);
+        if (!card) return;
         
-        // Update diamond icons
-        const diamondIcons = cardElement.querySelector('.diamond-icons');
-        if (diamondIcons) {
-            // Get the card data from the element
-            const cardData = cardsData.find(c => c.support_id == supportId);
-            if (cardData) {
-                diamondIcons.innerHTML = generateDiamondIcons(cardData, newLevel);
-            }
+        // Update the combined level display (level badge + diamonds)
+        const levelDiamondContainer = cardElement.querySelector('.level-diamond-container');
+        if (levelDiamondContainer) {
+            levelDiamondContainer.innerHTML = generateCombinedLevelDisplay(card, newLevel);
         }
         
         // Update effect value display if showing effects
         updateCardEffectDisplay(cardElement, supportId, newLevel);
+        
+        console.log(`Synced main grid card: ${card.char_name} to Lv ${newLevel}`);
     });
 }
 
@@ -7564,7 +7560,20 @@ function refreshCombinedLevelDisplay(element, card, newLevel) {
     container.innerHTML = generateCombinedLevelDisplay(card, newLevel);
     console.log(`Refreshed level display for ${card.char_name}: Lv ${newLevel}`);
   } else {
-    console.warn(`No level-diamond-container found for ${card.char_name}`);
+    console.warn(`No level-diamond-container found for ${card.char_name}, creating one`);
+    
+    // If container doesn't exist, create it
+    const newContainer = document.createElement('div');
+    newContainer.className = 'level-diamond-container';
+    newContainer.innerHTML = generateCombinedLevelDisplay(card, newLevel);
+    
+    // Try to insert it in the appropriate place
+    const typeIcon = element.querySelector('.type-icon');
+    if (typeIcon && typeIcon.nextElementSibling) {
+      typeIcon.parentNode.insertBefore(newContainer, typeIcon.nextElementSibling);
+    } else {
+      element.insertBefore(newContainer, element.querySelector('img'));
+    }
   }
 }
 
@@ -7751,6 +7760,24 @@ function generateCombinedLevelDisplay(card, currentLevel) {
 // Call this in console after paste to debug: debugDeckNamePaste()
 
 // Call this in console if you need to debug: debugDeckName()
+
+function refreshAllMainGridCardLevels() {
+  console.log('Refreshing all main grid card levels...');
+  
+  const allCards = document.querySelectorAll('.card');
+  allCards.forEach(cardElement => {
+    const supportId = cardElement.dataset.supportId;
+    if (supportId) {
+      const currentLevel = getCardLevel(supportId);
+      const card = cardsData.find(c => c.support_id == supportId);
+      
+      if (card) {
+        refreshCombinedLevelDisplay(cardElement, card, currentLevel);
+        updateCardEffectDisplay(cardElement, supportId, currentLevel);
+      }
+    }
+  });
+}
 
 // ---------- DOCUMENT ------------------------------------------------------------------
 
