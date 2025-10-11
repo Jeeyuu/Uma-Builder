@@ -2074,6 +2074,7 @@ body.dark-mode .deck-name-display {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 4px;
   min-height: var(--card-w);
 }
 
@@ -2088,36 +2089,35 @@ body.dark-mode .deck-name-display {
   min-height: 24px;
 }
 
-/* Odd rows (1, 3, 5, 7) - darker background */
-.character-picker-row-1,
-.character-picker-row-3,
-.character-picker-row-5,
-.character-picker-row-7 {
-  background: #e8e8e8;
-}
-
-/* Even rows (2, 4, 6, 8) - keep lighter background */
+/* Swapped backgrounds - even rows (2, 4, 6, 8) darker */
 .character-picker-row-2,
 .character-picker-row-4,
 .character-picker-row-6,
 .character-picker-row-8 {
+  background: #e8e8e8;
+}
+
+/* Odd rows (1, 3, 5, 7) - keep lighter background */
+.character-picker-row-1,
+.character-picker-row-3,
+.character-picker-row-5,
+.character-picker-row-7 {
   background: #f8f8f8;
 }
 
-/* Specific row layouts */
+/* Type icons styling */
+.character-picker-type-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
 
 .character-picker-five-items {
   display: flex;
   width: 100%;
   justify-content: space-between;
   align-items: center;
-}
-
-.character-picker-icon {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  flex-shrink: 0;
 }
 
 .character-picker-percentage {
@@ -2173,19 +2173,19 @@ body.dark-mode .character-picker-row {
   background: #2d2d2d;
 }
 
-/* Dark mode - odd rows even darker */
-body.dark-mode .character-picker-row-1,
-body.dark-mode .character-picker-row-3,
-body.dark-mode .character-picker-row-5,
-body.dark-mode .character-picker-row-7 {
-  background: #252525;
-}
-
-/* Dark mode - even rows slightly lighter */
+/* Dark mode - even rows darker */
 body.dark-mode .character-picker-row-2,
 body.dark-mode .character-picker-row-4,
 body.dark-mode .character-picker-row-6,
 body.dark-mode .character-picker-row-8 {
+  background: #252525;
+}
+
+/* Dark mode - odd rows lighter */
+body.dark-mode .character-picker-row-1,
+body.dark-mode .character-picker-row-3,
+body.dark-mode .character-picker-row-5,
+body.dark-mode .character-picker-row-7 {
   background: #2d2d2d;
 }
 
@@ -2520,14 +2520,14 @@ body.dark-mode .character-picker-row-8 {
   
   <!-- Right side - 8 rows container -->
   <div class="character-picker-rows">
-    <!-- Row 1: 5 Icons -->
+    <!-- Row 1: 5 Type Icons -->
     <div class="character-picker-row character-picker-row-1">
       <div class="character-picker-five-items">
-        <div class="character-picker-icon"></div>
-        <div class="character-picker-icon"></div>
-        <div class="character-picker-icon"></div>
-        <div class="character-picker-icon"></div>
-        <div class="character-picker-icon"></div>
+        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_00.png" alt="Speed" class="character-picker-type-icon">
+        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_01.png" alt="Stamina" class="character-picker-type-icon">
+        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_02.png" alt="Power" class="character-picker-type-icon">
+        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_03.png" alt="Guts" class="character-picker-type-icon">
+        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_04.png" alt="Intelligence" class="character-picker-type-icon">
       </div>
     </div>
     
@@ -2542,7 +2542,7 @@ body.dark-mode .character-picker-row-8 {
       </div>
     </div>
     
-    <!-- Row 3: 2 Titles -->
+    <!-- Row 3: 2 Titles (Turf/Dirt) -->
     <div class="character-picker-row character-picker-row-3">
       <div class="character-picker-two-items">
         <div class="character-picker-title">Turf</div>
@@ -2550,7 +2550,7 @@ body.dark-mode .character-picker-row-8 {
       </div>
     </div>
     
-    <!-- Row 4: 2 Grades -->
+    <!-- Row 4: 2 Grades (Turf/Dirt) -->
     <div class="character-picker-row character-picker-row-4">
       <div class="character-picker-two-items">
         <div class="character-picker-grade">A</div>
@@ -2558,17 +2558,17 @@ body.dark-mode .character-picker-row-8 {
       </div>
     </div>
     
-    <!-- Row 5: 4 Titles -->
+    <!-- Row 5: 4 Distance Titles -->
     <div class="character-picker-row character-picker-row-5">
       <div class="character-picker-four-items">
-        <div class="character-picker-title">Title 1</div>
-        <div class="character-picker-title">Title 2</div>
-        <div class="character-picker-title">Title 3</div>
-        <div class="character-picker-title">Title 4</div>
+        <div class="character-picker-title">Short</div>
+        <div class="character-picker-title">Mile</div>
+        <div class="character-picker-title">Medium</div>
+        <div class="character-picker-title">Long</div>
       </div>
     </div>
     
-    <!-- Row 6: 4 Grades -->
+    <!-- Row 6: 4 Distance Grades -->
     <div class="character-picker-row character-picker-row-6">
       <div class="character-picker-four-items">
         <div class="character-picker-grade">A</div>
@@ -2578,17 +2578,17 @@ body.dark-mode .character-picker-row-8 {
       </div>
     </div>
     
-    <!-- Row 7: 4 Titles -->
+    <!-- Row 7: 4 Strategy Titles -->
     <div class="character-picker-row character-picker-row-7">
       <div class="character-picker-four-items">
-        <div class="character-picker-title">Title 1</div>
-        <div class="character-picker-title">Title 2</div>
-        <div class="character-picker-title">Title 3</div>
-        <div class="character-picker-title">Title 4</div>
+        <div class="character-picker-title">Front</div>
+        <div class="character-picker-title">Pace</div>
+        <div class="character-picker-title">Late</div>
+        <div class="character-picker-title">End</div>
       </div>
     </div>
     
-    <!-- Row 8: 4 Grades -->
+    <!-- Row 8: 4 Strategy Grades -->
     <div class="character-picker-row character-picker-row-8">
       <div class="character-picker-four-items">
         <div class="character-picker-grade">A</div>
