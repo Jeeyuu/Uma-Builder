@@ -7186,9 +7186,9 @@ function setupDeckName() {
   
   deckNameInput.addEventListener('input', (e) => {
     const name = e.target.value;
-    deckNameDisplay.textContent = name || 'unnamed deck';
+    deckNameDisplay.textContent = name || 'Unnamed Deck';
     localStorage.setItem('deckName', name);
-    console.log('Deck name updated:', name || 'unnamed deck');
+    console.log('Deck name updated:', name || 'Unnamed Deck');
   });
 }
 
@@ -7199,7 +7199,7 @@ function setupCopyAll() {
 }
 
 function copyAllToClipboard() {
-  const deckName = document.getElementById('deckNameInput').value.trim() || 'unnamed deck';
+  const deckName = document.getElementById('deckNameInput').value.trim() || 'Unnamed Deck';
   
   // Get deck data (cards and levels)
   const deckData = slots.map(slot => {
@@ -7304,7 +7304,7 @@ function pasteAllFromClipboard() {
           } else {
             // Reset to default if no deck name
             deckNameInput.value = '';
-            deckNameDisplay.textContent = 'unnamed deck';
+            deckNameDisplay.textContent = 'Unnamed Deck';
             localStorage.removeItem('deckName');
             console.log('No deck name in data, reset to default');
           }
@@ -7589,7 +7589,7 @@ function setupClearDeckWithNameReset() {
       
       if (deckNameInput && deckNameDisplay) {
         deckNameInput.value = '';
-        deckNameDisplay.textContent = 'unnamed deck';
+        deckNameDisplay.textContent = 'Unnamed Deck';
         localStorage.removeItem('deckName');
         console.log('Manual clear: Deck name reset to default');
       }
