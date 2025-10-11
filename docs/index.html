@@ -2951,6 +2951,9 @@ const HIDE = { char_id: false, url_name: true };
 /* ------------- STATE ------------- */
 let cardsData = [];
 let skillsData = []; // Store skills data for lookup
+let presetRaceNumbers = new Map(); // Store race numbers by title
+let supportsDataWithEffects = []; // For effect calculations
+
 const cardSections = document.getElementById('cardSections');
 const slotContainers = Array.from(document.querySelectorAll('.slot-container'));
 const slots = Array.from(document.querySelectorAll('.right-sidebar .slot'));
@@ -3088,6 +3091,7 @@ function getSkillDescription(skillId) {
 /* ------------- PROCESS SUPPORT CARD DATA ------------- */
 function processSupportCardData(supportCards, skills) {
     skillsData = skills; // Store skills for lookup
+    supportsDataWithEffects = supportCards; // Store for effect calculations
     
     return supportCards.map(card => {
         // Convert skill IDs to skill names
@@ -3157,10 +3161,6 @@ Current error: ${error.message}
     }
 }
 
-// ========== REPLACE EVERYTHING BELOW THIS LINE WITH YOUR ORIGINAL FUNCTIONS ==========
-// DELETE any duplicate code below and replace with your original functions
-// Make sure you only have ONE copy of each function
-
 /* ------------- Initialize Application ------------- */
 document.addEventListener('DOMContentLoaded', function() {
     loadDataFiles()
@@ -3221,6 +3221,9 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     });
 });
+
+// ========== ADD ALL YOUR ORIGINAL FUNCTIONS BELOW THIS LINE ==========
+// Make sure to remove any duplicate variable declarations from your functions
 
 /* ------------- DYNAMIC PAGINATION ------------- */
 function calculateCardsPerPage() {
