@@ -2008,7 +2008,7 @@ body.dark-mode .deck-name-display {
   display: flex;
   width: 100%;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   align-items: flex-start;
 }
 
@@ -2185,6 +2185,59 @@ body.dark-mode .character-picker-row-3,
 body.dark-mode .character-picker-row-5,
 body.dark-mode .character-picker-row-7 {
   background: #2d2d2d;
+}
+
+/* ------------- CHARACTER SKILLS SECTION ------------- */
+.character-skills-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.character-skills-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.character-skills-header {
+  font-size: 9px;
+  font-weight: bold;
+  text-align: center;
+  background: #000;
+  color: #fff;
+  padding: 3px 4px;
+  border-radius: 0;
+  width: 100%;
+  margin: 0;
+}
+
+.character-skill {
+  width: 100%;
+  background: #eef2ff;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 12px;
+  word-break: break-word;
+  white-space: normal;
+  text-align: center;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Dark mode support */
+body.dark-mode .character-skills-header {
+  background: #444;
+  color: #e0e0e0;
+}
+
+body.dark-mode .character-skill {
+  background: #3a3a3a;
+  color: #e0e0e0;
 }
 
 </style>
@@ -2597,7 +2650,35 @@ body.dark-mode .character-picker-row-7 {
     </div>
   </div>
 </div>
-        
+      
+<!-- Character Skills Section -->
+<div class="character-skills-section">
+  <!-- Innate Skills Column -->
+  <div class="character-skills-column">
+    <div class="character-skills-header">Innate Skills</div>
+    <div class="character-skill">Innate Skill 1</div>
+    <div class="character-skill">Innate Skill 2</div>
+    <div class="character-skill">Innate Skill 3</div>
+  </div>
+  
+  <!-- Awakening Skills Column -->
+  <div class="character-skills-column">
+    <div class="character-skills-header">Awakening Skills</div>
+    <div class="character-skill">Awakening Skill 1</div>
+    <div class="character-skill">Awakening Skill 2</div>
+    <div class="character-skill">Awakening Skill 3</div>
+  </div>
+  
+  <!-- Event Skills Column -->
+  <div class="character-skills-column">
+    <div class="character-skills-header">Event Skills</div>
+    <div class="character-skill">Event Skill 1</div>
+    <div class="character-skill">Event Skill 2</div>
+    <div class="character-skill">Event Skill 3</div>
+  </div>
+</div>
+
+
         <div class="skill-search-divider"></div>
 
     <div class="slots-header">
