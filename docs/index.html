@@ -1942,9 +1942,23 @@ body.dark-mode .deck-name-display {
 }
 
 /* ---------- COMBINED LEVEL AND DIAMONDS DISPLAY ---------- */
-.level-diamond-container {
+
+/* For MAIN SECTION cards */
+.main-content .level-diamond-container {
   position: absolute;
-  top: 80.5px;
+  top: 79px; /* Your current value for main section */
+  display: flex;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 3px;
+  border-radius: 6px;
+  pointer-events: auto;
+}
+
+/* For SELECTED CARDS in right sidebar */
+.right-sidebar .level-diamond-container {
+  position: absolute;
+  top: 81px; /* Different value for selected cards */
   display: flex;
   z-index: 5;
   background: rgba(0, 0, 0, 0.9);
@@ -1972,21 +1986,9 @@ body.dark-mode .deck-name-display {
 
 .diamond-icon-combined {
   width: 11.5px;
-    height: auto;
-    aspect-ratio: 40 / 34; /* or whatever the original ratio is */
-    object-fit: contain;
-}
-
-/* Collapsed mode adjustments */
-.right-sidebar.collapsed .level-diamond-container {
-  top: 52px !important;
-  padding: 2px 4px !important;
-  gap: 4px !important;
-}
-
-.right-sidebar.collapsed .diamond-icon-combined {
-  width: 9px !important;
-  height: 12px !important;
+  height: auto;
+  aspect-ratio: 40 / 34;
+  object-fit: contain;
 }
 
 </style>
