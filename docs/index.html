@@ -1936,704 +1936,479 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
 </head>
 
 <body>
-<!-- Header -->
-<div class="header">
-  <div class="header-left">
-    <img src="images/your-logo.png" alt="Logo" class="header-logo">
-    <div class="header-title">Uma Builder</div>
-  </div>
-  <div class="header-nav">
-    <!-- Dark Mode Toggle Button -->
-    <button id="darkModeToggle" class="dark-mode-toggle" title="Toggle Dark Mode">
-      🌙
-    </button>
-  </div>
-</div>
-
-<div class="container">
-
-<!-- Left Sidebar (Filters) -->
-<div class="sidebar">
-
-  <!-- Card Name Search -->
-  <div class="filter-group">
-    <label for="cardSearch">Search Card</label>
-    <input type="text" id="cardSearch" class="skill-search" placeholder="Search card name">
-  </div>
-
-  <!-- Rarity Toggle Buttons -->
-  <div class="toggle-button-group rarity-buttons">
-    <label>Rarity</label>
-    <div class="toggle-buttons-row">
-      <button class="toggle-button" data-rarity="SSR">
-        <img src="https://gametora.com/images/umamusume/icons/utx_txt_rarity_03.png" alt="SSR">
-      </button>
-      <button class="toggle-button" data-rarity="SR">
-        <img src="https://gametora.com/images/umamusume/icons/utx_txt_rarity_02.png" alt="SR">
-      </button>
-      <button class="toggle-button" data-rarity="R">
-        <img src="https://gametora.com/images/umamusume/icons/utx_txt_rarity_01.png" alt="R">
-      </button>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <img src="images/your-logo.png" alt="Logo" class="header-logo">
+      <div class="header-title">Uma Builder</div>
+    </div>
+    <div class="header-nav">
+      <button id="darkModeToggle" class="dark-mode-toggle" title="Toggle Dark Mode">🌙</button>
     </div>
   </div>
 
-  <!-- Type Toggle Buttons -->
-  <div class="toggle-button-group type-buttons">
-    <label>Type</label>
-    <div class="toggle-buttons-row">
-      <button class="toggle-button" data-type="speed">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_00.png" alt="Speed">
-      </button>
-      <button class="toggle-button" data-type="stamina">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_01.png" alt="Stamina">
-      </button>
-      <button class="toggle-button" data-type="power">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_02.png" alt="Power">
-      </button>
-      <button class="toggle-button" data-type="guts">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_03.png" alt="Guts">
-      </button>
-      <button class="toggle-button" data-type="intelligence">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_04.png" alt="Intelligence">
-      </button>
-<button class="toggle-button" data-type="friend">
-  <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_05.png" alt="Friend">
-</button>
-      <button class="toggle-button" data-type="group">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_06.png" alt="Group">
-      </button>
-    </div>
-  </div>
-
-  
-  <!-- ADD SORTING CONTROLS HERE -->
-<div class="filter-group">
-  <label for="sortBy">Sort By</label>
-  <div style="display: flex; gap: 6px; align-items: center;">
-    <select id="sortBy" style="flex: 1;">
-      <option value="rarity">Rarity</option>
-      <option value="name">Character name</option>
-      <option value="type">Card type</option>
-      <option value="release">Release date</option>
-      <option value="support_id">Game ID Number</option>
-      <option disabled=""></option>
-      <option disabled="">— Effects —</option>
-      <option value="1">Friendship Bonus</option>
-      <option value="2">Mood Effect</option>
-      <option value="3">Speed Bonus</option>
-      <option value="4">Stamina Bonus</option>
-      <option value="5">Power Bonus</option>
-      <option value="6">Guts Bonus</option>
-      <option value="7">Wit Bonus</option>
-      <option value="8">Training Effectiveness</option>
-      <option value="9">Initial Speed</option>
-      <option value="10">Initial Stamina</option>
-      <option value="11">Initial Power</option>
-      <option value="12">Initial Guts</option>
-      <option value="13">Initial Wit</option>
-      <option value="14">Initial Friendship Gauge</option>
-      <option value="15">Race Bonus</option>
-      <option value="16">Fan Bonus</option>
-      <option value="17">Hint Levels</option>
-      <option value="18">Hint Frequency</option>
-      <option value="19">Specialty Priority</option>
-      <option value="25">Event Recovery</option>
-      <option value="26">Event Effectiveness</option>
-      <option value="27">Failure Protection</option>
-      <option value="28">Energy Cost Reduction</option>
-      <option value="30">Skill Point Bonus</option>
-      <option value="31">Wit Friendship Recovery</option>
-      <option value="32">Initial Skill Points Up</option>
-      <option value="41">All Stats Bonus</option>
-    </select>
-    <button id="sortOrder" class="sort-order-btn ascending" style="width: 32px; height: 32px; border: 1px solid #ccc; background: #444; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 4px; flex-shrink: 0;">
-      ↑
-    </button>
-  </div>
-</div>
-
-  <div class="filter-group">
-    <label for="region">Region</label>
-    <select id="region">
-      <option value="global">Global</option>
-      <option value="japan">Japan</option>
-    </select>
-  </div>
-
-  <!-- ADD THIS CHECKBOX -->
-  <div class="filter-group">
-    <label class="checkbox-label">
-      <input type="checkbox" id="hideUncolored">
-      Hide Uncoloured Skills
-    </label>
-  </div>
-
-  <!-- ADD THIS DIVIDER -->
-  <div class="skill-search-divider"></div>
-
-  <!-- Toggle Preset Cards Button -->
-  <button id="togglePresetCardsBtn" class="clear-all">Hide Preset Cards</button>
-
-  <!-- Wrap Clear Filters Button inside the hidden section so it gets hidden too -->
-  <div class="sidebar-filters-section" id="sidebarFiltersSection">
-    <!-- Clear Filters Button at top -->
-    <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
-
-    <div class="filter-group">
-      <label for="presets">Presets</label>
-      <select id="presets">
-        <option value="">-- Select --</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label for="racecourse">Racecourse</label>
-      <select id="racecourse">
-        <option value="">-- Select --</option>
-        <option value="Sapporo">Sapporo</option>
-        <option value="Hakodate">Hakodate</option>
-        <option value="Niigata">Niigata</option>
-        <option value="Fukushima">Fukushima</option>
-        <option value="Nakayama">Nakayama</option>
-        <option value="Tokyo">Tokyo</option>
-        <option value="Chukyo">Chukyo</option>
-        <option value="Kyoto">Kyoto</option>
-        <option value="Hanshin">Hanshin</option>
-        <option value="Kokura">Kokura</option>
-        <option value="Oi">Oi</option>
-        <option value="Kawasaki">Kawasaki</option>
-        <option value="Funabashi">Funabashi</option>
-        <option value="Morioka">Morioka</option>
-        <option value="Longchamp">Longchamp</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label for="length">Length</label>
-      <select id="length">
-        <option value="">-- Select --</option>
-        <option value="1000">1000m</option>
-        <option value="1150">1150m</option>
-        <option value="1200">1200m</option>
-        <option value="1300">1300m</option>
-        <option value="1400">1400m</option>
-        <option value="1500">1500m</option>
-        <option value="1600">1600m</option>
-        <option value="1700">1700m</option>
-        <option value="1800">1800m</option>
-        <option value="1900">1900m</option>
-        <option value="2000">2000m</option>
-        <option value="2100">2100m</option>
-        <option value="2200">2200m</option>
-        <option value="2300">2300m</option>
-        <option value="2400">2400m</option>
-        <option value="2500">2500m</option>
-        <option value="2600">2600m</option>
-        <option value="3000">3000m</option>
-        <option value="3200">3200m</option>
-        <option value="3400">3400m</option>
-        <option value="3600">3600m</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label for="direction">Direction</label>
-      <select id="direction">
-        <option value="">-- Select --</option>
-        <option value="Clockwise">Clockwise</option>
-        <option value="Counterclockwise">Counterclockwise</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label for="track">Track Conditions</label>
-      <select id="track">
-        <option value="">-- Select --</option>
-        <option value="Firm">Firm</option>
-        <option value="Good">Good</option>
-        <option value="Soft">Soft</option>
-        <option value="Heavy">Heavy</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label for="season">Season</label>
-      <select id="season">
-        <option value="">-- Select --</option>
-        <option value="Spring">Spring</option>
-        <option value="Summer">Summer</option>
-        <option value="Fall">Autumn</option>
-        <option value="Winter">Winter</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label for="weather">Weather</label>
-      <select id="weather">
-        <option value="">-- Select --</option>
-        <option value="Sunny">Sunny</option>
-        <option value="Cloudy">Cloudy</option>
-        <option value="Rainy">Rain</option>
-        <option value="Snowy">Snow</option>
-      </select>
-    </div>
-
-    <div class="filter-group">
-      <label for="strategy">Strategy</label>
-      <select id="strategy">
-        <option value="">-- Select --</option>
-        <option value="Front Runner">Front Runner</option>
-        <option value="Pace Chaser">Pace Chaser</option>
-        <option value="Late Surger">Late Surger</option>
-        <option value="End Closer">End Closer</option>
-      </select>
-    </div>
-  </div> <!-- End of sidebar-filters-section -->
-
-  <!-- Thin divider -->
-  <div class="skill-search-divider"></div>
-
-  <!-- ADD THESE TWO BUTTONS -->
-  <div class="copy-paste-buttons">
-    <button id="copySkillsBtn" class="copy-paste-btn">Copy Skills</button>
-    <button id="pasteSkillsBtn" class="copy-paste-btn">Paste Skills</button>
-  </div>
-
-<!-- Skill Search Section -->
-<div id="skillSearchGroup">
-  <div class="skill-search-header">
-    <label for="skillSearch1">Search</label>
-    <div class="skill-search-buttons">
-      <button class="add-search-btn" id="addSearchBtn">Add</button>
-      <button class="clear-search-btn" id="clearAllSearchesBtn" title="Clear all searches">Clear</button>
-    </div>
-  </div>
-
-  <!-- Default search box -->
-  <div class="search-input-container">
-    <div class="color-picker green" data-search-id="skillSearch1" data-color="green"></div>
-    <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
-    <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
-  </div>
-    
-    <!-- Additional search boxes will be added here dynamically -->
-  </div>
-</div>
-
-<!-- Main Content -->
-  <div class="main-content">
-    <div class="content-wrapper">
-      <div id="cardSections" class="card-sections"></div>
-    </div>
-  </div>
-
-    <!-- Toggle button INSIDE the sidebar at the top -->
-  <button class="collapse-toggle" id="collapseSidebar" title="Collapse sidebar">◀</button>
-
-<!-- Right Sidebar (Slots) -->
-<div class="right-sidebar" id="rightSidebar">
-  
-  <div class="right-sidebar-content">
-    
-    <!-- ADD THIS SECTION FOR DECK NAME AND NEW BUTTONS -->
-    <div class="deck-name-section">
-
-<input type="text" id="deckNameInput" class="deck-name-input" placeholder="Enter deck name" maxlength="30">      <div class="deck-buttons new-deck-buttons">
-        <button id="copyAllBtn" class="deck-btn">Copy All</button>
-        <button id="pasteAllBtn" class="deck-btn">Paste All</button>
-        <button id="resetLevelsBtn" class="clear-all">Reset All Levels</button>
+  <div class="container">
+    <!-- Left Sidebar (Filters) -->
+    <div class="sidebar">
+      <!-- Basic Filters -->
+      <div class="filter-group">
+        <label for="cardSearch">Search Card</label>
+        <input type="text" id="cardSearch" class="skill-search" placeholder="Search card name">
       </div>
-      <div id="deckNameDisplay" class="deck-name-display">Unnamed Deck</div>
-    </div>
 
-        <div class="skill-search-divider"></div>
+      <!-- Rarity Toggle Buttons -->
+      <div class="toggle-button-group rarity-buttons">
+        <label>Rarity</label>
+        <div class="toggle-buttons-row">
+          <button class="toggle-button" data-rarity="SSR"><img src="https://gametora.com/images/umamusume/icons/utx_txt_rarity_03.png" alt="SSR"></button>
+          <button class="toggle-button" data-rarity="SR"><img src="https://gametora.com/images/umamusume/icons/utx_txt_rarity_02.png" alt="SR"></button>
+          <button class="toggle-button" data-rarity="R"><img src="https://gametora.com/images/umamusume/icons/utx_txt_rarity_01.png" alt="R"></button>
+        </div>
+      </div>
 
-<!-- Character Picker Section -->
-<div class="character-picker-section">
-  <!-- Left column - empty box and character info -->
-  <div class="character-picker-left-column">
-    <!-- Empty box on top -->
-    <div class="character-picker-empty-box"></div>
-    
-    <!-- Character info below the box -->
-    <div class="character-picker-info">
-      <div class="character-picker-name">Character Name</div>
-      <div class="character-picker-costume">Character Costume</div>
-    </div>
-  </div>
-  
-  <!-- Right side - 8 rows container -->
-  <div class="character-picker-rows">
-    <!-- Row 1: 5 Type Icons -->
-    <div class="character-picker-row character-picker-row-1">
-      <div class="character-picker-five-items">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_00.png" alt="Speed" class="character-picker-type-icon">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_01.png" alt="Stamina" class="character-picker-type-icon">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_02.png" alt="Power" class="character-picker-type-icon">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_03.png" alt="Guts" class="character-picker-type-icon">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_04.png" alt="Intelligence" class="character-picker-type-icon">
+      <!-- Type Toggle Buttons -->
+      <div class="toggle-button-group type-buttons">
+        <label>Type</label>
+        <div class="toggle-buttons-row">
+          <button class="toggle-button" data-type="speed"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_00.png" alt="Speed"></button>
+          <button class="toggle-button" data-type="stamina"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_01.png" alt="Stamina"></button>
+          <button class="toggle-button" data-type="power"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_02.png" alt="Power"></button>
+          <button class="toggle-button" data-type="guts"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_03.png" alt="Guts"></button>
+          <button class="toggle-button" data-type="intelligence"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_04.png" alt="Intelligence"></button>
+          <button class="toggle-button" data-type="friend"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_05.png" alt="Friend"></button>
+          <button class="toggle-button" data-type="group"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_06.png" alt="Group"></button>
+        </div>
       </div>
-    </div>
-    
-    <!-- Row 2: 5 Percentages -->
-    <div class="character-picker-row character-picker-row-2">
-      <div class="character-picker-five-items">
-        <div class="character-picker-percentage">20%</div>
-        <div class="character-picker-percentage">20%</div>
-        <div class="character-picker-percentage">20%</div>
-        <div class="character-picker-percentage">20%</div>
-        <div class="character-picker-percentage">20%</div>
-      </div>
-    </div>
-    
-    <!-- Row 3: 2 Titles (Turf/Dirt) -->
-    <div class="character-picker-row character-picker-row-3">
-      <div class="character-picker-two-items">
-        <div class="character-picker-title">Turf</div>
-        <div class="character-picker-title">Dirt</div>
-      </div>
-    </div>
-    
-    <!-- Row 4: 2 Grades (Turf/Dirt) -->
-    <div class="character-picker-row character-picker-row-4">
-      <div class="character-picker-two-items">
-        <div class="character-picker-grade">A</div>
-        <div class="character-picker-grade">A</div>
-      </div>
-    </div>
-    
-    <!-- Row 5: 4 Distance Titles -->
-    <div class="character-picker-row character-picker-row-5">
-      <div class="character-picker-four-items">
-        <div class="character-picker-title">Short</div>
-        <div class="character-picker-title">Mile</div>
-        <div class="character-picker-title">Medium</div>
-        <div class="character-picker-title">Long</div>
-      </div>
-    </div>
-    
-    <!-- Row 6: 4 Distance Grades -->
-    <div class="character-picker-row character-picker-row-6">
-      <div class="character-picker-four-items">
-        <div class="character-picker-grade">A</div>
-        <div class="character-picker-grade">A</div>
-        <div class="character-picker-grade">A</div>
-        <div class="character-picker-grade">A</div>
-      </div>
-    </div>
-    
-    <!-- Row 7: 4 Strategy Titles -->
-    <div class="character-picker-row character-picker-row-7">
-      <div class="character-picker-four-items">
-        <div class="character-picker-title">Front</div>
-        <div class="character-picker-title">Pace</div>
-        <div class="character-picker-title">Late</div>
-        <div class="character-picker-title">End</div>
-      </div>
-    </div>
-    
-    <!-- Row 8: 4 Strategy Grades -->
-    <div class="character-picker-row character-picker-row-8">
-      <div class="character-picker-four-items">
-        <div class="character-picker-grade">A</div>
-        <div class="character-picker-grade">A</div>
-        <div class="character-picker-grade">A</div>
-        <div class="character-picker-grade">A</div>
-      </div>
-    </div>
-  </div>
-</div>
-      
-<!-- Character Skills Section -->
-<div class="character-skills-section">
-  <!-- Innate Skills Column -->
-  <div class="character-skills-column">
-    <div class="character-skills-header">Innate Skills</div>
-    <div class="character-skill">Innate Skill 1</div>
-    <div class="character-skill">Innate Skill 2</div>
-    <div class="character-skill">Innate Skill 3</div>
-  </div>
-  
-  <!-- Awakening Skills Column -->
-  <div class="character-skills-column">
-    <div class="character-skills-header">Awakening Skills</div>
-    <div class="character-skill">Awakening Skill 1</div>
-    <div class="character-skill">Awakening Skill 2</div>
-    <div class="character-skill">Awakening Skill 3</div>
-  </div>
-  
-  <!-- Event Skills Column -->
-  <div class="character-skills-column">
-    <div class="character-skills-header">Event Skills</div>
-    <div class="character-skill">Event Skill 1</div>
-    <div class="character-skill">Event Skill 2</div>
-    <div class="character-skill">Event Skill 3</div>
-  </div>
-</div>
 
-
-        <div class="skill-search-divider"></div>
-
-    <div class="slots-header">
-      <div class="deck-buttons">
-        <button id="copyDeckBtn" class="deck-btn">Copy Deck Only</button>
-        <button id="pasteDeckBtn" class="deck-btn">Paste Deck Only</button>
-        <button id="clearAllBtn" class="clear-all">Clear Deck</button>
+      <!-- Sorting & Region -->
+      <div class="filter-group">
+        <label for="sortBy">Sort By</label>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <select id="sortBy" style="flex: 1;">
+            <option value="rarity">Rarity</option>
+            <option value="name">Character name</option>
+            <option value="type">Card type</option>
+            <option value="release">Release date</option>
+            <option value="support_id">Game ID Number</option>
+            <option disabled="">— Effects —</option>
+            <option value="1">Friendship Bonus</option>
+            <option value="2">Mood Effect</option>
+            <option value="3">Speed Bonus</option>
+            <option value="4">Stamina Bonus</option>
+            <option value="5">Power Bonus</option>
+            <option value="6">Guts Bonus</option>
+            <option value="7">Wit Bonus</option>
+            <option value="8">Training Effectiveness</option>
+            <option value="9">Initial Speed</option>
+            <option value="10">Initial Stamina</option>
+            <option value="11">Initial Power</option>
+            <option value="12">Initial Guts</option>
+            <option value="13">Initial Wit</option>
+            <option value="14">Initial Friendship Gauge</option>
+            <option value="15">Race Bonus</option>
+            <option value="16">Fan Bonus</option>
+            <option value="17">Hint Levels</option>
+            <option value="18">Hint Frequency</option>
+            <option value="19">Specialty Priority</option>
+            <option value="25">Event Recovery</option>
+            <option value="26">Event Effectiveness</option>
+            <option value="27">Failure Protection</option>
+            <option value="28">Energy Cost Reduction</option>
+            <option value="30">Skill Point Bonus</option>
+            <option value="31">Wit Friendship Recovery</option>
+            <option value="32">Initial Skill Points Up</option>
+            <option value="41">All Stats Bonus</option>
+          </select>
+          <button id="sortOrder" class="sort-order-btn ascending" style="width: 32px; height: 32px; border: 1px solid #ccc; background: #444; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; border-radius: 4px; flex-shrink: 0;">↑</button>
+        </div>
       </div>
-    </div>
 
+      <div class="filter-group">
+        <label for="region">Region</label>
+        <select id="region">
+          <option value="global">Global</option>
+          <option value="japan">Japan</option>
+        </select>
+      </div>
 
-  <div class="slots" id="slots">
-    <div class="slot-container" data-slot="0">
-      <div class="slot-level-controls">
-        <span class="slot-level-label">Level</span>
-        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+      <div class="filter-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="hideUncolored">
+          Hide Uncoloured Skills
+        </label>
       </div>
-      <div class="slot" data-slot="0"><div class="placeholder">Empty</div></div>
-    </div>
-    <div class="slot-container" data-slot="1">
-      <div class="slot-level-controls">
-        <span class="slot-level-label">Level</span>
-        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
-      </div>
-      <div class="slot" data-slot="1"><div class="placeholder">Empty</div></div>
-    </div>
-    <div class="slot-container" data-slot="2">
-      <div class="slot-level-controls">
-        <span class="slot-level-label">Level</span>
-        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
-      </div>
-      <div class="slot" data-slot="2"><div class="placeholder">Empty</div></div>
-    </div>
-    <div class="slot-container" data-slot="3">
-      <div class="slot-level-controls">
-        <span class="slot-level-label">Level</span>
-        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
-      </div>
-      <div class="slot" data-slot="3"><div class="placeholder">Empty</div></div>
-    </div>
-    <div class="slot-container" data-slot="4">
-      <div class="slot-level-controls">
-        <span class="slot-level-label">Level</span>
-        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
-      </div>
-      <div class="slot" data-slot="4"><div class="placeholder">Empty</div></div>
-    </div>
-    <div class="slot-container" data-slot="5">
-      <div class="slot-level-controls">
-        <span class="slot-level-label">Level</span>
-        <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
-      </div>
-      <div class="slot" data-slot="5"><div class="placeholder">Empty</div></div>
-    </div>
-  </div>
 
-  <div class="skill-search-divider"></div>
-
-    <div class="effects-header">
-      <span class="effect-label">Effect</span>
-      <span class="total-label">Total</span>
-      <span class="cards-label">Cards</span>
-    </div>
-
-  <div class="effect-row" data-effect="Friendship Bonus">
-    <div class="effect-info">
-      <span class="effect-name">Friendship Bonus</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Mood Effect">
-    <div class="effect-info">
-      <span class="effect-name">Mood Effect</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Speed Bonus">
-    <div class="effect-info">
-      <span class="effect-name">Speed Bonus</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Stamina Bonus">
-    <div class="effect-info">
-      <span class="effect-name">Stamina Bonus</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Power Bonus">
-    <div class="effect-info">
-      <span class="effect-name">Power Bonus</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Guts Bonus">
-    <div class="effect-info">
-      <span class="effect-name">Guts Bonus</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Wit Bonus">
-    <div class="effect-info">
-      <span class="effect-name">Wit Bonus</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Training Effectiveness">
-    <div class="effect-info">
-      <span class="effect-name">Training Effectiveness</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Initial Speed">
-    <div class="effect-info">
-      <span class="effect-name">Initial Speed</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Initial Stamina">
-    <div class="effect-info">
-      <span class="effect-name">Initial Stamina</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Initial Power">
-    <div class="effect-info">
-      <span class="effect-name">Initial Power</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Initial Guts">
-    <div class="effect-info">
-      <span class="effect-name">Initial Guts</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Initial Wit">
-    <div class="effect-info">
-      <span class="effect-name">Initial Wit</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Initial Friendship Gauge">
-    <div class="effect-info">
-      <span class="effect-name">Initial Friendship Gauge</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Race Bonus">
-    <div class="effect-info">
-      <span class="effect-name">Race Bonus</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Fan Bonus">
-    <div class="effect-info">
-      <span class="effect-name">Fan Bonus</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Hint Levels">
-    <div class="effect-info">
-      <span class="effect-name">Hint Levels</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Hint Frequency">
-    <div class="effect-info">
-      <span class="effect-name">Hint Frequency</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Specialty Priority">
-    <div class="effect-info">
-      <span class="effect-name">Specialty Priority</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Event Recovery">
-    <div class="effect-info">
-      <span class="effect-name">Event Recovery</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Event Effectiveness">
-    <div class="effect-info">
-      <span class="effect-name">Event Effectiveness</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Failure Protection">
-    <div class="effect-info">
-      <span class="effect-name">Failure Protection</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Energy Cost Reduction">
-    <div class="effect-info">
-      <span class="effect-name">Energy Cost Reduction</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Skill Point Bonus">
-    <div class="effect-info">
-      <span class="effect-name">Skill Point Bonus</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Wit Friendship Recovery">
-    <div class="effect-info">
-      <span class="effect-name">Wit Friendship Recovery</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="Initial Skill Points Up">
-    <div class="effect-info">
-      <span class="effect-name">Initial Skill Points Up</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  </div>
-  <div class="effect-row" data-effect="All Stats Bonus">
-    <div class="effect-info">
-      <span class="effect-name">All Stats Bonus</span>
-      <span class="effect-value">0</span>
-    </div>
-    <div class="effect-cards"></div>
-  
       <div class="skill-search-divider"></div>
 
+      <!-- Preset Controls -->
+      <button id="togglePresetCardsBtn" class="clear-all">Hide Preset Cards</button>
+
+      <!-- Advanced Filters Section -->
+      <div class="sidebar-filters-section" id="sidebarFiltersSection">
+        <button id="clearFiltersBtn" class="clear-all clear-filters-top">Clear Filters</button>
+
+        <div class="filter-group">
+          <label for="presets">Presets</label>
+          <select id="presets">
+            <option value="">-- Select --</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="racecourse">Racecourse</label>
+          <select id="racecourse">
+            <option value="">-- Select --</option>
+            <option value="Sapporo">Sapporo</option>
+            <option value="Hakodate">Hakodate</option>
+            <option value="Niigata">Niigata</option>
+            <option value="Fukushima">Fukushima</option>
+            <option value="Nakayama">Nakayama</option>
+            <option value="Tokyo">Tokyo</option>
+            <option value="Chukyo">Chukyo</option>
+            <option value="Kyoto">Kyoto</option>
+            <option value="Hanshin">Hanshin</option>
+            <option value="Kokura">Kokura</option>
+            <option value="Oi">Oi</option>
+            <option value="Kawasaki">Kawasaki</option>
+            <option value="Funabashi">Funabashi</option>
+            <option value="Morioka">Morioka</option>
+            <option value="Longchamp">Longchamp</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="length">Length</label>
+          <select id="length">
+            <option value="">-- Select --</option>
+            <option value="1000">1000m</option>
+            <option value="1150">1150m</option>
+            <option value="1200">1200m</option>
+            <option value="1300">1300m</option>
+            <option value="1400">1400m</option>
+            <option value="1500">1500m</option>
+            <option value="1600">1600m</option>
+            <option value="1700">1700m</option>
+            <option value="1800">1800m</option>
+            <option value="1900">1900m</option>
+            <option value="2000">2000m</option>
+            <option value="2100">2100m</option>
+            <option value="2200">2200m</option>
+            <option value="2300">2300m</option>
+            <option value="2400">2400m</option>
+            <option value="2500">2500m</option>
+            <option value="2600">2600m</option>
+            <option value="3000">3000m</option>
+            <option value="3200">3200m</option>
+            <option value="3400">3400m</option>
+            <option value="3600">3600m</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="direction">Direction</label>
+          <select id="direction">
+            <option value="">-- Select --</option>
+            <option value="Clockwise">Clockwise</option>
+            <option value="Counterclockwise">Counterclockwise</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="track">Track Conditions</label>
+          <select id="track">
+            <option value="">-- Select --</option>
+            <option value="Firm">Firm</option>
+            <option value="Good">Good</option>
+            <option value="Soft">Soft</option>
+            <option value="Heavy">Heavy</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="season">Season</label>
+          <select id="season">
+            <option value="">-- Select --</option>
+            <option value="Spring">Spring</option>
+            <option value="Summer">Summer</option>
+            <option value="Fall">Autumn</option>
+            <option value="Winter">Winter</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="weather">Weather</label>
+          <select id="weather">
+            <option value="">-- Select --</option>
+            <option value="Sunny">Sunny</option>
+            <option value="Cloudy">Cloudy</option>
+            <option value="Rainy">Rain</option>
+            <option value="Snowy">Snow</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="strategy">Strategy</label>
+          <select id="strategy">
+            <option value="">-- Select --</option>
+            <option value="Front Runner">Front Runner</option>
+            <option value="Pace Chaser">Pace Chaser</option>
+            <option value="Late Surger">Late Surger</option>
+            <option value="End Closer">End Closer</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="skill-search-divider"></div>
+
+      <!-- Skill Management -->
+      <div class="copy-paste-buttons">
+        <button id="copySkillsBtn" class="copy-paste-btn">Copy Skills</button>
+        <button id="pasteSkillsBtn" class="copy-paste-btn">Paste Skills</button>
+      </div>
+
+      <!-- Skill Search Section -->
+      <div id="skillSearchGroup">
+        <div class="skill-search-header">
+          <label for="skillSearch1">Search</label>
+          <div class="skill-search-buttons">
+            <button class="add-search-btn" id="addSearchBtn">Add</button>
+            <button class="clear-search-btn" id="clearAllSearchesBtn" title="Clear all searches">Clear</button>
+          </div>
+        </div>
+        <div class="search-input-container">
+          <div class="color-picker green" data-search-id="skillSearch1" data-color="green"></div>
+          <input type="text" id="skillSearch1" class="skill-search" placeholder="Search skill">
+          <button class="remove-search-btn" data-search-id="skillSearch1">×</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="content-wrapper">
+        <div id="cardSections" class="card-sections"></div>
+      </div>
+    </div>
+
+    <!-- Sidebar Toggle -->
+    <button class="collapse-toggle" id="collapseSidebar" title="Collapse sidebar">◀</button>
+
+    <!-- Right Sidebar (Slots & Effects) -->
+    <div class="right-sidebar" id="rightSidebar">
+      <div class="right-sidebar-content">
+        <!-- Deck Management -->
+        <div class="deck-name-section">
+          <input type="text" id="deckNameInput" class="deck-name-input" placeholder="Enter deck name" maxlength="30">
+          <div class="deck-buttons new-deck-buttons">
+            <button id="copyAllBtn" class="deck-btn">Copy All</button>
+            <button id="pasteAllBtn" class="deck-btn">Paste All</button>
+            <button id="resetLevelsBtn" class="clear-all">Reset All Levels</button>
+          </div>
+          <div id="deckNameDisplay" class="deck-name-display">Unnamed Deck</div>
+        </div>
+
+        <div class="skill-search-divider"></div>
+
+        <!-- Character Information -->
+        <div class="character-picker-section">
+          <div class="character-picker-left-column">
+            <div class="character-picker-empty-box"></div>
+            <div class="character-picker-info">
+              <div class="character-picker-name">Character Name</div>
+              <div class="character-picker-costume">Character Costume</div>
+            </div>
+          </div>
+          <div class="character-picker-rows">
+            <div class="character-picker-row character-picker-row-1">
+              <div class="character-picker-five-items">
+                <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_00.png" alt="Speed" class="character-picker-type-icon">
+                <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_01.png" alt="Stamina" class="character-picker-type-icon">
+                <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_02.png" alt="Power" class="character-picker-type-icon">
+                <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_03.png" alt="Guts" class="character-picker-type-icon">
+                <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_04.png" alt="Intelligence" class="character-picker-type-icon">
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-2">
+              <div class="character-picker-five-items">
+                <div class="character-picker-percentage">20%</div>
+                <div class="character-picker-percentage">20%</div>
+                <div class="character-picker-percentage">20%</div>
+                <div class="character-picker-percentage">20%</div>
+                <div class="character-picker-percentage">20%</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-3">
+              <div class="character-picker-two-items">
+                <div class="character-picker-title">Turf</div>
+                <div class="character-picker-title">Dirt</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-4">
+              <div class="character-picker-two-items">
+                <div class="character-picker-grade">A</div>
+                <div class="character-picker-grade">A</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-5">
+              <div class="character-picker-four-items">
+                <div class="character-picker-title">Short</div>
+                <div class="character-picker-title">Mile</div>
+                <div class="character-picker-title">Medium</div>
+                <div class="character-picker-title">Long</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-6">
+              <div class="character-picker-four-items">
+                <div class="character-picker-grade">A</div>
+                <div class="character-picker-grade">A</div>
+                <div class="character-picker-grade">A</div>
+                <div class="character-picker-grade">A</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-7">
+              <div class="character-picker-four-items">
+                <div class="character-picker-title">Front</div>
+                <div class="character-picker-title">Pace</div>
+                <div class="character-picker-title">Late</div>
+                <div class="character-picker-title">End</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-8">
+              <div class="character-picker-four-items">
+                <div class="character-picker-grade">A</div>
+                <div class="character-picker-grade">A</div>
+                <div class="character-picker-grade">A</div>
+                <div class="character-picker-grade">A</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Character Skills -->
+        <div class="character-skills-section">
+          <div class="character-skills-column">
+            <div class="character-skills-header">Innate Skills</div>
+            <div class="character-skill">Innate Skill 1</div>
+            <div class="character-skill">Innate Skill 2</div>
+            <div class="character-skill">Innate Skill 3</div>
+          </div>
+          <div class="character-skills-column">
+            <div class="character-skills-header">Awakening Skills</div>
+            <div class="character-skill">Awakening Skill 1</div>
+            <div class="character-skill">Awakening Skill 2</div>
+            <div class="character-skill">Awakening Skill 3</div>
+          </div>
+          <div class="character-skills-column">
+            <div class="character-skills-header">Event Skills</div>
+            <div class="character-skill">Event Skill 1</div>
+            <div class="character-skill">Event Skill 2</div>
+            <div class="character-skill">Event Skill 3</div>
+          </div>
+        </div>
+
+        <div class="skill-search-divider"></div>
+
+        <!-- Deck Controls -->
+        <div class="slots-header">
+          <div class="deck-buttons">
+            <button id="copyDeckBtn" class="deck-btn">Copy Deck Only</button>
+            <button id="pasteDeckBtn" class="deck-btn">Paste Deck Only</button>
+            <button id="clearAllBtn" class="clear-all">Clear Deck</button>
+          </div>
+        </div>
+
+        <!-- Card Slots -->
+        <div class="slots" id="slots">
+          <div class="slot-container" data-slot="0">
+            <div class="slot-level-controls">
+              <span class="slot-level-label">Level</span>
+              <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+            </div>
+            <div class="slot" data-slot="0"><div class="placeholder">Empty</div></div>
+          </div>
+          <div class="slot-container" data-slot="1">
+            <div class="slot-level-controls">
+              <span class="slot-level-label">Level</span>
+              <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+            </div>
+            <div class="slot" data-slot="1"><div class="placeholder">Empty</div></div>
+          </div>
+          <div class="slot-container" data-slot="2">
+            <div class="slot-level-controls">
+              <span class="slot-level-label">Level</span>
+              <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+            </div>
+            <div class="slot" data-slot="2"><div class="placeholder">Empty</div></div>
+          </div>
+          <div class="slot-container" data-slot="3">
+            <div class="slot-level-controls">
+              <span class="slot-level-label">Level</span>
+              <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+            </div>
+            <div class="slot" data-slot="3"><div class="placeholder">Empty</div></div>
+          </div>
+          <div class="slot-container" data-slot="4">
+            <div class="slot-level-controls">
+              <span class="slot-level-label">Level</span>
+              <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+            </div>
+            <div class="slot" data-slot="4"><div class="placeholder">Empty</div></div>
+          </div>
+          <div class="slot-container" data-slot="5">
+            <div class="slot-level-controls">
+              <span class="slot-level-label">Level</span>
+              <input type="number" class="slot-level-input" min="1" max="50" value="1" disabled>
+            </div>
+            <div class="slot" data-slot="5"><div class="placeholder">Empty</div></div>
+          </div>
+        </div>
+
+        <div class="skill-search-divider"></div>
+
+        <!-- Effects Display -->
+        <div class="effects-header">
+          <span class="effect-label">Effect</span>
+          <span class="total-label">Total</span>
+          <span class="cards-label">Cards</span>
+        </div>
+
+        <!-- Effects List -->
+        <div class="effect-rows-container">
+          <div class="effect-row" data-effect="Friendship Bonus"><div class="effect-info"><span class="effect-name">Friendship Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Mood Effect"><div class="effect-info"><span class="effect-name">Mood Effect</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Speed Bonus"><div class="effect-info"><span class="effect-name">Speed Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Stamina Bonus"><div class="effect-info"><span class="effect-name">Stamina Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Power Bonus"><div class="effect-info"><span class="effect-name">Power Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Guts Bonus"><div class="effect-info"><span class="effect-name">Guts Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Wit Bonus"><div class="effect-info"><span class="effect-name">Wit Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Training Effectiveness"><div class="effect-info"><span class="effect-name">Training Effectiveness</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Initial Speed"><div class="effect-info"><span class="effect-name">Initial Speed</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Initial Stamina"><div class="effect-info"><span class="effect-name">Initial Stamina</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Initial Power"><div class="effect-info"><span class="effect-name">Initial Power</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Initial Guts"><div class="effect-info"><span class="effect-name">Initial Guts</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Initial Wit"><div class="effect-info"><span class="effect-name">Initial Wit</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Initial Friendship Gauge"><div class="effect-info"><span class="effect-name">Initial Friendship Gauge</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Race Bonus"><div class="effect-info"><span class="effect-name">Race Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Fan Bonus"><div class="effect-info"><span class="effect-name">Fan Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Hint Levels"><div class="effect-info"><span class="effect-name">Hint Levels</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Hint Frequency"><div class="effect-info"><span class="effect-name">Hint Frequency</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Specialty Priority"><div class="effect-info"><span class="effect-name">Specialty Priority</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Event Recovery"><div class="effect-info"><span class="effect-name">Event Recovery</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Event Effectiveness"><div class="effect-info"><span class="effect-name">Event Effectiveness</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Failure Protection"><div class="effect-info"><span class="effect-name">Failure Protection</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Energy Cost Reduction"><div class="effect-info"><span class="effect-name">Energy Cost Reduction</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Skill Point Bonus"><div class="effect-info"><span class="effect-name">Skill Point Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Wit Friendship Recovery"><div class="effect-info"><span class="effect-name">Wit Friendship Recovery</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="Initial Skill Points Up"><div class="effect-info"><span class="effect-name">Initial Skill Points Up</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+          <div class="effect-row" data-effect="All Stats Bonus"><div class="effect-info"><span class="effect-name">All Stats Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
-</div>
-</div>
+</body>
 
 <script>
-/* ------------- CONFIG ------------- */
+/* --------------------------------------- CONFIG --------------------------------------- */
 // More flexible file matching - will look for files starting with these patterns
 const SUPPORT_CARDS_PATTERN = "support-cards";
 const SKILLS_PATTERN = "skills";
