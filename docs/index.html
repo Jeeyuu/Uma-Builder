@@ -3951,89 +3951,6 @@ function setupPresetReset() {
   });
 }
 
-/* ------------- Fetch JSON ------------- */
-fetch(JSON_FILE)
-  .then(r => { 
-    if (!r.ok) throw new Error(`Failed to fetch JSON: ${r.status} ${r.statusText}`); 
-    return r.json(); 
-  })
-  .then(data => {
-    if (!Array.isArray(data)) {
-      throw new Error('JSON data is not an array');
-    }
-    
-    cardsData = data.map(card => ({
-      ...card,
-      char_id: card.char_id || 0,
-      char_name: card.char_name || 'Unknown',
-      hint_skills: card.hint_skills || [],
-      event_skills: card.event_skills || [],
-      event_skills_en: card.event_skills_en || [],
-      rarity: card.rarity || 1,
-      release: card.release || '',
-      release_en: card.release_en || '',
-      support_id: card.support_id || 0,
-      type: (card.type || '').toLowerCase(),
-      url_name: card.url_name || ''
-    }));
-
-    // Initialize all components with error handling
-      try {
-        setupFilterPersistence();
-        setupToggleButtons();
-        setupSortingControls();
-        setupDynamicSkillSearch();
-        setupPresets();
-        setupPresetReset();
-        setupTogglePresetCards();
-        setupCardSearch();
-        setupCopyPasteButtons();
-        loadSlotsFromLocalStorage();
-        setupClearAllSearches();
-        updateSelectedSkillsList();
-        setupDeckCopyPaste();
-        setupSlotSelection();
-        setupKeyboardShortcuts();
-
-        // Add these to your existing initialization code
-        setupDeckName();
-        setupCopyAll();
-        setupPasteAll();
-        setupResetLevels();
-        setupClearDeckWithNameReset();
-
-        // Final refresh to ensure everything is synced
-        setTimeout(() => {
-          sectionPages.clear();
-          renderSections();
-          updateAllSlotDisplays();
-          
-          // Double check after everything settles
-          setTimeout(() => {
-            ensureSlotsLoaded();
-            updateAllSlotDisplays();
-            
-            // Initialize effects - ALWAYS SHOW HEADER, HIDE EMPTY ROWS
-            updateEffectTotals();
-          }, 500);
-        }, 500);
-      } catch (error) {
-        console.error('Error during setup:', error);
-      }
-  })
-  .catch(err => {
-    console.error('Could not load JSON:', err);
-    cardSections.innerHTML = `
-      <div style="opacity:0.7;padding:12px;text-align:center;">
-        <h3>Error loading data</h3>
-        <p>${err.message}</p>
-        <p>Check browser console for details.</p>
-      </div>
-    `;
-  });
-
-let presetRaceNumbers = new Map(); // Store race numbers by title
-
 function formatPresetDate(dateString) {
   const date = new Date(dateString);
   const month = date.toLocaleString('en-US', { month: 'short' });
@@ -6703,8 +6620,6 @@ const EFFECT_TYPES = {
   // 33-40 are missing
   41: "All Stats Bonus"
 };
-
-let supportsDataWithEffects = [];
 
 function loadSupportsData() {
   return fetch('supports.json')
