@@ -1637,38 +1637,10 @@ body.dark-mode .collapse-toggle:hover {
   margin-bottom: 0px;
 }
 
-/* Diamond icons container */
-.diamond-icons {
-  position: absolute;
-  top: 84px;
-  right: 10px;
-  display: flex;
-  z-index: 5;
-  transform: scale(1); /* ← ADD THIS LINE - change this value */
-  transform-origin: bottom right; /* ← ADD THIS LINE */
-  background: rgba(0, 0, 0, 1);
-  padding: 1px 6px;
-}
-
 .diamond-icon {
   width: 14px;
   height: 18px;
   object-fit: contain;
-}
-
-/* Level badge with scaling */
-.level-badge {
-  position: absolute;
-  top: 84px;
-  left: 10px;
-  background: rgba(0, 0, 0, 1);
-  color: white;
-  padding: 4.5px 6px;
-  font-size: 10px;
-  font-weight: bold;
-  z-index: 10;
-  transform: scale(1); /* ← ADD THIS LINE - change this value */
-  transform-origin: bottom left; /* ← ADD THIS LINE */
 }
 
 .slot-selection-hint {
@@ -1979,6 +1951,66 @@ body.dark-mode .deck-name-input {
 body.dark-mode .deck-name-display {
   background: #3a3a3a;
   color: #e0e0e0;
+}
+
+/* ---------- COMBINED LEVEL AND DIAMONDS DISPLAY ---------- */
+.level-diamond-container {
+  position: absolute;
+  top: 84px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 5;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 4px 8px;
+  gap: 8px;
+}
+
+.level-badge-combined {
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  flex-shrink: 0;
+  min-width: 30px;
+  text-align: center;
+}
+
+.diamond-icons-combined {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.diamond-icon-combined {
+  width: 14px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* Adjust positioning for the new combined container */
+.card .level-diamond-container,
+.slot.has-card .level-diamond-container {
+  top: 84px;
+}
+
+/* Collapsed mode adjustments */
+.right-sidebar.collapsed .level-diamond-container {
+  top: 52px !important;
+  padding: 3px 6px !important;
+  gap: 4px !important;
+}
+
+.right-sidebar.collapsed .level-badge-combined {
+  font-size: 9px !important;
+  min-width: 25px !important;
+}
+
+.right-sidebar.collapsed .diamond-icon-combined {
+  width: 9px !important;
+  height: 12px !important;
 }
 
 </style>
@@ -3764,6 +3796,9 @@ function createCardElement(card){
     }
   }
   
+  // Generate combined level and diamonds display
+  const combinedLevelHTML = generateCombinedLevelDisplay(card, currentLevel);
+
   // ENHANCED: Add sort data display below name - HIDE FOR CERTAIN OPTIONS
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
   
@@ -3814,10 +3849,11 @@ function createCardElement(card){
 
   el.innerHTML = `
     <div class="type-icon"><img src="${typeImg}" alt="${escapeHtml(card.type)}"></div>
-    <div class="level-badge">Lv ${currentLevel}</div>
+    <div class="level-diamond-container">
+      ${combinedLevelHTML}
+    </div>
     <img src="${imgSrc}" alt="${escapeHtml(card.char_name)}">
     ${nameHtml}
-    <div class="diamond-icons">${diamondIconsHTML}</div>
     <div class="skills">${skillsHTML}</div>
   `;
 
@@ -4121,12 +4157,11 @@ function addToSlot(card, targetSlot = null, save = true) {
     console.log('No available slot found');
     return;
   }
+  // Get the saved level BEFORE using it in the template
+  const savedLevel = getCardLevel(card.support_id);
 
-    // Get the saved level BEFORE using it in the template
-    const savedLevel = getCardLevel(card.support_id);
-
-    // Generate diamond icons based on current level
-    const diamondIconsHTML = generateDiamondIcons(card, savedLevel);
+  // Generate combined level and diamonds display
+  const combinedLevelHTML = generateCombinedLevelDisplay(card, savedLevel);
 
     // Find the container for this slot
     const slotContainer = freeSlot.closest('.slot-container');
@@ -4241,15 +4276,16 @@ if (!hideDataOptions.includes(sortByValue)) {
 }
 
 //-------------------------------------------------------------
-    // Update slot content with character ID, level badge, and diamond icons
-    freeSlot.innerHTML = `
-        <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
-        <div class="level-badge">Lv ${savedLevel}</div>
-        <div class="diamond-icons">${diamondIconsHTML}</div> <!-- MOVED UP HERE -->
-        <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
-        ${nameHtml}
-        <div class="skills">${skillsHTML}</div>
-    `;
+  // Update slot content with combined level display
+  freeSlot.innerHTML = `
+      <div class="type-icon"><img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_${typeMap[card.type] || "xx"}.png" alt="${escapeHtml(card.type)}"></div>
+      <div class="level-diamond-container">
+        ${combinedLevelHTML}
+      </div>
+      <img src="https://gametora.com/images/umamusume/supports/support_card_s_${card.support_id}.png" alt="${escapeHtml(card.char_name)}">
+      ${nameHtml}
+      <div class="skills">${skillsHTML}</div>
+  `;
     // Update level controls in the container
     const levelControls = slotContainer.querySelector('.slot-level-controls');
     const levelInput = levelControls.querySelector('.slot-level-input');
@@ -4264,29 +4300,21 @@ if (!hideDataOptions.includes(sortByValue)) {
 
 // Enhanced level input event listeners
 const handleLevelChange = (e) => {
-    const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
-    e.target.value = newLevel;
-    
-    // Update unique effects display to show if they're active
-    updateUniqueEffectsDisplay(freeSlot, card, newLevel);
-    
-    // UPDATE: Refresh the slot display with new scaled values - SIMPLIFIED
-    updateSlotNameWithEffectData(freeSlot, card, newLevel);
-    refreshSlotDisplay(freeSlot, card, newLevel);
-    
-    // UPDATE DIAMOND ICONS AND LEVEL BADGE
-    const diamondIconsContainer = freeSlot.querySelector('.diamond-icons');
-    const levelBadge = freeSlot.querySelector('.level-badge');
-    
-    if (diamondIconsContainer) {
-        diamondIconsContainer.innerHTML = generateDiamondIcons(card, newLevel);
-    }
-    if (levelBadge) {
-        levelBadge.textContent = `Lv ${newLevel}`;
-    }
-    
-    // SYNC WITH MAIN GRID CARDS
-    syncCardLevelInMainGrid(card.support_id, newLevel);
+  const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
+  e.target.value = newLevel;
+  
+  // Update unique effects display to show if they're active
+  updateUniqueEffectsDisplay(freeSlot, card, newLevel);
+  
+  // UPDATE: Refresh the slot display with new scaled values
+  updateSlotNameWithEffectData(freeSlot, card, newLevel);
+  refreshSlotDisplay(freeSlot, card, newLevel);
+  
+  // UPDATE COMBINED LEVEL DISPLAY
+  refreshCombinedLevelDisplay(freeSlot, card, newLevel);
+  
+  // SYNC WITH MAIN GRID CARDS
+  syncCardLevelInMainGrid(card.support_id, newLevel);
 };
 
 levelInput.onchange = handleLevelChange;
@@ -7502,11 +7530,19 @@ function resetAllLevels() {
   console.log('ALL card levels reset to 1');
 }
 
-/* ------------- RESET ALL MAIN GRID CARDS ------------- */
+/* ------------- REFRESH COMBINED LEVEL DISPLAY ------------- */
+function refreshCombinedLevelDisplay(element, card, newLevel) {
+  const container = element.querySelector('.level-diamond-container');
+  if (container) {
+    container.innerHTML = generateCombinedLevelDisplay(card, newLevel);
+  }
+}
+
+
+/* ------------- REFRESH ALL MAIN GRID CARDS ------------- */
 function resetAllMainGridCards() {
   console.log('Resetting all main grid card levels...');
   
-  // Get all cards in the main grid
   const mainGridCards = document.querySelectorAll('.card');
   
   mainGridCards.forEach(cardElement => {
@@ -7514,17 +7550,8 @@ function resetAllMainGridCards() {
     if (supportId) {
       const card = cardsData.find(c => c.support_id == supportId);
       if (card) {
-        // Update level badge
-        const levelBadge = cardElement.querySelector('.level-badge');
-        if (levelBadge) {
-          levelBadge.textContent = 'Lv 1';
-        }
-        
-        // Update diamond icons
-        const diamondIcons = cardElement.querySelector('.diamond-icons');
-        if (diamondIcons) {
-          diamondIcons.innerHTML = generateDiamondIcons(card, 1);
-        }
+        // Update combined level display
+        refreshCombinedLevelDisplay(cardElement, card, 1);
         
         // Update effect value display if showing effects
         updateCardEffectDisplay(cardElement, supportId, 1);
@@ -7666,17 +7693,8 @@ function refreshAllSlotLevelDisplays() {
         const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
         const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
         
-        // Update level badge
-        const levelBadge = slot.querySelector('.level-badge');
-        if (levelBadge) {
-          levelBadge.textContent = `Lv ${currentLevel}`;
-        }
-        
-        // Update diamond icons
-        const diamondIcons = slot.querySelector('.diamond-icons');
-        if (diamondIcons) {
-          diamondIcons.innerHTML = generateDiamondIcons(card, currentLevel);
-        }
+        // Update combined level display
+        refreshCombinedLevelDisplay(slot, card, currentLevel);
         
         // Update unique effects display
         updateUniqueEffectsDisplay(slot, card, currentLevel);
@@ -7685,6 +7703,41 @@ function refreshAllSlotLevelDisplays() {
       }
     }
   });
+}
+
+/* ------------- COMBINED DIAMOND ICONS AND LEVEL BADGE ------------- */
+function generateCombinedLevelDisplay(card, currentLevel) {
+  // Define thresholds based on rarity
+  let thresholds;
+  switch(card.rarity) {
+    case 1: // R rarity
+      thresholds = [21, 26, 31, 36];
+      break;
+    case 2: // SR rarity  
+      thresholds = [26, 31, 36, 41];
+      break;
+    case 3: // SSR rarity
+      thresholds = [31, 36, 41, 46];
+      break;
+    default:
+      thresholds = [21, 26, 31, 36];
+  }
+  
+  let diamondIconsHTML = '';
+  
+  // Create 4 diamond icons
+  for (let i = 0; i < 4; i++) {
+    const isFilled = currentLevel >= thresholds[i];
+    const iconSrc = isFilled ? 'diamond_filled.png' : 'diamond_empty.png';
+    
+    diamondIconsHTML += `<img src="${iconSrc}" alt="Diamond ${i+1}" class="diamond-icon-combined" data-threshold="${thresholds[i]}">`;
+  }
+  
+  // Return combined HTML with level badge and diamonds
+  return `
+    <div class="level-badge-combined">Lv ${currentLevel}</div>
+    <div class="diamond-icons-combined">${diamondIconsHTML}</div>
+  `;
 }
 
 // Run this after Copy All: checkClipboardData()
