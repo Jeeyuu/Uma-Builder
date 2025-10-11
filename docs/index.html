@@ -4476,7 +4476,7 @@ function generateDiamondIcons(card, currentLevel) {
   // Create 4 diamond icons
   for (let i = 0; i < 4; i++) {
     const isFilled = currentLevel >= thresholds[i];
-    const iconSrc = isFilled ? 'diamond_filled.png' : 'diamond_empty.png';
+    const iconSrc = isFilled ? 'image/diamond_filled.png' : 'image/diamond_empty.png';
     
     diamondIconsHTML += `<img src="${iconSrc}" alt="Diamond ${i+1}" class="diamond-icon" data-threshold="${thresholds[i]}">`;
   }
@@ -8237,7 +8237,7 @@ function generateCombinedLevelDisplay(card, currentLevel) {
   // Create 4 diamond icons
   for (let i = 0; i < 4; i++) {
     const isFilled = currentLevel >= thresholds[i];
-    const iconSrc = isFilled ? 'diamond_filled.png' : 'diamond_empty.png';
+    const iconSrc = isFilled ? 'image/diamond_filled.png' : 'image/diamond_empty.png';
     
     diamondIconsHTML += `<img src="${iconSrc}" alt="Diamond ${i+1}" class="diamond-icon-combined" data-threshold="${thresholds[i]}">`;
   }
