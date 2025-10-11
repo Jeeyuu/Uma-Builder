@@ -2075,19 +2075,29 @@ body.dark-mode .deck-name-display {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 8px;
+  padding: 0px 8px;
   background: #f8f8f8;
   border-radius: 4px;
   min-height: 24px;
 }
 
-/* Specific row layouts */
-
-/* Rows 1 & 2: 5 equally spaced items */
+/* Odd rows (1, 3, 5, 7) - darker background */
 .character-picker-row-1,
-.character-picker-row-2 {
-  padding: 4px 12px;
+.character-picker-row-3,
+.character-picker-row-5,
+.character-picker-row-7 {
+  background: #e8e8e8;
 }
+
+/* Even rows (2, 4, 6, 8) - keep lighter background */
+.character-picker-row-2,
+.character-picker-row-4,
+.character-picker-row-6,
+.character-picker-row-8 {
+  background: #f8f8f8;
+}
+
+/* Specific row layouts */
 
 .character-picker-five-items {
   display: flex;
@@ -2110,12 +2120,6 @@ body.dark-mode .deck-name-display {
   flex: 1;
 }
 
-/* Rows 3 & 4: 2 equally spaced items */
-.character-picker-row-3,
-.character-picker-row-4 {
-  padding: 4px 16px;
-}
-
 .character-picker-two-items {
   display: flex;
   width: 100%;
@@ -2135,14 +2139,6 @@ body.dark-mode .deck-name-display {
   font-weight: bold;
   text-align: center;
   flex: 1;
-}
-
-/* Rows 5-8: 4 equally spaced items */
-.character-picker-row-5,
-.character-picker-row-6,
-.character-picker-row-7,
-.character-picker-row-8 {
-  padding: 4px 8px;
 }
 
 .character-picker-four-items {
@@ -2167,6 +2163,22 @@ body.dark-mode .character-picker-costume {
 }
 
 body.dark-mode .character-picker-row {
+  background: #2d2d2d;
+}
+
+/* Dark mode - odd rows even darker */
+body.dark-mode .character-picker-row-1,
+body.dark-mode .character-picker-row-3,
+body.dark-mode .character-picker-row-5,
+body.dark-mode .character-picker-row-7 {
+  background: #252525;
+}
+
+/* Dark mode - even rows slightly lighter */
+body.dark-mode .character-picker-row-2,
+body.dark-mode .character-picker-row-4,
+body.dark-mode .character-picker-row-6,
+body.dark-mode .character-picker-row-8 {
   background: #2d2d2d;
 }
 
