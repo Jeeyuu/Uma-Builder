@@ -6621,24 +6621,42 @@ const EFFECT_TYPES = {
   41: "All Stats Bonus"
 };
 
-function loadSupportsData() {
-  return fetch('supports.json')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Failed to fetch supports.json: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Loaded supports.json with effects data:', data.length, 'cards');
-      supportsDataWithEffects = data;
-      return data;
-    })
-    .catch(error => {
-      console.error('Error loading supports.json:', error);
-      return [];
+/* ------------- EFFECT CALCULATION FUNCTIONS - UPDATED FOR NEW DATA SOURCE ------------- */
+
+// Remove the old loadSupportsData function and replace it with:
+function loadEffectsData() {
+    // We already have the effects data in supportsDataWithEffects (populated in processSupportCardData)
+    console.log('Effects data already loaded from support-cards.json');
+    return Promise.resolve(supportsDataWithEffects);
+}
+
+// Update findCardWithEffects to use our new data source
+function findCardWithEffects(supportId) {
+    if (!supportsDataWithEffects || supportsDataWithEffects.length === 0) {
+        console.warn('supportsDataWithEffects not loaded yet');
+        return null;
+    }
+    
+    const card = supportsDataWithEffects.find(c => c.support_id == supportId);
+    return card;
+}
+
+// Update initializeEffectCalculation to use the new loader
+function initializeEffectCalculation() {
+    console.log('Initializing effect calculation system...');
+    
+    loadEffectsData().then(() => {
+        console.log('Effect calculation system ready');
+        setupEffectCalculation();
+    }).catch(error => {
+        console.warn('Error loading effects data, continuing without effect calculations:', error);
+        // Continue without effect calculations - the app will still work
+        setupEffectCalculation();
     });
 }
+
+// Keep the rest of your effect calculation functions as they are, but make sure
+// they use findCardWithEffects which now points to supportsDataWithEffects
 
 // Progression calculation functions
 function clamp(x, min, max) {
