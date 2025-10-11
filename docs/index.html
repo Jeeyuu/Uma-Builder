@@ -3091,26 +3091,6 @@ function createSearchBox(searchId, value = '') {
   setupColorPicker(searchId); // This will now properly set up the color picker
 }
 
-/* ------------- DEBUG COLOR PICKERS ------------- */
-function debugColorPickers() {
-  console.log('=== COLOR PICKER DEBUG ===');
-  const colorPickers = document.querySelectorAll('.color-picker');
-  colorPickers.forEach((picker, index) => {
-    const searchId = picker.dataset.searchId;
-    const savedColor = localStorage.getItem(`color_${searchId}`);
-    console.log(`Picker ${index}:`, {
-      searchId: searchId,
-      currentColor: picker.dataset.color,
-      savedColor: savedColor,
-      className: picker.className,
-      eventListeners: picker._clickHandler ? 'Has handler' : 'No handler'
-    });
-  });
-}
-
-// Call this after page load to check the state
-setTimeout(debugColorPickers, 1000);
-
 /* ------------- COLOR PICKER FUNCTIONALITY ------------- */
 const colorSequence = [
   'green', 'blue', 'orange', 'red',
@@ -5745,54 +5725,6 @@ function parseSkillsFromClipboard(text) {
   return skills;
 }
 
-// Rename the existing function used by paste to avoid conflict
-function clearAllSkillSearchesForPaste() {
-  // Remove all search boxes except the first one
-  const searchContainers = document.querySelectorAll('#skillSearchGroup .search-input-container');
-  searchContainers.forEach((container, index) => {
-    if (index > 0) {
-      const searchId = container.querySelector('.skill-search').id;
-      removeSearchBox(searchId);
-    }
-  });
-  
-  // Clear the first search box
-  const firstInput = document.getElementById('skillSearch1');
-  const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
-  if (firstInput) firstInput.value = '';
-  if (firstColorPicker) {
-    firstColorPicker.className = 'color-picker green';
-    firstColorPicker.dataset.color = 'green';
-    localStorage.setItem('color_skillSearch1', 'green');
-  }
-  
-  // Reset state
-  skillSearches = [{ id: 'skillSearch1', value: '' }];
-  searchCounter = 2;
-}
-
-function addSearchBoxFromPaste(skillItem) {
-  const newId = `skillSearch${searchCounter}`;
-  searchCounter++;
-  
-  // Add to state
-  skillSearches.push({ id: newId, value: skillItem.skill });
-  
-  // Create UI element
-  createSearchBox(newId, skillItem.skill, false);
-  
-  // Set color
-  const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
-  if (colorPicker) {
-    colorPicker.className = `color-picker ${skillItem.color}`;
-    colorPicker.dataset.color = skillItem.color;
-    localStorage.setItem(`color_${newId}`, skillItem.color);
-  }
-  
-  // Update global array
-  SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
-}
-
 /* ------------- CLEAR ALL SKILL SEARCHES ------------- */
 function setupClearAllSearches() {
   const clearAllSearchesBtn = document.getElementById('clearAllSearchesBtn');
@@ -5863,19 +5795,6 @@ function setupDeckCopyPaste() {
   
   copyDeckBtn.addEventListener('click', copyDeckToClipboard);
   pasteDeckBtn.addEventListener('click', pasteDeckFromClipboard);
-}
-
-// Also fix the deck paste override:
-function setupDeckPasteOverride() {
-    const pasteDeckBtn = document.getElementById('pasteDeckBtn');
-    if (pasteDeckBtn && window.pasteDeckFromClipboard) {
-        const originalPasteDeck = window.pasteDeckFromClipboard;
-        window.pasteDeckFromClipboard = function() {
-            return originalPasteDeck().then(() => {
-                setTimeout(updateEffectTotals, 500);
-            });
-        };
-    }
 }
 
 // Enhanced deck copy/paste to include levels
@@ -6038,20 +5957,6 @@ function validateLevel(level, card) {
   if (num > maxLevel) return maxLevel;
   
   return num;
-}
-
-function debugSkillPaste() {
-  const copyBtn = document.getElementById('copySkillsBtn');
-  const pasteBtn = document.getElementById('pasteSkillsBtn');
-  
-  console.log('Copy button exists:', !!copyBtn);
-  console.log('Paste button exists:', !!pasteBtn);
-  console.log('Current skill searches:', skillSearches);
-  console.log('Skill search keys:', SKILL_SEARCH_KEYS);
-  
-  if (copyBtn && pasteBtn) {
-    console.log('Event listeners should be attached');
-  }
 }
 
 /* ------------- EFFECT PROGRESSION CALCULATION ------------- */
@@ -6680,37 +6585,6 @@ function updateUniqueEffectsDisplay(slot, card, level) {
     }
 }
 
-// Debug function to see all saved levels
-function debugSavedLevels() {
-    console.log('All saved card levels:', slotLevels);
-    // Show in alert for easy checking
-    const levelCount = Object.keys(slotLevels).length;
-    alert(`Saved levels for ${levelCount} cards:\n${JSON.stringify(slotLevels, null, 2)}`);
-}
-
-// Add debug button to help troubleshoot
-function addDebugButton() {
-    const debugBtn = document.createElement('button');
-    debugBtn.textContent = 'Debug Levels';
-    debugBtn.style.position = 'fixed';
-    debugBtn.style.bottom = '10px';
-    debugBtn.style.right = '10px';
-    debugBtn.style.zIndex = '10000';
-    debugBtn.style.padding = '5px';
-    debugBtn.style.fontSize = '10px';
-    debugBtn.style.background = '#ff4444';
-    debugBtn.style.color = 'white';
-    debugBtn.style.border = 'none';
-    debugBtn.style.borderRadius = '3px';
-    debugBtn.style.cursor = 'pointer';
-    debugBtn.addEventListener('click', debugSavedLevels);
-    
-    document.body.appendChild(debugBtn);
-}
-
-// Initialize debug button in development
-// addDebugButton(); // Uncomment if you need to debug level saving
-
 /* ------------- SORTING HELPER FUNCTIONS ------------- */
 function formatDateForDisplay(dateString) {
   if (!dateString) return 'Unknown';
@@ -6758,30 +6632,6 @@ function getEffectValueForSorting(card, effectId) {
   return maxValue;
 }
 
-
-/* ------------- UPDATE SLOTS FOR SORT CHANGE ------------- */
-function updateSlotsForSortChange() {
-  slots.forEach(slot => {
-    if (slot.dataset.supportId) {
-      const supportId = slot.dataset.supportId;
-      const card = cardsData.find(c => String(c.support_id) === String(supportId));
-      
-      if (card) {
-        // Remove the existing slot content
-        if (slotListeners.has(slot)) {
-          slot.removeEventListener('click', slotListeners.get(slot));
-          slotListeners.delete(slot);
-        }
-        
-        // Re-add the card with updated display data
-        addToSlot(card, slot, false);
-      }
-    }
-  });
-  
-  // Save the updated slots
-  saveSlotsToLocalStorage();
-}
 
 /* ------------- SYNC CARD LEVELS WITH MAIN GRID ------------- */
 function syncCardLevelInMainGrid(supportId, newLevel) {
@@ -6854,51 +6704,6 @@ function updateCardEffectDisplay(cardElement, supportId, newLevel) {
   }
 }
 
-/* ------------- SMART RENDER DETECTION ------------- */
-function needsFullRender() {
-  // Check if any filters, searches, or sorting changed that would affect card visibility
-  const currentFilterState = JSON.stringify({
-    racecourse: document.getElementById('racecourse').value,
-    length: document.getElementById('length').value,
-    direction: document.getElementById('direction').value,
-    track: document.getElementById('track').value,
-    season: document.getElementById('season').value,
-    weather: document.getElementById('weather').value,
-    strategy: document.getElementById('strategy').value,
-    skillSearches: SKILL_SEARCH_KEYS.map(key => document.getElementById(key)?.value.trim()).filter(Boolean),
-    cardSearch: cardSearchValue,
-    rarities: Array.from(selectedRarities),
-    types: Array.from(selectedTypes),
-    sortBy: sortBy,
-    sortOrder: sortOrder,
-    region: region
-  });
-  
-  // Store the last state to compare against
-  if (!window.lastFilterState) {
-    window.lastFilterState = currentFilterState;
-    return true; // First render
-  }
-  
-  const needsRender = window.lastFilterState !== currentFilterState;
-  window.lastFilterState = currentFilterState;
-  return needsRender;
-}
-
-/* ------------- DEBUG SLOT STATUS ------------- */
-function debugSlotStatus() {
-  console.log('=== SLOT DEBUG INFO ===');
-  slots.forEach((slot, index) => {
-    console.log(`Slot ${index}:`, {
-      hasCard: slot.classList.contains('has-card'),
-      supportId: slot.dataset.supportId,
-      cardId: slot.dataset.cardId,
-      name: slot.querySelector('.name')?.textContent,
-      effectText: slot.querySelector('.name')?.nextElementSibling?.textContent
-    });
-  });
-}
-
 /* ------------- UPDATE ALL SLOT DISPLAYS ------------- */
 function updateAllSlotDisplays() {
   console.log('Updating all slot displays...');
@@ -6969,32 +6774,6 @@ function ensureSlotsLoaded() {
       updateAllSlotDisplays();
     }
   }
-}
-
-/* ------------- MANUAL LEVEL SYNC FOR DEBUGGING ------------- */
-function forceSyncAllCardLevels() {
-    console.log('Forcing sync of all card levels...');
-    
-    // Update all main grid cards
-    const allCards = document.querySelectorAll('.card');
-    allCards.forEach(cardElement => {
-        const supportId = cardElement.dataset.supportId;
-        if (supportId) {
-            const currentLevel = getCardLevel(supportId);
-            const levelBadge = cardElement.querySelector('.level-badge');
-            const diamondIcons = cardElement.querySelector('.diamond-icons');
-            const card = cardsData.find(c => c.support_id == supportId);
-            
-            if (levelBadge && card) {
-                levelBadge.textContent = `Lv ${currentLevel}`;
-            }
-            if (diamondIcons && card) {
-                diamondIcons.innerHTML = generateDiamondIcons(card, currentLevel);
-            }
-        }
-    });
-    
-    console.log('Level sync complete');
 }
 
 /* ------------- IMPROVED SLOT SELECTION FUNCTIONALITY ------------- */
@@ -7080,22 +6859,6 @@ function clearSlotSelection() {
   }
 }
 
-function addSelectionHint(container) {
-  const hint = document.createElement('div');
-  hint.className = 'slot-selection-hint';
-  hint.textContent = 'Selected - Next card goes here';
-  hint.id = 'slot-selection-hint';
-  container.style.position = 'relative';
-  container.appendChild(hint);
-}
-
-function removeSelectionHint(container) {
-  const hint = container.querySelector('#slot-selection-hint');
-  if (hint) {
-    hint.remove();
-  }
-}
-
 /* ------------- KEYBOARD SHORTCUTS ------------- */
 function setupKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
@@ -7119,35 +6882,6 @@ function flashSlot(slot) {
   }, 1000);
 }
 
-// Call this if you ever need to force a sync
-// forceSyncAllCardLevels();
-
-// Call this in console if you need to debug: debugSlotStatus()
-
-/* ------------- DEBUG DUPLICATE CARDS ------------- */
-function debugDuplicateCards() {
-  console.log('=== DUPLICATE CARD DEBUG ===');
-  console.log('selectedCardIds:', Array.from(selectedCardIds));
-  
-  slots.forEach((slot, index) => {
-    console.log(`Slot ${index}:`, {
-      cardId: slot.dataset.cardId,
-      supportId: slot.dataset.supportId,
-      hasCard: slot.classList.contains('has-card')
-    });
-  });
-  
-  // Check for actual duplicates
-  const cardIdsInSlots = slots
-    .map(slot => slot.dataset.cardId)
-    .filter(id => id)
-    .map(Number);
-  
-  const uniqueIds = new Set(cardIdsInSlots);
-  if (cardIdsInSlots.length !== uniqueIds.size) {
-    console.error('DUPLICATE CARDS FOUND IN SLOTS!');
-  }
-}
 
 /* ------------- DECK NAME MANAGEMENT ------------- */
 function setupDeckName() {
@@ -7621,58 +7355,6 @@ function setupClearDeckWithNameReset() {
   };
 }
 
-/* ------------- DEBUG DECK NAME FUNCTION ------------- */
-function debugDeckName() {
-  const deckNameInput = document.getElementById('deckNameInput');
-  const deckNameDisplay = document.getElementById('deckNameDisplay');
-  const savedDeckName = localStorage.getItem('deckName');
-  
-  console.log('=== DECK NAME DEBUG ===');
-  console.log('Input value:', deckNameInput.value);
-  console.log('Display text:', deckNameDisplay.textContent);
-  console.log('LocalStorage:', savedDeckName);
-  console.log('Elements found:', {
-    input: !!deckNameInput,
-    display: !!deckNameDisplay
-  });
-}
-
-/* ------------- DEBUG DECK NAME PASTE ISSUE ------------- */
-function debugDeckNamePaste() {
-  console.log('=== DECK NAME PASTE DEBUG ===');
-  
-  const deckNameInput = document.getElementById('deckNameInput');
-  const deckNameDisplay = document.getElementById('deckNameDisplay');
-  
-  console.log('Input element:', deckNameInput);
-  console.log('Display element:', deckNameDisplay);
-  console.log('Input value:', deckNameInput?.value);
-  console.log('Display text:', deckNameDisplay?.textContent);
-  console.log('LocalStorage deckName:', localStorage.getItem('deckName'));
-  
-  // Test setting values directly
-  if (deckNameInput && deckNameDisplay) {
-    const testName = 'Test Deck Name ' + Date.now();
-    deckNameInput.value = testName;
-    deckNameDisplay.textContent = testName;
-    console.log('Test values set:', testName);
-  }
-}
-
-// Add this to check what's in your clipboard after Copy All
-function checkClipboardData() {
-  navigator.clipboard.readText().then(text => {
-    console.log('Clipboard data:', text);
-    try {
-      const data = JSON.parse(text);
-      console.log('Parsed data:', data);
-      console.log('Deck name in clipboard:', data.deckName);
-    } catch (e) {
-      console.error('Failed to parse clipboard data:', e);
-    }
-  });
-}
-
 /* ------------- REFRESH ALL SLOT LEVEL DISPLAYS ------------- */
 function refreshAllSlotLevelDisplays() {
   console.log('Refreshing all slot level displays...');
@@ -7733,12 +7415,6 @@ function generateCombinedLevelDisplay(card, currentLevel) {
     <div class="diamond-icons-combined">${diamondIconsHTML}</div>
   `;
 }
-
-// Run this after Copy All: checkClipboardData()
-
-// Call this in console after paste to debug: debugDeckNamePaste()
-
-// Call this in console if you need to debug: debugDeckName()
 
 function refreshAllMainGridCardLevels() {
   console.log('Refreshing all main grid card levels...');
