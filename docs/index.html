@@ -3016,7 +3016,7 @@ function getNameByRegion(characterData) {
     }
 }
 
-// Also update the getSkillNameById function to be consistent
+// Update the getSkillNameById function to use correct English priority
 function getSkillNameById(skillId) {
     if (!skillsData || skillsData.length === 0) {
         console.warn('Skills data not loaded yet for skill ID:', skillId);
@@ -3028,11 +3028,12 @@ function getSkillNameById(skillId) {
         // Use region to determine which name to show with proper fallbacks
         const currentRegion = getCurrentRegion();
         let skillName;
+        
         if (currentRegion === 'global') {
-            // For global, try name_en first, then enname, then jpname
+            // For global: name_en first, then enname, then jpname as last resort
             skillName = skill.name_en || skill.enname || skill.jpname || `Skill ${skillId}`;
         } else {
-            // For Japan, use jpname first, then fall back to English names
+            // For Japan: jpname first, then fall back to English names
             skillName = skill.jpname || skill.name_en || skill.enname || `Skill ${skillId}`;
         }
         
