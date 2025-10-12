@@ -2964,7 +2964,7 @@ async function discoverDataFiles() {
     throw new Error('Could not find required data files.');
 }
 
-// Update the loadCharacterData to log what's being loaded
+// Update the loadCharacterData function to use proper name fallbacks
 async function loadCharacterData() {
     try {
         const response = await fetch('data/characters.json');
@@ -2975,7 +2975,7 @@ async function loadCharacterData() {
             id: char.card_id,
             char_id: char.char_id,
             card_id: char.card_id,
-            name: char.name_en || 'Unknown',
+            name: getNameByRegion(char), // Use new function for name selection
             title: char.title || char.title_en_gl || 'No Title',
             rarity: getRarityText(char.rarity),
             portrait: getCharacterPortrait(char.char_id, char.card_id),
@@ -3001,6 +3001,47 @@ async function loadCharacterData() {
             characterGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">Error loading character data</div>';
         }
     }
+}
+
+// Add function to get name based on region with fallbacks
+function getNameByRegion(characterData) {
+    const currentRegion = getCurrentRegion();
+    
+    if (currentRegion === 'global') {
+        // For global, try name_en first, then enname, then jpname as last resort
+        return characterData.name_en || characterData.enname || characterData.jpname || 'Unknown';
+    } else {
+        // For Japan, use jpname first, then fall back to English names
+        return characterData.jpname || characterData.name_en || characterData.enname || 'Unknown';
+    }
+}
+
+// Also update the getSkillNameById function to be consistent
+function getSkillNameById(skillId) {
+    if (!skillsData || skillsData.length === 0) {
+        console.warn('Skills data not loaded yet for skill ID:', skillId);
+        return `Skill ${skillId}`;
+    }
+    
+    const skill = skillsData.find(s => s.id === skillId);
+    if (skill) {
+        // Use region to determine which name to show with proper fallbacks
+        const currentRegion = getCurrentRegion();
+        let skillName;
+        if (currentRegion === 'global') {
+            // For global, try name_en first, then enname, then jpname
+            skillName = skill.name_en || skill.enname || skill.jpname || `Skill ${skillId}`;
+        } else {
+            // For Japan, use jpname first, then fall back to English names
+            skillName = skill.jpname || skill.name_en || skill.enname || `Skill ${skillId}`;
+        }
+        
+        // Remove symbols like ○, ◎, etc.
+        return skillName.replace(/[◎○●◆■▲▼★☆▪▫◼◻◾◽]/g, '').trim();
+    }
+    
+    console.warn('Skill not found for ID:', skillId);
+    return `Skill ${skillId}`;
 }
 
 function getSkillName(skillId) {
@@ -7377,31 +7418,6 @@ function resetCharacterSkills() {
     
     // Hide the entire skills section
     hideSkillsSection();
-}
-
-function getSkillNameById(skillId) {
-    if (!skillsData || skillsData.length === 0) {
-        console.warn('Skills data not loaded yet for skill ID:', skillId);
-        return `Skill ${skillId}`;
-    }
-    
-    const skill = skillsData.find(s => s.id === skillId);
-    if (skill) {
-        // Use region to determine which name to show
-        const currentRegion = getCurrentRegion();
-        let skillName;
-        if (currentRegion === 'global') {
-            skillName = skill.name_en || skill.jpname || `Skill ${skillId}`;
-        } else {
-            skillName = skill.jpname || skill.name_en || `Skill ${skillId}`;
-        }
-        
-        // Remove symbols like ○, ◎, etc.
-        return skillName.replace(/[◎○●◆■▲▼★☆▪▫◼◻◾◽]/g, '').trim();
-    }
-    
-    console.warn('Skill not found for ID:', skillId);
-    return `Skill ${skillId}`;
 }
 
 
