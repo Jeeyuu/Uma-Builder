@@ -2968,7 +2968,7 @@ async function discoverDataFiles() {
     throw new Error('Could not find required data files.');
 }
 
-// Update the loadCharacterData function to ensure skillsData is available
+// Update the loadCharacterData to log what's being loaded
 async function loadCharacterData() {
     try {
         const response = await fetch('data/characters.json');
@@ -2990,10 +2990,14 @@ async function loadCharacterData() {
             originalData: char
         }));
         
-        // Apply initial region filter
+        console.log(`Loaded ${characters.length} total characters`);
+        
+        // Apply initial region filter and log results
+        const regionFiltered = getRegionFilteredCharacters();
+        console.log(`After region filtering: ${regionFiltered.length} characters`);
+        
         applyRegionFilter();
         
-        console.log('Character data loaded successfully:', characters.length, 'characters');
     } catch (error) {
         console.error('Error loading character data:', error);
         // Show error message
@@ -7235,35 +7239,41 @@ function isCharacterAvailableInRegion(characterData) {
     }
 }
 
-// Update the applyRegionFilter to be more strict
-function applyRegionFilter() {
-    if (!characters || characters.length === 0) return;
+// Add helper function to get region-filtered characters
+function getRegionFilteredCharacters() {
+    if (!characters || characters.length === 0) return [];
     
     const currentRegion = getCurrentRegion();
     
-    // Filter characters based on region - only show characters with release_en for global
-    const filteredCharacters = characters.filter(character => {
+    return characters.filter(character => {
         if (currentRegion === 'global') {
-            // For global, character must have a release_en date and it shouldn't be empty
+            // For global, character must have a valid release_en date
             return character.originalData.release_en && 
                    character.originalData.release_en !== '' && 
-                   character.originalData.release_en !== 'Unknown';
+                   character.originalData.release_en !== 'Unknown' &&
+                   character.originalData.release_en !== 'unknown';
         } else {
-            // For Japan, character must have a release date
+            // For Japan, character must have a valid release date
             return character.originalData.release && 
                    character.originalData.release !== '' && 
-                   character.originalData.release !== 'Unknown';
+                   character.originalData.release !== 'Unknown' &&
+                   character.originalData.release !== 'unknown';
         }
     });
+}
+
+// Update the applyRegionFilter to use the same logic
+function applyRegionFilter() {
+    const regionFilteredCharacters = getRegionFilteredCharacters();
     
-    // Apply current search and sort to filtered results
+    // Apply current search to filtered results
     const searchTerm = characterSearch ? characterSearch.value.toLowerCase() : '';
     const searchedCharacters = searchTerm ? 
-        filteredCharacters.filter(character => 
+        regionFilteredCharacters.filter(character => 
             character.name.toLowerCase().includes(searchTerm) || 
             character.title.toLowerCase().includes(searchTerm)
         ) : 
-        filteredCharacters;
+        regionFilteredCharacters;
     
     const sortedCharacters = sortCharacterList(searchedCharacters);
     populateCharacterGrid(sortedCharacters);
@@ -7608,10 +7618,14 @@ function updateCharacterDisplay() {
     }
 }
 
-// Filter characters based on search input
+// Update the filterCharacters and sortCharacters functions to maintain region filtering
 function filterCharacters() {
     const searchTerm = characterSearch.value.toLowerCase();
-    const filteredCharacters = characters.filter(character => 
+    
+    // Always apply region filter first
+    const regionFilteredCharacters = getRegionFilteredCharacters();
+    
+    const filteredCharacters = regionFilteredCharacters.filter(character => 
         character.name.toLowerCase().includes(searchTerm) || 
         character.title.toLowerCase().includes(searchTerm)
     );
@@ -7621,20 +7635,31 @@ function filterCharacters() {
     populateCharacterGrid(sortedCharacters);
 }
 
-// Sort characters based on selected criteria
 function sortCharacters() {
-    const sortedCharacters = sortCharacterList(characters);
+    // Always apply region filter first
+    const regionFilteredCharacters = getRegionFilteredCharacters();
+    
+    // Apply current search to region-filtered results
+    const searchTerm = characterSearch ? characterSearch.value.toLowerCase() : '';
+    const searchedCharacters = searchTerm ? 
+        regionFilteredCharacters.filter(character => 
+            character.name.toLowerCase().includes(searchTerm) || 
+            character.title.toLowerCase().includes(searchTerm)
+        ) : 
+        regionFilteredCharacters;
+    
+    const sortedCharacters = sortCharacterList(searchedCharacters);
     populateCharacterGrid(sortedCharacters);
 }
 
-// Toggle sort order
+// Update the toggleSortOrder to maintain filtering
 function toggleSortOrder() {
     isAscending = !isAscending;
     characterSortOrder.textContent = isAscending ? '↑' : '↓';
     characterSortOrder.classList.toggle('ascending', isAscending);
     
-    const sortedCharacters = sortCharacterList(characters);
-    populateCharacterGrid(sortedCharacters);
+    // Use the same logic as sortCharacters to maintain filtering
+    sortCharacters();
 }
 
 // Update the sortCharacterList function for secondary sorting
