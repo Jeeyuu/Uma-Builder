@@ -7598,7 +7598,6 @@ function showSkillsSection() {
 }
 
 // Update the updateCharacterDisplay function
-// Update the aptitude display in updateCharacterDisplay
 function updateCharacterDisplay() {
     if (selectedCharacter) {
         // Update the empty box to show selected character
@@ -7626,13 +7625,12 @@ function updateCharacterDisplay() {
             });
         }
         
-        // Update aptitude grades - ALWAYS show letter grades, never "-"
+        // Update aptitude grades - show actual letter grades when character is selected
         const grades = document.querySelectorAll('.character-picker-grade');
         if (selectedCharacter.aptitude && selectedCharacter.aptitude.length >= 10) {
             grades.forEach((grade, index) => {
                 if (index < 10) {
                     const aptitudeValue = selectedCharacter.aptitude[index];
-                    // Always show the aptitude value, even if it's "A"
                     grade.textContent = aptitudeValue || '-';
                 }
             });
@@ -7650,9 +7648,11 @@ function updateCharacterDisplay() {
         characterPickerName.textContent = 'Character Name';
         characterPickerCostume.textContent = 'Character Costume';
         
-        // Reset percentages to "-" and grades to actual values if available
+        // Reset percentages to "-" 
         document.querySelectorAll('.character-picker-percentage').forEach(p => p.textContent = '-');
-        // Don't reset grades to "-" - they should show actual values from character data
+        
+        // Reset aptitude grades to "-" when no character
+        document.querySelectorAll('.character-picker-grade').forEach(g => g.textContent = '-');
         
         // Hide skills section completely when no character
         hideSkillsSection();
