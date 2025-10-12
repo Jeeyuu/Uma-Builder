@@ -7230,10 +7230,12 @@ function updateCharacterDisplay() {
             });
         }
         
-        // Update aptitude grades
+        // Update aptitude grades - CORRECTED ORDER
         const grades = document.querySelectorAll('.character-picker-grade');
         if (selectedCharacter.aptitude && selectedCharacter.aptitude.length >= 10) {
-            // Aptitude order: [turf, dirt, sprint, mile, middle, long, runner, leader, betweener, chaser]
+            // CORRECTED APTITUDE ORDER:
+            // [0] Turf, [1] Dirt, [2] Sprint, [3] Mile, [4] Middle, [5] Long, 
+            // [6] Runner, [7] Leader, [8] Betweener, [9] Chaser
             grades.forEach((grade, index) => {
                 if (index < 10) {
                     grade.textContent = selectedCharacter.aptitude[index];
@@ -7263,7 +7265,11 @@ function updateCharacterDisplay() {
 function updateCharacterSkills(characterData) {
     // Update innate skills
     const innateSkills = document.querySelectorAll('.character-skills-column:nth-child(1) .character-skill');
-    if (characterData.skills_innate) {
+    if (characterData.skills_innate && innateSkills.length > 0) {
+        // Clear existing content
+        innateSkills.forEach(skill => skill.textContent = '');
+        
+        // Fill with actual skill IDs
         characterData.skills_innate.forEach((skillId, index) => {
             if (innateSkills[index]) {
                 innateSkills[index].textContent = `Skill ${skillId}`;
@@ -7274,7 +7280,11 @@ function updateCharacterSkills(characterData) {
     
     // Update awakening skills
     const awakeningSkills = document.querySelectorAll('.character-skills-column:nth-child(2) .character-skill');
-    if (characterData.skills_awakening) {
+    if (characterData.skills_awakening && awakeningSkills.length > 0) {
+        // Clear existing content
+        awakeningSkills.forEach(skill => skill.textContent = '');
+        
+        // Fill with actual skill IDs
         characterData.skills_awakening.forEach((skillId, index) => {
             if (awakeningSkills[index]) {
                 awakeningSkills[index].textContent = `Skill ${skillId}`;
@@ -7284,7 +7294,11 @@ function updateCharacterSkills(characterData) {
     
     // Update event skills
     const eventSkills = document.querySelectorAll('.character-skills-column:nth-child(3) .character-skill');
-    if (characterData.skills_event) {
+    if (characterData.skills_event && eventSkills.length > 0) {
+        // Clear existing content
+        eventSkills.forEach(skill => skill.textContent = '');
+        
+        // Fill with actual skill IDs
         characterData.skills_event.forEach((skillId, index) => {
             if (eventSkills[index]) {
                 eventSkills[index].textContent = `Skill ${skillId}`;
