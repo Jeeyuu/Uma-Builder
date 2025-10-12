@@ -2310,6 +2310,19 @@ body.dark-mode .character-picker-empty-box.has-character {
   align-items: stretch;
 }
 
+/* Character display info line */
+.character-display-info {
+    font-size: 10px;
+    color: #666;
+    text-align: center;
+    margin-top: 2px;
+    font-weight: 600;
+}
+
+body.dark-mode .character-display-info {
+    color: #aaa;
+}
+
 </style>
 
 </head>
@@ -2824,7 +2837,7 @@ body.dark-mode .character-picker-empty-box.has-character {
               <option value="bonus_guts">Guts bonus</option>
               <option value="bonus_int">Wit bonus</option>
               <option disabled=""></option>
-              <option disabled="">— Stats —</option>
+              <!-- <option disabled="">— Stats —</option>
               <option value="base_speed">Base speed</option>
               <option value="base_stamina">Base stamina</option>
               <option value="base_power">Base power</option>
@@ -2834,7 +2847,7 @@ body.dark-mode .character-picker-empty-box.has-character {
               <option value="5_stamina">5⭐ Stamina</option>
               <option value="5_power">5⭐ Power</option>
               <option value="5_guts">5⭐ Guts</option>
-              <option value="5_int">5⭐ Wit</option>
+              <option value="5_int">5⭐ Wit</option> -->
             </select>
             <button class="sort-order-btn ascending" id="characterSortOrder">↑</button>
           </div>
@@ -7222,14 +7235,26 @@ function isCharacterAvailableInRegion(characterData) {
     }
 }
 
-// Update applyRegionFilter to use current region
+// Update the applyRegionFilter to be more strict
 function applyRegionFilter() {
     if (!characters || characters.length === 0) return;
     
     const currentRegion = getCurrentRegion();
-    const filteredCharacters = characters.filter(character => 
-        isCharacterAvailableInRegion(character.originalData)
-    );
+    
+    // Filter characters based on region - only show characters with release_en for global
+    const filteredCharacters = characters.filter(character => {
+        if (currentRegion === 'global') {
+            // For global, character must have a release_en date and it shouldn't be empty
+            return character.originalData.release_en && 
+                   character.originalData.release_en !== '' && 
+                   character.originalData.release_en !== 'Unknown';
+        } else {
+            // For Japan, character must have a release date
+            return character.originalData.release && 
+                   character.originalData.release !== '' && 
+                   character.originalData.release !== 'Unknown';
+        }
+    });
     
     // Apply current search and sort to filtered results
     const searchTerm = characterSearch ? characterSearch.value.toLowerCase() : '';
@@ -7382,7 +7407,7 @@ function getSkillNameById(skillId) {
 }
 
 
-// Update the initCharacterPicker to wait for skills data if needed
+// Update the initCharacterPicker function to set default sort
 function initCharacterPicker() {
     // Wait a bit for skills data to load if it's not ready yet
     if (!skillsData || skillsData.length === 0) {
@@ -7390,6 +7415,12 @@ function initCharacterPicker() {
         setTimeout(initCharacterPicker, 500);
         return;
     }
+    
+    // Set default sort to Release Date Descending
+    characterSort.value = 'implemented';
+    characterSortOrder.textContent = '↓';
+    characterSortOrder.classList.remove('ascending');
+    isAscending = false;
     
     // Load character data
     loadCharacterData();
@@ -7425,7 +7456,6 @@ function initCharacterPicker() {
     console.log('Character picker initialized with skills data');
 }
 
-
 // Open character picker modal
 function openCharacterPicker() {
     characterPickerModal.classList.add('active');
@@ -7440,7 +7470,7 @@ function closeCharacterPicker() {
     characterPickerModal.classList.remove('active');
 }
 
-// Populate character grid with character cards
+// Update the populateCharacterGrid function to show additional info
 function populateCharacterGrid(charactersToShow) {
     characterGrid.innerHTML = '';
     
@@ -7452,16 +7482,65 @@ function populateCharacterGrid(charactersToShow) {
     charactersToShow.forEach(character => {
         const characterCard = document.createElement('div');
         characterCard.className = 'character-card';
+        
+        // Get display info based on current sort
+        const displayInfo = getCharacterDisplayInfo(character);
+        
         characterCard.innerHTML = `
             <img src="${character.portrait}" alt="${character.name}" class="character-portrait" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
             <div class="character-name">${character.name}</div>
             <div class="character-rarity">${character.rarity}</div>
             <div class="character-title">${character.title}</div>
+            ${displayInfo ? `<div class="character-display-info">${displayInfo}</div>` : ''}
         `;
         
         characterCard.addEventListener('click', () => selectCharacter(character));
         characterGrid.appendChild(characterCard);
     });
+}
+
+// Add function to get display info based on current sort
+function getCharacterDisplayInfo(character) {
+    const sortBy = characterSort.value;
+    
+    switch(sortBy) {
+        case 'turf':
+            return `Turf: ${character.aptitude[0]}`;
+        case 'dirt':
+            return `Dirt: ${character.aptitude[1]}`;
+        case 'sprint':
+            return `Sprint: ${character.aptitude[2]}`;
+        case 'mile':
+            return `Mile: ${character.aptitude[3]}`;
+        case 'middle':
+            return `Middle: ${character.aptitude[4]}`;
+        case 'long':
+            return `Long: ${character.aptitude[5]}`;
+        case 'runner':
+            return `Runner: ${character.aptitude[6]}`;
+        case 'leader':
+            return `Leader: ${character.aptitude[7]}`;
+        case 'betweener':
+            return `Betweener: ${character.aptitude[8]}`;
+        case 'chaser':
+            return `Chaser: ${character.aptitude[9]}`;
+        case 'bonus_speed':
+            return `Speed: ${character.stat_bonus[0]}%`;
+        case 'bonus_stamina':
+            return `Stamina: ${character.stat_bonus[1]}%`;
+        case 'bonus_power':
+            return `Power: ${character.stat_bonus[2]}%`;
+        case 'bonus_guts':
+            return `Guts: ${character.stat_bonus[3]}%`;
+        case 'bonus_int':
+            return `Wit: ${character.stat_bonus[4]}%`;
+        case 'implemented':
+            const currentRegion = getCurrentRegion();
+            const releaseDate = currentRegion === 'global' ? character.originalData.release_en : character.originalData.release;
+            return formatDateForDisplay(releaseDate);
+        default:
+            return null;
+    }
 }
 
 // Select a character
@@ -7558,13 +7637,19 @@ function toggleSortOrder() {
     populateCharacterGrid(sortedCharacters);
 }
 
-// Helper function to sort character list
+// Update the sortCharacterList function for secondary sorting
 function sortCharacterList(characterList) {
     const sortBy = characterSort.value;
     const order = isAscending ? 1 : -1;
     
     return [...characterList].sort((a, b) => {
         let aValue, bValue;
+        let aSecondary, bSecondary;
+        
+        // Get release date for secondary sorting (latest first)
+        const currentRegion = getCurrentRegion();
+        aSecondary = currentRegion === 'global' ? a.originalData.release_en : a.originalData.release;
+        bSecondary = currentRegion === 'global' ? b.originalData.release_en : b.originalData.release;
         
         switch(sortBy) {
             case 'name':
@@ -7585,7 +7670,7 @@ function sortCharacterList(characterList) {
                 aValue = a.card_id;
                 bValue = b.card_id;
                 break;
-            // Aptitude sorting
+            // Aptitude sorting with secondary release date sort
             case 'turf':
                 aValue = getAptitudeValue(a.aptitude[0]);
                 bValue = getAptitudeValue(b.aptitude[0]);
@@ -7626,7 +7711,7 @@ function sortCharacterList(characterList) {
                 aValue = getAptitudeValue(a.aptitude[9]);
                 bValue = getAptitudeValue(b.aptitude[9]);
                 break;
-            // Stat bonus sorting
+            // Stat bonus sorting with secondary release date sort
             case 'bonus_speed':
                 aValue = a.stat_bonus[0];
                 bValue = b.stat_bonus[0];
@@ -7652,9 +7737,23 @@ function sortCharacterList(characterList) {
                 bValue = b.name;
         }
         
+        // Primary sort
         if (aValue < bValue) return -1 * order;
         if (aValue > bValue) return 1 * order;
-        return 0;
+        
+        // Secondary sort by release date (latest first)
+        try {
+            const aDate = new Date(aSecondary);
+            const bDate = new Date(bSecondary);
+            
+            if (isNaN(aDate.getTime()) && !isNaN(bDate.getTime())) return 1;
+            if (!isNaN(aDate.getTime()) && isNaN(bDate.getTime())) return -1;
+            if (isNaN(aDate.getTime()) && isNaN(bDate.getTime())) return 0;
+            
+            return bDate - aDate; // Latest first
+        } catch (e) {
+            return 0;
+        }
     });
 }
 
