@@ -7295,6 +7295,7 @@ function handleRegionChange() {
 }
 
 // Update the updateCharacterSkills function to swap positions
+// Update the updateCharacterSkills to handle showing/hiding
 function updateCharacterSkills(characterData) {
     const currentRegion = getCurrentRegion();
     
@@ -7308,6 +7309,9 @@ function updateCharacterSkills(characterData) {
         eventSkillsToUse = characterData.skills_event || [];
     }
     
+    // Show the skills section when we have a character
+    showSkillsSection();
+    
     // SWAPPED: Update awakening skills first (now in first column)
     updateSkillColumn('.character-skills-column:nth-child(1)', 'Awakening Skills', characterData.skills_awakening);
     
@@ -7318,19 +7322,13 @@ function updateCharacterSkills(characterData) {
     updateSkillColumn('.character-skills-column:nth-child(3)', 'Event Skills', eventSkillsToUse);
 }
 
-// Update the updateSkillColumn function to remove the extra class
+// Update the updateSkillColumn to handle empty columns better
 function updateSkillColumn(columnSelector, headerText, skillIds) {
     const column = document.querySelector(columnSelector);
     if (!column) return;
     
     // Clear existing content
     column.innerHTML = '';
-    
-    // Add header
-    const header = document.createElement('div');
-    header.className = 'character-skills-header';
-    header.textContent = headerText;
-    column.appendChild(header);
     
     // If no skills, hide the entire column
     if (!skillIds || skillIds.length === 0) {
@@ -7341,10 +7339,16 @@ function updateSkillColumn(columnSelector, headerText, skillIds) {
     // Show the column
     column.style.display = 'flex';
     
+    // Add header
+    const header = document.createElement('div');
+    header.className = 'character-skills-header';
+    header.textContent = headerText;
+    column.appendChild(header);
+    
     // Create skill boxes based on the number of skills
     skillIds.forEach((skillId, index) => {
         const skillElement = document.createElement('div');
-        skillElement.className = 'character-skill'; // Removed character-skill-text class
+        skillElement.className = 'character-skill character-skill-text';
         
         const skillName = getSkillNameById(skillId);
         skillElement.textContent = skillName;
@@ -7365,34 +7369,18 @@ function updateSkillColumn(columnSelector, headerText, skillIds) {
     }
 }
 
-// Update the resetCharacterSkills function to match swapped order
+// Update the resetCharacterSkills to create completely empty columns
 function resetCharacterSkills() {
     const columns = document.querySelectorAll('.character-skills-column');
     
     columns.forEach((column, index) => {
-        // Clear existing content
+        // Clear existing content but don't add any headers or boxes
         column.innerHTML = '';
-        
-        // SWAPPED ORDER: Awakening, Innate, Event
-        const skillTypes = ['Awakening Skills', 'Innate Skills', 'Event Skills'];
-        
-        // Add header
-        const header = document.createElement('div');
-        header.className = 'character-skills-header';
-        header.textContent = skillTypes[index];
-        column.appendChild(header);
-        
-        // Add 3 blank boxes
-        for (let i = 0; i < 3; i++) {
-            const skillElement = document.createElement('div');
-            skillElement.className = 'character-skill character-skill-text';
-            skillElement.textContent = ''; // Empty instead of placeholder text
-            column.appendChild(skillElement);
-        }
-        
-        // Show the column
-        column.style.display = 'flex';
+        column.style.display = 'none';
     });
+    
+    // Hide the entire skills section
+    hideSkillsSection();
 }
 
 function getSkillNameById(skillId) {
@@ -7422,6 +7410,7 @@ function getSkillNameById(skillId) {
 
 
 // Update the initCharacterPicker to load saved character
+// Update initCharacterPicker to start with hidden skills
 function initCharacterPicker() {
     // Wait a bit for skills data to load if it's not ready yet
     if (!skillsData || skillsData.length === 0) {
@@ -7435,6 +7424,9 @@ function initCharacterPicker() {
     characterSortOrder.textContent = '↓';
     characterSortOrder.classList.remove('ascending');
     isAscending = false;
+    
+    // Start with skills hidden
+    hideSkillsSection();
     
     // Load character data
     loadCharacterData();
@@ -7562,14 +7554,51 @@ function getCharacterDisplayInfo(character) {
     }
 }
 
-// Select a character
+// Update the selectCharacter function to allow deselection
 function selectCharacter(character) {
+    // If clicking the same character, deselect it
+    if (selectedCharacter && selectedCharacter.card_id === character.card_id) {
+        selectedCharacter = null;
+        updateCharacterDisplay();
+        closeCharacterPicker();
+        return;
+    }
+    
     selectedCharacter = character;
     updateCharacterDisplay();
     closeCharacterPicker();
 }
 
+// Add function to hide skills section completely
+function hideSkillsSection() {
+    const skillsSection = document.querySelector('.character-skills-section');
+    if (skillsSection) {
+        skillsSection.style.display = 'none';
+    }
+    
+    // Also hide the skills headers and all skill boxes
+    const skillColumns = document.querySelectorAll('.character-skills-column');
+    skillColumns.forEach(column => {
+        column.style.display = 'none';
+    });
+}
+
+// Add function to show skills section
+function showSkillsSection() {
+    const skillsSection = document.querySelector('.character-skills-section');
+    if (skillsSection) {
+        skillsSection.style.display = 'grid';
+    }
+    
+    // Show all skill columns
+    const skillColumns = document.querySelectorAll('.character-skills-column');
+    skillColumns.forEach(column => {
+        column.style.display = 'flex';
+    });
+}
+
 // Update the updateCharacterDisplay function
+// Update the aptitude display in updateCharacterDisplay
 function updateCharacterDisplay() {
     if (selectedCharacter) {
         // Update the empty box to show selected character
@@ -7597,13 +7626,14 @@ function updateCharacterDisplay() {
             });
         }
         
-        // Update aptitude grades - show "-" for defaults
+        // Update aptitude grades - ALWAYS show letter grades, never "-"
         const grades = document.querySelectorAll('.character-picker-grade');
         if (selectedCharacter.aptitude && selectedCharacter.aptitude.length >= 10) {
             grades.forEach((grade, index) => {
                 if (index < 10) {
                     const aptitudeValue = selectedCharacter.aptitude[index];
-                    grade.textContent = aptitudeValue && aptitudeValue !== 'A' ? aptitudeValue : '-';
+                    // Always show the aptitude value, even if it's "A"
+                    grade.textContent = aptitudeValue || '-';
                 }
             });
         }
@@ -7620,12 +7650,12 @@ function updateCharacterDisplay() {
         characterPickerName.textContent = 'Character Name';
         characterPickerCostume.textContent = 'Character Costume';
         
-        // Reset percentages and grades to "-"
+        // Reset percentages to "-" and grades to actual values if available
         document.querySelectorAll('.character-picker-percentage').forEach(p => p.textContent = '-');
-        document.querySelectorAll('.character-picker-grade').forEach(g => g.textContent = '-');
+        // Don't reset grades to "-" - they should show actual values from character data
         
-        // Reset skills to blank
-        resetCharacterSkills();
+        // Hide skills section completely when no character
+        hideSkillsSection();
         
         // Clear saved character
         localStorage.removeItem('selectedCharacter');
