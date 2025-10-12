@@ -3034,7 +3034,7 @@ function getSkillNameById(skillId) {
             skillName = skill.name_en || skill.enname || skill.jpname || `Skill ${skillId}`;
         } else {
             // For Japan: jpname first, then fall back to English names
-            skillName = skill.jpname || skill.name_en || skill.enname || `Skill ${skillId}`;
+            skillName = skill.name_en || skill.enname || skill.jpname || `Skill ${skillId}`;
         }
         
         // Remove symbols like ○, ◎, etc.
