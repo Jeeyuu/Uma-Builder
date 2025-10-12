@@ -2550,10 +2550,12 @@ body.dark-mode .character-picker-empty-box.has-character {
 
         <div class="skill-search-divider"></div>
 
-        <!-- Character Information -->
+        <!-- Character Picker Section in Right Sidebar -->
         <div class="character-picker-section">
           <div class="character-picker-left-column">
-            <div class="character-picker-empty-box"></div>
+            <div class="character-picker-empty-box" id="characterPickerBox">
+              <div class="character-picker-empty-text">Empty</div>
+            </div>
             <div class="character-picker-info">
               <div class="character-picker-name">Character Name</div>
               <div class="character-picker-costume">Character Costume</div>
@@ -2746,6 +2748,67 @@ body.dark-mode .character-picker-empty-box.has-character {
       </div>
     </div>
   </div>
+
+      <!-- Character Picker Modal -->
+    <div class="character-picker-modal" id="characterPickerModal">
+      <div class="character-picker-container">
+        <div class="character-picker-header">
+          <div class="character-picker-title">Select Character</div>
+          <button class="character-picker-close" id="characterPickerClose">×</button>
+        </div>
+        <div class="character-picker-controls">
+          <div class="character-search-container">
+            <input type="text" id="characterSearch" class="character-search" placeholder="Search by name or title">
+          </div>
+          <div class="sort-controls">
+            <select id="characterSort" class="sort-select">
+              <option value="name">Name</option>
+              <option value="rarity">Rarity</option>
+              <option value="implemented">Release date</option>
+              <option value="id">Game ID number</option>
+              <option disabled=""></option>
+              <option disabled="">— Aptitude —</option>
+              <option value="turf">Turf aptitude</option>
+              <option value="dirt">Dirt aptitude</option>
+              <option value="sprint">Short aptitude</option>
+              <option value="mile">Mile aptitude</option>
+              <option value="middle">Medium aptitude</option>
+              <option value="long">Long aptitude</option>
+              <option value="runner">Front aptitude</option>
+              <option value="leader">Pace aptitude</option>
+              <option value="betweener">Late aptitude</option>
+              <option value="chaser">End aptitude</option>
+              <option disabled=""></option>
+              <option disabled="">— Stat bonuses —</option>
+              <option value="bonus_speed">Speed bonus</option>
+              <option value="bonus_stamina">Stamina bonus</option>
+              <option value="bonus_power">Power bonus</option>
+              <option value="bonus_guts">Guts bonus</option>
+              <option value="bonus_int">Wit bonus</option>
+              <option disabled=""></option>
+              <option disabled="">— Stats —</option>
+              <option value="base_speed">Base speed</option>
+              <option value="base_stamina">Base stamina</option>
+              <option value="base_power">Base power</option>
+              <option value="base_guts">Base guts</option>
+              <option value="base_int">Base wit</option>
+              <option value="5_speed">5⭐ Speed</option>
+              <option value="5_stamina">5⭐ Stamina</option>
+              <option value="5_power">5⭐ Power</option>
+              <option value="5_guts">5⭐ Guts</option>
+              <option value="5_int">5⭐ Wit</option>
+            </select>
+            <button class="sort-order-btn ascending" id="characterSortOrder">↑</button>
+          </div>
+        </div>
+        <div class="character-picker-content">
+          <div class="character-grid" id="characterGrid">
+            <!-- Character cards will be populated here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 
 <script>
@@ -2760,6 +2823,7 @@ let cardsData = [];
 let skillsData = [];
 let presetRaceNumbers = new Map();
 let supportsDataWithEffects = [];
+let characters = [];
 
 const cardSections = document.getElementById('cardSections');
 const slotContainers = Array.from(document.querySelectorAll('.slot-container'));
@@ -2769,6 +2833,15 @@ const clearFiltersBtn = document.getElementById('clearFiltersBtn');
 const selectedCardIds = new Set();
 const sectionPages = new Map();
 const slotListeners = new Map();
+const characterPickerBox = document.getElementById('characterPickerBox');
+const characterPickerModal = document.getElementById('characterPickerModal');
+const characterPickerClose = document.getElementById('characterPickerClose');
+const characterSearch = document.getElementById('characterSearch');
+const characterSort = document.getElementById('characterSort');
+const characterSortOrder = document.getElementById('characterSortOrder');
+const characterGrid = document.getElementById('characterGrid');
+const characterPickerName = document.querySelector('.character-picker-name');
+const characterPickerCostume = document.querySelector('.character-picker-costume');
 const SLOT_KEY = 'saved_slots';
 const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
 let SKILL_SEARCH_KEYS = [];
@@ -2787,9 +2860,12 @@ let hideUncolored = false;
 let sortBy = 'rarity';
 let sortOrder = 'descending';
 let region = 'global';
+let selectedCharacter = null;
+let isAscending = true;
 
 const slotLevels = JSON.parse(localStorage.getItem('slotLevels')) || {};
 const MAX_LEVELS = { 'R': 40, 'SR': 45, 'SSR': 50 };
+
 
 function saveCardLevel(supportId, level) {
     if (supportId) {
@@ -2841,6 +2917,37 @@ async function discoverDataFiles() {
     throw new Error('Could not find required data files.');
 }
 
+// Load character data from your JSON file
+async function loadCharacterData() {
+    try {
+        const response = await fetch('data/characters.json');
+        const data = await response.json();
+        
+        // Transform the data to match our expected format
+        characters = Object.values(data).map(char => ({
+            id: char.card_id,
+            char_id: char.char_id,
+            card_id: char.card_id,
+            name: char.name_en || 'Unknown',
+            title: char.title || char.title_en_gl || 'No Title',
+            rarity: getRarityText(char.rarity),
+            portrait: getCharacterPortrait(char.char_id, char.card_id),
+            implemented: char.release || char.release_en || 'Unknown',
+            stat_bonus: char.stat_bonus || [0, 0, 0, 0, 0],
+            aptitude: char.aptitude || [],
+            // Store the original data for advanced sorting
+            originalData: char
+        }));
+        
+        // Populate character grid with all characters
+        populateCharacterGrid(characters);
+    } catch (error) {
+        console.error('Error loading character data:', error);
+        // Show error message
+        characterGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">Error loading character data</div>';
+    }
+  }
+
 function getSkillName(skillId) {
     if (!skillsData || skillsData.length === 0) {
         return `Skill ${skillId}`;
@@ -2871,6 +2978,22 @@ function getSkillDescription(skillId) {
     }
     
     return '';
+}
+
+// Helper function to convert rarity number to text
+function getRarityText(rarity) {
+    switch(rarity) {
+        case 3: return "SSR";
+        case 2: return "SR";
+        case 1: return "R";
+        default: return "Unknown";
+    }
+}
+
+// Helper function to get character portrait URL using your formula
+function getCharacterPortrait(charId, cardId) {
+    // Format: https://gametora.com/images/umamusume/characters/chara_stand_{char_id}_{card_id}.png
+    return `https://gametora.com/images/umamusume/characters/chara_stand_${charId}_${cardId}.png`;
 }
 
 function processSupportCardData(supportCards, skills) {
@@ -7031,8 +7154,293 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     };
   }
+  document.addEventListener('DOMContentLoaded', setupCopyPasteButtons);
 
-document.addEventListener('DOMContentLoaded', setupCopyPasteButtons);
+
+/* ------------- FUNCTION CHARACTER PICKER MODAL ------------- */
+// Open character picker modal
+function openCharacterPicker() {
+    characterPickerModal.classList.add('active');
+    // Focus on search input when modal opens
+    setTimeout(() => {
+        characterSearch.focus();
+    }, 100);
+}
+
+// Close character picker modal
+function closeCharacterPicker() {
+    characterPickerModal.classList.remove('active');
+}
+
+// Populate character grid with character cards
+function populateCharacterGrid(charactersToShow) {
+    characterGrid.innerHTML = '';
+    
+    if (charactersToShow.length === 0) {
+        characterGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">No characters found</div>';
+        return;
+    }
+    
+    charactersToShow.forEach(character => {
+        const characterCard = document.createElement('div');
+        characterCard.className = 'character-card';
+        characterCard.innerHTML = `
+            <img src="${character.portrait}" alt="${character.name}" class="character-portrait" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
+            <div class="character-name">${character.name}</div>
+            <div class="character-rarity">${character.rarity}</div>
+            <div class="character-title">${character.title}</div>
+        `;
+        
+        characterCard.addEventListener('click', () => selectCharacter(character));
+        characterGrid.appendChild(characterCard);
+    });
+}
+
+// Select a character
+function selectCharacter(character) {
+    selectedCharacter = character;
+    updateCharacterDisplay();
+    closeCharacterPicker();
+}
+
+// Update the character display in the right sidebar
+function updateCharacterDisplay() {
+    if (selectedCharacter) {
+        // Update the empty box to show selected character
+        characterPickerBox.classList.add('has-character');
+        characterPickerBox.innerHTML = `
+            <img src="${selectedCharacter.portrait}" alt="${selectedCharacter.name}" class="selected-character-portrait" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
+            <div class="selected-character-info">
+                <div class="selected-character-name">${selectedCharacter.name}</div>
+                <div class="selected-character-title">${selectedCharacter.title}</div>
+            </div>
+        `;
+        
+        // Update character info
+        characterPickerName.textContent = selectedCharacter.name;
+        characterPickerCostume.textContent = selectedCharacter.title;
+        
+        // Update aptitude percentages (using stat_bonus from your JSON)
+        const percentages = document.querySelectorAll('.character-picker-percentage');
+        if (selectedCharacter.stat_bonus && selectedCharacter.stat_bonus.length >= 5) {
+            percentages.forEach((percentage, index) => {
+                if (index < 5) {
+                    percentage.textContent = `${selectedCharacter.stat_bonus[index]}%`;
+                }
+            });
+        }
+        
+        // Update aptitude grades
+        const grades = document.querySelectorAll('.character-picker-grade');
+        if (selectedCharacter.aptitude && selectedCharacter.aptitude.length >= 10) {
+            // Aptitude order: [turf, dirt, sprint, mile, middle, long, runner, leader, betweener, chaser]
+            grades.forEach((grade, index) => {
+                if (index < 10) {
+                    grade.textContent = selectedCharacter.aptitude[index];
+                }
+            });
+        }
+        
+        // Update character skills if you have that data
+        updateCharacterSkills(selectedCharacter.originalData);
+    } else {
+        // Reset to empty state
+        characterPickerBox.classList.remove('has-character');
+        characterPickerBox.innerHTML = '<div class="character-picker-empty-text">Empty</div>';
+        characterPickerName.textContent = 'Character Name';
+        characterPickerCostume.textContent = 'Character Costume';
+        
+        // Reset percentages and grades
+        document.querySelectorAll('.character-picker-percentage').forEach(p => p.textContent = '20%');
+        document.querySelectorAll('.character-picker-grade').forEach(g => g.textContent = 'A');
+        
+        // Reset skills
+        resetCharacterSkills();
+    }
+}
+
+// Update character skills display
+function updateCharacterSkills(characterData) {
+    // Update innate skills
+    const innateSkills = document.querySelectorAll('.character-skills-column:nth-child(1) .character-skill');
+    if (characterData.skills_innate) {
+        characterData.skills_innate.forEach((skillId, index) => {
+            if (innateSkills[index]) {
+                innateSkills[index].textContent = `Skill ${skillId}`;
+                // In a real implementation, you'd look up the skill name by ID
+            }
+        });
+    }
+    
+    // Update awakening skills
+    const awakeningSkills = document.querySelectorAll('.character-skills-column:nth-child(2) .character-skill');
+    if (characterData.skills_awakening) {
+        characterData.skills_awakening.forEach((skillId, index) => {
+            if (awakeningSkills[index]) {
+                awakeningSkills[index].textContent = `Skill ${skillId}`;
+            }
+        });
+    }
+    
+    // Update event skills
+    const eventSkills = document.querySelectorAll('.character-skills-column:nth-child(3) .character-skill');
+    if (characterData.skills_event) {
+        characterData.skills_event.forEach((skillId, index) => {
+            if (eventSkills[index]) {
+                eventSkills[index].textContent = `Skill ${skillId}`;
+            }
+        });
+    }
+}
+
+// Reset character skills to placeholder
+function resetCharacterSkills() {
+    const skills = document.querySelectorAll('.character-skill');
+    skills.forEach((skill, index) => {
+        const column = Math.floor(index / 3) + 1;
+        const skillNum = (index % 3) + 1;
+        skill.textContent = `${['Innate', 'Awakening', 'Event'][column - 1]} Skill ${skillNum}`;
+    });
+}
+
+// Filter characters based on search input
+function filterCharacters() {
+    const searchTerm = characterSearch.value.toLowerCase();
+    const filteredCharacters = characters.filter(character => 
+        character.name.toLowerCase().includes(searchTerm) || 
+        character.title.toLowerCase().includes(searchTerm)
+    );
+    
+    // Apply current sort to filtered results
+    const sortedCharacters = sortCharacterList(filteredCharacters);
+    populateCharacterGrid(sortedCharacters);
+}
+
+// Sort characters based on selected criteria
+function sortCharacters() {
+    const sortedCharacters = sortCharacterList(characters);
+    populateCharacterGrid(sortedCharacters);
+}
+
+// Toggle sort order
+function toggleSortOrder() {
+    isAscending = !isAscending;
+    characterSortOrder.textContent = isAscending ? '↑' : '↓';
+    characterSortOrder.classList.toggle('ascending', isAscending);
+    
+    const sortedCharacters = sortCharacterList(characters);
+    populateCharacterGrid(sortedCharacters);
+}
+
+// Helper function to sort character list
+function sortCharacterList(characterList) {
+    const sortBy = characterSort.value;
+    const order = isAscending ? 1 : -1;
+    
+    return [...characterList].sort((a, b) => {
+        let aValue, bValue;
+        
+        switch(sortBy) {
+            case 'name':
+                aValue = a.name;
+                bValue = b.name;
+                break;
+            case 'rarity':
+                // Convert rarity to numerical value for proper sorting
+                const rarityValues = { 'SSR': 3, 'SR': 2, 'R': 1, 'Unknown': 0 };
+                aValue = rarityValues[a.rarity] || 0;
+                bValue = rarityValues[b.rarity] || 0;
+                break;
+            case 'implemented':
+                aValue = new Date(a.implemented);
+                bValue = new Date(b.implemented);
+                break;
+            case 'id':
+                aValue = a.card_id;
+                bValue = b.card_id;
+                break;
+            // Aptitude sorting
+            case 'turf':
+                aValue = getAptitudeValue(a.aptitude[0]);
+                bValue = getAptitudeValue(b.aptitude[0]);
+                break;
+            case 'dirt':
+                aValue = getAptitudeValue(a.aptitude[1]);
+                bValue = getAptitudeValue(b.aptitude[1]);
+                break;
+            case 'sprint':
+                aValue = getAptitudeValue(a.aptitude[2]);
+                bValue = getAptitudeValue(b.aptitude[2]);
+                break;
+            case 'mile':
+                aValue = getAptitudeValue(a.aptitude[3]);
+                bValue = getAptitudeValue(b.aptitude[3]);
+                break;
+            case 'middle':
+                aValue = getAptitudeValue(a.aptitude[4]);
+                bValue = getAptitudeValue(b.aptitude[4]);
+                break;
+            case 'long':
+                aValue = getAptitudeValue(a.aptitude[5]);
+                bValue = getAptitudeValue(b.aptitude[5]);
+                break;
+            case 'runner':
+                aValue = getAptitudeValue(a.aptitude[6]);
+                bValue = getAptitudeValue(b.aptitude[6]);
+                break;
+            case 'leader':
+                aValue = getAptitudeValue(a.aptitude[7]);
+                bValue = getAptitudeValue(b.aptitude[7]);
+                break;
+            case 'betweener':
+                aValue = getAptitudeValue(a.aptitude[8]);
+                bValue = getAptitudeValue(b.aptitude[8]);
+                break;
+            case 'chaser':
+                aValue = getAptitudeValue(a.aptitude[9]);
+                bValue = getAptitudeValue(b.aptitude[9]);
+                break;
+            // Stat bonus sorting
+            case 'bonus_speed':
+                aValue = a.stat_bonus[0];
+                bValue = b.stat_bonus[0];
+                break;
+            case 'bonus_stamina':
+                aValue = a.stat_bonus[1];
+                bValue = b.stat_bonus[1];
+                break;
+            case 'bonus_power':
+                aValue = a.stat_bonus[2];
+                bValue = b.stat_bonus[2];
+                break;
+            case 'bonus_guts':
+                aValue = a.stat_bonus[3];
+                bValue = b.stat_bonus[3];
+                break;
+            case 'bonus_int':
+                aValue = a.stat_bonus[4];
+                bValue = b.stat_bonus[4];
+                break;
+            default:
+                aValue = a.name;
+                bValue = b.name;
+        }
+        
+        if (aValue < bValue) return -1 * order;
+        if (aValue > bValue) return 1 * order;
+        return 0;
+    });
+}
+
+// Helper function to convert aptitude letter to numerical value for sorting
+function getAptitudeValue(aptitude) {
+    const values = { 'S': 5, 'A': 4, 'B': 3, 'C': 2, 'D': 1, 'E': 0, 'F': -1, 'G': -2 };
+    return values[aptitude] || -3;
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', initCharacterPicker);
+
 </script>
 </body>
 </html>
