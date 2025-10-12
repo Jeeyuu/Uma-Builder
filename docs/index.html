@@ -2283,12 +2283,8 @@ body.dark-mode .character-picker-empty-box.has-character {
 
 /* Remove the character-skill-text class and integrate its properties */
 .character-skill {
-  display: box;                   /* Very old browsers */
-  line-clamp: 2;                  /* Standard property - modern browsers */
-  box-orient: vertical;           /* Very old browsers */
   overflow: hidden;
   text-overflow: ellipsis;
-  /* Keep the existing properties */
   width: 100%;
   background: #eef2ff;
   border-radius: 4px;
@@ -2821,7 +2817,7 @@ body.dark-mode .character-display-info {
               <option disabled="">— Aptitude —</option>
               <option value="turf">Turf aptitude</option>
               <option value="dirt">Dirt aptitude</option>
-              <option value="sprint">Short aptitude</option>
+<option value="sprint">Sprint Aptitude</option>
               <option value="mile">Mile aptitude</option>
               <option value="middle">Medium aptitude</option>
               <option value="long">Long aptitude</option>
@@ -7510,7 +7506,7 @@ function populateCharacterGrid(charactersToShow) {
     });
 }
 
-// Add function to get display info based on current sort
+// Update the getCharacterDisplayInfo function to use new labels
 function getCharacterDisplayInfo(character) {
     const sortBy = characterSort.value;
     
@@ -7520,21 +7516,21 @@ function getCharacterDisplayInfo(character) {
         case 'dirt':
             return `Dirt: ${character.aptitude[1]}`;
         case 'sprint':
-            return `Sprint: ${character.aptitude[2]}`;
+            return `Sprint: ${character.aptitude[2]}`; // Changed from Short
         case 'mile':
             return `Mile: ${character.aptitude[3]}`;
         case 'middle':
-            return `Middle: ${character.aptitude[4]}`;
+            return `Medium: ${character.aptitude[4]}`; // Changed from Middle
         case 'long':
             return `Long: ${character.aptitude[5]}`;
         case 'runner':
-            return `Runner: ${character.aptitude[6]}`;
+            return `Front: ${character.aptitude[6]}`; // Changed from Runner
         case 'leader':
-            return `Leader: ${character.aptitude[7]}`;
+            return `Pace: ${character.aptitude[7]}`; // Changed from Leader
         case 'betweener':
-            return `Betweener: ${character.aptitude[8]}`;
+            return `Late: ${character.aptitude[8]}`; // Changed from Betweener
         case 'chaser':
-            return `Chaser: ${character.aptitude[9]}`;
+            return `End: ${character.aptitude[9]}`; // Changed from Chaser
         case 'bonus_speed':
             return `Speed: ${character.stat_bonus[0]}%`;
         case 'bonus_stamina':
