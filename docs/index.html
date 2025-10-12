@@ -1403,15 +1403,6 @@ body {
   align-items: center;
 }
 
-/* --------- CHARACTER SKILLS --------- */
-.character-skills-section {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
 .character-skills-column {
   display: flex;
   flex-direction: column;
@@ -2267,7 +2258,7 @@ body.dark-mode .character-picker-empty-box.has-character {
   opacity: 0.9;
 }
 
-/* Character Skills Section - Improved Styling */
+/* Character Skills Section - Dynamic Boxes */
 .character-skills-section {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2303,25 +2294,56 @@ body.dark-mode .character-picker-empty-box.has-character {
   background: #eef2ff;
   border-radius: 4px;
   padding: 2px 4px;
-  font-size: 10px; /* Slightly smaller font */
-  word-break: break-word; /* Allow text to wrap */
-  white-space: normal; /* Allow multiple lines */
+  font-size: 10px;
+  word-break: break-word;
+  white-space: normal;
   text-align: center;
   min-height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  line-height: 1.2; /* Tighter line height */
+  line-height: 1.2;
   overflow: hidden;
   box-sizing: border-box;
 }
 
-/* Remove symbols from skill names in character picker */
+/* Remove symbols from skill names */
 .character-skill::before,
 .character-skill::after {
   content: none !important;
 }
 
+/* Hide empty skill boxes */
+.character-skill:empty {
+  display: none;
+}
+
+/* Hide entire column if no skills */
+.character-skills-column:has(.character-skill:only-child:empty) {
+  display: none;
+}
+
+/* Dark mode support */
+body.dark-mode .character-skill {
+  background: #3a3a3a;
+  color: #e0e0e0;
+}
+
+/* Right sidebar constraints */
+.right-sidebar .character-skills-section {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Skill text formatting */
+.character-skill-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  line-height: 1.2;
+}
 /* Dark mode support */
 body.dark-mode .character-skill {
   background: #3a3a3a;
@@ -2342,6 +2364,12 @@ body.dark-mode .character-skill {
   text-overflow: ellipsis;
   width: 100%;
   line-height: 1.2;
+}
+
+/* Remove symbols from skill names in character picker */
+.character-skill::before,
+.character-skill::after {
+  content: none !important;
 }
 
 </style>
@@ -7290,7 +7318,7 @@ function handleRegionChange() {
     }
 }
 
-// Update the getSkillNameById function to remove symbols
+// Update the getSkillNameById function (keep your existing one, just making sure it's here)
 function getSkillNameById(skillId) {
     if (!skillsData || skillsData.length === 0) {
         console.warn('Skills data not loaded yet for skill ID:', skillId);
@@ -7316,7 +7344,7 @@ function getSkillNameById(skillId) {
     return `Skill ${skillId}`;
 }
 
-// Update the updateCharacterSkills function to use wrapped text
+// Update the updateCharacterSkills function to dynamically manage boxes
 function updateCharacterSkills(characterData) {
     const currentRegion = getCurrentRegion();
     
@@ -7330,66 +7358,92 @@ function updateCharacterSkills(characterData) {
         eventSkillsToUse = characterData.skills_event || [];
     }
     
-    // Update innate skills with proper names
-    const innateSkills = document.querySelectorAll('.character-skills-column:nth-child(1) .character-skill');
-    if (characterData.skills_innate && innateSkills.length > 0) {
-        // Clear existing content
-        innateSkills.forEach(skill => skill.textContent = '');
-        
-        // Fill with actual skill names
-        characterData.skills_innate.forEach((skillId, index) => {
-            if (innateSkills[index]) {
-                const skillName = getSkillNameById(skillId);
-                innateSkills[index].textContent = skillName;
-                innateSkills[index].classList.add('character-skill-text');
-            }
-        });
+    // Update innate skills with dynamic box management
+    updateSkillColumn('.character-skills-column:nth-child(1)', 'Innate Skills', characterData.skills_innate);
+    
+    // Update awakening skills with dynamic box management
+    updateSkillColumn('.character-skills-column:nth-child(2)', 'Awakening Skills', characterData.skills_awakening);
+    
+    // Update event skills with dynamic box management
+    updateSkillColumn('.character-skills-column:nth-child(3)', 'Event Skills', eventSkillsToUse);
+}
+
+// New function to dynamically manage skill columns
+function updateSkillColumn(columnSelector, headerText, skillIds) {
+    const column = document.querySelector(columnSelector);
+    if (!column) return;
+    
+    // Clear existing content
+    column.innerHTML = '';
+    
+    // Add header
+    const header = document.createElement('div');
+    header.className = 'character-skills-header';
+    header.textContent = headerText;
+    column.appendChild(header);
+    
+    // If no skills, hide the entire column
+    if (!skillIds || skillIds.length === 0) {
+        column.style.display = 'none';
+        return;
     }
     
-    // Update awakening skills with proper names
-    const awakeningSkills = document.querySelectorAll('.character-skills-column:nth-child(2) .character-skill');
-    if (characterData.skills_awakening && awakeningSkills.length > 0) {
-        // Clear existing content
-        awakeningSkills.forEach(skill => skill.textContent = '');
-        
-        // Fill with actual skill names
-        characterData.skills_awakening.forEach((skillId, index) => {
-            if (awakeningSkills[index]) {
-                const skillName = getSkillNameById(skillId);
-                awakeningSkills[index].textContent = skillName;
-                awakeningSkills[index].classList.add('character-skill-text');
-            }
-        });
-    }
+    // Show the column
+    column.style.display = 'flex';
     
-    // Update event skills with region-specific data and proper names
-    const eventSkills = document.querySelectorAll('.character-skills-column:nth-child(3) .character-skill');
-    if (eventSkillsToUse.length > 0 && eventSkills.length > 0) {
-        // Clear existing content
-        eventSkills.forEach(skill => skill.textContent = '');
+    // Create skill boxes based on the number of skills
+    skillIds.forEach((skillId, index) => {
+        const skillElement = document.createElement('div');
+        skillElement.className = 'character-skill character-skill-text';
         
-        // Fill with region-specific event skill names
-        eventSkillsToUse.forEach((skillId, index) => {
-            if (eventSkills[index]) {
-                const skillName = getSkillNameById(skillId);
-                eventSkills[index].textContent = skillName;
-                eventSkills[index].classList.add('character-skill-text');
-            }
-        });
+        const skillName = getSkillNameById(skillId);
+        skillElement.textContent = skillName;
+        
+        column.appendChild(skillElement);
+    });
+    
+    // Add empty boxes if we have fewer than 3 skills (for consistent layout)
+    const currentSkillCount = skillIds.length;
+    if (currentSkillCount < 3) {
+        const emptySlotsNeeded = 3 - currentSkillCount;
+        for (let i = 0; i < emptySlotsNeeded; i++) {
+            const emptySkill = document.createElement('div');
+            emptySkill.className = 'character-skill';
+            emptySkill.style.visibility = 'hidden'; // Keep layout but make invisible
+            column.appendChild(emptySkill);
+        }
     }
 }
 
 // Update the resetCharacterSkills function
 function resetCharacterSkills() {
-    const skills = document.querySelectorAll('.character-skill');
-    skills.forEach((skill, index) => {
-        const column = Math.floor(index / 3) + 1;
-        const skillNum = (index % 3) + 1;
-        const skillType = ['Innate', 'Awakening', 'Event'][column - 1];
-        skill.textContent = `${skillType} Skill ${skillNum}`;
-        skill.classList.add('character-skill-text');
+    const columns = document.querySelectorAll('.character-skills-column');
+    
+    columns.forEach((column, index) => {
+        // Clear existing content
+        column.innerHTML = '';
+        
+        const skillTypes = ['Innate Skills', 'Awakening Skills', 'Event Skills'];
+        
+        // Add header
+        const header = document.createElement('div');
+        header.className = 'character-skills-header';
+        header.textContent = skillTypes[index];
+        column.appendChild(header);
+        
+        // Add 3 empty placeholder boxes
+        for (let i = 0; i < 3; i++) {
+            const skillElement = document.createElement('div');
+            skillElement.className = 'character-skill character-skill-text';
+            skillElement.textContent = `${skillTypes[index].replace(' Skills', '')} Skill ${i + 1}`;
+            column.appendChild(skillElement);
+        }
+        
+        // Show the column
+        column.style.display = 'flex';
     });
 }
+
 
 // Update the initCharacterPicker to wait for skills data if needed
 function initCharacterPicker() {
