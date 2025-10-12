@@ -1403,39 +1403,6 @@ body {
   align-items: center;
 }
 
-.character-skills-column {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.character-skills-header {
-  font-size: 9px;
-  font-weight: bold;
-  text-align: center;
-  background: #000;
-  color: #fff;
-  padding: 3px 0px;
-  border-radius: 0;
-  width: 100%;
-  margin: 0;
-}
-
-.character-skill {
-  width: 100%;
-  background: #eef2ff;
-  border-radius: 4px;
-  padding: 2px 0px;
-  font-size: 12px;
-  word-break: break-word;
-  white-space: normal;
-  text-align: center;
-  min-height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 /* --------- DECK NAME --------- */
 .deck-name-section {
   width: 100%;
@@ -2258,22 +2225,6 @@ body.dark-mode .character-picker-empty-box.has-character {
   opacity: 0.9;
 }
 
-/* Character Skills Section - Dynamic Boxes */
-.character-skills-section {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-.character-skills-column {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0; /* Prevent column expansion */
-}
-
 .character-skills-header {
   font-size: 9px;
   font-weight: bold;
@@ -2289,24 +2240,6 @@ body.dark-mode .character-picker-empty-box.has-character {
   text-overflow: ellipsis;
 }
 
-.character-skill {
-  width: 100%;
-  background: #eef2ff;
-  border-radius: 4px;
-  padding: 2px 4px;
-  font-size: 10px;
-  word-break: break-word;
-  white-space: normal;
-  text-align: center;
-  min-height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1.2;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
 /* Hide empty skill boxes */
 .character-skill:empty {
   display: none;
@@ -2317,16 +2250,18 @@ body.dark-mode .character-picker-empty-box.has-character {
   display: none;
 }
 
-/* Dark mode support */
-body.dark-mode .character-skill {
-  background: #3a3a3a;
-  color: #e0e0e0;
-}
-
 /* Ensure the right sidebar doesn't expand */
 .right-sidebar .character-skills-section {
   max-width: 100%;
   overflow: hidden;
+}
+
+.character-skills-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 12px;
 }
 
 /* Prevent skill text from causing layout issues */
@@ -2345,6 +2280,36 @@ body.dark-mode .character-skill {
   content: none !important;
 }
 
+/* Remove the character-skill-text class and integrate its properties */
+.character-skill {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines max */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Keep the existing properties */
+  width: 100%;
+  background: #eef2ff;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 10px;
+  word-break: break-word;
+  white-space: normal;
+  text-align: center;
+  min-height: 20px;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+/* Ensure the flex container allows proper text wrapping */
+.character-skills-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  /* Add this to ensure proper text wrapping in child elements */
+  align-items: stretch;
+}
 
 </style>
 
@@ -7316,7 +7281,7 @@ function updateCharacterSkills(characterData) {
     updateSkillColumn('.character-skills-column:nth-child(3)', 'Event Skills', eventSkillsToUse);
 }
 
-// New function to dynamically manage skill columns
+// Update the updateSkillColumn function to remove the extra class
 function updateSkillColumn(columnSelector, headerText, skillIds) {
     const column = document.querySelector(columnSelector);
     if (!column) return;
@@ -7342,7 +7307,7 @@ function updateSkillColumn(columnSelector, headerText, skillIds) {
     // Create skill boxes based on the number of skills
     skillIds.forEach((skillId, index) => {
         const skillElement = document.createElement('div');
-        skillElement.className = 'character-skill character-skill-text';
+        skillElement.className = 'character-skill'; // Removed character-skill-text class
         
         const skillName = getSkillNameById(skillId);
         skillElement.textContent = skillName;
@@ -7357,7 +7322,7 @@ function updateSkillColumn(columnSelector, headerText, skillIds) {
         for (let i = 0; i < emptySlotsNeeded; i++) {
             const emptySkill = document.createElement('div');
             emptySkill.className = 'character-skill';
-            emptySkill.style.visibility = 'hidden'; // Keep layout but make invisible
+            emptySkill.style.visibility = 'hidden';
             column.appendChild(emptySkill);
         }
     }
@@ -7382,7 +7347,7 @@ function resetCharacterSkills() {
         // Add 3 empty placeholder boxes
         for (let i = 0; i < 3; i++) {
             const skillElement = document.createElement('div');
-            skillElement.className = 'character-skill character-skill-text';
+            skillElement.className = 'character-skill'; // Removed character-skill-text class
             skillElement.textContent = `${skillTypes[index].replace(' Skills', '')} Skill ${i + 1}`;
             column.appendChild(skillElement);
         }
