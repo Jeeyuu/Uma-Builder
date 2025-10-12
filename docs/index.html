@@ -2267,6 +2267,83 @@ body.dark-mode .character-picker-empty-box.has-character {
   opacity: 0.9;
 }
 
+/* Character Skills Section - Improved Styling */
+.character-skills-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.character-skills-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0; /* Prevent column expansion */
+}
+
+.character-skills-header {
+  font-size: 9px;
+  font-weight: bold;
+  text-align: center;
+  background: #000;
+  color: #fff;
+  padding: 3px 0px;
+  border-radius: 0;
+  width: 100%;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.character-skill {
+  width: 100%;
+  background: #eef2ff;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 10px; /* Slightly smaller font */
+  word-break: break-word; /* Allow text to wrap */
+  white-space: normal; /* Allow multiple lines */
+  text-align: center;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2; /* Tighter line height */
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Remove symbols from skill names in character picker */
+.character-skill::before,
+.character-skill::after {
+  content: none !important;
+}
+
+/* Dark mode support */
+body.dark-mode .character-skill {
+  background: #3a3a3a;
+  color: #e0e0e0;
+}
+
+/* Ensure the right sidebar doesn't expand */
+.right-sidebar .character-skills-section {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Prevent skill text from causing layout issues */
+.character-skill-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  line-height: 1.2;
+}
+
 </style>
 
 </head>
@@ -7213,7 +7290,7 @@ function handleRegionChange() {
     }
 }
 
-// Add a function to get skill name by ID
+// Update the getSkillNameById function to remove symbols
 function getSkillNameById(skillId) {
     if (!skillsData || skillsData.length === 0) {
         console.warn('Skills data not loaded yet for skill ID:', skillId);
@@ -7224,18 +7301,22 @@ function getSkillNameById(skillId) {
     if (skill) {
         // Use region to determine which name to show
         const currentRegion = getCurrentRegion();
+        let skillName;
         if (currentRegion === 'global') {
-            return skill.name_en || skill.jpname || `Skill ${skillId}`;
+            skillName = skill.name_en || skill.jpname || `Skill ${skillId}`;
         } else {
-            return skill.jpname || skill.name_en || `Skill ${skillId}`;
+            skillName = skill.jpname || skill.name_en || `Skill ${skillId}`;
         }
+        
+        // Remove symbols like ○, ◎, etc.
+        return skillName.replace(/[◎○●◆■▲▼★☆▪▫◼◻◾◽]/g, '').trim();
     }
     
     console.warn('Skill not found for ID:', skillId);
     return `Skill ${skillId}`;
 }
 
-// Update the updateCharacterSkills function to use proper skill names
+// Update the updateCharacterSkills function to use wrapped text
 function updateCharacterSkills(characterData) {
     const currentRegion = getCurrentRegion();
     
@@ -7260,6 +7341,7 @@ function updateCharacterSkills(characterData) {
             if (innateSkills[index]) {
                 const skillName = getSkillNameById(skillId);
                 innateSkills[index].textContent = skillName;
+                innateSkills[index].classList.add('character-skill-text');
             }
         });
     }
@@ -7275,6 +7357,7 @@ function updateCharacterSkills(characterData) {
             if (awakeningSkills[index]) {
                 const skillName = getSkillNameById(skillId);
                 awakeningSkills[index].textContent = skillName;
+                awakeningSkills[index].classList.add('character-skill-text');
             }
         });
     }
@@ -7290,9 +7373,22 @@ function updateCharacterSkills(characterData) {
             if (eventSkills[index]) {
                 const skillName = getSkillNameById(skillId);
                 eventSkills[index].textContent = skillName;
+                eventSkills[index].classList.add('character-skill-text');
             }
         });
     }
+}
+
+// Update the resetCharacterSkills function
+function resetCharacterSkills() {
+    const skills = document.querySelectorAll('.character-skill');
+    skills.forEach((skill, index) => {
+        const column = Math.floor(index / 3) + 1;
+        const skillNum = (index % 3) + 1;
+        const skillType = ['Innate', 'Awakening', 'Event'][column - 1];
+        skill.textContent = `${skillType} Skill ${skillNum}`;
+        skill.classList.add('character-skill-text');
+    });
 }
 
 // Update the initCharacterPicker to wait for skills data if needed
@@ -7440,17 +7536,6 @@ function updateCharacterDisplay() {
         // Reset skills
         resetCharacterSkills();
     }
-}
-
-// Also update the resetCharacterSkills function to show proper placeholders
-function resetCharacterSkills() {
-    const skills = document.querySelectorAll('.character-skill');
-    skills.forEach((skill, index) => {
-        const column = Math.floor(index / 3) + 1;
-        const skillNum = (index % 3) + 1;
-        const skillType = ['Innate', 'Awakening', 'Event'][column - 1];
-        skill.textContent = `${skillType} Skill ${skillNum}`;
-    });
 }
 
 // Filter characters based on search input
