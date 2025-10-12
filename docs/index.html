@@ -2935,18 +2935,20 @@ async function loadCharacterData() {
             implemented: char.release || char.release_en || 'Unknown',
             stat_bonus: char.stat_bonus || [0, 0, 0, 0, 0],
             aptitude: char.aptitude || [],
-            // Store the original data for advanced sorting
+            // Store the original data for region filtering and skills
             originalData: char
         }));
         
-        // Populate character grid with all characters
-        populateCharacterGrid(characters);
+        // Apply initial region filter
+        applyRegionFilter();
     } catch (error) {
         console.error('Error loading character data:', error);
         // Show error message
-        characterGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">Error loading character data</div>';
+        if (characterGrid) {
+            characterGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">Error loading character data</div>';
+        }
     }
-  }
+}
 
 function getSkillName(skillId) {
     if (!skillsData || skillsData.length === 0) {
@@ -3071,6 +3073,9 @@ document.addEventListener('DOMContentLoaded', function() {
             setupPasteAll();
             setupResetLevels();
             setupClearDeckWithNameReset();
+
+            // Initialize character picker AFTER loading main data
+            initCharacterPicker();
 
             setTimeout(() => {
                 sectionPages.clear();
@@ -7158,6 +7163,139 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 /* ------------- FUNCTION CHARACTER PICKER MODAL ------------- */
+function initCharacterPicker() {
+    // Load character data
+    loadCharacterData();
+    
+    // Add click event to empty box
+    characterPickerBox.addEventListener('click', openCharacterPicker);
+    
+    // Add close event to modal
+    characterPickerClose.addEventListener('click', closeCharacterPicker);
+    
+    // Add search functionality
+    characterSearch.addEventListener('input', filterCharacters);
+    
+    // Add sort functionality
+    characterSort.addEventListener('change', sortCharacters);
+    characterSortOrder.addEventListener('click', toggleSortOrder);
+    
+    // Add region change listener - get the region select from left sidebar
+    const regionSelect = document.getElementById('region');
+    if (regionSelect) {
+        regionSelect.addEventListener('change', handleRegionChange);
+    }
+    
+    // Close modal when clicking outside
+    characterPickerModal.addEventListener('click', (e) => {
+        if (e.target === characterPickerModal) {
+            closeCharacterPicker();
+        }
+    });
+}
+
+function handleRegionChange() {
+    const regionSelect = document.getElementById('region');
+    if (!regionSelect) return;
+    
+    currentRegion = regionSelect.value;
+    applyRegionFilter();
+    
+    // If we have a selected character, check if it should still be visible
+    if (selectedCharacter && !isCharacterAvailableInRegion(selectedCharacter.originalData)) {
+        // Deselect character if it's not available in current region
+        selectedCharacter = null;
+        updateCharacterDisplay();
+    }
+}
+
+// Check if character is available in current region
+function isCharacterAvailableInRegion(characterData) {
+    if (currentRegion === 'global') {
+        // For global, character must have a release_en date
+        return characterData.release_en && characterData.release_en !== 'Unknown';
+    } else {
+        // For Japan, character must have a release date
+        return characterData.release && characterData.release !== 'Unknown';
+    }
+}
+
+// Apply region filter to characters
+function applyRegionFilter() {
+    if (!characters || characters.length === 0) return;
+    
+    const filteredCharacters = characters.filter(character => 
+        isCharacterAvailableInRegion(character.originalData)
+    );
+    
+    // Apply current search and sort to filtered results
+    const searchTerm = characterSearch ? characterSearch.value.toLowerCase() : '';
+    const searchedCharacters = searchTerm ? 
+        filteredCharacters.filter(character => 
+            character.name.toLowerCase().includes(searchTerm) || 
+            character.title.toLowerCase().includes(searchTerm)
+        ) : 
+        filteredCharacters;
+    
+    const sortedCharacters = sortCharacterList(searchedCharacters);
+    populateCharacterGrid(sortedCharacters);
+}
+
+// Update character skills with region-specific data
+function updateCharacterSkills(characterData) {
+    // Determine which event skills to use based on region
+    let eventSkillsToUse;
+    if (currentRegion === 'global') {
+        // For global, use skills_event_en if available, otherwise fall back to skills_event
+        eventSkillsToUse = characterData.skills_event_en || characterData.skills_event || [];
+    } else {
+        // For Japan, always use skills_event
+        eventSkillsToUse = characterData.skills_event || [];
+    }
+    
+    // Update innate skills
+    const innateSkills = document.querySelectorAll('.character-skills-column:nth-child(1) .character-skill');
+    if (characterData.skills_innate && innateSkills.length > 0) {
+        // Clear existing content
+        innateSkills.forEach(skill => skill.textContent = '');
+        
+        // Fill with actual skill IDs
+        characterData.skills_innate.forEach((skillId, index) => {
+            if (innateSkills[index]) {
+                innateSkills[index].textContent = `Skill ${skillId}`;
+            }
+        });
+    }
+    
+    // Update awakening skills
+    const awakeningSkills = document.querySelectorAll('.character-skills-column:nth-child(2) .character-skill');
+    if (characterData.skills_awakening && awakeningSkills.length > 0) {
+        // Clear existing content
+        awakeningSkills.forEach(skill => skill.textContent = '');
+        
+        // Fill with actual skill IDs
+        characterData.skills_awakening.forEach((skillId, index) => {
+            if (awakeningSkills[index]) {
+                awakeningSkills[index].textContent = `Skill ${skillId}`;
+            }
+        });
+    }
+    
+    // Update event skills with region-specific data
+    const eventSkills = document.querySelectorAll('.character-skills-column:nth-child(3) .character-skill');
+    if (eventSkillsToUse.length > 0 && eventSkills.length > 0) {
+        // Clear existing content
+        eventSkills.forEach(skill => skill.textContent = '');
+        
+        // Fill with region-specific event skill IDs
+        eventSkillsToUse.forEach((skillId, index) => {
+            if (eventSkills[index]) {
+                eventSkills[index].textContent = `Skill ${skillId}`;
+            }
+        });
+    }
+}
+
 // Open character picker modal
 function openCharacterPicker() {
     characterPickerModal.classList.add('active');
@@ -7258,52 +7396,6 @@ function updateCharacterDisplay() {
         
         // Reset skills
         resetCharacterSkills();
-    }
-}
-
-// Update character skills display
-function updateCharacterSkills(characterData) {
-    // Update innate skills
-    const innateSkills = document.querySelectorAll('.character-skills-column:nth-child(1) .character-skill');
-    if (characterData.skills_innate && innateSkills.length > 0) {
-        // Clear existing content
-        innateSkills.forEach(skill => skill.textContent = '');
-        
-        // Fill with actual skill IDs
-        characterData.skills_innate.forEach((skillId, index) => {
-            if (innateSkills[index]) {
-                innateSkills[index].textContent = `Skill ${skillId}`;
-                // In a real implementation, you'd look up the skill name by ID
-            }
-        });
-    }
-    
-    // Update awakening skills
-    const awakeningSkills = document.querySelectorAll('.character-skills-column:nth-child(2) .character-skill');
-    if (characterData.skills_awakening && awakeningSkills.length > 0) {
-        // Clear existing content
-        awakeningSkills.forEach(skill => skill.textContent = '');
-        
-        // Fill with actual skill IDs
-        characterData.skills_awakening.forEach((skillId, index) => {
-            if (awakeningSkills[index]) {
-                awakeningSkills[index].textContent = `Skill ${skillId}`;
-            }
-        });
-    }
-    
-    // Update event skills
-    const eventSkills = document.querySelectorAll('.character-skills-column:nth-child(3) .character-skill');
-    if (characterData.skills_event && eventSkills.length > 0) {
-        // Clear existing content
-        eventSkills.forEach(skill => skill.textContent = '');
-        
-        // Fill with actual skill IDs
-        characterData.skills_event.forEach((skillId, index) => {
-            if (eventSkills[index]) {
-                eventSkills[index].textContent = `Skill ${skillId}`;
-            }
-        });
     }
 }
 
