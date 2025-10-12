@@ -1931,6 +1931,347 @@ body.dark-mode .skill-item.highlighted[data-has-border="true"] {
   border-color: #fff96b;
   box-shadow: 0 0 0 1px #fff96b;
 }
+
+/* --------- CHARACTER PICKER MODAL --------- */
+.character-picker-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.character-picker-modal.active {
+  display: flex;
+}
+
+.character-picker-container {
+  width: 90%;
+  height: 90%;
+  background: #fff;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .character-picker-container {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.character-picker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #ddd;
+  background: #f9f9f9;
+}
+
+body.dark-mode .character-picker-header {
+  background: #3a3a3a;
+  border-bottom-color: #555;
+}
+
+.character-picker-title {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.character-picker-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+  transition: color 0.2s;
+}
+
+body.dark-mode .character-picker-close {
+  color: #e0e0e0;
+}
+
+.character-picker-close:hover {
+  color: #ff4444;
+}
+
+.character-picker-controls {
+  display: flex;
+  padding: 16px 20px;
+  gap: 16px;
+  border-bottom: 1px solid #ddd;
+  background: #f9f9f9;
+  flex-wrap: wrap;
+}
+
+body.dark-mode .character-picker-controls {
+  background: #3a3a3a;
+  border-bottom-color: #555;
+}
+
+.character-search-container {
+  flex: 1;
+  min-width: 200px;
+}
+
+.character-search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+body.dark-mode .character-search {
+  background: #3a3a3a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+.sort-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sort-select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  background: #fff;
+}
+
+body.dark-mode .sort-select {
+  background: #3a3a3a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+.sort-order-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s ease;
+}
+
+body.dark-mode .sort-order-btn {
+  background: #3a3a3a;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+.sort-order-btn:hover {
+  background: #e5e5e5;
+  border-color: #999;
+}
+
+body.dark-mode .sort-order-btn:hover {
+  background: #444;
+  border-color: #666;
+}
+
+.sort-order-btn.ascending {
+  background: #444;
+  color: #fff;
+  border-color: #444;
+}
+
+body.dark-mode .sort-order-btn.ascending {
+  background: #555;
+  border-color: #666;
+}
+
+.character-picker-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.character-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 220px;
+  box-sizing: border-box;
+}
+
+body.dark-mode .character-card {
+  background: #3a3a3a;
+  border-color: #555;
+}
+
+.character-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #aaa;
+}
+
+body.dark-mode .character-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-color: #777;
+}
+
+.character-portrait {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  background: #f0f0f0;
+}
+
+body.dark-mode .character-portrait {
+  background: #555;
+}
+
+.character-name {
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 4px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.character-rarity {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+body.dark-mode .character-rarity {
+  color: #aaa;
+}
+
+.character-title {
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body.dark-mode .character-title {
+  color: #999;
+}
+
+/* Character Picker Empty Box */
+.character-picker-empty-box {
+  width: auto;
+  height: 120px;
+  border: 2px dashed #ccc;
+  background: #fafafa;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+body.dark-mode .character-picker-empty-box {
+  background: #252525;
+  border-color: #555;
+}
+
+.character-picker-empty-box:hover {
+  border-color: #999;
+  background: #f0f0f0;
+}
+
+body.dark-mode .character-picker-empty-box:hover {
+  border-color: #777;
+  background: #2d2d2d;
+}
+
+.character-picker-empty-text {
+  color: #999;
+  font-size: 14px;
+}
+
+body.dark-mode .character-picker-empty-text {
+  color: #777;
+}
+
+/* Selected character styling */
+.character-picker-empty-box.has-character {
+  border-style: solid;
+  border-color: #ddd;
+  background: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+body.dark-mode .character-picker-empty-box.has-character {
+  border-color: #555;
+  background: #3a3a3a;
+}
+
+.character-picker-empty-box.has-character .character-picker-empty-text {
+  display: none;
+}
+
+.selected-character-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.selected-character-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px;
+  font-size: 11px;
+  text-align: center;
+}
+
+.selected-character-name {
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.selected-character-title {
+  font-size: 10px;
+  opacity: 0.9;
+}
+
 </style>
 
 </head>
