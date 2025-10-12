@@ -3038,9 +3038,9 @@ function getSkillDescription(skillId) {
 // Helper function to convert rarity number to text
 function getRarityText(rarity) {
     switch(rarity) {
-        case 3: return "SSR";
-        case 2: return "SR";
-        case 1: return "R";
+        case 3: return "⭐⭐⭐";
+        case 2: return "⭐⭐";
+        case 1: return "⭐";
         default: return "Unknown";
     }
 }
@@ -7511,6 +7511,8 @@ function getCharacterDisplayInfo(character) {
     const sortBy = characterSort.value;
     
     switch(sortBy) {
+        case 'id':
+            return `ID: ${character.card_id}`; // Show costume ID
         case 'turf':
             return `Turf: ${character.aptitude[0]}`;
         case 'dirt':
@@ -7732,6 +7734,7 @@ function sortCharacterList(characterList) {
                 bValue = new Date(b.implemented);
                 break;
             case 'id':
+                // Use costume ID (card_id) instead of character ID
                 aValue = a.card_id;
                 bValue = b.card_id;
                 break;
