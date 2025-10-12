@@ -7163,54 +7163,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 /* ------------- FUNCTION CHARACTER PICKER MODAL ------------- */
-function initCharacterPicker() {
-    // Load character data
-    loadCharacterData();
-    
-    // Add click event to empty box
-    characterPickerBox.addEventListener('click', openCharacterPicker);
-    
-    // Add close event to modal
-    characterPickerClose.addEventListener('click', closeCharacterPicker);
-    
-    // Add search functionality
-    characterSearch.addEventListener('input', filterCharacters);
-    
-    // Add sort functionality
-    characterSort.addEventListener('change', sortCharacters);
-    characterSortOrder.addEventListener('click', toggleSortOrder);
-    
-    // Add region change listener - get the region select from left sidebar
+// Remove the currentRegion variable declaration and replace with this:
+// Get region from your existing sidebar selector
+function getCurrentRegion() {
     const regionSelect = document.getElementById('region');
-    if (regionSelect) {
-        regionSelect.addEventListener('change', handleRegionChange);
-    }
-    
-    // Close modal when clicking outside
-    characterPickerModal.addEventListener('click', (e) => {
-        if (e.target === characterPickerModal) {
-            closeCharacterPicker();
-        }
-    });
+    return regionSelect ? regionSelect.value : 'global';
 }
 
-function handleRegionChange() {
-    const regionSelect = document.getElementById('region');
-    if (!regionSelect) return;
-    
-    currentRegion = regionSelect.value;
-    applyRegionFilter();
-    
-    // If we have a selected character, check if it should still be visible
-    if (selectedCharacter && !isCharacterAvailableInRegion(selectedCharacter.originalData)) {
-        // Deselect character if it's not available in current region
-        selectedCharacter = null;
-        updateCharacterDisplay();
-    }
-}
-
-// Check if character is available in current region
+// Update the region checking functions to use the current selector value:
 function isCharacterAvailableInRegion(characterData) {
+    const currentRegion = getCurrentRegion();
     if (currentRegion === 'global') {
         // For global, character must have a release_en date
         return characterData.release_en && characterData.release_en !== 'Unknown';
@@ -7220,10 +7182,11 @@ function isCharacterAvailableInRegion(characterData) {
     }
 }
 
-// Apply region filter to characters
+// Update applyRegionFilter to use current region
 function applyRegionFilter() {
     if (!characters || characters.length === 0) return;
     
+    const currentRegion = getCurrentRegion();
     const filteredCharacters = characters.filter(character => 
         isCharacterAvailableInRegion(character.originalData)
     );
@@ -7241,8 +7204,22 @@ function applyRegionFilter() {
     populateCharacterGrid(sortedCharacters);
 }
 
-// Update character skills with region-specific data
+// Update handleRegionChange to be simpler
+function handleRegionChange() {
+    applyRegionFilter();
+    
+    // If we have a selected character, check if it should still be visible
+    if (selectedCharacter && !isCharacterAvailableInRegion(selectedCharacter.originalData)) {
+        // Deselect character if it's not available in current region
+        selectedCharacter = null;
+        updateCharacterDisplay();
+    }
+}
+
+// Update updateCharacterSkills to use current region
 function updateCharacterSkills(characterData) {
+    const currentRegion = getCurrentRegion();
+    
     // Determine which event skills to use based on region
     let eventSkillsToUse;
     if (currentRegion === 'global') {
@@ -7295,6 +7272,41 @@ function updateCharacterSkills(characterData) {
         });
     }
 }
+
+// Also update your initCharacterPicker to properly set up the region listener:
+function initCharacterPicker() {
+    // Load character data
+    loadCharacterData();
+    
+    // Add click event to empty box
+    characterPickerBox.addEventListener('click', openCharacterPicker);
+    
+    // Add close event to modal
+    characterPickerClose.addEventListener('click', closeCharacterPicker);
+    
+    // Add search functionality
+    characterSearch.addEventListener('input', filterCharacters);
+    
+    // Add sort functionality
+    characterSort.addEventListener('change', sortCharacters);
+    characterSortOrder.addEventListener('click', toggleSortOrder);
+    
+    // Add region change listener - get the region select from left sidebar
+    const regionSelect = document.getElementById('region');
+    if (regionSelect) {
+        // Remove any existing listener to avoid duplicates
+        regionSelect.removeEventListener('change', handleRegionChange);
+        regionSelect.addEventListener('change', handleRegionChange);
+    }
+    
+    // Close modal when clicking outside
+    characterPickerModal.addEventListener('click', (e) => {
+        if (e.target === characterPickerModal) {
+            closeCharacterPicker();
+        }
+    });
+}
+
 
 // Open character picker modal
 function openCharacterPicker() {
