@@ -2917,7 +2917,7 @@ async function discoverDataFiles() {
     throw new Error('Could not find required data files.');
 }
 
-// Load character data from your JSON file
+// Update the loadCharacterData function to ensure skillsData is available
 async function loadCharacterData() {
     try {
         const response = await fetch('data/characters.json');
@@ -2941,6 +2941,8 @@ async function loadCharacterData() {
         
         // Apply initial region filter
         applyRegionFilter();
+        
+        console.log('Character data loaded successfully:', characters.length, 'characters');
     } catch (error) {
         console.error('Error loading character data:', error);
         // Show error message
@@ -2992,10 +2994,10 @@ function getRarityText(rarity) {
     }
 }
 
-// Helper function to get character portrait URL using your formula
+// Update the getCharacterPortrait function to use the new format
 function getCharacterPortrait(charId, cardId) {
-    // Format: https://gametora.com/images/umamusume/characters/chara_stand_{char_id}_{card_id}.png
-    return `https://gametora.com/images/umamusume/characters/chara_stand_${charId}_${cardId}.png`;
+    // Updated format: https://gametora.com/images/umamusume/characters/thumb/chara_stand_{char_id}_{card_id}.png
+    return `https://gametora.com/images/umamusume/characters/thumb/chara_stand_${charId}_${cardId}.png`;
 }
 
 function processSupportCardData(supportCards, skills) {
@@ -7216,7 +7218,29 @@ function handleRegionChange() {
     }
 }
 
-// Update updateCharacterSkills to use current region
+// Add a function to get skill name by ID
+function getSkillNameById(skillId) {
+    if (!skillsData || skillsData.length === 0) {
+        console.warn('Skills data not loaded yet for skill ID:', skillId);
+        return `Skill ${skillId}`;
+    }
+    
+    const skill = skillsData.find(s => s.id === skillId);
+    if (skill) {
+        // Use region to determine which name to show
+        const currentRegion = getCurrentRegion();
+        if (currentRegion === 'global') {
+            return skill.name_en || skill.jpname || `Skill ${skillId}`;
+        } else {
+            return skill.jpname || skill.name_en || `Skill ${skillId}`;
+        }
+    }
+    
+    console.warn('Skill not found for ID:', skillId);
+    return `Skill ${skillId}`;
+}
+
+// Update the updateCharacterSkills function to use proper skill names
 function updateCharacterSkills(characterData) {
     const currentRegion = getCurrentRegion();
     
@@ -7230,51 +7254,61 @@ function updateCharacterSkills(characterData) {
         eventSkillsToUse = characterData.skills_event || [];
     }
     
-    // Update innate skills
+    // Update innate skills with proper names
     const innateSkills = document.querySelectorAll('.character-skills-column:nth-child(1) .character-skill');
     if (characterData.skills_innate && innateSkills.length > 0) {
         // Clear existing content
         innateSkills.forEach(skill => skill.textContent = '');
         
-        // Fill with actual skill IDs
+        // Fill with actual skill names
         characterData.skills_innate.forEach((skillId, index) => {
             if (innateSkills[index]) {
-                innateSkills[index].textContent = `Skill ${skillId}`;
+                const skillName = getSkillNameById(skillId);
+                innateSkills[index].textContent = skillName;
             }
         });
     }
     
-    // Update awakening skills
+    // Update awakening skills with proper names
     const awakeningSkills = document.querySelectorAll('.character-skills-column:nth-child(2) .character-skill');
     if (characterData.skills_awakening && awakeningSkills.length > 0) {
         // Clear existing content
         awakeningSkills.forEach(skill => skill.textContent = '');
         
-        // Fill with actual skill IDs
+        // Fill with actual skill names
         characterData.skills_awakening.forEach((skillId, index) => {
             if (awakeningSkills[index]) {
-                awakeningSkills[index].textContent = `Skill ${skillId}`;
+                const skillName = getSkillNameById(skillId);
+                awakeningSkills[index].textContent = skillName;
             }
         });
     }
     
-    // Update event skills with region-specific data
+    // Update event skills with region-specific data and proper names
     const eventSkills = document.querySelectorAll('.character-skills-column:nth-child(3) .character-skill');
     if (eventSkillsToUse.length > 0 && eventSkills.length > 0) {
         // Clear existing content
         eventSkills.forEach(skill => skill.textContent = '');
         
-        // Fill with region-specific event skill IDs
+        // Fill with region-specific event skill names
         eventSkillsToUse.forEach((skillId, index) => {
             if (eventSkills[index]) {
-                eventSkills[index].textContent = `Skill ${skillId}`;
+                const skillName = getSkillNameById(skillId);
+                eventSkills[index].textContent = skillName;
             }
         });
     }
 }
 
-// Also update your initCharacterPicker to properly set up the region listener:
+// Update the initCharacterPicker to wait for skills data if needed
 function initCharacterPicker() {
+    // Wait a bit for skills data to load if it's not ready yet
+    if (!skillsData || skillsData.length === 0) {
+        console.log('Skills data not ready, waiting...');
+        setTimeout(initCharacterPicker, 500);
+        return;
+    }
+    
     // Load character data
     loadCharacterData();
     
@@ -7305,6 +7339,8 @@ function initCharacterPicker() {
             closeCharacterPicker();
         }
     });
+    
+    console.log('Character picker initialized with skills data');
 }
 
 
@@ -7411,13 +7447,14 @@ function updateCharacterDisplay() {
     }
 }
 
-// Reset character skills to placeholder
+// Also update the resetCharacterSkills function to show proper placeholders
 function resetCharacterSkills() {
     const skills = document.querySelectorAll('.character-skill');
     skills.forEach((skill, index) => {
         const column = Math.floor(index / 3) + 1;
         const skillNum = (index % 3) + 1;
-        skill.textContent = `${['Innate', 'Awakening', 'Event'][column - 1]} Skill ${skillNum}`;
+        const skillType = ['Innate', 'Awakening', 'Event'][column - 1];
+        skill.textContent = `${skillType} Skill ${skillNum}`;
     });
 }
 
