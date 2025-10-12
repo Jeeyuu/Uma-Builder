@@ -2307,12 +2307,6 @@ body.dark-mode .character-picker-empty-box.has-character {
   box-sizing: border-box;
 }
 
-/* Remove symbols from skill names */
-.character-skill::before,
-.character-skill::after {
-  content: none !important;
-}
-
 /* Hide empty skill boxes */
 .character-skill:empty {
   display: none;
@@ -2323,27 +2317,6 @@ body.dark-mode .character-picker-empty-box.has-character {
   display: none;
 }
 
-/* Dark mode support */
-body.dark-mode .character-skill {
-  background: #3a3a3a;
-  color: #e0e0e0;
-}
-
-/* Right sidebar constraints */
-.right-sidebar .character-skills-section {
-  max-width: 100%;
-  overflow: hidden;
-}
-
-/* Skill text formatting */
-.character-skill-text {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-  line-height: 1.2;
-}
 /* Dark mode support */
 body.dark-mode .character-skill {
   background: #3a3a3a;
@@ -2371,6 +2344,7 @@ body.dark-mode .character-skill {
 .character-skill::after {
   content: none !important;
 }
+
 
 </style>
 
@@ -7318,32 +7292,6 @@ function handleRegionChange() {
     }
 }
 
-// Update the getSkillNameById function (keep your existing one, just making sure it's here)
-function getSkillNameById(skillId) {
-    if (!skillsData || skillsData.length === 0) {
-        console.warn('Skills data not loaded yet for skill ID:', skillId);
-        return `Skill ${skillId}`;
-    }
-    
-    const skill = skillsData.find(s => s.id === skillId);
-    if (skill) {
-        // Use region to determine which name to show
-        const currentRegion = getCurrentRegion();
-        let skillName;
-        if (currentRegion === 'global') {
-            skillName = skill.name_en || skill.jpname || `Skill ${skillId}`;
-        } else {
-            skillName = skill.jpname || skill.name_en || `Skill ${skillId}`;
-        }
-        
-        // Remove symbols like ○, ◎, etc.
-        return skillName.replace(/[◎○●◆■▲▼★☆▪▫◼◻◾◽]/g, '').trim();
-    }
-    
-    console.warn('Skill not found for ID:', skillId);
-    return `Skill ${skillId}`;
-}
-
 // Update the updateCharacterSkills function to dynamically manage boxes
 function updateCharacterSkills(characterData) {
     const currentRegion = getCurrentRegion();
@@ -7442,6 +7390,31 @@ function resetCharacterSkills() {
         // Show the column
         column.style.display = 'flex';
     });
+}
+
+function getSkillNameById(skillId) {
+    if (!skillsData || skillsData.length === 0) {
+        console.warn('Skills data not loaded yet for skill ID:', skillId);
+        return `Skill ${skillId}`;
+    }
+    
+    const skill = skillsData.find(s => s.id === skillId);
+    if (skill) {
+        // Use region to determine which name to show
+        const currentRegion = getCurrentRegion();
+        let skillName;
+        if (currentRegion === 'global') {
+            skillName = skill.name_en || skill.jpname || `Skill ${skillId}`;
+        } else {
+            skillName = skill.jpname || skill.name_en || `Skill ${skillId}`;
+        }
+        
+        // Remove symbols like ○, ◎, etc.
+        return skillName.replace(/[◎○●◆■▲▼★☆▪▫◼◻◾◽]/g, '').trim();
+    }
+    
+    console.warn('Skill not found for ID:', skillId);
+    return `Skill ${skillId}`;
 }
 
 
