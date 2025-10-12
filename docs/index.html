@@ -2681,16 +2681,16 @@ body.dark-mode .character-display-info {
         <!-- Character Skills -->
         <div class="character-skills-section">
           <div class="character-skills-column">
-            <div class="character-skills-header">Innate Skills</div>
-            <div class="character-skill">Innate Skill 1</div>
-            <div class="character-skill">Innate Skill 2</div>
-            <div class="character-skill">Innate Skill 3</div>
-          </div>
-          <div class="character-skills-column">
             <div class="character-skills-header">Awakening Skills</div>
             <div class="character-skill">Awakening Skill 1</div>
             <div class="character-skill">Awakening Skill 2</div>
             <div class="character-skill">Awakening Skill 3</div>
+          </div>
+          <div class="character-skills-column">
+            <div class="character-skills-header">Innate Skills</div>
+            <div class="character-skill">Innate Skill 1</div>
+            <div class="character-skill">Innate Skill 2</div>
+            <div class="character-skill">Innate Skill 3</div>
           </div>
           <div class="character-skills-column">
             <div class="character-skills-header">Event Skills</div>
@@ -7279,7 +7279,7 @@ function applyRegionFilter() {
     populateCharacterGrid(sortedCharacters);
 }
 
-// Update handleRegionChange to be simpler
+// Update handleRegionChange to check saved character availability
 function handleRegionChange() {
     applyRegionFilter();
     
@@ -7288,10 +7288,13 @@ function handleRegionChange() {
         // Deselect character if it's not available in current region
         selectedCharacter = null;
         updateCharacterDisplay();
+    } else if (!selectedCharacter) {
+        // Try to load saved character if none is selected
+        loadSelectedCharacter();
     }
 }
 
-// Update the updateCharacterSkills function to dynamically manage boxes
+// Update the updateCharacterSkills function to swap positions
 function updateCharacterSkills(characterData) {
     const currentRegion = getCurrentRegion();
     
@@ -7305,13 +7308,13 @@ function updateCharacterSkills(characterData) {
         eventSkillsToUse = characterData.skills_event || [];
     }
     
-    // Update innate skills with dynamic box management
-    updateSkillColumn('.character-skills-column:nth-child(1)', 'Innate Skills', characterData.skills_innate);
+    // SWAPPED: Update awakening skills first (now in first column)
+    updateSkillColumn('.character-skills-column:nth-child(1)', 'Awakening Skills', characterData.skills_awakening);
     
-    // Update awakening skills with dynamic box management
-    updateSkillColumn('.character-skills-column:nth-child(2)', 'Awakening Skills', characterData.skills_awakening);
+    // SWAPPED: Update innate skills second (now in second column)
+    updateSkillColumn('.character-skills-column:nth-child(2)', 'Innate Skills', characterData.skills_innate);
     
-    // Update event skills with dynamic box management
+    // Update event skills (stays in third column)
     updateSkillColumn('.character-skills-column:nth-child(3)', 'Event Skills', eventSkillsToUse);
 }
 
@@ -7362,7 +7365,7 @@ function updateSkillColumn(columnSelector, headerText, skillIds) {
     }
 }
 
-// Update the resetCharacterSkills function
+// Update the resetCharacterSkills function to match swapped order
 function resetCharacterSkills() {
     const columns = document.querySelectorAll('.character-skills-column');
     
@@ -7370,7 +7373,8 @@ function resetCharacterSkills() {
         // Clear existing content
         column.innerHTML = '';
         
-        const skillTypes = ['Innate Skills', 'Awakening Skills', 'Event Skills'];
+        // SWAPPED ORDER: Awakening, Innate, Event
+        const skillTypes = ['Awakening Skills', 'Innate Skills', 'Event Skills'];
         
         // Add header
         const header = document.createElement('div');
@@ -7378,11 +7382,11 @@ function resetCharacterSkills() {
         header.textContent = skillTypes[index];
         column.appendChild(header);
         
-        // Add 3 empty placeholder boxes
+        // Add 3 blank boxes
         for (let i = 0; i < 3; i++) {
             const skillElement = document.createElement('div');
-            skillElement.className = 'character-skill'; // Removed character-skill-text class
-            skillElement.textContent = `${skillTypes[index].replace(' Skills', '')} Skill ${i + 1}`;
+            skillElement.className = 'character-skill character-skill-text';
+            skillElement.textContent = ''; // Empty instead of placeholder text
             column.appendChild(skillElement);
         }
         
@@ -7417,7 +7421,7 @@ function getSkillNameById(skillId) {
 }
 
 
-// Update the initCharacterPicker function to set default sort
+// Update the initCharacterPicker to load saved character
 function initCharacterPicker() {
     // Wait a bit for skills data to load if it's not ready yet
     if (!skillsData || skillsData.length === 0) {
@@ -7462,6 +7466,11 @@ function initCharacterPicker() {
             closeCharacterPicker();
         }
     });
+    
+    // Load saved character after a short delay to ensure characters are loaded
+    setTimeout(() => {
+        loadSelectedCharacter();
+    }, 1000);
     
     console.log('Character picker initialized with skills data');
 }
@@ -7560,7 +7569,7 @@ function selectCharacter(character) {
     closeCharacterPicker();
 }
 
-// Update the character display in the right sidebar
+// Update the updateCharacterDisplay function
 function updateCharacterDisplay() {
     if (selectedCharacter) {
         // Update the empty box to show selected character
@@ -7582,26 +7591,28 @@ function updateCharacterDisplay() {
         if (selectedCharacter.stat_bonus && selectedCharacter.stat_bonus.length >= 5) {
             percentages.forEach((percentage, index) => {
                 if (index < 5) {
-                    percentage.textContent = `${selectedCharacter.stat_bonus[index]}%`;
+                    const statValue = selectedCharacter.stat_bonus[index];
+                    percentage.textContent = statValue > 0 ? `${statValue}%` : '-';
                 }
             });
         }
         
-        // Update aptitude grades - CORRECTED ORDER
+        // Update aptitude grades - show "-" for defaults
         const grades = document.querySelectorAll('.character-picker-grade');
         if (selectedCharacter.aptitude && selectedCharacter.aptitude.length >= 10) {
-            // CORRECTED APTITUDE ORDER:
-            // [0] Turf, [1] Dirt, [2] Sprint, [3] Mile, [4] Middle, [5] Long, 
-            // [6] Runner, [7] Leader, [8] Betweener, [9] Chaser
             grades.forEach((grade, index) => {
                 if (index < 10) {
-                    grade.textContent = selectedCharacter.aptitude[index];
+                    const aptitudeValue = selectedCharacter.aptitude[index];
+                    grade.textContent = aptitudeValue && aptitudeValue !== 'A' ? aptitudeValue : '-';
                 }
             });
         }
         
         // Update character skills if you have that data
         updateCharacterSkills(selectedCharacter.originalData);
+        
+        // Save the selected character to localStorage
+        saveSelectedCharacter();
     } else {
         // Reset to empty state
         characterPickerBox.classList.remove('has-character');
@@ -7609,12 +7620,15 @@ function updateCharacterDisplay() {
         characterPickerName.textContent = 'Character Name';
         characterPickerCostume.textContent = 'Character Costume';
         
-        // Reset percentages and grades
-        document.querySelectorAll('.character-picker-percentage').forEach(p => p.textContent = '20%');
-        document.querySelectorAll('.character-picker-grade').forEach(g => g.textContent = 'A');
+        // Reset percentages and grades to "-"
+        document.querySelectorAll('.character-picker-percentage').forEach(p => p.textContent = '-');
+        document.querySelectorAll('.character-picker-grade').forEach(g => g.textContent = '-');
         
-        // Reset skills
+        // Reset skills to blank
         resetCharacterSkills();
+        
+        // Clear saved character
+        localStorage.removeItem('selectedCharacter');
     }
 }
 
@@ -7786,6 +7800,52 @@ function sortCharacterList(characterList) {
 function getAptitudeValue(aptitude) {
     const values = { 'S': 5, 'A': 4, 'B': 3, 'C': 2, 'D': 1, 'E': 0, 'F': -1, 'G': -2 };
     return values[aptitude] || -3;
+}
+
+// Add functions to save and load selected character
+function saveSelectedCharacter() {
+    if (selectedCharacter) {
+        localStorage.setItem('selectedCharacter', JSON.stringify({
+            id: selectedCharacter.id,
+            char_id: selectedCharacter.char_id,
+            card_id: selectedCharacter.card_id,
+            name: selectedCharacter.name,
+            title: selectedCharacter.title,
+            portrait: selectedCharacter.portrait,
+            stat_bonus: selectedCharacter.stat_bonus,
+            aptitude: selectedCharacter.aptitude,
+            originalData: selectedCharacter.originalData
+        }));
+    }
+}
+
+function loadSelectedCharacter() {
+    const saved = localStorage.getItem('selectedCharacter');
+    if (saved) {
+        try {
+            const savedCharacter = JSON.parse(saved);
+            // Find the character in our current characters array
+            const character = characters.find(char => 
+                char.card_id === savedCharacter.card_id && 
+                char.char_id === savedCharacter.char_id
+            );
+            
+            if (character && isCharacterAvailableInRegion(character.originalData)) {
+                selectedCharacter = {
+                    ...character,
+                    originalData: savedCharacter.originalData || character.originalData
+                };
+                updateCharacterDisplay();
+                console.log('Loaded saved character:', selectedCharacter.name);
+            } else {
+                console.log('Saved character not available in current region or not found');
+                localStorage.removeItem('selectedCharacter');
+            }
+        } catch (error) {
+            console.error('Error loading saved character:', error);
+            localStorage.removeItem('selectedCharacter');
+        }
+    }
 }
 
 // Initialize when DOM is loaded
