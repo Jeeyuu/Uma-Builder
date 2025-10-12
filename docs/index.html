@@ -2282,9 +2282,9 @@ body.dark-mode .character-picker-empty-box.has-character {
 
 /* Remove the character-skill-text class and integrate its properties */
 .character-skill {
-  display: -webkit-box;
-  -webkit-line-clamp: 2; /* Limit to 2 lines max */
-  -webkit-box-orient: vertical;
+  display: box;                   /* Very old browsers */
+  line-clamp: 2;                  /* Standard property - modern browsers */
+  box-orient: vertical;           /* Very old browsers */
   overflow: hidden;
   text-overflow: ellipsis;
   /* Keep the existing properties */
