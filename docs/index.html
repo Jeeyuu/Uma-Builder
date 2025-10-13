@@ -4223,7 +4223,12 @@ function clearPresetFilters() {
   
   sectionPages.clear();
   renderSections();
-  highlightSkills();
+  
+  // ADD THESE LINES
+  setTimeout(() => {
+    highlightSkills();
+    highlightSelectedSkills();
+  }, 100);
 }
 
 function applyPreset(cup) {
@@ -4259,6 +4264,12 @@ function applyPreset(cup) {
   
   sectionPages.clear();
   renderSections();
+  
+  // ADD THESE LINES to ensure highlighting updates
+  setTimeout(() => {
+    highlightSkills();
+    highlightSelectedSkills();
+  }, 100);
 }
 
 FILTER_KEYS.push('presets');
@@ -5000,6 +5011,9 @@ function setupFilterPersistence(){
       localStorage.setItem('filter_'+id, el.value);
       sectionPages.clear();
       renderSections();
+      // ADD THESE LINES to ensure highlighting updates
+      highlightSkills();
+      highlightSelectedSkills();
     });
   });
 }
@@ -5023,17 +5037,17 @@ function highlightSkills() {
     strategy: document.getElementById('strategy').value || ''
   };
 
-const searchTerms = SKILL_SEARCH_KEYS
-  .map(id => {
-    const input = document.getElementById(id);
-    const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
-    const color = colorPicker ? colorPicker.dataset.color : 'green';
-    return {
-      term: input?.value.trim().toLowerCase(),
-      color: color
-    };
-  })
-  .filter(item => item.term);
+  const searchTerms = SKILL_SEARCH_KEYS
+    .map(id => {
+      const input = document.getElementById(id);
+      const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
+      const color = colorPicker ? colorPicker.dataset.color : 'green';
+      return {
+        term: input?.value.trim().toLowerCase(),
+        color: color
+      };
+    })
+    .filter(item => item.term);
 
   const colorMap = {
     racecourse: '#bce934',
@@ -5078,26 +5092,28 @@ const searchTerms = SKILL_SEARCH_KEYS
     );
   }
 
-    document.querySelectorAll('.skill').forEach(skill => {
+  document.querySelectorAll('.skill').forEach(skill => {
     const skillText = normalizeSkill(skill.textContent || '');
     
+    // Apply search highlighting first
     for (const { term, color } of searchTerms) {
-if (skillText.includes(term)) {
-  const colorValue = getColorValue(color);
-  const textColor = getTextColor(color);
-  const hasBorder = color.includes('-border');
-  
-  skill.style.setProperty('background', colorValue, 'important');
-  skill.style.setProperty('color', textColor, 'important');
-  skill.classList.add('search-highlighted');
-  
-  if (hasBorder) {
-    skill.setAttribute('data-has-border', 'true');
-  }
-  return;
-}
+      if (skillText.includes(term)) {
+        const colorValue = getColorValue(color);
+        const textColor = getTextColor(color);
+        const hasBorder = color.includes('-border');
+        
+        skill.style.setProperty('background', colorValue, 'important');
+        skill.style.setProperty('color', textColor, 'important');
+        skill.classList.add('search-highlighted');
+        
+        if (hasBorder) {
+          skill.setAttribute('data-has-border', 'true');
+        }
+        return; // Stop after first match
+      }
     }
     
+    // Apply filter highlighting second
     for (const { term, color } of dropdownTerms) {
       if (skillText === normalizeSkill(term)) {
         skill.style.background = color;
@@ -5108,11 +5124,8 @@ if (skillText.includes(term)) {
     }
   });
 
-const originalHighlightSkills = window.highlightSkills;
-window.highlightSkills = function() {
-    originalHighlightSkills();
-    highlightCharacterSkills();
-};
+  // ADD THIS LINE to ensure character skills are also highlighted
+  highlightCharacterSkills();
 
   updateSkillVisibility();
 }
@@ -5972,7 +5985,14 @@ setupHideUncoloredCheckbox();
   .forEach(id => {
     const element = document.getElementById(id);
     if (element) {
-      element.addEventListener('change', renderSections);
+      element.addEventListener('change', () => {
+        renderSections();
+        // Add highlighting after render
+        setTimeout(() => {
+          highlightSkills();
+          highlightSelectedSkills();
+        }, 100);
+      });
     }
   });
 
