@@ -266,7 +266,7 @@ body {
 
 .copy-paste-btn {
   flex: 1;
-  padding: 8px 4px;
+  padding: 8px 12px;
   font-size: 12px;
   cursor: pointer;
   border: none;
@@ -509,7 +509,6 @@ body {
   margin: 35px auto 0;
   height: auto;
   min-height: min-content;
-  margin-bottom: 12px;
 }
 
 .right-sidebar.collapsed .slots {
@@ -2863,6 +2862,17 @@ body.dark-mode .character-potential-bar {
           </div>
           <div class="character-skills-column">
             <div class="character-skills-header">Event Skills</div>
+          </div>
+        </div>
+
+        <div class="skill-search-divider"></div>
+
+        <!-- Deck Controls -->
+        <div class="slots-header">
+          <div class="deck-buttons">
+            <button id="copyDeckBtn" class="deck-btn">Copy Deck Only</button>
+            <button id="pasteDeckBtn" class="deck-btn">Paste Deck Only</button>
+            <button id="clearAllBtn" class="clear-all">Clear Deck</button>
           </div>
         </div>
 
