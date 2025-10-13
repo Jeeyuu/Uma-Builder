@@ -5679,8 +5679,10 @@ function getAllSkillsFromSelectedCards() {
             const card = cardsData.find(c => String(c.support_id) === String(supportId));
             
             if (card) {
-const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+                // CRITICAL FIX: For Global region, ONLY use event_skills_en, never fall back to event_skills
+                const eventSkillsToUse = region === 'global' ? 
+                    (card.event_skills_en || []) :  // Only English event skills, empty array if none
+                    card.event_skills;              // All Japanese event skills
 
                 if (card.hint_skills) {
                     card.hint_skills.forEach(skill => {
