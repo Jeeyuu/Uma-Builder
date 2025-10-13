@@ -5285,9 +5285,10 @@ function filterCardsWithRules(cards,filters){
   const strictTerms=terms.filter(t=>strictDistanceKeys.includes(t));
   const looseTerms=terms.filter(t=>!strictDistanceKeys.includes(t));
   return cards.filter(card=>{
-    // Use region-appropriate skills for filtering
-    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+    // Always use the appropriate event skills array based on region
+    const eventSkillsToUse = region === 'global' ? 
+      (card.event_skills_en || card.event_skills) : 
+      card.event_skills;
     
     const skills=[...card.hint_skills,...eventSkillsToUse].map(normalizeSkill);
     return strictTerms.every(t=>skills.includes(t)) && looseTerms.every(term=>skills.some(s=>s.includes(term)));
@@ -5400,33 +5401,34 @@ filterOrder.forEach(catId => {
     }
   });
 
-/* ------------- SKILL SEARCH ------------- */
-SKILL_SEARCH_KEYS.forEach((key, i) => {
-  const val = document.getElementById(key)?.value.trim();
-  if (!val) return;
+  /* ------------- SKILL SEARCH ------------- */
+  SKILL_SEARCH_KEYS.forEach((key, i) => {
+    const val = document.getElementById(key)?.value.trim();
+    if (!val) return;
 
-  const normalized = normalizeSkill(val);
-  
-  const uniqueMatches = new Set();
-  const matches = [];
-  
-  baseFilteredCards.forEach(card => {
-    // Use region-appropriate skills for skill search
-    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+    const normalized = normalizeSkill(val);
     
-    const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
-    const hasMatch = skills.some(s => s.includes(normalized));
+    const uniqueMatches = new Set();
+    const matches = [];
     
-    if (hasMatch && !uniqueMatches.has(card.support_id)) {
-      uniqueMatches.add(card.support_id);
-      matches.push(card);
-    }
+    baseFilteredCards.forEach(card => {
+      // Always use the appropriate event skills array based on region
+      const eventSkillsToUse = region === 'global' ? 
+        (card.event_skills_en || card.event_skills) : 
+        card.event_skills;
+      
+      const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
+      const hasMatch = skills.some(s => s.includes(normalized));
+      
+      if (hasMatch && !uniqueMatches.has(card.support_id)) {
+        uniqueMatches.add(card.support_id);
+        matches.push(card);
+      }
+    });
+
+    const header = `Skill Search ${i + 1}: "${val}"`;
+    renderSkillSearchRow(key, header, matches, i);
   });
-
-  const header = `Skill Search ${i + 1}: "${val}"`;
-  renderSkillSearchRow(key, header, matches, i);
-});
 
   highlightSkills();
 }
@@ -5439,9 +5441,10 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
 
   const matches = baseCards.filter(card => {
-    // Use region-appropriate skills for filtering
-    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+    // Always use the appropriate event skills array based on region
+    const eventSkillsToUse = region === 'global' ? 
+      (card.event_skills_en || card.event_skills) : 
+      card.event_skills;
     
     const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
     return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
@@ -5491,6 +5494,7 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   renderFilterPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
   cardSections.appendChild(section);
 }
+
 
 function properCaseSkill(s) {
   return String(s || '')
