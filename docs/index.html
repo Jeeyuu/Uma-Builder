@@ -2963,7 +2963,6 @@ let presetRaceNumbers = new Map();
 let supportsDataWithEffects = [];
 let characters = [];
 
-// Add potential level state
 let potentialLevel = parseInt(localStorage.getItem('potentialLevel')) || 1;
 
 const cardSections = document.getElementById('cardSections');
@@ -3005,30 +3004,24 @@ let sortOrder = 'descending';
 let region = 'global';
 let selectedCharacter = null;
 let isAscending = true;
-// Add character potential levels storage
 let characterPotentialLevels = JSON.parse(localStorage.getItem('characterPotentialLevels')) || {};
 
 const slotLevels = JSON.parse(localStorage.getItem('slotLevels')) || {};
 const MAX_LEVELS = { 'R': 40, 'SR': 45, 'SSR': 50 };
 
-// Update the updatePotentialLevel function to be character-specific
 function updatePotentialLevel(level, characterId = null) {
     potentialLevel = Math.max(1, Math.min(5, level));
     
-    // If a character is specified, save it for that character
     if (characterId && selectedCharacter) {
         characterPotentialLevels[characterId] = potentialLevel;
         localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
     }
     
-    // Update display
     characterPickerName.textContent = `Potential Lv ${potentialLevel}`;
     
-    // Update button states
     potentialDecreaseBtn.disabled = potentialLevel === 1;
     potentialIncreaseBtn.disabled = potentialLevel === 5;
     
-    // Update awakening skills display based on potential level
     updateAwakeningSkillsDisplay();
 }
 
@@ -3038,15 +3031,12 @@ function updateAwakeningSkillsDisplay() {
     const awakeningSkillsColumn = document.querySelector('.character-skills-column:nth-child(1)');
     if (!awakeningSkillsColumn) return;
     
-    // Clear existing awakening skills (but keep the header)
     const header = awakeningSkillsColumn.querySelector('.character-skills-header');
     const existingSkills = awakeningSkillsColumn.querySelectorAll('.character-skill');
     existingSkills.forEach(skill => skill.remove());
     
-    // Get awakening skills based on potential level
     const awakeningSkills = getAwakeningSkillsForLevel(selectedCharacter, potentialLevel);
     
-    // Add new skills
     awakeningSkills.forEach(skillName => {
         if (skillName && skillName.trim() !== '') {
             const skillElement = document.createElement('div');
@@ -3056,7 +3046,6 @@ function updateAwakeningSkillsDisplay() {
         }
     });
     
-    // Add empty boxes if we have fewer than 4 skills (for consistent layout)
     const currentSkillCount = awakeningSkills.length;
     if (currentSkillCount < 4) {
         const emptySlotsNeeded = 4 - currentSkillCount;
@@ -3069,7 +3058,6 @@ function updateAwakeningSkillsDisplay() {
         }
     }
     
-    // Apply highlighting to character skills
     highlightCharacterSkills();
 }
 
@@ -3077,11 +3065,8 @@ function getAwakeningSkillsForLevel(character, level) {
     if (!character || !character.originalData) return [];
     
     const skills = [];
-    
-    // Get awakening skills from character data - adjust this based on your actual data structure
     const awakeningSkills = character.originalData.skills_awakening || [];
     
-    // Show skills based on potential level (level 2-5 unlock skills in order)
     if (level >= 2 && awakeningSkills[0]) {
         const skillName = getSkillNameById(awakeningSkills[0]);
         skills.push(skillName);
@@ -3102,27 +3087,22 @@ function getAwakeningSkillsForLevel(character, level) {
     return skills;
 }
 
-// Add function to highlight character skills based on search
 function highlightCharacterSkills() {
     const characterSkills = document.querySelectorAll('.character-skill');
     
-    // Reset all highlights but preserve dark mode base styling
     characterSkills.forEach(skill => {
         skill.classList.remove('highlighted', 'search-highlighted');
         skill.removeAttribute('data-has-border');
         
-        // Only reset background/color if not in dark mode, otherwise let dark mode handle base styling
         if (!document.body.classList.contains('dark-mode')) {
             skill.style.background = '';
             skill.style.color = '';
         } else {
-            // In dark mode, let CSS handle the base styling
             skill.style.background = '';
             skill.style.color = '';
         }
     });
     
-    // Get current filter values
     const filters = {
         racecourse: document.getElementById('racecourse').value || '',
         length: document.getElementById('length').value || '',
@@ -3133,7 +3113,6 @@ function highlightCharacterSkills() {
         strategy: document.getElementById('strategy').value || ''
     };
     
-    // Get search terms from skill searches
     const searchTerms = SKILL_SEARCH_KEYS
         .map(id => {
             const input = document.getElementById(id);
@@ -3146,7 +3125,6 @@ function highlightCharacterSkills() {
         })
         .filter(item => item.term);
 
-    // Build filter terms
     const filterTerms = [];
     if (filters.racecourse) filterTerms.push({ term: `${filters.racecourse} Racecourse`, color: '#bce934' });
     if (filters.direction) {
@@ -3184,10 +3162,6 @@ function highlightCharacterSkills() {
         );
     }
 
-    console.log('Character skills - Filter terms:', filterTerms);
-    console.log('Character skills - Search terms:', searchTerms);
-
-    // Apply search-based highlighting FIRST (with !important)
     characterSkills.forEach(skill => {
         const skillText = normalizeSkill(skill.textContent || '');
         
@@ -3204,14 +3178,12 @@ function highlightCharacterSkills() {
                 if (hasBorder) {
                     skill.setAttribute('data-has-border', 'true');
                 }
-                return; // Stop after first search match
+                return;
             }
         }
     });
     
-    // Apply filter-based highlighting SECOND (won't override search highlights)
     characterSkills.forEach(skill => {
-        // Skip if already highlighted by search
         if (skill.classList.contains('search-highlighted')) {
             return;
         }
@@ -3221,17 +3193,14 @@ function highlightCharacterSkills() {
         for (const { term, color } of filterTerms) {
             const normalizedTerm = normalizeSkill(term);
             
-            // Use the same strict matching logic as the main section
             const strictDistanceKeys = ['standard distance', 'non-standard distance'];
             const isStrictTerm = strictDistanceKeys.includes(normalizedTerm);
             
             let shouldHighlight = false;
             
             if (isStrictTerm) {
-                // For strict terms, require exact match
                 shouldHighlight = skillText === normalizedTerm;
             } else {
-                // For loose terms, check if skill contains the term
                 shouldHighlight = skillText.includes(normalizedTerm);
             }
             
@@ -3239,7 +3208,7 @@ function highlightCharacterSkills() {
                 skill.style.setProperty('background', color, 'important');
                 skill.style.setProperty('color', '#000', 'important');
                 skill.classList.add('highlighted');
-                break; // Stop after first filter match
+                break;
             }
         }
     });
@@ -3295,75 +3264,55 @@ async function discoverDataFiles() {
     throw new Error('Could not find required data files.');
 }
 
-// Update the loadCharacterData function to use proper name fallbacks
 async function loadCharacterData() {
     try {
         const response = await fetch('data/characters.json');
         const data = await response.json();
         
-        // Transform the data to match our expected format
         characters = Object.values(data).map(char => ({
             id: char.card_id,
             char_id: char.char_id,
             card_id: char.card_id,
-            name: getNameByRegion(char), // Use new function for name selection
+            name: getNameByRegion(char),
             title: char.title || char.title_en_gl || 'No Title',
             rarity: getRarityText(char.rarity),
             portrait: getCharacterPortrait(char.char_id, char.card_id),
             implemented: char.release || char.release_en || 'Unknown',
             stat_bonus: char.stat_bonus || [0, 0, 0, 0, 0],
             aptitude: char.aptitude || [],
-            // Store the original data for region filtering and skills
             originalData: char
         }));
-        
-        console.log(`Loaded ${characters.length} total characters`);
-        
-        // Apply initial region filter and log results
-        const regionFiltered = getRegionFilteredCharacters();
-        console.log(`After region filtering: ${regionFiltered.length} characters`);
         
         applyRegionFilter();
         
     } catch (error) {
-        console.error('Error loading character data:', error);
-        // Show error message
         if (characterGrid) {
             characterGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">Error loading character data</div>';
         }
     }
 }
 
-// Add function to get name based on region with fallbacks
 function getNameByRegion(characterData) {
     const currentRegion = getCurrentRegion();
     
     if (currentRegion === 'global') {
-        // For global, try name_en first, then enname, then jpname as last resort
         return characterData.name_en || characterData.enname || characterData.jpname || 'Unknown';
     } else {
-        // For Japan, use jpname first, then fall back to English names
         return characterData.jpname || characterData.name_en || characterData.enname || 'Unknown';
     }
 }
 
-// Update the getSkillNameById function to use correct English priority
 function getSkillNameById(skillId) {
     if (!skillsData || skillsData.length === 0) {
-        console.warn('Skills data not loaded yet for skill ID:', skillId);
         return `Skill ${skillId}`;
     }
     
     const skill = skillsData.find(s => s.id === skillId);
     if (skill) {
-        // Use the same priority order as character names: name_en -> enname -> jpname
         const skillName = skill.name_en || skill.enname || skill.jpname || `Skill ${skillId}`;
-        
-        // Remove symbols like ○, ◎, etc.
         return skillName.replace(/[◎○●◆■▲▼★☆▪▫◼◻◾◽]/g, '').trim();
     }
     
-    console.warn('Skill not found for ID:', skillId);
     return `Skill ${skillId}`;
 }
 
@@ -3374,7 +3323,6 @@ function getSkillName(skillId) {
     
     const skill = skillsData.find(s => s.id === skillId);
     if (skill) {
-        // Use the same priority order
         return skill.name_en || skill.enname || skill.jpname || `Skill ${skillId}`;
     }
     
@@ -3396,7 +3344,6 @@ function getSkillDescription(skillId) {
     return '';
 }
 
-// Helper function to convert rarity number to text
 function getRarityText(rarity) {
     switch(rarity) {
         case 3: return "⭐⭐⭐";
@@ -3406,9 +3353,7 @@ function getRarityText(rarity) {
     }
 }
 
-// Update the getCharacterPortrait function to use the new format
 function getCharacterPortrait(charId, cardId) {
-    // Updated format: https://gametora.com/images/umamusume/characters/thumb/chara_stand_{char_id}_{card_id}.png
     return `https://gametora.com/images/umamusume/characters/thumb/chara_stand_${charId}_${cardId}.png`;
 }
 
@@ -3417,10 +3362,7 @@ function processSupportCardData(supportCards, skills) {
     supportsDataWithEffects = supportCards;
     
     return supportCards.map(card => {
-        // Use proper skill name resolution for hint skills
         const hint_skills = (card.hints?.hint_skills || []).map(skillId => getSkillNameById(skillId));
-        
-        // For event skills, use the correct region-based names
         const event_skills = (card.event_skills || []).map(skillId => getSkillNameById(skillId));
         const event_skills_en = (card.event_skills || []).map(skillId => getSkillNameById(skillId));
         
@@ -3459,7 +3401,6 @@ async function loadDataFiles() {
         return true;
         
     } catch (error) {
-        console.error('Error loading data files:', error);
         throw new Error(`Error: Could not load data files. Please ensure you have both files in your data folder. Current error: ${error.message}`);
     }
 }
@@ -3491,10 +3432,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setupResetLevels();
             setupClearDeckWithNameReset();
 
-            // Initialize character picker AFTER loading main data
             initCharacterPicker();
-            
-            // Initialize potential level controls
             initPotentialLevelControls();
 
             setTimeout(() => {
@@ -3509,11 +3447,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 500);
             }, 500);
         } catch (error) {
-            console.error('Error during setup:', error);
         }
     })
     .catch(err => {
-        console.error('Could not load JSON:', err);
         cardSections.innerHTML = `
             <div style="opacity:0.7;padding:12px;text-align:center;">
             <h3>Error loading data</h3>
@@ -3681,7 +3617,6 @@ function sortCards(cards, sortBy, order) {
         aValue = aDate.getTime();
         bValue = bDate.getTime();
       } catch (e) {
-        console.warn('Date parsing failed for:', aValue, bValue);
       }
     }
     
@@ -3823,7 +3758,6 @@ function setupDynamicSkillSearch() {
   const skillSearchGroup = document.getElementById('skillSearchGroup');
   
   if (!skillSearchGroup) {
-    console.error('Skill search group not found!');
     return;
   }
   
@@ -3876,7 +3810,6 @@ function createSearchBox(searchId, value = '') {
 
   const skillSearchGroup = document.getElementById('skillSearchGroup');
   if (!skillSearchGroup) {
-    console.error('skillSearchGroup element not found!');
     return;
   }
   
@@ -4216,7 +4149,6 @@ function setupPresets() {
       });
     })
     .catch(err => {
-      console.error('Could not load presets:', err);
       const option = document.createElement('option');
       option.textContent = 'Error loading presets';
       option.disabled = true;
@@ -4238,7 +4170,6 @@ function clearPresetFilters() {
   sectionPages.clear();
   renderSections();
   
-  // ADD THESE LINES
   setTimeout(() => {
     highlightSkills();
     highlightSelectedSkills();
@@ -4279,7 +4210,6 @@ function applyPreset(cup) {
   sectionPages.clear();
   renderSections();
   
-  // ADD THESE LINES to ensure highlighting updates
   setTimeout(() => {
     highlightSkills();
     highlightSelectedSkills();
@@ -4435,8 +4365,6 @@ if(eventSkillsToUse && eventSkillsToUse.length) {
     skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
 }
   
-  // REMOVED: Unique effects section
-  
   const combinedLevelHTML = generateCombinedLevelDisplay(card, currentLevel);
 
   let nameHtml = `<div class="name">${escapeHtml(card.char_name)}</div>`;
@@ -4489,11 +4417,8 @@ if(eventSkillsToUse && eventSkillsToUse.length) {
     <div class="skills">${skillsHTML}</div>
   `;
 
-  // ... rest of the function remains the same
   el.addEventListener('click', ()=> {
       if (selectedCardIds.has(card.char_id)) {
-          console.log(`Removing ${card.char_name} from slot`);
-          
           const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
           if (existingSlot) {
               removeFromSlot(existingSlot);
@@ -4506,7 +4431,6 @@ if(eventSkillsToUse && eventSkillsToUse.length) {
           if (slot && !slot.dataset.cardId) {
               addToSlot(card, slot);
           } else {
-              console.log('Selected slot has card, using normal placement');
               clearSlotSelection();
               
               const availableSlot = slots.find(s => !s.dataset.cardId);
@@ -4518,8 +4442,6 @@ if(eventSkillsToUse && eventSkillsToUse.length) {
           const slot = slots.find(s => !s.dataset.cardId);
           if (slot) {
               addToSlot(card, slot);
-          } else {
-              console.log('No empty slots available');
           }
       }
   });
@@ -4645,8 +4567,6 @@ function loadSlotsFromLocalStorage() {
         }
       });
       
-      console.log(`Loaded ${loadedCount} cards into slots`);
-      
       setTimeout(() => {
         updateAllSlotDisplays();
         setTimeout(updateAllSlotDisplays, 200);
@@ -4656,16 +4576,11 @@ function loadSlotsFromLocalStorage() {
   
   setTimeout(() => {
     clearInterval(waitForData);
-    if (loadedCount === 0) {
-      console.warn('Failed to load slot data - cardsData not available');
-    }
   }, 5000);
 }
 
 function addToSlot(card, targetSlot = null, save = true) {
   if (selectedCardIds.has(card.char_id)) {
-    console.log(`Card ${card.char_name} is already in a slot!`);
-    
     const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
     if (existingSlot) {
       flashSlot(existingSlot);
@@ -4685,7 +4600,6 @@ function addToSlot(card, targetSlot = null, save = true) {
   }
   
   if (!freeSlot) {
-    console.log('No available slot found');
     return;
   }
   const savedLevel = getCardLevel(card.support_id);
@@ -4873,7 +4787,6 @@ function removeFromSlot(slot, card) {
   }
 
   if (selectedSlot && selectedSlot.contains(slot)) {
-    console.log('Card removed from selected slot - selection maintained');
   }
 
   saveSlotsToLocalStorage();
@@ -4988,7 +4901,6 @@ function setupFilterPersistence(){
       localStorage.setItem('filter_'+id, el.value);
       sectionPages.clear();
       renderSections();
-      // ADD THESE LINES to ensure highlighting updates
       highlightSkills();
       highlightSelectedSkills();
     });
@@ -4997,17 +4909,14 @@ function setupFilterPersistence(){
 
 /* ------------- SKILL HIGHLIGHTING ------------- */
 function highlightSkills() {
-  // First, reset ALL skills (both filter and search highlights)
   document.querySelectorAll('.skill').forEach(skill => {
     skill.classList.remove('highlighted', 'search-highlighted');
     skill.removeAttribute('data-has-border');
     
-    // Reset to default styling
     if (!document.body.classList.contains('dark-mode')) {
       skill.style.background = '#eef2ff';
       skill.style.color = '#000';
     } else {
-      // In dark mode, let CSS handle the base styling
       skill.style.background = '';
       skill.style.color = '';
     }
@@ -5047,7 +4956,6 @@ function highlightSkills() {
 
   const dropdownTerms = [];
   
-  // Only add filter terms if they have values
   if (filters.racecourse) dropdownTerms.push({ term: `${filters.racecourse} Racecourse`, color: colorMap.racecourse });
   if (filters.direction) {
     const dirTerm = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
@@ -5080,10 +4988,6 @@ function highlightSkills() {
     );
   }
 
-  console.log('Current filters:', filters);
-  console.log('Dropdown terms to highlight:', dropdownTerms);
-
-  // Apply search-based highlighting FIRST (higher priority)
   document.querySelectorAll('.skill').forEach(skill => {
     const skillText = normalizeSkill(skill.textContent || '');
     
@@ -5100,14 +5004,12 @@ function highlightSkills() {
         if (hasBorder) {
           skill.setAttribute('data-has-border', 'true');
         }
-        return; // Stop after first search match
+        return;
       }
     }
   });
 
-  // Apply filter-based highlighting SECOND (lower priority, won't override search highlights)
   document.querySelectorAll('.skill').forEach(skill => {
-    // Skip if already highlighted by search
     if (skill.classList.contains('search-highlighted')) {
       return;
     }
@@ -5117,17 +5019,14 @@ function highlightSkills() {
     for (const { term, color } of dropdownTerms) {
       const normalizedTerm = normalizeSkill(term);
       
-      // Use strict matching for filter terms
       const strictDistanceKeys = ['standard distance', 'non-standard distance'];
       const isStrictTerm = strictDistanceKeys.includes(normalizedTerm);
       
       let shouldHighlight = false;
       
       if (isStrictTerm) {
-        // For strict terms, require exact match
         shouldHighlight = skillText === normalizedTerm;
       } else {
-        // For loose terms, check if skill contains the term
         shouldHighlight = skillText.includes(normalizedTerm);
       }
       
@@ -5135,12 +5034,11 @@ function highlightSkills() {
         skill.style.background = color;
         skill.style.color = '#000';
         skill.classList.add('highlighted');
-        break; // Stop after first filter match
+        break;
       }
     }
   });
 
-  // Always update character skills highlighting
   highlightCharacterSkills();
   updateSkillVisibility();
 }
@@ -5198,30 +5096,23 @@ function updateSkillVisibility() {
 }
 
 function updateAllSlotDisplays() {
-  console.log('Updating all slot displays...');
-  
   slots.forEach((slot, index) => {
     if (slot.dataset.supportId) {
       const supportId = slot.dataset.supportId;
       const card = cardsData.find(c => String(c.support_id) === String(supportId));
       
       if (card) {
-        console.log(`Updating slot ${index} with card: ${card.char_name}`);
         const slotContainer = slot.closest('.slot-container');
         const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
         const currentLevel = levelInput && !levelInput.disabled ? parseInt(levelInput.value) || 1 : 1;
         
         forceUpdateSlotNameWithEffectData(slot, card, currentLevel);
       }
-    } else {
-      console.log(`Slot ${index} is empty`);
     }
   });
 }
 
 function forceUpdateSlotNameWithEffectData(slot, card, level) {
-  console.log(`Updating slot effect text for: ${card.char_name}`);
-  
   const sortByValue = document.getElementById('sortBy').value;
   const hideDataOptions = ['rarity', 'name', 'type'];
   
@@ -5289,8 +5180,6 @@ function forceUpdateSlotNameWithEffectData(slot, card, level) {
       nameContainer.after(urlDiv);
     }
   }
-  
-  console.log(`Slot effect text updated for: ${card.char_name}`);
 }
 
 function updateSlotNameWithEffectData(slot, card, level) {
@@ -6002,7 +5891,6 @@ setupHideUncoloredCheckbox();
     if (element) {
       element.addEventListener('change', () => {
         renderSections();
-        // Add highlighting after render
         setTimeout(() => {
           highlightSkills();
           highlightSelectedSkills();
@@ -6069,10 +5957,7 @@ function copySkillsToClipboard() {
       copyBtn.textContent = originalText;
       copyBtn.style.background = '';
     }, 1500);
-    
-    console.log(`Copied ${skillsData.length} skill(s) to clipboard`);
   }).catch(err => {
-    console.error('Failed to copy skills: ', err);
     alert('Failed to copy skills to clipboard');
   });
 }
@@ -6143,14 +6028,10 @@ function pasteSkillsFromClipboard() {
         pasteBtn.style.background = '';
       }, 1500);
       
-      console.log(`Pasted ${skillsData.length} skill(s) from clipboard`);
-      
     } catch (error) {
-      console.error('Failed to parse clipboard data: ', error);
       alert('Invalid format in clipboard! Use Copy Skills button first.');
     }
   }).catch(err => {
-    console.error('Failed to read clipboard: ', err);
     alert('Failed to read from clipboard. Please check permissions.');
   });
 }
@@ -6267,10 +6148,7 @@ function copyDeckToClipboard() {
             copyBtn.textContent = originalText;
             copyBtn.style.background = '';
         }, 1500);
-
-        console.log('Deck copied to clipboard with levels:', deckData);
     }).catch(err => {
-        console.error('Failed to copy deck: ', err);
         alert('Failed to copy deck to clipboard');
     });
 }
@@ -6312,8 +6190,6 @@ if (window.programmaticClearDeck) {
               }
               
               hasValidCards = true;
-            } else {
-              console.warn(`Card with support_id ${slotData.supportId} not found`);
             }
           }
         });
@@ -6344,11 +6220,9 @@ if (window.programmaticClearDeck) {
       }, 100);
       
     } catch (error) {
-      console.error('Failed to parse deck data: ', error);
       alert('Invalid deck format in clipboard! Use Copy Deck button first.');
     }
   }).catch(err => {
-    console.error('Failed to read clipboard: ', err);
     alert('Failed to read from clipboard. Please check permissions.');
   });
 }
@@ -6406,13 +6280,11 @@ const EFFECT_TYPES = {
 };
 
 function loadEffectsData() {
-    console.log('Effects data already loaded from support-cards.json');
     return Promise.resolve(supportsDataWithEffects);
 }
 
 function findCardWithEffects(supportId) {
     if (!supportsDataWithEffects || supportsDataWithEffects.length === 0) {
-        console.warn('supportsDataWithEffects not loaded yet');
         return null;
     }
     
@@ -6421,13 +6293,9 @@ function findCardWithEffects(supportId) {
 }
 
 function initializeEffectCalculation() {
-    console.log('Initializing effect calculation system...');
-    
     loadEffectsData().then(() => {
-        console.log('Effect calculation system ready');
         setupEffectCalculation();
     }).catch(error => {
-        console.warn('Error loading effects data, continuing without effect calculations:', error);
         setupEffectCalculation();
     });
 }
@@ -6493,7 +6361,6 @@ function getEffectValueAtLevel(effectData, level) {
     
     return computeGrowth(knownLevels, knownValues, level);
   } catch (error) {
-    console.warn('Error calculating effect value:', error, effectData);
     return 0;
   }
 }
@@ -6553,7 +6420,6 @@ const EFFECT_UNITS = {
 
 function updateEffectTotals() {
   try {
-    console.log('Updating effect totals UI with card contributions...');
     const contributions = calculateEffectContributions();
     const isCollapsed = document.getElementById('rightSidebar').classList.contains('collapsed');
     
@@ -6661,13 +6527,10 @@ function updateEffectTotals() {
     });
     
   } catch (error) {
-    console.error('Error updating effect totals:', error);
   }
 }
 
 function setupEffectCalculation() {
-  console.log('Setting up effect calculation with card contributions...');
-  
   const originalAddToSlot = window.addToSlot;
   const originalRemoveFromSlot = window.removeFromSlot;
   
@@ -6790,7 +6653,6 @@ function getUniqueEffectValue(card, effectType) {
 }
 
 function calculateEffectContributions() {
-  console.log('Calculating effect contributions...');
   const contributions = {};
   
   Object.values(EFFECT_TYPES).forEach(effectName => {
@@ -6898,8 +6760,6 @@ function syncCardLevelInMainGrid(supportId, newLevel) {
         }
         
         updateCardEffectDisplay(cardElement, supportId, newLevel);
-        
-        console.log(`Synced main grid card: ${card.char_name} to Lv ${newLevel}`);
     });
 }
 
@@ -6955,21 +6815,15 @@ function fixFirstSearchBoxColors() {
     const savedColor = localStorage.getItem('color_skillSearch1') || 'green';
     firstColorPicker.className = `color-picker ${savedColor}`;
     firstColorPicker.dataset.color = savedColor;
-    
-    console.log('First search box color fixed:', savedColor);
   }
 }
 
 setTimeout(fixFirstSearchBoxColors, 500);
 
 function ensureSlotsLoaded() {
-  console.log('Ensuring slots are properly loaded...');
-  
   const slotsWithCards = Array.from(slots).filter(slot => slot.dataset.supportId);
   
   if (slotsWithCards.length > 0) {
-    console.log(`Found ${slotsWithCards.length} slots with cards, verifying effect text...`);
-    
     let needsUpdate = false;
     slotsWithCards.forEach(slot => {
       const nameContainer = slot.querySelector('.name');
@@ -6982,7 +6836,6 @@ function ensureSlotsLoaded() {
     });
     
     if (needsUpdate) {
-      console.log('Slots need effect text update, forcing refresh...');
       updateAllSlotDisplays();
     }
   }
@@ -7038,7 +6891,6 @@ function handleSlotSelection(container, index) {
   
   if (isSameSlot) {
     clearSlotSelection();
-    console.log(`Slot ${index + 1} deselected`);
     return;
   }
   
@@ -7048,8 +6900,6 @@ function handleSlotSelection(container, index) {
   container.classList.add('selected');
   
   localStorage.setItem(SLOT_SELECTION_KEY, index.toString());
-  
-  console.log(`Slot ${index + 1} selected - next card clicked will go here`);
 }
 
 function clearSlotSelection() {
@@ -7090,14 +6940,12 @@ function setupDeckName() {
   if (savedDeckName) {
     deckNameInput.value = savedDeckName;
     deckNameDisplay.textContent = savedDeckName;
-    console.log('Loaded deck name from storage:', savedDeckName);
   }
   
   deckNameInput.addEventListener('input', (e) => {
     const name = e.target.value;
     deckNameDisplay.textContent = name || 'Unnamed Deck';
     localStorage.setItem('deckName', name);
-    console.log('Deck name updated:', name || 'Unnamed Deck');
   });
 }
 
@@ -7140,7 +6988,7 @@ function copyAllToClipboard() {
     }).filter(item => item !== null);
 
     const allData = {
-        version: '1.2', // Bump version to include character potential level
+        version: '1.2',
         deckName: deckName,
         deck: deckData,
         skills: skillsData,
@@ -7166,10 +7014,7 @@ function copyAllToClipboard() {
             copyBtn.textContent = originalText;
             copyBtn.style.background = '';
         }, 1500);
-
-        console.log('All data copied to clipboard:', allData);
     }).catch(err => {
-        console.error('Failed to copy all data: ', err);
         alert('Failed to copy all data to clipboard');
     });
 }
@@ -7189,18 +7034,13 @@ function pasteAllFromClipboard() {
                 throw new Error('Invalid format: Missing required fields');
             }
             
-            // Handle different versions
             if (allData.version === '1.0') {
-                // Old version - set default values
                 allData.potentialLevel = 1;
                 allData.character = null;
             } else if (allData.version !== '1.1') {
                 throw new Error('Unsupported format version');
             }
             
-            console.log('Pasting data with potential level:', allData.potentialLevel);
-            
-            // Set potential level
             if (allData.potentialLevel) {
                 updatePotentialLevel(allData.potentialLevel);
             }
@@ -7216,18 +7056,13 @@ function pasteAllFromClipboard() {
                         deckNameInput.value = allData.deckName;
                         deckNameDisplay.textContent = allData.deckName;
                         localStorage.setItem('deckName', allData.deckName);
-                        console.log('Deck name successfully set to:', allData.deckName);
                     } else {
                         deckNameInput.value = '';
                         deckNameDisplay.textContent = 'Unnamed Deck';
                         localStorage.removeItem('deckName');
-                        console.log('No deck name in data, reset to default');
                     }
-                } else {
-                    console.error('Deck name elements not found!');
                 }
                 
-                // Handle character data if present
                 if (allData.character) {
                     const character = characters.find(char => 
                         char.card_id === allData.character.card_id && 
@@ -7239,18 +7074,15 @@ function pasteAllFromClipboard() {
                     }
                 }
                 
-// In the pasteAllFromClipboard function, add this after setting the character:
 if (allData.character && allData.character.potentialLevel) {
     characterPotentialLevels[allData.character.card_id] = allData.character.potentialLevel;
     localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
     
-    // Update the display if this character is selected
     if (selectedCharacter && selectedCharacter.card_id === allData.character.card_id) {
         updatePotentialLevel(allData.character.potentialLevel, selectedCharacter.card_id);
     }
 }
 
-                // Rest of the paste logic remains the same...
                 allData.deck.forEach((slotData, index) => {
                     if (slotData.supportId !== 'empty') {
                         const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
@@ -7265,12 +7097,6 @@ if (allData.character && allData.character.potentialLevel) {
                                     const validatedLevel = validateLevel(slotData.level, card);
                                     levelInput.value = validatedLevel;
                                     slotLevels[card.support_id] = validatedLevel;
-                                    
-                                    const levelBadge = slot.querySelector('.level-badge');
-                                    const diamondIcons = slot.querySelector('.diamond-icons');
-                                    
-                                    if (levelBadge) levelBadge.textContent = `Lv ${validatedLevel}`;
-                                    if (diamondIcons) diamondIcons.innerHTML = generateDiamondIcons(card, validatedLevel);
                                 }
                             }
                         }
@@ -7338,26 +7164,19 @@ if (allData.character && allData.character.potentialLevel) {
                     pasteBtn.style.background = '';
                 }, 1500);
                 
-                console.log('All data pasted from clipboard:', allData);
-                
             }, 100);
             
         } catch (error) {
-            console.error('Failed to parse all data: ', error);
             alert('Invalid format in clipboard! Use Copy All button first.');
         }
     }).catch(err => {
-        console.error('Failed to read clipboard: ', err);
         alert('Failed to read from clipboard. Please check permissions.');
     });
 }
 
-// Update the initPotentialLevelControls function
 function initPotentialLevelControls() {
-    // Set initial potential level to 1
     updatePotentialLevel(1);
     
-    // Add event listeners for potential level buttons
     potentialDecreaseBtn.addEventListener('click', () => {
         const characterId = selectedCharacter ? selectedCharacter.card_id : null;
         updatePotentialLevel(potentialLevel - 1, characterId);
@@ -7381,8 +7200,6 @@ function resetAllLevels() {
   if (!confirm('Are you sure you want to reset ALL card levels to 1? This will refresh the display.')) {
     return;
   }
-  
-  console.log('Resetting ALL card levels to 1...');
   
   localStorage.removeItem('slotLevels');
   
@@ -7408,8 +7225,6 @@ function resetAllLevels() {
         updateUniqueEffectsDisplay(slot, card, 1);
         
         updateSlotNameWithEffectData(slot, card, 1);
-        
-        console.log(`Reset slot: ${card.char_name} to Lv 1`);
       }
     } else {
       levelInput.value = '1';
@@ -7426,7 +7241,6 @@ function resetAllLevels() {
   setTimeout(() => {
     sectionPages.clear();
     renderSections();
-    console.log('Sections re-rendered with reset levels');
   }, 200);
   
   const resetBtn = document.getElementById('resetLevelsBtn');
@@ -7436,13 +7250,9 @@ function resetAllLevels() {
   setTimeout(() => {
     resetBtn.textContent = originalText;
   }, 1500);
-  
-  console.log('ALL card levels reset to 1');
 }
 
 function resetAllMainGridCards() {
-  console.log('Resetting ALL main grid card levels...');
-  
   const mainGridCards = document.querySelectorAll('.card');
   let updatedCount = 0;
   
@@ -7456,12 +7266,9 @@ function resetAllMainGridCards() {
         updateCardEffectDisplay(cardElement, supportId, 1);
         
         updatedCount++;
-        console.log(`Reset main grid card: ${card.char_name} to Lv 1`);
       }
     }
   });
-  
-  console.log(`Updated ${updatedCount} main grid cards`);
   
   cardsData.forEach(card => {
     slotLevels[card.support_id] = 1;
@@ -7472,10 +7279,7 @@ function refreshCombinedLevelDisplay(element, card, newLevel) {
   const container = element.querySelector('.level-diamond-container');
   if (container) {
     container.innerHTML = generateCombinedLevelDisplay(card, newLevel);
-    console.log(`Refreshed level display for ${card.char_name}: Lv ${newLevel}`);
   } else {
-    console.warn(`No level-diamond-container found for ${card.char_name}, creating one`);
-    
     const newContainer = document.createElement('div');
     newContainer.className = 'level-diamond-container';
     newContainer.innerHTML = generateCombinedLevelDisplay(card, newLevel);
@@ -7502,7 +7306,6 @@ function setupClearDeckWithNameReset() {
         deckNameInput.value = '';
         deckNameDisplay.textContent = 'Unnamed Deck';
         localStorage.removeItem('deckName');
-        console.log('Manual clear: Deck name reset to default');
       }
     }
     
@@ -7547,8 +7350,6 @@ function setupClearDeckWithNameReset() {
 
 /* ------------- REFRESH ALL SLOT LEVEL DISPLAYS ------------- */
 function refreshAllSlotLevelDisplays() {
-  console.log('Refreshing all slot level displays...');
-  
   slots.forEach((slot, index) => {
     if (slot.dataset.supportId) {
       const supportId = slot.dataset.supportId;
@@ -7562,8 +7363,6 @@ function refreshAllSlotLevelDisplays() {
         refreshCombinedLevelDisplay(slot, card, currentLevel);
         
         updateUniqueEffectsDisplay(slot, card, currentLevel);
-        
-        console.log(`Refreshed slot ${index}: ${card.char_name} Lv ${currentLevel}`);
       }
     }
   });
@@ -7602,8 +7401,6 @@ function generateCombinedLevelDisplay(card, currentLevel) {
 }
 
 function refreshAllMainGridCardLevels() {
-  console.log('Refreshing all main grid card levels...');
-  
   const allCards = document.querySelectorAll('.card');
   allCards.forEach(cardElement => {
     const supportId = cardElement.dataset.supportId;
@@ -7644,26 +7441,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 /* ------------- FUNCTION CHARACTER PICKER MODAL ------------- */
-// Remove the currentRegion variable declaration and replace with this:
-// Get region from your existing sidebar selector
 function getCurrentRegion() {
     const regionSelect = document.getElementById('region');
     return regionSelect ? regionSelect.value : 'global';
 }
 
-// Update the region checking functions to use the current selector value:
 function isCharacterAvailableInRegion(characterData) {
     const currentRegion = getCurrentRegion();
     if (currentRegion === 'global') {
-        // For global, character must have a release_en date
         return characterData.release_en && characterData.release_en !== 'Unknown';
     } else {
-        // For Japan, character must have a release date
         return characterData.release && characterData.release !== 'Unknown';
     }
 }
 
-// Add helper function to get region-filtered characters
 function getRegionFilteredCharacters() {
     if (!characters || characters.length === 0) return [];
     
@@ -7671,13 +7462,11 @@ function getRegionFilteredCharacters() {
     
     return characters.filter(character => {
         if (currentRegion === 'global') {
-            // For global, character must have a valid release_en date
             return character.originalData.release_en && 
                    character.originalData.release_en !== '' && 
                    character.originalData.release_en !== 'Unknown' &&
                    character.originalData.release_en !== 'unknown';
         } else {
-            // For Japan, character must have a valid release date
             return character.originalData.release && 
                    character.originalData.release !== '' && 
                    character.originalData.release !== 'Unknown' &&
@@ -7686,11 +7475,9 @@ function getRegionFilteredCharacters() {
     });
 }
 
-// Update the applyRegionFilter to use the same logic
 function applyRegionFilter() {
     const regionFilteredCharacters = getRegionFilteredCharacters();
     
-    // Apply current search to filtered results
     const searchTerm = characterSearch ? characterSearch.value.toLowerCase() : '';
     const searchedCharacters = searchTerm ? 
         regionFilteredCharacters.filter(character => 
@@ -7703,72 +7490,54 @@ function applyRegionFilter() {
     populateCharacterGrid(sortedCharacters);
 }
 
-// Update handleRegionChange to check saved character availability
 function handleRegionChange() {
     applyRegionFilter();
     
-    // If we have a selected character, check if it should still be visible
     if (selectedCharacter && !isCharacterAvailableInRegion(selectedCharacter.originalData)) {
-        // Deselect character if it's not available in current region
         selectedCharacter = null;
         updateCharacterDisplay();
     } else if (!selectedCharacter) {
-        // Try to load saved character if none is selected
         loadSelectedCharacter();
     }
 }
 
-// Update the updateCharacterSkills to handle showing/hiding
 function updateCharacterSkills(characterData) {
     const currentRegion = getCurrentRegion();
     
-    // Determine which event skills to use based on region
     let eventSkillsToUse;
     if (currentRegion === 'global') {
-        // For global, use skills_event_en if available, otherwise fall back to skills_event
         eventSkillsToUse = characterData.skills_event_en || characterData.skills_event || [];
     } else {
-        // For Japan, always use skills_event
         eventSkillsToUse = characterData.skills_event || [];
     }
     
-    // Show the skills section when we have a character
     showSkillsSection();
     
-    // SWAPPED: Update awakening skills first (now in first column)
     updateSkillColumn('.character-skills-column:nth-child(1)', 'Awakening Skills', characterData.skills_awakening);
     
-    // SWAPPED: Update innate skills second (now in second column)
     updateSkillColumn('.character-skills-column:nth-child(2)', 'Innate Skills', characterData.skills_innate);
     
-    // Update event skills (stays in third column)
     updateSkillColumn('.character-skills-column:nth-child(3)', 'Event Skills', eventSkillsToUse);
 }
 
-// Update the updateSkillColumn to handle empty columns better
 function updateSkillColumn(columnSelector, headerText, skillIds) {
     const column = document.querySelector(columnSelector);
     if (!column) return;
     
-    // Clear existing content
     column.innerHTML = '';
     
-    // If no skills, hide the entire column
     if (!skillIds || skillIds.length === 0) {
         column.style.display = 'none';
         return;
     }
     
-    // Show the column
     column.style.display = 'flex';
     
-    // Add header
     const header = document.createElement('div');
     header.className = 'character-skills-header';
     header.textContent = headerText;
     column.appendChild(header);
     
-    // Create skill boxes based on the number of skills
     skillIds.forEach((skillId, index) => {
         const skillElement = document.createElement('div');
         skillElement.className = 'character-skill character-skill-text';
@@ -7779,7 +7548,6 @@ function updateSkillColumn(columnSelector, headerText, skillIds) {
         column.appendChild(skillElement);
     });
     
-    // Add empty boxes if we have fewer than 3 skills (for consistent layout)
     const currentSkillCount = skillIds.length;
     if (currentSkillCount < 3) {
         const emptySlotsNeeded = 3 - currentSkillCount;
@@ -7790,100 +7558,74 @@ function updateSkillColumn(columnSelector, headerText, skillIds) {
             column.appendChild(emptySkill);
         }
     }
-    // Add this at the end:
     setTimeout(() => {
         highlightCharacterSkills();
     }, 100);
 }
 
-// Update the resetCharacterSkills to create completely empty columns
 function resetCharacterSkills() {
     const columns = document.querySelectorAll('.character-skills-column');
     
     columns.forEach((column, index) => {
-        // Clear existing content but don't add any headers or boxes
         column.innerHTML = '';
         column.style.display = 'none';
     });
     
-    // Hide the entire skills section
     hideSkillsSection();
 }
 
-
-// Update the initCharacterPicker to load saved character
-// Update initCharacterPicker to start with hidden skills
 function initCharacterPicker() {
-    // Wait a bit for skills data to load if it's not ready yet
     if (!skillsData || skillsData.length === 0) {
-        console.log('Skills data not ready, waiting...');
         setTimeout(initCharacterPicker, 500);
         return;
     }
     
-    // Set default sort to Release Date Descending
     characterSort.value = 'implemented';
     characterSortOrder.textContent = '↓';
     characterSortOrder.classList.remove('ascending');
     isAscending = false;
     
-    // Start with skills hidden
     hideSkillsSection();
     
-    // Load character data
     loadCharacterData();
     
-    // Add click event to empty box
     characterPickerBox.addEventListener('click', openCharacterPicker);
     
-    // Add close event to modal
     characterPickerClose.addEventListener('click', closeCharacterPicker);
     
-    // Add search functionality
     characterSearch.addEventListener('input', filterCharacters);
     
-    // Add sort functionality
     characterSort.addEventListener('change', sortCharacters);
     characterSortOrder.addEventListener('click', toggleSortOrder);
     
-    // Add region change listener - get the region select from left sidebar
     const regionSelect = document.getElementById('region');
     if (regionSelect) {
-        // Remove any existing listener to avoid duplicates
         regionSelect.removeEventListener('change', handleRegionChange);
         regionSelect.addEventListener('change', handleRegionChange);
     }
     
-    // Close modal when clicking outside
     characterPickerModal.addEventListener('click', (e) => {
         if (e.target === characterPickerModal) {
             closeCharacterPicker();
         }
     });
     
-    // Load saved character after a short delay to ensure characters are loaded
     setTimeout(() => {
         loadSelectedCharacter();
     }, 1000);
-    
-    console.log('Character picker initialized with skills data');
 }
 
-// Open character picker modal
 function openCharacterPicker() {
     characterPickerModal.classList.add('active');
-    // Focus on search input when modal opens
     setTimeout(() => {
         characterSearch.focus();
     }, 100);
 }
 
-// Close character picker modal
 function closeCharacterPicker() {
     characterPickerModal.classList.remove('active');
 }
 
-// Update the populateCharacterGrid function to show additional info
 function populateCharacterGrid(charactersToShow) {
     characterGrid.innerHTML = '';
     
@@ -7896,7 +7638,6 @@ function populateCharacterGrid(charactersToShow) {
         const characterCard = document.createElement('div');
         characterCard.className = 'character-card';
         
-        // Get display info based on current sort
         const displayInfo = getCharacterDisplayInfo(character);
         
         characterCard.innerHTML = `
@@ -7912,33 +7653,32 @@ function populateCharacterGrid(charactersToShow) {
     });
 }
 
-// Update the getCharacterDisplayInfo function to use new labels
 function getCharacterDisplayInfo(character) {
     const sortBy = characterSort.value;
     
     switch(sortBy) {
         case 'id':
-            return `ID: ${character.card_id}`; // Show costume ID
+            return `ID: ${character.card_id}`;
         case 'turf':
             return `Turf: ${character.aptitude[0]}`;
         case 'dirt':
             return `Dirt: ${character.aptitude[1]}`;
         case 'sprint':
-            return `Sprint: ${character.aptitude[2]}`; // Changed from Short
+            return `Sprint: ${character.aptitude[2]}`;
         case 'mile':
             return `Mile: ${character.aptitude[3]}`;
         case 'middle':
-            return `Medium: ${character.aptitude[4]}`; // Changed from Middle
+            return `Medium: ${character.aptitude[4]}`;
         case 'long':
             return `Long: ${character.aptitude[5]}`;
         case 'runner':
-            return `Front: ${character.aptitude[6]}`; // Changed from Runner
+            return `Front: ${character.aptitude[6]}`;
         case 'leader':
-            return `Pace: ${character.aptitude[7]}`; // Changed from Leader
+            return `Pace: ${character.aptitude[7]}`;
         case 'betweener':
-            return `Late: ${character.aptitude[8]}`; // Changed from Betweener
+            return `Late: ${character.aptitude[8]}`;
         case 'chaser':
-            return `End: ${character.aptitude[9]}`; // Changed from Chaser
+            return `End: ${character.aptitude[9]}`;
         case 'bonus_speed':
             return `Speed: ${character.stat_bonus[0]}%`;
         case 'bonus_stamina':
@@ -7958,9 +7698,7 @@ function getCharacterDisplayInfo(character) {
     }
 }
 
-// Update the selectCharacter function to load character-specific potential level
 function selectCharacter(character) {
-    // If clicking the same character, deselect it
     if (selectedCharacter && selectedCharacter.card_id === character.card_id) {
         selectedCharacter = null;
         updateCharacterDisplay();
@@ -7970,7 +7708,6 @@ function selectCharacter(character) {
     
     selectedCharacter = character;
     
-    // Load character-specific potential level or default to 1
     const characterPotential = characterPotentialLevels[character.card_id] || 1;
     updatePotentialLevel(characterPotential, character.card_id);
     
@@ -7978,38 +7715,32 @@ function selectCharacter(character) {
     closeCharacterPicker();
 }
 
-// Add function to hide skills section completely
 function hideSkillsSection() {
     const skillsSection = document.querySelector('.character-skills-section');
     if (skillsSection) {
         skillsSection.style.display = 'none';
     }
     
-    // Also hide the skills headers and all skill boxes
     const skillColumns = document.querySelectorAll('.character-skills-column');
     skillColumns.forEach(column => {
         column.style.display = 'none';
     });
 }
 
-// Add function to show skills section
 function showSkillsSection() {
     const skillsSection = document.querySelector('.character-skills-section');
     if (skillsSection) {
         skillsSection.style.display = 'grid';
     }
     
-    // Show all skill columns
     const skillColumns = document.querySelectorAll('.character-skills-column');
     skillColumns.forEach(column => {
         column.style.display = 'flex';
     });
 }
 
-// Update the updateCharacterDisplay function
 function updateCharacterDisplay() {
     if (selectedCharacter) {
-        // Update the empty box to show selected character
         characterPickerBox.classList.add('has-character');
         characterPickerBox.innerHTML = `
             <img src="${selectedCharacter.portrait}" alt="${selectedCharacter.name}" class="selected-character-portrait" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
@@ -8019,11 +7750,9 @@ function updateCharacterDisplay() {
             </div>
         `;
         
-        // Load character-specific potential level
         const characterPotential = characterPotentialLevels[selectedCharacter.card_id] || 1;
         updatePotentialLevel(characterPotential, selectedCharacter.card_id);
         
-        // Update aptitude percentages
         const percentages = document.querySelectorAll('.character-picker-percentage');
         if (selectedCharacter.stat_bonus && selectedCharacter.stat_bonus.length >= 5) {
             percentages.forEach((percentage, index) => {
@@ -8034,7 +7763,6 @@ function updateCharacterDisplay() {
             });
         }
         
-        // Update aptitude grades
         const grades = document.querySelectorAll('.character-picker-grade');
         if (selectedCharacter.aptitude && selectedCharacter.aptitude.length >= 10) {
             grades.forEach((grade, index) => {
@@ -8045,36 +7773,27 @@ function updateCharacterDisplay() {
             });
         }
         
-        // Update character skills
         updateCharacterSkills(selectedCharacter.originalData);
         
-        // Save the selected character to localStorage
         saveSelectedCharacter();
     } else {
-        // Reset to empty state
         characterPickerBox.classList.remove('has-character');
         characterPickerBox.innerHTML = '<div class="character-picker-empty-text">Empty</div>';
-        updatePotentialLevel(1); // Reset to default level 1 when no character
+        updatePotentialLevel(1);
         
-        // Reset percentages to "-" 
         document.querySelectorAll('.character-picker-percentage').forEach(p => p.textContent = '-');
         
-        // Reset aptitude grades to "-" when no character
         document.querySelectorAll('.character-picker-grade').forEach(g => g.textContent = '-');
         
-        // Hide skills section completely when no character
         hideSkillsSection();
         
-        // Clear saved character
         localStorage.removeItem('selectedCharacter');
     }
 }
 
-// Update the filterCharacters and sortCharacters functions to maintain region filtering
 function filterCharacters() {
     const searchTerm = characterSearch.value.toLowerCase();
     
-    // Always apply region filter first
     const regionFilteredCharacters = getRegionFilteredCharacters();
     
     const filteredCharacters = regionFilteredCharacters.filter(character => 
@@ -8082,16 +7801,13 @@ function filterCharacters() {
         character.title.toLowerCase().includes(searchTerm)
     );
     
-    // Apply current sort to filtered results
     const sortedCharacters = sortCharacterList(filteredCharacters);
     populateCharacterGrid(sortedCharacters);
 }
 
 function sortCharacters() {
-    // Always apply region filter first
     const regionFilteredCharacters = getRegionFilteredCharacters();
     
-    // Apply current search to region-filtered results
     const searchTerm = characterSearch ? characterSearch.value.toLowerCase() : '';
     const searchedCharacters = searchTerm ? 
         regionFilteredCharacters.filter(character => 
@@ -8104,17 +7820,14 @@ function sortCharacters() {
     populateCharacterGrid(sortedCharacters);
 }
 
-// Update the toggleSortOrder to maintain filtering
 function toggleSortOrder() {
     isAscending = !isAscending;
     characterSortOrder.textContent = isAscending ? '↑' : '↓';
     characterSortOrder.classList.toggle('ascending', isAscending);
     
-    // Use the same logic as sortCharacters to maintain filtering
     sortCharacters();
 }
 
-// Update the sortCharacterList function for secondary sorting
 function sortCharacterList(characterList) {
     const sortBy = characterSort.value;
     const order = isAscending ? 1 : -1;
@@ -8123,7 +7836,6 @@ function sortCharacterList(characterList) {
         let aValue, bValue;
         let aSecondary, bSecondary;
         
-        // Get release date for secondary sorting (latest first)
         const currentRegion = getCurrentRegion();
         aSecondary = currentRegion === 'global' ? a.originalData.release_en : a.originalData.release;
         bSecondary = currentRegion === 'global' ? b.originalData.release_en : b.originalData.release;
@@ -8134,7 +7846,6 @@ function sortCharacterList(characterList) {
                 bValue = b.name;
                 break;
             case 'rarity':
-                // Convert rarity to numerical value for proper sorting
                 const rarityValues = { 'SSR': 3, 'SR': 2, 'R': 1, 'Unknown': 0 };
                 aValue = rarityValues[a.rarity] || 0;
                 bValue = rarityValues[b.rarity] || 0;
@@ -8144,11 +7855,9 @@ function sortCharacterList(characterList) {
                 bValue = new Date(b.implemented);
                 break;
             case 'id':
-                // Use costume ID (card_id) instead of character ID
                 aValue = a.card_id;
                 bValue = b.card_id;
                 break;
-            // Aptitude sorting with secondary release date sort
             case 'turf':
                 aValue = getAptitudeValue(a.aptitude[0]);
                 bValue = getAptitudeValue(b.aptitude[0]);
@@ -8189,7 +7898,6 @@ function sortCharacterList(characterList) {
                 aValue = getAptitudeValue(a.aptitude[9]);
                 bValue = getAptitudeValue(b.aptitude[9]);
                 break;
-            // Stat bonus sorting with secondary release date sort
             case 'bonus_speed':
                 aValue = a.stat_bonus[0];
                 bValue = b.stat_bonus[0];
@@ -8215,11 +7923,9 @@ function sortCharacterList(characterList) {
                 bValue = b.name;
         }
         
-        // Primary sort
         if (aValue < bValue) return -1 * order;
         if (aValue > bValue) return 1 * order;
         
-        // Secondary sort by release date (latest first)
         try {
             const aDate = new Date(aSecondary);
             const bDate = new Date(bSecondary);
@@ -8228,20 +7934,18 @@ function sortCharacterList(characterList) {
             if (!isNaN(aDate.getTime()) && isNaN(bDate.getTime())) return -1;
             if (isNaN(aDate.getTime()) && isNaN(bDate.getTime())) return 0;
             
-            return bDate - aDate; // Latest first
+            return bDate - aDate;
         } catch (e) {
             return 0;
         }
     });
 }
 
-// Helper function to convert aptitude letter to numerical value for sorting
 function getAptitudeValue(aptitude) {
     const values = { 'S': 5, 'A': 4, 'B': 3, 'C': 2, 'D': 1, 'E': 0, 'F': -1, 'G': -2 };
     return values[aptitude] || -3;
 }
 
-// Add functions to save and load selected character
 function saveSelectedCharacter() {
     if (selectedCharacter) {
         localStorage.setItem('selectedCharacter', JSON.stringify({
@@ -8263,7 +7967,6 @@ function loadSelectedCharacter() {
     if (saved) {
         try {
             const savedCharacter = JSON.parse(saved);
-            // Find the character in our current characters array
             const character = characters.find(char => 
                 char.card_id === savedCharacter.card_id && 
                 char.char_id === savedCharacter.char_id
@@ -8275,19 +7978,15 @@ function loadSelectedCharacter() {
                     originalData: savedCharacter.originalData || character.originalData
                 };
                 updateCharacterDisplay();
-                console.log('Loaded saved character:', selectedCharacter.name);
             } else {
-                console.log('Saved character not available in current region or not found');
                 localStorage.removeItem('selectedCharacter');
             }
         } catch (error) {
-            console.error('Error loading saved character:', error);
             localStorage.removeItem('selectedCharacter');
         }
     }
 }
 
-// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', initCharacterPicker);
 
 </script>
