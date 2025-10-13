@@ -6282,77 +6282,82 @@ function copyDeckToClipboard() {
 }
 
 function pasteDeckFromClipboard() {
-  navigator.clipboard.readText().then(text => {
-    try {
-      const deckData = parseDeckFromClipboard(text);
-      
-      if (!deckData || deckData.length !== 6) {
-        alert('Invalid deck format! Expected 6 slots.');
-        return;
-      }
-
-if (window.programmaticClearDeck) {
-  window.programmaticClearDeck();
-} else {
-  clearAllBtn.click();
-}
-      
-      setTimeout(() => {
-        let hasValidCards = false;
-        
-        deckData.forEach((slotData, index) => {
-          if (slotData.supportId !== 'empty') {
-            const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
-            if (card) {
-              const slot = slots[index];
-              addToSlot(card, slot, false);
-              
-              if (slotData.level && slotData.level !== '1') {
-                const slotContainer = slot.closest('.slot-container');
-                const levelInput = slotContainer.querySelector('.slot-level-input');
-                if (levelInput) {
-                  const validatedLevel = validateLevel(slotData.level, card);
-                  levelInput.value = validatedLevel;
-                  slotLevels[card.support_id] = validatedLevel;
-                }
-              }
-              
-              hasValidCards = true;
+    navigator.clipboard.readText().then(text => {
+        try {
+            const deckData = parseDeckFromClipboard(text);
+            
+            if (!deckData || deckData.length !== 6) {
+                alert('Invalid deck format! Expected 6 slots.');
+                return;
             }
-          }
-        });
-        
-        saveSlotsToLocalStorage();
-        localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
-        
-        updateSelectedSkillsList();
-        highlightSkills();
-        highlightSelectedSkills();
-        renderSections();
-        
-        const pasteBtn = document.getElementById('pasteDeckBtn');
-        const originalText = pasteBtn.textContent;
-        const validCardCount = deckData.filter(slot => slot.supportId !== 'empty').length;
-        pasteBtn.textContent = `Pasted ${validCardCount}`;
-        pasteBtn.style.background = '#14a1f7';
-        
-        setTimeout(() => {
-          pasteBtn.textContent = originalText;
-          pasteBtn.style.background = '';
-        }, 1500);
-        
-        if (!hasValidCards) {
-          alert('No valid cards found in the deck data!');
+
+            // Clear existing deck
+            if (window.programmaticClearDeck) {
+                window.programmaticClearDeck();
+            } else {
+                clearAllBtn.click();
+            }
+            
+            setTimeout(() => {
+                let hasValidCards = false;
+                let processedCards = 0;
+                
+                deckData.forEach((slotData, index) => {
+                    if (slotData.supportId !== 'empty') {
+                        const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
+                        if (card) {
+                            const slot = slots[index];
+                            addToSlot(card, slot, false);
+                            
+                            if (slotData.level && slotData.level !== '1') {
+                                const slotContainer = slot.closest('.slot-container');
+                                const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+                                if (levelInput) {
+                                    const validatedLevel = validateLevel(slotData.level, card);
+                                    levelInput.value = validatedLevel;
+                                    slotLevels[card.support_id] = validatedLevel;
+                                }
+                            }
+                            
+                            hasValidCards = true;
+                            processedCards++;
+                        }
+                    }
+                });
+                
+                saveSlotsToLocalStorage();
+                localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+                
+                updateSelectedSkillsList();
+                highlightSkills();
+                highlightSelectedSkills();
+                renderSections();
+                updateEffectTotals();
+                
+                const pasteBtn = document.getElementById('pasteDeckBtn');
+                const originalText = pasteBtn.textContent;
+                pasteBtn.textContent = `Pasted ${processedCards}`;
+                pasteBtn.style.background = '#14a1f7';
+                
+                setTimeout(() => {
+                    pasteBtn.textContent = originalText;
+                    pasteBtn.style.background = '';
+                }, 1500);
+                
+                if (!hasValidCards) {
+                    alert('No valid cards found in the deck data!');
+                }
+                
+            }, 100);
+            
+        } catch (error) {
+            console.error('Paste deck error:', error);
+            alert('Invalid deck format in clipboard! Use Copy Deck button first.');
         }
-        
-      }, 100);
-      
-    } catch (error) {
-      alert('Invalid deck format in clipboard! Use Copy Deck button first.');
-    }
-  }).catch(err => {
-    alert('Failed to read from clipboard. Please check permissions.');
-  });
+    }).catch(err => {
+        console.error('Clipboard error:', err);
+        alert('Failed to read from clipboard. Please check permissions.');
+    });
 }
 
 function parseDeckFromClipboard(text) {
@@ -7153,151 +7158,182 @@ function setupPasteAll() {
   pasteAllBtn.addEventListener('click', pasteAllFromClipboard);
 }
 
+function ensureDataLoaded(callback) {
+    const checkData = setInterval(() => {
+        if (cardsData && cardsData.length > 0 && skillsData && skillsData.length > 0) {
+            clearInterval(checkData);
+            callback();
+        }
+    }, 100);
+    
+    // Timeout after 10 seconds
+    setTimeout(() => {
+        clearInterval(checkData);
+        alert('Data loading timeout. Please refresh the page and try again.');
+    }, 10000);
+}
+
+
 function pasteAllFromClipboard() {
     navigator.clipboard.readText().then(text => {
         try {
             const allData = JSON.parse(text);
             
-            if (!allData.deck || !allData.skills || !allData.version) {
+            // Add better version checking
+            if (!allData.deck || !allData.skills) {
                 throw new Error('Invalid format: Missing required fields');
             }
             
-            if (allData.version === '1.0') {
-                allData.potentialLevel = 1;
-                allData.character = null;
-            } else if (allData.version !== '1.1') {
-                throw new Error('Unsupported format version');
+            // Handle different versions
+            if (!allData.version) {
+                // Assume version 1.0 format
+                allData.version = '1.0';
+                allData.potentialLevel = allData.potentialLevel || 1;
+                allData.character = allData.character || null;
             }
             
-            if (allData.potentialLevel) {
-                updatePotentialLevel(allData.potentialLevel);
-            }
-            
-            clearAllBtn.click();
-            
-            setTimeout(() => {
-                const deckNameInput = document.getElementById('deckNameInput');
-                const deckNameDisplay = document.getElementById('deckNameDisplay');
+            if (allData.version === '1.0' || allData.version === '1.1' || allData.version === '1.2') {
+                // These versions are supported
+                if (allData.potentialLevel) {
+                    updatePotentialLevel(allData.potentialLevel);
+                }
                 
-                if (deckNameInput && deckNameDisplay) {
-                    if (allData.deckName && allData.deckName.trim() !== '') {
+                // Clear existing data
+                if (window.programmaticClearDeck) {
+                    window.programmaticClearDeck();
+                } else {
+                    clearAllBtn.click();
+                }
+                
+                setTimeout(() => {
+                    // Process deck name
+                    const deckNameInput = document.getElementById('deckNameInput');
+                    const deckNameDisplay = document.getElementById('deckNameDisplay');
+                    
+                    if (deckNameInput && deckNameDisplay && allData.deckName) {
                         deckNameInput.value = allData.deckName;
                         deckNameDisplay.textContent = allData.deckName;
                         localStorage.setItem('deckName', allData.deckName);
-                    } else {
-                        deckNameInput.value = '';
-                        deckNameDisplay.textContent = 'Unnamed Deck';
-                        localStorage.removeItem('deckName');
                     }
-                }
-                
-                if (allData.character) {
-                    const character = characters.find(char => 
-                        char.card_id === allData.character.card_id && 
-                        char.char_id === allData.character.char_id
-                    );
-                    if (character && isCharacterAvailableInRegion(character.originalData)) {
-                        selectedCharacter = character;
-                        updateCharacterDisplay();
-                    }
-                }
-                
-if (allData.character && allData.character.potentialLevel) {
-    characterPotentialLevels[allData.character.card_id] = allData.character.potentialLevel;
-    localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
-    
-    if (selectedCharacter && selectedCharacter.card_id === allData.character.card_id) {
-        updatePotentialLevel(allData.character.potentialLevel, selectedCharacter.card_id);
-    }
+                    
+// In the character processing part of pasteAllFromClipboard:
+if (allData.character && allData.character.card_id) {
+    // Give it a moment for character data to load if needed
+    setTimeout(() => {
+        const character = characters.find(char => 
+            char.card_id === allData.character.card_id
+        );
+        if (character) {
+            selectedCharacter = character;
+            
+            if (allData.character.potentialLevel) {
+                characterPotentialLevels[character.card_id] = allData.character.potentialLevel;
+                localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
+                updatePotentialLevel(allData.character.potentialLevel, character.card_id);
+            }
+            
+            updateCharacterDisplay();
+        }
+    }, 500);
 }
+                    
+                    // Process deck cards with better error handling
+                    let processedCards = 0;
+                    allData.deck.forEach((slotData, index) => {
+                        if (slotData.supportId !== 'empty') {
+                            const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
+                            if (card) {
+                                const slot = slots[index];
+                                addToSlot(card, slot, false);
+                                
+                                if (slotData.level && slotData.level !== '1') {
+                                    const slotContainer = slot.closest('.slot-container');
+                                    const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+                                    if (levelInput) {
+                                        const validatedLevel = validateLevel(slotData.level, card);
+                                        levelInput.value = validatedLevel;
+                                        slotLevels[card.support_id] = validatedLevel;
+                                    }
+                                }
+                                processedCards++;
+                            }
+                        }
+                    });
 
-                allData.deck.forEach((slotData, index) => {
-                    if (slotData.supportId !== 'empty') {
-                        const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
-                        if (card) {
-                            const slot = slots[index];
-                            addToSlot(card, slot, false);
-                            
-                            if (slotData.level && slotData.level !== '1') {
-                                const slotContainer = slot.closest('.slot-container');
-                                const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
-                                if (levelInput) {
-                                    const validatedLevel = validateLevel(slotData.level, card);
-                                    levelInput.value = validatedLevel;
-                                    slotLevels[card.support_id] = validatedLevel;
+                    // Process skills
+                    clearAllSkillSearches();
+                    
+                    allData.skills.forEach((skillItem, index) => {
+                        if (index < maxSearches) {
+                            if (index === 0) {
+                                const firstInput = document.getElementById('skillSearch1');
+                                const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
+                                
+                                if (firstInput) firstInput.value = skillItem.skill;
+                                if (firstColorPicker && skillItem.color) {
+                                    firstColorPicker.className = `color-picker ${skillItem.color}`;
+                                    firstColorPicker.dataset.color = skillItem.color;
+                                    localStorage.setItem('color_skillSearch1', skillItem.color);
+                                }
+                                
+                                const firstSearch = skillSearches.find(s => s.id === 'skillSearch1');
+                                if (firstSearch) {
+                                    firstSearch.value = skillItem.skill;
+                                }
+                            } else {
+                                const newId = `skillSearch${index + 1}`;
+                                
+                                skillSearches.push({ id: newId, value: skillItem.skill });
+                                createSearchBox(newId, skillItem.skill);
+                                
+                                const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
+                                if (colorPicker && skillItem.color) {
+                                    colorPicker.className = `color-picker ${skillItem.color}`;
+                                    colorPicker.dataset.color = skillItem.color;
+                                    localStorage.setItem(`color_${newId}`, skillItem.color);
                                 }
                             }
                         }
-                    }
-                });
-
-                refreshAllSlotLevelDisplays();
+                    });
+                    
+                    // Update all the necessary states
+                    searchCounter = skillSearches.length + 1;
+                    SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+                    
+                    saveSkillSearches();
+                    saveSlotsToLocalStorage();
+                    localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+                    
+                    // Refresh displays
+                    updateSelectedSkillsList();
+                    highlightSkills();
+                    highlightSelectedSkills();
+                    renderSections();
+                    updateEffectTotals();
+                    
+                    // Show success message
+                    const pasteBtn = document.getElementById('pasteAllBtn');
+                    const originalText = pasteBtn.textContent;
+                    pasteBtn.textContent = `Pasted ${processedCards} cards!`;
+                    pasteBtn.style.background = '#14a1f7';
+                    
+                    setTimeout(() => {
+                        pasteBtn.textContent = originalText;
+                        pasteBtn.style.background = '';
+                    }, 2000);
+                    
+                }, 100);
                 
-                clearAllSkillSearches();
-                
-                allData.skills.forEach((skillItem, index) => {
-                    if (index < maxSearches) {
-                        if (index === 0) {
-                            const firstInput = document.getElementById('skillSearch1');
-                            const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
-                            
-                            if (firstInput) firstInput.value = skillItem.skill;
-                            if (firstColorPicker) {
-                                firstColorPicker.className = `color-picker ${skillItem.color}`;
-                                firstColorPicker.dataset.color = skillItem.color;
-                                localStorage.setItem('color_skillSearch1', skillItem.color);
-                            }
-                            
-                            const firstSearch = skillSearches.find(s => s.id === 'skillSearch1');
-                            if (firstSearch) {
-                                firstSearch.value = skillItem.skill;
-                            }
-                        } else {
-                            const newId = `skillSearch${index + 1}`;
-                            
-                            skillSearches.push({ id: newId, value: skillItem.skill });
-                            
-                            createSearchBox(newId, skillItem.skill);
-                            
-                            const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
-                            if (colorPicker) {
-                                colorPicker.className = `color-picker ${skillItem.color}`;
-                                colorPicker.dataset.color = skillItem.color;
-                                localStorage.setItem(`color_${newId}`, skillItem.color);
-                            }
-                        }
-                    }
-                });
-                
-                searchCounter = skillSearches.length + 1;
-                SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
-                
-                saveSkillSearches();
-                saveSlotsToLocalStorage();
-                localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
-                
-                updateSelectedSkillsList();
-                highlightSkills();
-                highlightSelectedSkills();
-                renderSections();
-                updateEffectTotals();
-                
-                const pasteBtn = document.getElementById('pasteAllBtn');
-                const originalText = pasteBtn.textContent;
-                pasteBtn.textContent = 'Pasted!';
-                pasteBtn.style.background = '#14a1f7';
-                
-                setTimeout(() => {
-                    pasteBtn.textContent = originalText;
-                    pasteBtn.style.background = '';
-                }, 1500);
-                
-            }, 100);
+            } else {
+                throw new Error(`Unsupported format version: ${allData.version}`);
+            }
             
         } catch (error) {
-            alert('Invalid format in clipboard! Use Copy All button first.');
+            console.error('Paste error:', error);
+            alert(`Failed to paste: ${error.message}. Please use Copy All button first.`);
         }
     }).catch(err => {
+        console.error('Clipboard error:', err);
         alert('Failed to read from clipboard. Please check permissions.');
     });
 }
