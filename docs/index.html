@@ -3603,9 +3603,11 @@ function processSupportCardData(supportCards, skills) {
 
 // Helper function to get the correct event skills based on current region
 function getEventSkillsForCard(card) {
+  if (!card) return [];
+  
   if (region === 'global') {
     // For Global: if event_skills_en exists and has content, use it, else use event_skills
-    if (card.event_skills_en && card.event_skills_en.length > 0) {
+    if (card.event_skills_en && Array.isArray(card.event_skills_en) && card.event_skills_en.length > 0) {
       return card.event_skills_en.map(skillId => getSkillNameById(skillId));
     } else {
       return (card.event_skills || []).map(skillId => getSkillNameById(skillId));
@@ -5547,7 +5549,7 @@ function filterCardsWithRules(cards, filters){
   const looseTerms = terms.filter(t => !strictDistanceKeys.includes(t));
   
   return cards.filter(card => {
-    // Use helper function for dynamic region-based skills
+    // FIXED: Use helper function for dynamic region-based skills
     const eventSkillsToUse = getEventSkillsForCard(card);
     const skills = [...(card.hint_skills || []), ...eventSkillsToUse].map(normalizeSkill);
     
@@ -5676,12 +5678,10 @@ SKILL_SEARCH_KEYS.forEach((key, i) => {
   const matches = [];
   
   baseFilteredCards.forEach(card => {
-    // CORRECTED: For Global region, use event_skills_en if it exists, otherwise use event_skills
-    const eventSkillsToUse = region === 'global' ? 
-      (card.event_skills_en !== undefined ? card.event_skills_en : card.event_skills) : 
-      card.event_skills;
-    
+    // FIXED: Use helper function for dynamic region-based skills
+    const eventSkillsToUse = getEventSkillsForCard(card);
     const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
+    
     const hasMatch = skills.some(s => s.includes(normalized));
     
     if (hasMatch && !uniqueMatches.has(card.support_id)) {
@@ -5705,12 +5705,10 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
 
   const matches = baseCards.filter(card => {
-    // CORRECTED: For Global region, use event_skills_en if it exists, otherwise use event_skills
-    const eventSkillsToUse = region === 'global' ? 
-      (card.event_skills_en !== undefined ? card.event_skills_en : card.event_skills) : 
-      card.event_skills;
-    
+    // FIXED: Use helper function for dynamic region-based skills
+    const eventSkillsToUse = getEventSkillsForCard(card);
     const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
+    
     return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
   });
 
@@ -5930,7 +5928,7 @@ function getAllSkillsFromSelectedCards() {
             const card = cardsData.find(c => String(c.support_id) === String(supportId));
             
             if (card) {
-                // Use helper function for dynamic region-based skills
+                // FIXED: Use helper function for dynamic region-based skills
                 const eventSkillsToUse = getEventSkillsForCard(card);
                 
                 if (card.hint_skills) {
