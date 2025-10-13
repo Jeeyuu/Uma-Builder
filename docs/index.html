@@ -3356,17 +3356,8 @@ function getSkillNameById(skillId) {
     
     const skill = skillsData.find(s => s.id === skillId);
     if (skill) {
-        // Use region to determine which name to show with proper fallbacks
-        const currentRegion = getCurrentRegion();
-        let skillName;
-        
-        if (currentRegion === 'global') {
-            // For global: name_en first, then enname, then jpname as last resort
-            skillName = skill.name_en || skill.enname || skill.jpname || `Skill ${skillId}`;
-        } else {
-            // For Japan: jpname first, then fall back to English names
-            skillName = skill.name_en || skill.enname || skill.jpname || `Skill ${skillId}`;
-        }
+        // Use the same priority order as character names: name_en -> enname -> jpname
+        const skillName = skill.name_en || skill.enname || skill.jpname || `Skill ${skillId}`;
         
         // Remove symbols like ○, ◎, etc.
         return skillName.replace(/[◎○●◆■▲▼★☆▪▫◼◻◾◽]/g, '').trim();
@@ -3383,11 +3374,8 @@ function getSkillName(skillId) {
     
     const skill = skillsData.find(s => s.id === skillId);
     if (skill) {
-        if (region === 'global') {
-            return skill.name_en || skill.jpname || `Skill ${skillId}`;
-        } else {
-            return skill.jpname || skill.name_en || `Skill ${skillId}`;
-        }
+        // Use the same priority order
+        return skill.name_en || skill.enname || skill.jpname || `Skill ${skillId}`;
     }
     
     return `Skill ${skillId}`;
@@ -3429,9 +3417,12 @@ function processSupportCardData(supportCards, skills) {
     supportsDataWithEffects = supportCards;
     
     return supportCards.map(card => {
-        const hint_skills = (card.hints?.hint_skills || []).map(skillId => getSkillName(skillId));
-        const event_skills = (card.event_skills || []).map(skillId => getSkillName(skillId));
-        const event_skills_en = (card.event_skills || []).map(skillId => getSkillName(skillId));
+        // Use proper skill name resolution for hint skills
+        const hint_skills = (card.hints?.hint_skills || []).map(skillId => getSkillNameById(skillId));
+        
+        // For event skills, use the correct region-based names
+        const event_skills = (card.event_skills || []).map(skillId => getSkillNameById(skillId));
+        const event_skills_en = (card.event_skills || []).map(skillId => getSkillNameById(skillId));
         
         return {
             ...card,
@@ -4423,8 +4414,8 @@ function createCardElement(card){
 
   const currentLevel = getCardLevel(card.support_id);
   
-  const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-  const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
   let skillsHTML = '';
   
@@ -4436,13 +4427,13 @@ function createCardElement(card){
     skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
   }
 
-  if(eventSkillsToUse && eventSkillsToUse.length) {
+if(eventSkillsToUse && eventSkillsToUse.length) {
     const eventSkillsHTML = eventSkillsToUse.map(s => {
-      const skillText = String(s || '');
-      return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
+        const skillText = String(s || '');
+        return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
     }).join('');
     skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
-  }
+}
   
   // REMOVED: Unique effects section
   
@@ -4709,8 +4700,8 @@ function addToSlot(card, targetSlot = null, save = true) {
         slotListeners.delete(freeSlot);
     }
 
-    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
 
     let skillsHTML = '';
 
@@ -4722,13 +4713,13 @@ function addToSlot(card, targetSlot = null, save = true) {
         skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
     }
 
-    if (eventSkillsToUse && eventSkillsToUse.length) {
-        const eventSkillsHTML = eventSkillsToUse.map(s => {
-            const skillText = String(s || '');
-            return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
-        }).join('');
-        skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
-    }
+if (eventSkillsToUse && eventSkillsToUse.length) {
+    const eventSkillsHTML = eventSkillsToUse.map(s => {
+        const skillText = String(s || '');
+        return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
+    }).join('');
+    skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
+}
 
     freeSlot.dataset.cardId = card.char_id;
     freeSlot.dataset.supportId = card.support_id;
@@ -5528,8 +5519,8 @@ SKILL_SEARCH_KEYS.forEach((key, i) => {
   const matches = [];
   
   baseFilteredCards.forEach(card => {
-    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
     
     const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
     const hasMatch = skills.some(s => s.includes(normalized));
@@ -5770,9 +5761,9 @@ function getAllSkillsFromSelectedCards() {
             const card = cardsData.find(c => String(c.support_id) === String(supportId));
             
             if (card) {
-                const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-                const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
-                
+const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+
                 if (card.hint_skills) {
                     card.hint_skills.forEach(skill => {
                         const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
@@ -8317,6 +8308,8 @@ function loadSelectedCharacter() {
         }
     }
 }
+
+console.log(`Region: ${region}, Using English skills: ${useEnglishSkills}, Event skills count: ${eventSkillsToUse.length}`);
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', initCharacterPicker);
