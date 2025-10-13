@@ -4338,7 +4338,6 @@ function setupHideUncoloredCheckbox() {
 }
 
 /* ------------- CARD ELEMENT CREATION ------------- */
-/* ------------- CARD ELEMENT CREATION ------------- */
 function createCardElement(card){
   const el = document.createElement('div');
   el.className = 'card';
@@ -4351,10 +4350,10 @@ function createCardElement(card){
 
   const currentLevel = getCardLevel(card.support_id);
   
-  // CRITICAL FIX: For Global region, ONLY use event_skills_en for display too
+  // CORRECTED: For Global region, use event_skills_en if it exists, otherwise use event_skills
   const eventSkillsToUse = region === 'global' ? 
-    (card.event_skills_en || []) :  // Only English event skills, empty array if none
-    card.event_skills;              // All Japanese event skills
+    (card.event_skills_en !== undefined ? card.event_skills_en : card.event_skills) : 
+    card.event_skills;
 
   let skillsHTML = '';
   
@@ -4623,10 +4622,10 @@ function addToSlot(card, targetSlot = null, save = true) {
         slotListeners.delete(freeSlot);
     }
 
-  // CRITICAL FIX: For Global region, ONLY use event_skills_en for slot display too
+  // CORRECTED: For Global region, use event_skills_en if it exists, otherwise use event_skills
   const eventSkillsToUse = region === 'global' ? 
-    (card.event_skills_en || []) :  // Only English event skills, empty array if none
-    card.event_skills;              // All Japanese event skills
+    (card.event_skills_en !== undefined ? card.event_skills_en : card.event_skills) : 
+    card.event_skills;
 
   let skillsHTML = '';
 
@@ -5290,21 +5289,23 @@ function buildFilterTerms(filters){
   return terms;
 }
 
+/* ------------- FILTER BUILDING & MATCHING ------------- */
 function filterCardsWithRules(cards,filters){
   const terms=buildFilterTerms(filters).map(normalizeSkill);
   const strictDistanceKeys=['standard distance','non-standard distance'];
   const strictTerms=terms.filter(t=>strictDistanceKeys.includes(t));
   const looseTerms=terms.filter(t=>!strictDistanceKeys.includes(t));
   return cards.filter(card=>{
-    // CRITICAL FIX: For Global region, ONLY use event_skills_en, never fall back to event_skills
+    // CORRECTED: For Global region, use event_skills_en if it exists, otherwise use event_skills
     const eventSkillsToUse = region === 'global' ? 
-      (card.event_skills_en || []) :  // Only English event skills, empty array if none
-      card.event_skills;              // All Japanese event skills
+      (card.event_skills_en !== undefined ? card.event_skills_en : card.event_skills) : 
+      card.event_skills;
     
     const skills=[...card.hint_skills,...eventSkillsToUse].map(normalizeSkill);
     return strictTerms.every(t=>skills.includes(t)) && looseTerms.every(term=>skills.some(s=>s.includes(term)));
   });
 }
+
 
 /* ------------- RENDER SECTIONS ------------- */
 function renderSections() {
@@ -5426,10 +5427,10 @@ SKILL_SEARCH_KEYS.forEach((key, i) => {
   const matches = [];
   
   baseFilteredCards.forEach(card => {
-    // CRITICAL FIX: For Global region, ONLY use event_skills_en, never fall back to event_skills
+    // CORRECTED: For Global region, use event_skills_en if it exists, otherwise use event_skills
     const eventSkillsToUse = region === 'global' ? 
-      (card.event_skills_en || []) :  // Only English event skills, empty array if none
-      card.event_skills;              // All Japanese event skills
+      (card.event_skills_en !== undefined ? card.event_skills_en : card.event_skills) : 
+      card.event_skills;
     
     const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
     const hasMatch = skills.some(s => s.includes(normalized));
@@ -5455,10 +5456,10 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
 
   const matches = baseCards.filter(card => {
-    // CRITICAL FIX: For Global region, ONLY use event_skills_en, never fall back to event_skills
+    // CORRECTED: For Global region, use event_skills_en if it exists, otherwise use event_skills
     const eventSkillsToUse = region === 'global' ? 
-      (card.event_skills_en || []) :  // Only English event skills, empty array if none
-      card.event_skills;              // All Japanese event skills
+      (card.event_skills_en !== undefined ? card.event_skills_en : card.event_skills) : 
+      card.event_skills;
     
     const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
     return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
@@ -5670,6 +5671,7 @@ function updateSelectedSkillsList() {
   updateSelectedSkillsVisibility();
 }
 
+/* ------------- SELECTED SKILLS MANAGEMENT ------------- */
 function getAllSkillsFromSelectedCards() {
     const allSkills = new Set();
     
@@ -5679,10 +5681,10 @@ function getAllSkillsFromSelectedCards() {
             const card = cardsData.find(c => String(c.support_id) === String(supportId));
             
             if (card) {
-                // CRITICAL FIX: For Global region, ONLY use event_skills_en, never fall back to event_skills
+                // CORRECTED: For Global region, use event_skills_en if it exists, otherwise use event_skills
                 const eventSkillsToUse = region === 'global' ? 
-                    (card.event_skills_en || []) :  // Only English event skills, empty array if none
-                    card.event_skills;              // All Japanese event skills
+                    (card.event_skills_en !== undefined ? card.event_skills_en : card.event_skills) : 
+                    card.event_skills;
 
                 if (card.hint_skills) {
                     card.hint_skills.forEach(skill => {
