@@ -2325,7 +2325,7 @@ body.dark-mode .character-display-info {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 4px;
+  margin-top: 0;
 }
 
 .potential-level-btn {
@@ -2359,7 +2359,6 @@ body.dark-mode .character-display-info {
   min-width: 30px;
   text-align: center;
 }
-
 /* Update character picker info styles */
 .character-picker-info {
   display: flex;
@@ -2382,6 +2381,7 @@ body.dark-mode .character-display-info {
   min-height: 0;
 }
 
+/* Update character picker potential styles */
 .character-picker-potential {
   font-size: 11px;
   text-align: center;
@@ -2395,6 +2395,12 @@ body.dark-mode .character-display-info {
   gap: 4px;
   min-height: 0;
 }
+
+/* Remove the "Potential Levels" text */
+.character-picker-potential > div:first-child {
+  display: none;
+}
+
 
 /* Update button colors */
 #copySkillsBtn, #copyDeckBtn, #copyAllBtn {
@@ -2717,16 +2723,15 @@ body.dark-mode .character-display-info {
               <div class="character-picker-empty-text">Empty</div>
             </div>
             <div class="character-picker-info">
-              <div class="character-picker-name">Potential Lv 1</div>
-              <div class="character-picker-potential">
-                <div>Potential Levels</div>
-                <div class="potential-level-controls">
-                  <button class="potential-level-btn" id="potentialDecreaseBtn" disabled>◀</button>
-                  <span class="potential-level-display" id="potentialLevelDisplay">1</span>
-                  <button class="potential-level-btn" id="potentialIncreaseBtn">▶</button>
-                </div>
-              </div>
-            </div>
+  <div class="character-picker-name">Potential Lv 1</div>
+  <div class="character-picker-potential">
+    <div class="potential-level-controls">
+      <button class="potential-level-btn" id="potentialDecreaseBtn" disabled>◀</button>
+      <span class="potential-level-display" id="potentialLevelDisplay">1</span>
+      <button class="potential-level-btn" id="potentialIncreaseBtn">▶</button>
+    </div>
+  </div>
+</div>
           </div>
           <div class="character-picker-rows">
             <div class="character-picker-row character-picker-row-1">
@@ -3049,7 +3054,8 @@ function updateAwakeningSkillsDisplay() {
     const awakeningSkillsColumn = document.querySelector('.character-skills-column:nth-child(1)');
     if (!awakeningSkillsColumn) return;
     
-    // Clear existing awakening skills
+    // Clear existing awakening skills (but keep the header)
+    const header = awakeningSkillsColumn.querySelector('.character-skills-header');
     const existingSkills = awakeningSkillsColumn.querySelectorAll('.character-skill');
     existingSkills.forEach(skill => skill.remove());
     
@@ -3058,26 +3064,56 @@ function updateAwakeningSkillsDisplay() {
     
     // Add new skills
     awakeningSkills.forEach(skillName => {
-        const skillElement = document.createElement('div');
-        skillElement.className = 'character-skill character-skill-text';
-        skillElement.textContent = skillName;
-        awakeningSkillsColumn.appendChild(skillElement);
+        if (skillName && skillName.trim() !== '') {
+            const skillElement = document.createElement('div');
+            skillElement.className = 'character-skill character-skill-text';
+            skillElement.textContent = skillName;
+            awakeningSkillsColumn.appendChild(skillElement);
+        }
     });
+    
+    // Add empty boxes if we have fewer than 4 skills (for consistent layout)
+    const currentSkillCount = awakeningSkills.length;
+    if (currentSkillCount < 4) {
+        const emptySlotsNeeded = 4 - currentSkillCount;
+        for (let i = 0; i < emptySlotsNeeded; i++) {
+            const emptySkill = document.createElement('div');
+            emptySkill.className = 'character-skill';
+            emptySkill.style.visibility = 'hidden';
+            emptySkill.textContent = 'Empty';
+            awakeningSkillsColumn.appendChild(emptySkill);
+        }
+    }
     
     // Apply highlighting to character skills
     highlightCharacterSkills();
 }
 
 function getAwakeningSkillsForLevel(character, level) {
-    // This is a simplified example - you'll need to implement the actual logic
-    // based on your character data structure for awakening skills
+    if (!character || !character.originalData) return [];
+    
     const skills = [];
     
-    // Example logic - adjust based on your actual data structure
-    if (level >= 2) skills.push("Awakening Skill 1");
-    if (level >= 3) skills.push("Awakening Skill 2"); 
-    if (level >= 4) skills.push("Awakening Skill 3");
-    if (level >= 5) skills.push("Awakening Skill 4");
+    // Get awakening skills from character data - adjust this based on your actual data structure
+    const awakeningSkills = character.originalData.skills_awakening || [];
+    
+    // Show skills based on potential level (level 2-5 unlock skills in order)
+    if (level >= 2 && awakeningSkills[0]) {
+        const skillName = getSkillNameById(awakeningSkills[0]);
+        skills.push(skillName);
+    }
+    if (level >= 3 && awakeningSkills[1]) {
+        const skillName = getSkillNameById(awakeningSkills[1]);
+        skills.push(skillName);
+    }
+    if (level >= 4 && awakeningSkills[2]) {
+        const skillName = getSkillNameById(awakeningSkills[2]);
+        skills.push(skillName);
+    }
+    if (level >= 5 && awakeningSkills[3]) {
+        const skillName = getSkillNameById(awakeningSkills[3]);
+        skills.push(skillName);
+    }
     
     return skills;
 }
@@ -3097,35 +3133,99 @@ function highlightCharacterSkills() {
     const searchTerms = SKILL_SEARCH_KEYS
         .map(id => {
             const input = document.getElementById(id);
-            return input?.value.trim().toLowerCase();
+            const colorPicker = document.querySelector(`.color-picker[data-search-id="${id}"]`);
+            const color = colorPicker ? colorPicker.dataset.color : 'green';
+            return {
+                term: input?.value.trim().toLowerCase(),
+                color: color
+            };
         })
-        .filter(term => term);
-    
-    // Apply highlighting
+        .filter(item => item.term);
+
+    // Apply search-based highlighting
     characterSkills.forEach(skill => {
         const skillText = normalizeSkill(skill.textContent || '');
         
-        for (const term of searchTerms) {
+        for (const { term, color } of searchTerms) {
             if (skillText.includes(term)) {
+                const colorValue = getColorValue(color);
+                const textColor = getTextColor(color);
+                const hasBorder = color.includes('-border');
+                
+                skill.style.setProperty('background', colorValue, 'important');
+                skill.style.setProperty('color', textColor, 'important');
                 skill.classList.add('search-highlighted');
+                
+                if (hasBorder) {
+                    skill.setAttribute('data-has-border', 'true');
+                }
                 break;
             }
         }
+    });
+    
+    // Apply filter-based highlighting with proper colors
+    const filters = {
+        racecourse: document.getElementById('racecourse').value || '',
+        length: document.getElementById('length').value || '',
+        direction: document.getElementById('direction').value || '',
+        track: document.getElementById('track').value || '',
+        season: document.getElementById('season').value || '',
+        weather: document.getElementById('weather').value || '',
+        strategy: document.getElementById('strategy').value || ''
+    };
+    
+    const colorMap = {
+        racecourse: '#bce934', // Green for racecourse
+        length: '#fdb832',     // Orange for length-based skills
+        direction: '#bce934',  // Green
+        track: '#bce934',      // Green  
+        season: '#bce934',     // Green
+        weather: '#bce934',    // Green
+        strategy: '#fdb832'    // Orange for strategy
+    };
+    
+    const dropdownTerms = [];
+    if (filters.racecourse) dropdownTerms.push({ term: `${filters.racecourse} Racecourse`, color: colorMap.racecourse });
+    if (filters.direction) {
+        const dirTerm = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
+        dropdownTerms.push({ term: dirTerm, color: colorMap.direction });
+    }
+    if (filters.track) {
+        const trackTerm = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions';
+        dropdownTerms.push({ term: trackTerm, color: colorMap.track });
+    }
+    if (filters.season) dropdownTerms.push({ term: `${filters.season} Runner`, color: colorMap.season });
+    if (filters.weather) dropdownTerms.push({ term: `${capitalize(filters.weather)} Days`, color: colorMap.weather });
+    
+    if (filters.strategy) {
+        const s = filters.strategy;
+        dropdownTerms.push(
+            { term: `${s} Corners`, color: colorMap.strategy },
+            { term: `${s} Straightaways`, color: colorMap.strategy },
+            { term: `${s} Savvy`, color: colorMap.racecourse }
+        );
+    }
+    
+    if (filters.length) {
+        const dist = parseInt(filters.length, 10);
+        const label = getLengthCategory(dist);
+        const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
+        dropdownTerms.push(
+            { term: `${label} Corners`, color: colorMap.length },
+            { term: `${label} Straightaways`, color: colorMap.length },
+            { term: distType, color: colorMap.racecourse }
+        );
+    }
+    
+    // Apply filter-based highlighting
+    characterSkills.forEach(skill => {
+        const skillText = normalizeSkill(skill.textContent || '');
         
-        // Also check for filter-based highlighting
-        const filters = {
-            racecourse: document.getElementById('racecourse').value || '',
-            length: document.getElementById('length').value || '',
-            direction: document.getElementById('direction').value || '',
-            track: document.getElementById('track').value || '',
-            season: document.getElementById('season').value || '',
-            weather: document.getElementById('weather').value || '',
-            strategy: document.getElementById('strategy').value || ''
-        };
-        
-        const filterTerms = buildFilterTerms(filters).map(normalizeSkill);
-        for (const term of filterTerms) {
-            if (skillText === term) {
+        for (const { term, color } of dropdownTerms) {
+            if (skillText === normalizeSkill(term)) {
+                skill.style.background = color;
+                skill.style.color = '#000';
                 skill.classList.add('highlighted');
                 break;
             }
