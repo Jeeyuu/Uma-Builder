@@ -2553,6 +2553,80 @@ body.dark-mode .character-potential-bar {
     margin-bottom: 12px;
 }
 
+/* Effects Section Collapsible */
+.effects-section {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin: 0 0 8px 0;
+  font-weight: bold;
+  font-size: 12px;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.collapsible-header:hover {
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  padding: 8px 4px;
+  margin-bottom: 8px;
+}
+
+.collapse-icon {
+  font-size: 10px;
+  transition: transform 0.3s ease;
+  margin-left: 8px;
+}
+
+.collapsible-header.collapsed .collapse-icon {
+  transform: rotate(-90deg);
+}
+
+.effects-container {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.effects-container.collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+}
+
+.effects-container.expanded {
+  max-height: 1000px; /* Adjust based on your content */
+  opacity: 1;
+}
+
+/* Dark mode support */
+body.dark-mode .collapsible-header {
+  color: #e0e0e0;
+  border-bottom-color: #555;
+}
+
+body.dark-mode .collapsible-header:hover {
+  background-color: #3a3a3a;
+}
+
+/* Right sidebar collapsed mode adjustments */
+.right-sidebar.collapsed .effects-header .cards-label {
+  display: none !important;
+}
+
+.right-sidebar.collapsed .effect-cards {
+  display: none !important;
+}
+
 </style>
 
 </head>
@@ -2987,45 +3061,47 @@ body.dark-mode .character-potential-bar {
         <div class="skill-search-divider"></div>
 
         <!-- Effects Display -->
-        <div class="effects-header">
-          <span class="effect-label">Effect</span>
-          <span class="total-label">Total</span>
-          <span class="cards-label">Cards</span>
-        </div>
-
-        <!-- Effects List -->
-        <div class="effect-rows-container">
-          <div class="effect-row" data-effect="Friendship Bonus"><div class="effect-info"><span class="effect-name">Friendship Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Mood Effect"><div class="effect-info"><span class="effect-name">Mood Effect</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Speed Bonus"><div class="effect-info"><span class="effect-name">Speed Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Stamina Bonus"><div class="effect-info"><span class="effect-name">Stamina Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Power Bonus"><div class="effect-info"><span class="effect-name">Power Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Guts Bonus"><div class="effect-info"><span class="effect-name">Guts Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Wit Bonus"><div class="effect-info"><span class="effect-name">Wit Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Training Effectiveness"><div class="effect-info"><span class="effect-name">Training Effectiveness</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Initial Speed"><div class="effect-info"><span class="effect-name">Initial Speed</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Initial Stamina"><div class="effect-info"><span class="effect-name">Initial Stamina</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Initial Power"><div class="effect-info"><span class="effect-name">Initial Power</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Initial Guts"><div class="effect-info"><span class="effect-name">Initial Guts</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Initial Wit"><div class="effect-info"><span class="effect-name">Initial Wit</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Initial Friendship Gauge"><div class="effect-info"><span class="effect-name">Initial Friendship Gauge</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Race Bonus"><div class="effect-info"><span class="effect-name">Race Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Fan Bonus"><div class="effect-info"><span class="effect-name">Fan Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Hint Levels"><div class="effect-info"><span class="effect-name">Hint Levels</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Hint Frequency"><div class="effect-info"><span class="effect-name">Hint Frequency</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Specialty Priority"><div class="effect-info"><span class="effect-name">Specialty Priority</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Event Recovery"><div class="effect-info"><span class="effect-name">Event Recovery</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Event Effectiveness"><div class="effect-info"><span class="effect-name">Event Effectiveness</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Failure Protection"><div class="effect-info"><span class="effect-name">Failure Protection</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Energy Cost Reduction"><div class="effect-info"><span class="effect-name">Energy Cost Reduction</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Skill Point Bonus"><div class="effect-info"><span class="effect-name">Skill Point Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Wit Friendship Recovery"><div class="effect-info"><span class="effect-name">Wit Friendship Recovery</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="Initial Skill Points Up"><div class="effect-info"><span class="effect-name">Initial Skill Points Up</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-          <div class="effect-row" data-effect="All Stats Bonus"><div class="effect-info"><span class="effect-name">All Stats Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
-        </div>
-      </div>
+<div class="effects-section">
+  <div class="effects-header collapsible-header expanded" id="effectsHeader">
+    <span class="effect-label">Effect</span>
+    <span class="total-label">Total</span>
+    <span class="cards-label">Cards</span>
+    <span class="collapse-icon">▼</span>
+  </div>
+  
+  <div class="effects-container" id="effectsContainer">
+    <!-- Effects List -->
+    <div class="effect-rows-container">
+      <div class="effect-row" data-effect="Friendship Bonus"><div class="effect-info"><span class="effect-name">Friendship Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Mood Effect"><div class="effect-info"><span class="effect-name">Mood Effect</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Speed Bonus"><div class="effect-info"><span class="effect-name">Speed Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Stamina Bonus"><div class="effect-info"><span class="effect-name">Stamina Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Power Bonus"><div class="effect-info"><span class="effect-name">Power Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Guts Bonus"><div class="effect-info"><span class="effect-name">Guts Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Wit Bonus"><div class="effect-info"><span class="effect-name">Wit Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Training Effectiveness"><div class="effect-info"><span class="effect-name">Training Effectiveness</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Initial Speed"><div class="effect-info"><span class="effect-name">Initial Speed</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Initial Stamina"><div class="effect-info"><span class="effect-name">Initial Stamina</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Initial Power"><div class="effect-info"><span class="effect-name">Initial Power</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Initial Guts"><div class="effect-info"><span class="effect-name">Initial Guts</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Initial Wit"><div class="effect-info"><span class="effect-name">Initial Wit</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Initial Friendship Gauge"><div class="effect-info"><span class="effect-name">Initial Friendship Gauge</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Race Bonus"><div class="effect-info"><span class="effect-name">Race Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Fan Bonus"><div class="effect-info"><span class="effect-name">Fan Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Hint Levels"><div class="effect-info"><span class="effect-name">Hint Levels</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Hint Frequency"><div class="effect-info"><span class="effect-name">Hint Frequency</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Specialty Priority"><div class="effect-info"><span class="effect-name">Specialty Priority</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Event Recovery"><div class="effect-info"><span class="effect-name">Event Recovery</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Event Effectiveness"><div class="effect-info"><span class="effect-name">Event Effectiveness</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Failure Protection"><div class="effect-info"><span class="effect-name">Failure Protection</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Energy Cost Reduction"><div class="effect-info"><span class="effect-name">Energy Cost Reduction</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Skill Point Bonus"><div class="effect-info"><span class="effect-name">Skill Point Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Wit Friendship Recovery"><div class="effect-info"><span class="effect-name">Wit Friendship Recovery</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="Initial Skill Points Up"><div class="effect-info"><span class="effect-name">Initial Skill Points Up</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
+      <div class="effect-row" data-effect="All Stats Bonus"><div class="effect-info"><span class="effect-name">All Stats Bonus</span><span class="effect-value">0</span></div><div class="effect-cards"></div></div>
     </div>
   </div>
+</div>
 
   <!-- Character Picker Modal -->
   <div class="character-picker-modal" id="characterPickerModal">
@@ -3583,7 +3659,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             initCharacterPicker();
             initPotentialLevelControls();
-            setupNewButtons(); // Add this line
+            
+            // Add this line
+            setupEffectsCollapsible();
 
             setTimeout(() => {
                 sectionPages.clear();
@@ -3597,6 +3675,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 500);
             }, 500);
         } catch (error) {
+            console.error('Initialization error:', error);
         }
     })
     .catch(err => {
@@ -8409,6 +8488,86 @@ function setupNewButtons() {
     // Add tooltips for disabled buttons
     saveDeckBtn.title = 'Coming soon';
     screenshotBtn.title = 'Coming soon';
+}
+
+// Effects collapsible functionality
+function setupEffectsCollapsible() {
+    const effectsHeader = document.getElementById('effectsHeader');
+    const effectsContainer = document.getElementById('effectsContainer');
+    
+    if (!effectsHeader || !effectsContainer) return;
+    
+    // Load saved state from localStorage
+    const savedState = localStorage.getItem('effectsCollapsed');
+    const isCollapsed = savedState === 'true';
+    
+    // Set initial state
+    if (isCollapsed) {
+        effectsHeader.classList.add('collapsed');
+        effectsHeader.classList.remove('expanded');
+        effectsContainer.classList.add('collapsed');
+        effectsContainer.classList.remove('expanded');
+    } else {
+        effectsHeader.classList.add('expanded');
+        effectsHeader.classList.remove('collapsed');
+        effectsContainer.classList.add('expanded');
+        effectsContainer.classList.remove('collapsed');
+    }
+    
+    // Toggle on click
+    effectsHeader.addEventListener('click', () => {
+        const currentlyCollapsed = effectsHeader.classList.contains('collapsed');
+        
+        if (currentlyCollapsed) {
+            // Expand
+            effectsHeader.classList.remove('collapsed');
+            effectsHeader.classList.add('expanded');
+            effectsContainer.classList.remove('collapsed');
+            effectsContainer.classList.add('expanded');
+            localStorage.setItem('effectsCollapsed', 'false');
+        } else {
+            // Collapse
+            effectsHeader.classList.remove('expanded');
+            effectsHeader.classList.add('collapsed');
+            effectsContainer.classList.remove('expanded');
+            effectsContainer.classList.add('collapsed');
+            localStorage.setItem('effectsCollapsed', 'true');
+        }
+        
+        // Update effect totals to ensure proper display when expanding
+        setTimeout(updateEffectTotals, 50);
+    });
+}
+
+// Update the updateEffectTotals function to handle collapsed state
+// Add this at the beginning of your existing updateEffectTotals function:
+function updateEffectTotals() {
+    try {
+        const effectsContainer = document.getElementById('effectsContainer');
+        const isCollapsed = effectsContainer && effectsContainer.classList.contains('collapsed');
+        
+        // If effects are collapsed, we can skip some processing for performance
+        if (isCollapsed) {
+            // Still calculate but don't update the DOM as aggressively
+            const contributions = calculateEffectContributions();
+            
+            // Only update the header with total count of active effects
+            const activeEffects = Object.values(contributions).filter(data => data.total > 0).length;
+            const effectsHeader = document.getElementById('effectsHeader');
+            if (effectsHeader && activeEffects > 0) {
+                const effectLabel = effectsHeader.querySelector('.effect-label');
+                if (effectLabel) {
+                    effectLabel.textContent = `Effect (${activeEffects})`;
+                }
+            }
+            return;
+        }
+        
+        // ... rest of your existing updateEffectTotals code ...
+        
+    } catch (error) {
+        console.error('Error updating effect totals:', error);
+    }
 }
 
 </script>
