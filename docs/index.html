@@ -3020,6 +3020,7 @@ function updatePotentialLevel(level, characterId = null) {
     
     characterPickerName.textContent = `Potential Lv ${potentialLevel}`;
     
+    // Disable decrease button at level 1, enable increase button until level 5
     potentialDecreaseBtn.disabled = potentialLevel === 1;
     potentialIncreaseBtn.disabled = potentialLevel === 5;
     
@@ -3038,6 +3039,7 @@ function updateAwakeningSkillsDisplay() {
     
     const awakeningSkills = getAwakeningSkillsForLevel(selectedCharacter, potentialLevel);
     
+    // Add actual skills
     awakeningSkills.forEach(skillName => {
         if (skillName && skillName.trim() !== '') {
             const skillElement = document.createElement('div');
@@ -3047,16 +3049,17 @@ function updateAwakeningSkillsDisplay() {
         }
     });
     
+    // Fill remaining slots with empty placeholders (always show 3 slots)
     const currentSkillCount = awakeningSkills.length;
-    if (currentSkillCount < 4) {
-        const emptySlotsNeeded = 4 - currentSkillCount;
-        for (let i = 0; i < emptySlotsNeeded; i++) {
-            const emptySkill = document.createElement('div');
-            emptySkill.className = 'character-skill';
-            emptySkill.style.visibility = 'hidden';
-            emptySkill.textContent = 'Empty';
-            awakeningSkillsColumn.appendChild(emptySkill);
-        }
+    const totalSlots = 3;
+    const emptySlotsNeeded = totalSlots - currentSkillCount;
+    
+    for (let i = 0; i < emptySlotsNeeded; i++) {
+        const emptySkill = document.createElement('div');
+        emptySkill.className = 'character-skill';
+        emptySkill.style.visibility = 'hidden';
+        emptySkill.textContent = 'Empty';
+        awakeningSkillsColumn.appendChild(emptySkill);
     }
     
     highlightCharacterSkills();
@@ -3068,6 +3071,7 @@ function getAwakeningSkillsForLevel(character, level) {
     const skills = [];
     const awakeningSkills = character.originalData.skills_awakening || [];
     
+    // Skills only show from level 2 onwards
     if (level >= 2 && awakeningSkills[0]) {
         const skillName = getSkillNameById(awakeningSkills[0]);
         skills.push(skillName);
@@ -7212,7 +7216,7 @@ if (allData.character && allData.character.potentialLevel) {
 }
 
 function initPotentialLevelControls() {
-    updatePotentialLevel(1);
+    updatePotentialLevel(1); // This should already be 1, but double-check
     
     potentialDecreaseBtn.addEventListener('click', () => {
         const characterId = selectedCharacter ? selectedCharacter.card_id : null;
@@ -7224,8 +7228,6 @@ function initPotentialLevelControls() {
         updatePotentialLevel(potentialLevel + 1, characterId);
     });
 }
-
-
 
 /* ------------- RESET LEVELS ------------- */
 function setupResetLevels() {
