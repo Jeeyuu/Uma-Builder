@@ -2610,6 +2610,18 @@ body.dark-mode .character-card.upcoming {
   opacity: 0.8;
 }
 
+/* Upcoming badge for selected character */
+.selected-character-info .upcoming-badge {
+    background: #ff6b35;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-top: 2px;
+    display: inline-block;
+}
+
 </style>
 
 </head>
@@ -7766,9 +7778,12 @@ function getCurrentRegion() {
 function isCharacterAvailableInRegion(characterData) {
     const currentRegion = getCurrentRegion();
     if (currentRegion === 'global') {
-        return characterData.release_en && characterData.release_en !== 'Unknown';
+        // MODIFIED: Be more permissive - allow characters even if release_en is unknown
+        // This allows upcoming characters to be considered "available" for display purposes
+        return true; // Always return true to allow any character to be displayed
     } else {
-        return characterData.release && characterData.release !== 'Unknown';
+        // For Japan, all characters are available
+        return true;
     }
 }
 
@@ -7813,6 +7828,7 @@ function applyRegionFilter() {
 }
 
 // Update the handleRegionChange function
+// Update the handleRegionChange function
 function handleRegionChange() {
   applyRegionFilter();
   
@@ -7825,10 +7841,12 @@ function handleRegionChange() {
     localStorage.setItem('showUpcomingCharacters', 'false');
   }
   
-  if (selectedCharacter && !isCharacterAvailableInRegion(selectedCharacter.originalData)) {
-    selectedCharacter = null;
+  // MODIFIED: Don't clear selected character when region changes
+  // This allows upcoming characters to stay selected even when switching regions
+  // Only update the display to reflect the current region's data
+  if (selectedCharacter) {
     updateCharacterDisplay();
-  } else if (!selectedCharacter) {
+  } else {
     loadSelectedCharacter();
   }
 }
@@ -8210,6 +8228,21 @@ function selectCharacter(character) {
     
     updateCharacterDisplay();
     closeCharacterPicker();
+    
+    // MODIFIED: Always save the character selection regardless of region availability
+    saveSelectedCharacter();
+}
+
+// Helper function to check if a character is upcoming
+function isCharacterUpcoming(character) {
+    const currentRegion = getCurrentRegion();
+    if (currentRegion === 'global') {
+        return !character.originalData.release_en || 
+               character.originalData.release_en === '' || 
+               character.originalData.release_en === 'Unknown' ||
+               character.originalData.release_en === 'unknown';
+    }
+    return false;
 }
 
 function hideSkillsSection() {
@@ -8236,17 +8269,22 @@ function showSkillsSection() {
     });
 }
 
-// Update the updateCharacterDisplay function to ensure the clear button is properly handled
+// Update the updateCharacterDisplay function to handle upcoming characters
 function updateCharacterDisplay() {
     const characterClearBtn = document.getElementById('characterClearBtn');
     
     if (selectedCharacter) {
         characterPickerBox.classList.add('has-character');
+        
+        // Check if this character is upcoming
+        const isUpcoming = isCharacterUpcoming(selectedCharacter);
+        
         characterPickerBox.innerHTML = `
             <img src="${selectedCharacter.portrait}" alt="${selectedCharacter.name}" class="selected-character-portrait" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
             <div class="selected-character-info">
                 <div class="selected-character-name">${selectedCharacter.name}</div>
                 <div class="selected-character-title">${selectedCharacter.title}</div>
+                ${isUpcoming ? '<div class="upcoming-badge">Upcoming</div>' : ''}
             </div>
             <div class="character-clear-btn" id="characterClearBtn">×</div>
         `;
@@ -8497,7 +8535,9 @@ function loadSelectedCharacter() {
                 char.char_id === savedCharacter.char_id
             );
             
-            if (character && isCharacterAvailableInRegion(character.originalData)) {
+            if (character) {
+                // MODIFIED: Allow characters even if not available in current region
+                // This allows upcoming characters to persist
                 selectedCharacter = {
                     ...character,
                     originalData: savedCharacter.originalData || character.originalData
@@ -8510,7 +8550,7 @@ function loadSelectedCharacter() {
                 updateCharacterDisplay();
             } else {
                 localStorage.removeItem('selectedCharacter');
-                // Reset to empty state if character is not available
+                // Reset to empty state if character is not found at all
                 initializeEmptySkills();
             }
         } catch (error) {
