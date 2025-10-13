@@ -2416,6 +2416,54 @@ body.dark-mode .character-skill.search-highlighted {
     color: inherit !important;
 }
 
+/* Character Clear Button */
+.character-clear-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  background: #ff4444;
+  color: white;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.character-clear-btn:hover {
+  background: #ff6666;
+  transform: scale(1.1);
+}
+
+.character-clear-btn:active {
+  transform: scale(0.95);
+}
+
+.character-picker-empty-box.has-character {
+  position: relative;
+}
+
+.character-picker-empty-box.has-character .character-clear-btn {
+  display: flex;
+}
+
+/* Dark mode support */
+body.dark-mode .character-clear-btn {
+  background: #ff5555;
+  color: #fff;
+}
+
+body.dark-mode .character-clear-btn:hover {
+  background: #ff7777;
+}
+
 </style>
 
 </head>
@@ -2699,6 +2747,8 @@ body.dark-mode .character-skill.search-highlighted {
           <div class="character-picker-left-column">
             <div class="character-picker-empty-box" id="characterPickerBox">
               <div class="character-picker-empty-text">Empty</div>
+              <!-- Add the clear button that will be shown when character is selected -->
+              <div class="character-clear-btn" id="characterClearBtn">×</div>
             </div>
             <div class="character-picker-info">
               <div class="character-picker-name">Potential Lv 1</div>
@@ -7648,6 +7698,7 @@ function resetCharacterSkills() {
     hideSkillsSection();
 }
 
+// Add this to your initCharacterPicker function
 function initCharacterPicker() {
     if (!skillsData || skillsData.length === 0) {
         setTimeout(initCharacterPicker, 500);
@@ -7659,12 +7710,17 @@ function initCharacterPicker() {
     characterSortOrder.classList.remove('ascending');
     isAscending = false;
     
-    // Initialize with empty skills for potential level 1
-    initializeEmptySkills();
+    hideSkillsSection();
     
     loadCharacterData();
     
     characterPickerBox.addEventListener('click', openCharacterPicker);
+    
+    // Add event listener for the clear button
+    const characterClearBtn = document.getElementById('characterClearBtn');
+    if (characterClearBtn) {
+        characterClearBtn.addEventListener('click', clearSelectedCharacter);
+    }
     
     characterPickerClose.addEventListener('click', closeCharacterPicker);
     
@@ -7688,6 +7744,22 @@ function initCharacterPicker() {
     setTimeout(() => {
         loadSelectedCharacter();
     }, 1000);
+}
+
+// Add this function to clear the selected character
+function clearSelectedCharacter(event) {
+    if (event) {
+        event.stopPropagation(); // Prevent triggering the character picker box click
+    }
+    
+    selectedCharacter = null;
+    updateCharacterDisplay();
+    
+    // Also clear the character from localStorage
+    localStorage.removeItem('selectedCharacter');
+    
+    // Reset potential level to 1
+    updatePotentialLevel(1);
 }
 
 // Add this new function to initialize empty skills
@@ -7837,7 +7909,10 @@ function showSkillsSection() {
     });
 }
 
+// Update the updateCharacterDisplay function to ensure the clear button is properly handled
 function updateCharacterDisplay() {
+    const characterClearBtn = document.getElementById('characterClearBtn');
+    
     if (selectedCharacter) {
         characterPickerBox.classList.add('has-character');
         characterPickerBox.innerHTML = `
@@ -7846,7 +7921,14 @@ function updateCharacterDisplay() {
                 <div class="selected-character-name">${selectedCharacter.name}</div>
                 <div class="selected-character-title">${selectedCharacter.title}</div>
             </div>
+            <div class="character-clear-btn" id="characterClearBtn">×</div>
         `;
+        
+        // Re-attach event listener to the new clear button
+        const newClearBtn = document.getElementById('characterClearBtn');
+        if (newClearBtn) {
+            newClearBtn.addEventListener('click', clearSelectedCharacter);
+        }
         
         const characterPotential = characterPotentialLevels[selectedCharacter.card_id] || 1;
         updatePotentialLevel(characterPotential, selectedCharacter.card_id);
@@ -7876,7 +7958,10 @@ function updateCharacterDisplay() {
         saveSelectedCharacter();
     } else {
         characterPickerBox.classList.remove('has-character');
-        characterPickerBox.innerHTML = '<div class="character-picker-empty-text">Empty</div>';
+        characterPickerBox.innerHTML = `
+            <div class="character-picker-empty-text">Empty</div>
+            <div class="character-clear-btn" id="characterClearBtn" style="display: none;">×</div>
+        `;
         updatePotentialLevel(1);
         
         document.querySelectorAll('.character-picker-percentage').forEach(p => p.textContent = '-');
