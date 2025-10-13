@@ -2484,6 +2484,66 @@ body.dark-mode .character-potential-bar {
   color: #fff;
 }
 
+/* Hide elements when right sidebar is collapsed */
+.right-sidebar.collapsed .deck-name-section,
+.right-sidebar.collapsed .copy-paste-buttons,
+.right-sidebar.collapsed .character-skills-section,
+.right-sidebar.collapsed .slot-level-controls {
+  display: none !important;
+}
+
+/* Ensure the collapse toggle remains visible */
+.right-sidebar.collapsed .collapse-toggle {
+  display: flex !important;
+}
+
+/* Keep the slots and effects visible */
+.right-sidebar.collapsed .slots,
+.right-sidebar.collapsed .effects-header,
+.right-sidebar.collapsed .effect-rows-container {
+  display: block !important;
+}
+
+/* Adjust slot layout for collapsed mode */
+.right-sidebar.collapsed .slots {
+  grid-template-columns: 1fr;
+  max-width: 100%;
+  margin-top: 40px;
+  margin-bottom: 8px;
+  gap: 30px;
+  height: auto;
+  min-height: min-content;
+}
+
+.right-sidebar.collapsed .slot-container {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.right-sidebar.collapsed .slot {
+  position: relative;
+  overflow: visible !important;
+  min-height: 70px;
+  padding: 4px;
+  gap: 3px;
+}
+
+.right-sidebar.collapsed .slot:not(.has-card) {
+  height: 70px;
+}
+
+.right-sidebar.collapsed .slot.has-card .name,
+.right-sidebar.collapsed .slot.has-card .skills,
+.right-sidebar.collapsed .slot.has-card .skills-group,
+.right-sidebar.collapsed .slot.has-card .skills-header,
+.right-sidebar.collapsed .slot.has-card .skill {
+  display: none !important;
+}
+
+.right-sidebar.collapsed .slot.has-card img {
+  max-width: 56px;
+}
+
 </style>
 
 </head>
@@ -4112,8 +4172,15 @@ function setupToggleButtons() {
         selectedRarities.add(rarity);
         button.classList.add('active');
       }
-      sectionPages.clear();
-      renderSections();
+      
+      // NEW: Check if we should reset filters
+      resetFiltersIfNeeded();
+      
+      // Only render if we didn't reset (reset will trigger its own render)
+      if (!shouldResetFilters()) {
+        sectionPages.clear();
+        renderSections();
+      }
     });
   });
 
@@ -4127,8 +4194,15 @@ function setupToggleButtons() {
         selectedTypes.add(type);
         button.classList.add('active');
       }
-      sectionPages.clear();
-      renderSections();
+      
+      // NEW: Check if we should reset filters
+      resetFiltersIfNeeded();
+      
+      // Only render if we didn't reset (reset will trigger its own render)
+      if (!shouldResetFilters()) {
+        sectionPages.clear();
+        renderSections();
+      }
     });
   });
 }
@@ -7346,11 +7420,16 @@ function setupResetLevels() {
 }
 
 function resetAllLevels() {
-  if (!confirm('Are you sure you want to reset ALL card levels to 1? This will refresh the display.')) {
+  if (!confirm('Are you sure you want to reset ALL data? This will refresh the display.')) {
     return;
   }
   
   localStorage.removeItem('slotLevels');
+  
+  // NEW: Reset all potential levels to 1
+  localStorage.removeItem('characterPotentialLevels');
+  characterPotentialLevels = {};
+  updatePotentialLevel(1);
   
   Object.keys(slotLevels).forEach(key => {
     delete slotLevels[key];
@@ -8281,6 +8360,35 @@ function loadSelectedCharacter() {
         // No saved character, ensure empty state
         initializeEmptySkills();
     }
+}
+
+function shouldResetFilters() {
+  // Check if all rarity buttons are selected
+  const allRaritiesSelected = selectedRarities.size === 3; // SSR, SR, R
+  
+  // Check if all type buttons are selected  
+  const allTypesSelected = selectedTypes.size === 7; // Speed, Stamina, Power, Guts, Intelligence, Friend, Group
+  
+  return allRaritiesSelected || allTypesSelected;
+}
+
+function resetFiltersIfNeeded() {
+  if (shouldResetFilters()) {
+    // Reset rarity filters
+    selectedRarities.clear();
+    document.querySelectorAll('.rarity-buttons .toggle-button').forEach(button => {
+      button.classList.remove('active');
+    });
+    
+    // Reset type filters
+    selectedTypes.clear();
+    document.querySelectorAll('.type-buttons .toggle-button').forEach(button => {
+      button.classList.remove('active');
+    });
+    
+    sectionPages.clear();
+    renderSections();
+  }
 }
 
 document.addEventListener('DOMContentLoaded', initCharacterPicker);
