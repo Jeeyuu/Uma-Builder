@@ -2539,6 +2539,75 @@ body.dark-mode .character-potential-bar {
   max-width: 56px;
 }
 
+/* Show Upcoming Checkbox Styles */
+.upcoming-checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  padding: 4px 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.upcoming-checkbox-container label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.upcoming-checkbox-container input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+body.dark-mode .upcoming-checkbox-container {
+  background: #3a3a3a;
+  border-color: #555;
+}
+
+body.dark-mode .upcoming-checkbox-container label {
+  color: #e0e0e0;
+}
+
+/* Upcoming Character Styles */
+.character-card.upcoming {
+  opacity: 0.7;
+  background: #f8f8f8 !important;
+  position: relative;
+}
+
+.character-card.upcoming::before {
+  content: "Upcoming";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #ff6b35;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+  z-index: 2;
+}
+
+body.dark-mode .character-card.upcoming {
+  background: #2a2a2a !important;
+}
+
+.character-card.upcoming .character-portrait {
+  filter: grayscale(30%);
+}
+
+.character-card.upcoming .character-name,
+.character-card.upcoming .character-rarity,
+.character-card.upcoming .character-title {
+  opacity: 0.8;
+}
+
 </style>
 
 </head>
@@ -3021,6 +3090,7 @@ body.dark-mode .character-potential-bar {
         <div class="character-picker-title">Select Character</div>
         <button class="character-picker-close" id="characterPickerClose">×</button>
       </div>
+      
       <div class="character-picker-controls">
         <div class="character-search-container">
           <input type="text" id="characterSearch" class="character-search" placeholder="Search by name or title">
@@ -3052,15 +3122,21 @@ body.dark-mode .character-potential-bar {
             <option value="bonus_int">Wit bonus</option>
           </select>
           <button class="sort-order-btn ascending" id="characterSortOrder">↑</button>
+          
+          <!-- NEW: Show Upcoming Checkbox -->
+          <div class="upcoming-checkbox-container">
+            <input type="checkbox" id="showUpcomingCheckbox">
+            <label for="showUpcomingCheckbox">Show Upcoming</label>
+          </div>
         </div>
       </div>
+      
       <div class="character-picker-content">
         <div class="character-grid" id="characterGrid">
           <!-- Character cards will be populated here -->
         </div>
       </div>
     </div>
-  </div>
   </div>
 </body>
 
@@ -3120,6 +3196,9 @@ let region = 'global';
 let selectedCharacter = null;
 let isAscending = true;
 let characterPotentialLevels = JSON.parse(localStorage.getItem('characterPotentialLevels')) || {};
+
+// Add to your state variables
+let showUpcomingCharacters = false;
 
 const slotLevels = JSON.parse(localStorage.getItem('slotLevels')) || {};
 const MAX_LEVELS = { 'R': 40, 'SR': 45, 'SSR': 50 };
@@ -7676,23 +7755,28 @@ function isCharacterAvailableInRegion(characterData) {
 }
 
 /* ------------- CHARACTER PICKER REGION FILTERING ------------- */
+// Update the getRegionFilteredCharacters function
 function getRegionFilteredCharacters() {
-    if (!characters || characters.length === 0) return [];
-    
-    const currentRegion = getCurrentRegion();
-    
-    return characters.filter(character => {
-        if (currentRegion === 'global') {
-            // For global, character must have a valid release_en date (already released)
-            return character.originalData.release_en && 
-                   character.originalData.release_en !== '' && 
-                   character.originalData.release_en !== 'Unknown' &&
-                   character.originalData.release_en !== 'unknown';
-        } else {
-            // For Japan, show all characters regardless of release date
-            return true;
-        }
-    });
+  if (!characters || characters.length === 0) return [];
+  
+  const currentRegion = getCurrentRegion();
+  
+  // If show upcoming is checked, return all characters regardless of region
+  if (showUpcomingCharacters) {
+    return characters;
+  }
+  
+  // Otherwise, apply normal region filtering
+  return characters.filter(character => {
+    if (currentRegion === 'global') {
+      return character.originalData.release_en && 
+             character.originalData.release_en !== '' && 
+             character.originalData.release_en !== 'Unknown' &&
+             character.originalData.release_en !== 'unknown';
+    } else {
+      return true;
+    }
+  });
 }
 
 function applyRegionFilter() {
@@ -7710,15 +7794,25 @@ function applyRegionFilter() {
     populateCharacterGrid(sortedCharacters);
 }
 
+// Update the handleRegionChange function
 function handleRegionChange() {
-    applyRegionFilter();
-    
-    if (selectedCharacter && !isCharacterAvailableInRegion(selectedCharacter.originalData)) {
-        selectedCharacter = null;
-        updateCharacterDisplay();
-    } else if (!selectedCharacter) {
-        loadSelectedCharacter();
-    }
+  applyRegionFilter();
+  
+  // Reset upcoming checkbox when region changes to Japan (since all characters are available)
+  const currentRegion = getCurrentRegion();
+  if (currentRegion === 'japan') {
+    const showUpcomingCheckbox = document.getElementById('showUpcomingCheckbox');
+    showUpcomingCheckbox.checked = false;
+    showUpcomingCharacters = false;
+    localStorage.setItem('showUpcomingCharacters', 'false');
+  }
+  
+  if (selectedCharacter && !isCharacterAvailableInRegion(selectedCharacter.originalData)) {
+    selectedCharacter = null;
+    updateCharacterDisplay();
+  } else if (!selectedCharacter) {
+    loadSelectedCharacter();
+  }
 }
 
 function updateCharacterSkills(characterData) {
@@ -7841,22 +7935,36 @@ function resetCharacterSkills() {
     hideSkillsSection();
 }
 
-// Add this to your initCharacterPicker function
+// Add to your initCharacterPicker function
 function initCharacterPicker() {
-    if (!skillsData || skillsData.length === 0) {
-        setTimeout(initCharacterPicker, 500);
-        return;
-    }
-    
-    characterSort.value = 'implemented';
-    characterSortOrder.textContent = '↓';
-    characterSortOrder.classList.remove('ascending');
-    isAscending = false;
-    
-    hideSkillsSection();
-    
-    loadCharacterData();
-    
+  if (!skillsData || skillsData.length === 0) {
+    setTimeout(initCharacterPicker, 500);
+    return;
+  }
+  
+  characterSort.value = 'implemented';
+  characterSortOrder.textContent = '↓';
+  characterSortOrder.classList.remove('ascending');
+  isAscending = false;
+  
+  // NEW: Setup upcoming checkbox
+  const showUpcomingCheckbox = document.getElementById('showUpcomingCheckbox');
+  const savedShowUpcoming = localStorage.getItem('showUpcomingCharacters') === 'true';
+  
+  if (savedShowUpcoming) {
+    showUpcomingCharacters = true;
+    showUpcomingCheckbox.checked = true;
+  }
+  
+  showUpcomingCheckbox.addEventListener('change', (e) => {
+    showUpcomingCharacters = e.target.checked;
+    localStorage.setItem('showUpcomingCharacters', showUpcomingCharacters);
+    applyRegionFilter();
+  });
+  
+  hideSkillsSection();
+  loadCharacterData();
+
     characterPickerBox.addEventListener('click', openCharacterPicker);
     
     // Add event listener for the clear button
@@ -7953,81 +8061,121 @@ function closeCharacterPicker() {
     characterPickerModal.classList.remove('active');
 }
 
+// Update the populateCharacterGrid function to handle upcoming characters
 function populateCharacterGrid(charactersToShow) {
-    characterGrid.innerHTML = '';
+  characterGrid.innerHTML = '';
+  
+  if (charactersToShow.length === 0) {
+    characterGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">No characters found</div>';
+    return;
+  }
+  
+  const currentRegion = getCurrentRegion();
+  
+  charactersToShow.forEach(character => {
+    const characterCard = document.createElement('div');
+    characterCard.className = 'character-card';
     
-    if (charactersToShow.length === 0) {
-        characterGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #666;">No characters found</div>';
-        return;
+    // Check if this character is upcoming (only relevant for Global region)
+    const isUpcoming = currentRegion === 'global' && 
+                       showUpcomingCharacters && 
+                       (!character.originalData.release_en || 
+                        character.originalData.release_en === '' || 
+                        character.originalData.release_en === 'Unknown' ||
+                        character.originalData.release_en === 'unknown');
+    
+    if (isUpcoming) {
+      characterCard.classList.add('upcoming');
     }
     
-    charactersToShow.forEach(character => {
-        const characterCard = document.createElement('div');
-        characterCard.className = 'character-card';
-        
-        const displayInfo = getCharacterDisplayInfo(character);
-        
-        // Get saved potential level for this character
-        const savedPotentialLevel = characterPotentialLevels[character.card_id] || 1;
-        
-        characterCard.innerHTML = `
-            <img src="${character.portrait}" alt="${character.name}" class="character-portrait" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
-            <div class="character-name">${character.name}</div>
-            <div class="character-rarity">${character.rarity}</div>
-            <div class="character-title">${character.title}</div>
-            <div class="character-potential-bar">Potential Lv ${savedPotentialLevel}</div>
-            ${displayInfo ? `<div class="character-display-info">${displayInfo}</div>` : ''}
-        `;
-        
-        characterCard.addEventListener('click', () => selectCharacter(character));
-        characterGrid.appendChild(characterCard);
-    });
+    const displayInfo = getCharacterDisplayInfo(character);
+    
+    // Get saved potential level for this character
+    const savedPotentialLevel = characterPotentialLevels[character.card_id] || 1;
+    
+    characterCard.innerHTML = `
+      <img src="${character.portrait}" alt="${character.name}" class="character-portrait" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
+      <div class="character-name">${character.name}</div>
+      <div class="character-rarity">${character.rarity}</div>
+      <div class="character-title">${character.title}</div>
+      <div class="character-potential-bar">Potential Lv ${savedPotentialLevel}</div>
+      ${displayInfo ? `<div class="character-display-info">${displayInfo}</div>` : ''}
+    `;
+    
+    characterCard.addEventListener('click', () => selectCharacter(character));
+    characterGrid.appendChild(characterCard);
+  });
 }
 
+
+// Update the getCharacterDisplayInfo function to handle upcoming characters
 function getCharacterDisplayInfo(character) {
-    const sortBy = characterSort.value;
+  const sortBy = characterSort.value;
+  const currentRegion = getCurrentRegion();
+  
+  // For upcoming characters in global region, show special text
+  if (currentRegion === 'global' && 
+      showUpcomingCharacters && 
+      (!character.originalData.release_en || 
+       character.originalData.release_en === '' || 
+       character.originalData.release_en === 'Unknown' ||
+       character.originalData.release_en === 'unknown')) {
     
-    switch(sortBy) {
-        case 'id':
-            return `ID: ${character.card_id}`;
-        case 'turf':
-            return `Turf: ${character.aptitude[0]}`;
-        case 'dirt':
-            return `Dirt: ${character.aptitude[1]}`;
-        case 'sprint':
-            return `Sprint: ${character.aptitude[2]}`;
-        case 'mile':
-            return `Mile: ${character.aptitude[3]}`;
-        case 'middle':
-            return `Medium: ${character.aptitude[4]}`;
-        case 'long':
-            return `Long: ${character.aptitude[5]}`;
-        case 'runner':
-            return `Front: ${character.aptitude[6]}`;
-        case 'leader':
-            return `Pace: ${character.aptitude[7]}`;
-        case 'betweener':
-            return `Late: ${character.aptitude[8]}`;
-        case 'chaser':
-            return `End: ${character.aptitude[9]}`;
-        case 'bonus_speed':
-            return `Speed: ${character.stat_bonus[0]}%`;
-        case 'bonus_stamina':
-            return `Stamina: ${character.stat_bonus[1]}%`;
-        case 'bonus_power':
-            return `Power: ${character.stat_bonus[2]}%`;
-        case 'bonus_guts':
-            return `Guts: ${character.stat_bonus[3]}%`;
-        case 'bonus_int':
-            return `Wit: ${character.stat_bonus[4]}%`;
-        case 'implemented':
-            const currentRegion = getCurrentRegion();
-            const releaseDate = currentRegion === 'global' ? character.originalData.release_en : character.originalData.release;
-            return formatDateForDisplay(releaseDate);
-        default:
-            return null;
+    if (sortBy === 'implemented') {
+      return 'Release: Unknown';
     }
+  }
+  
+  switch(sortBy) {
+    case 'id':
+      return `ID: ${character.card_id}`;
+    case 'turf':
+      return `Turf: ${character.aptitude[0]}`;
+    case 'dirt':
+      return `Dirt: ${character.aptitude[1]}`;
+    case 'sprint':
+      return `Sprint: ${character.aptitude[2]}`;
+    case 'mile':
+      return `Mile: ${character.aptitude[3]}`;
+    case 'middle':
+      return `Medium: ${character.aptitude[4]}`;
+    case 'long':
+      return `Long: ${character.aptitude[5]}`;
+    case 'runner':
+      return `Front: ${character.aptitude[6]}`;
+    case 'leader':
+      return `Pace: ${character.aptitude[7]}`;
+    case 'betweener':
+      return `Late: ${character.aptitude[8]}`;
+    case 'chaser':
+      return `End: ${character.aptitude[9]}`;
+    case 'bonus_speed':
+      return `Speed: ${character.stat_bonus[0]}%`;
+    case 'bonus_stamina':
+      return `Stamina: ${character.stat_bonus[1]}%`;
+    case 'bonus_power':
+      return `Power: ${character.stat_bonus[2]}%`;
+    case 'bonus_guts':
+      return `Guts: ${character.stat_bonus[3]}%`;
+    case 'bonus_int':
+      return `Wit: ${character.stat_bonus[4]}%`;
+    case 'implemented':
+      const currentRegion = getCurrentRegion();
+      const releaseDate = currentRegion === 'global' ? character.originalData.release_en : character.originalData.release;
+      
+      // Handle upcoming characters
+      if (currentRegion === 'global' && 
+          showUpcomingCharacters && 
+          (!releaseDate || releaseDate === '' || releaseDate === 'Unknown' || releaseDate === 'unknown')) {
+        return 'Release: Unknown';
+      }
+      
+      return formatDateForDisplay(releaseDate);
+    default:
+      return null;
+  }
 }
+
 
 function selectCharacter(character) {
     if (selectedCharacter && selectedCharacter.card_id === character.card_id) {
