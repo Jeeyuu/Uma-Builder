@@ -7892,9 +7892,8 @@ function updateCharacterDisplay() {
             </div>
         `;
         
-        // Update character info
-        characterPickerName.textContent = selectedCharacter.name;
-        characterPickerCostume.textContent = selectedCharacter.title;
+        // Update character info - only update the name, potential level is handled separately
+        characterPickerName.textContent = `Potential Lv ${potentialLevel}`;
         
         // Update aptitude percentages (using stat_bonus from your JSON)
         const percentages = document.querySelectorAll('.character-picker-percentage');
@@ -7921,14 +7920,16 @@ function updateCharacterDisplay() {
         // Update character skills if you have that data
         updateCharacterSkills(selectedCharacter.originalData);
         
+        // Update awakening skills based on current potential level
+        updateAwakeningSkillsDisplay();
+        
         // Save the selected character to localStorage
         saveSelectedCharacter();
     } else {
         // Reset to empty state
         characterPickerBox.classList.remove('has-character');
         characterPickerBox.innerHTML = '<div class="character-picker-empty-text">Empty</div>';
-        characterPickerName.textContent = 'Character Name';
-        characterPickerCostume.textContent = 'Character Costume';
+        characterPickerName.textContent = 'Potential Lv 1';
         
         // Reset percentages to "-" 
         document.querySelectorAll('.character-picker-percentage').forEach(p => p.textContent = '-');
