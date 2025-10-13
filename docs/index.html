@@ -2980,6 +2980,9 @@ let presetRaceNumbers = new Map();
 let supportsDataWithEffects = [];
 let characters = [];
 
+// Add potential level state
+let potentialLevel = parseInt(localStorage.getItem('potentialLevel')) || 1;
+
 const cardSections = document.getElementById('cardSections');
 const slotContainers = Array.from(document.querySelectorAll('.slot-container'));
 const slots = Array.from(document.querySelectorAll('.right-sidebar .slot'));
@@ -2996,7 +2999,9 @@ const characterSort = document.getElementById('characterSort');
 const characterSortOrder = document.getElementById('characterSortOrder');
 const characterGrid = document.getElementById('characterGrid');
 const characterPickerName = document.querySelector('.character-picker-name');
-const characterPickerCostume = document.querySelector('.character-picker-costume');
+const potentialLevelDisplay = document.getElementById('potentialLevelDisplay');
+const potentialDecreaseBtn = document.getElementById('potentialDecreaseBtn');
+const potentialIncreaseBtn = document.getElementById('potentialIncreaseBtn');
 const SLOT_KEY = 'saved_slots';
 const FILTER_KEYS = ['racecourse','length','direction','track','season','weather','strategy'];
 let SKILL_SEARCH_KEYS = [];
@@ -3021,6 +3026,112 @@ let isAscending = true;
 const slotLevels = JSON.parse(localStorage.getItem('slotLevels')) || {};
 const MAX_LEVELS = { 'R': 40, 'SR': 45, 'SSR': 50 };
 
+// Add potential level management functions
+function updatePotentialLevel(level) {
+    potentialLevel = Math.max(1, Math.min(5, level));
+    potentialLevelDisplay.textContent = potentialLevel;
+    characterPickerName.textContent = `Potential Lv ${potentialLevel}`;
+    
+    // Update button states
+    potentialDecreaseBtn.disabled = potentialLevel === 1;
+    potentialIncreaseBtn.disabled = potentialLevel === 5;
+    
+    // Save to localStorage
+    localStorage.setItem('potentialLevel', potentialLevel.toString());
+    
+    // Update awakening skills display based on potential level
+    updateAwakeningSkillsDisplay();
+}
+
+function updateAwakeningSkillsDisplay() {
+    if (!selectedCharacter) return;
+    
+    const awakeningSkillsColumn = document.querySelector('.character-skills-column:nth-child(1)');
+    if (!awakeningSkillsColumn) return;
+    
+    // Clear existing awakening skills
+    const existingSkills = awakeningSkillsColumn.querySelectorAll('.character-skill');
+    existingSkills.forEach(skill => skill.remove());
+    
+    // Get awakening skills based on potential level
+    const awakeningSkills = getAwakeningSkillsForLevel(selectedCharacter, potentialLevel);
+    
+    // Add new skills
+    awakeningSkills.forEach(skillName => {
+        const skillElement = document.createElement('div');
+        skillElement.className = 'character-skill character-skill-text';
+        skillElement.textContent = skillName;
+        awakeningSkillsColumn.appendChild(skillElement);
+    });
+    
+    // Apply highlighting to character skills
+    highlightCharacterSkills();
+}
+
+function getAwakeningSkillsForLevel(character, level) {
+    // This is a simplified example - you'll need to implement the actual logic
+    // based on your character data structure for awakening skills
+    const skills = [];
+    
+    // Example logic - adjust based on your actual data structure
+    if (level >= 2) skills.push("Awakening Skill 1");
+    if (level >= 3) skills.push("Awakening Skill 2"); 
+    if (level >= 4) skills.push("Awakening Skill 3");
+    if (level >= 5) skills.push("Awakening Skill 4");
+    
+    return skills;
+}
+
+// Add function to highlight character skills based on search
+function highlightCharacterSkills() {
+    const characterSkills = document.querySelectorAll('.character-skill');
+    
+    // Reset all highlights
+    characterSkills.forEach(skill => {
+        skill.classList.remove('highlighted', 'search-highlighted');
+        skill.style.background = '#eef2ff';
+        skill.style.color = '#000';
+    });
+    
+    // Get search terms from skill searches
+    const searchTerms = SKILL_SEARCH_KEYS
+        .map(id => {
+            const input = document.getElementById(id);
+            return input?.value.trim().toLowerCase();
+        })
+        .filter(term => term);
+    
+    // Apply highlighting
+    characterSkills.forEach(skill => {
+        const skillText = normalizeSkill(skill.textContent || '');
+        
+        for (const term of searchTerms) {
+            if (skillText.includes(term)) {
+                skill.classList.add('search-highlighted');
+                break;
+            }
+        }
+        
+        // Also check for filter-based highlighting
+        const filters = {
+            racecourse: document.getElementById('racecourse').value || '',
+            length: document.getElementById('length').value || '',
+            direction: document.getElementById('direction').value || '',
+            track: document.getElementById('track').value || '',
+            season: document.getElementById('season').value || '',
+            weather: document.getElementById('weather').value || '',
+            strategy: document.getElementById('strategy').value || ''
+        };
+        
+        const filterTerms = buildFilterTerms(filters).map(normalizeSkill);
+        for (const term of filterTerms) {
+            if (skillText === term) {
+                skill.classList.add('highlighted');
+                break;
+            }
+        }
+    });
+}
 
 function saveCardLevel(supportId, level) {
     if (supportId) {
@@ -3279,6 +3390,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Initialize character picker AFTER loading main data
             initCharacterPicker();
+            
+            // Initialize potential level controls
+            initPotentialLevelControls();
 
             setTimeout(() => {
                 sectionPages.clear();
@@ -4904,6 +5018,12 @@ if (skillText.includes(term)) {
       }
     }
   });
+
+const originalHighlightSkills = window.highlightSkills;
+window.highlightSkills = function() {
+    originalHighlightSkills();
+    highlightCharacterSkills();
+};
 
   updateSkillVisibility();
 }
@@ -6884,63 +7004,69 @@ function setupCopyAll() {
 }
 
 function copyAllToClipboard() {
-  const deckName = document.getElementById('deckNameInput').value.trim() || 'Unnamed Deck';
-  
-  const deckData = slots.map(slot => {
-    const supportId = slot.dataset.supportId;
-    let level = '1';
-    if (supportId) {
-      level = getCardLevel(supportId).toString();
-    } else {
-      const levelInput = slot.closest('.slot-container').querySelector('.slot-level-input');
-      level = levelInput ? levelInput.value : '1';
-    }
-
-    return {
-      supportId: supportId || 'empty',
-      level: supportId ? level : '1'
-    };
-  });
-
-  const skillsData = skillSearches.map(search => {
-    const input = document.getElementById(search.id);
-    const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
+    const deckName = document.getElementById('deckNameInput').value.trim() || 'Unnamed Deck';
     
-    if (input && colorPicker) {
-      return {
-        skill: input.value.trim(),
-        color: colorPicker.dataset.color
-      };
-    }
-    return null;
-  }).filter(item => item !== null);
+    const deckData = slots.map(slot => {
+        const supportId = slot.dataset.supportId;
+        let level = '1';
+        if (supportId) {
+            level = getCardLevel(supportId).toString();
+        } else {
+            const levelInput = slot.closest('.slot-container').querySelector('.slot-level-input');
+            level = levelInput ? levelInput.value : '1';
+        }
 
-  const allData = {
-    version: '1.0',
-    deckName: deckName,
-    deck: deckData,
-    skills: skillsData,
-    timestamp: new Date().toISOString()
-  };
+        return {
+            supportId: supportId || 'empty',
+            level: supportId ? level : '1'
+        };
+    });
 
-  const copyText = JSON.stringify(allData);
+    const skillsData = skillSearches.map(search => {
+        const input = document.getElementById(search.id);
+        const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
+        
+        if (input && colorPicker) {
+            return {
+                skill: input.value.trim(),
+                color: colorPicker.dataset.color
+            };
+        }
+        return null;
+    }).filter(item => item !== null);
 
-  navigator.clipboard.writeText(copyText).then(() => {
-    const copyBtn = document.getElementById('copyAllBtn');
-    const originalText = copyBtn.textContent;
-    copyBtn.textContent = 'Copied!';
-    copyBtn.style.background = '#57ad33';
+    const allData = {
+        version: '1.1', // Bump version to include potential level
+        deckName: deckName,
+        deck: deckData,
+        skills: skillsData,
+        potentialLevel: potentialLevel, // Add potential level
+        character: selectedCharacter ? {
+            id: selectedCharacter.id,
+            char_id: selectedCharacter.char_id,
+            card_id: selectedCharacter.card_id
+        } : null, // Add character data
+        timestamp: new Date().toISOString()
+    };
 
-    setTimeout(() => {
-      copyBtn.textContent = originalText;
-      copyBtn.style.background = '';
-    }, 1500);
+    const copyText = JSON.stringify(allData);
 
-    console.log('All data copied to clipboard:', allData);
-  }).catch(err => {
-    console.error('Failed to copy all data: ', err);
-    alert('Failed to copy all data to clipboard');
-  });
+    navigator.clipboard.writeText(copyText).then(() => {
+        const copyBtn = document.getElementById('copyAllBtn');
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        copyBtn.style.background = '#57ad33';
+
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.style.background = '';
+        }, 1500);
+
+        console.log('All data copied to clipboard:', allData);
+    }).catch(err => {
+        console.error('Failed to copy all data: ', err);
+        alert('Failed to copy all data to clipboard');
+    });
 }
 
 /* ------------- PASTE ALL ------------- */
@@ -6950,148 +7076,181 @@ function setupPasteAll() {
 }
 
 function pasteAllFromClipboard() {
-  navigator.clipboard.readText().then(text => {
-    try {
-      const allData = JSON.parse(text);
-      
-      if (!allData.deck || !allData.skills || !allData.version) {
-        throw new Error('Invalid format: Missing required fields');
-      }
-      
-      if (allData.version !== '1.0') {
-        throw new Error('Unsupported format version');
-      }
-      
-      console.log('Pasting data with deck name:', allData.deckName);
-      
-      clearAllBtn.click();
-      
-      setTimeout(() => {
-        const deckNameInput = document.getElementById('deckNameInput');
-        const deckNameDisplay = document.getElementById('deckNameDisplay');
-        
-        if (deckNameInput && deckNameDisplay) {
-          if (allData.deckName && allData.deckName.trim() !== '') {
-            deckNameInput.value = allData.deckName;
-            deckNameDisplay.textContent = allData.deckName;
-            localStorage.setItem('deckName', allData.deckName);
-            console.log('Deck name successfully set to:', allData.deckName);
-          } else {
-            deckNameInput.value = '';
-            deckNameDisplay.textContent = 'Unnamed Deck';
-            localStorage.removeItem('deckName');
-            console.log('No deck name in data, reset to default');
-          }
-        } else {
-          console.error('Deck name elements not found!');
-        }
-        
-allData.deck.forEach((slotData, index) => {
-  if (slotData.supportId !== 'empty') {
-    const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
-    if (card) {
-      const slot = slots[index];
-      addToSlot(card, slot, false);
-      
-      if (slotData.level && slotData.level !== '1') {
-        const slotContainer = slot.closest('.slot-container');
-        const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
-        if (levelInput) {
-          const validatedLevel = validateLevel(slotData.level, card);
-          levelInput.value = validatedLevel;
-          slotLevels[card.support_id] = validatedLevel;
-          
-          const levelBadge = slot.querySelector('.level-badge');
-          const diamondIcons = slot.querySelector('.diamond-icons');
-          
-          if (levelBadge) levelBadge.textContent = `Lv ${validatedLevel}`;
-          if (diamondIcons) diamondIcons.innerHTML = generateDiamondIcons(card, validatedLevel);
-        }
-      }
-    }
-  }
-});
-
-refreshAllSlotLevelDisplays();
-        
-        clearAllSkillSearches();
-        
-        allData.skills.forEach((skillItem, index) => {
-          if (index < maxSearches) {
-            if (index === 0) {
-              const firstInput = document.getElementById('skillSearch1');
-              const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
-              
-              if (firstInput) firstInput.value = skillItem.skill;
-              if (firstColorPicker) {
-                firstColorPicker.className = `color-picker ${skillItem.color}`;
-                firstColorPicker.dataset.color = skillItem.color;
-                localStorage.setItem('color_skillSearch1', skillItem.color);
-              }
-              
-              const firstSearch = skillSearches.find(s => s.id === 'skillSearch1');
-              if (firstSearch) {
-                firstSearch.value = skillItem.skill;
-              }
-            } else {
-              const newId = `skillSearch${index + 1}`;
-              
-              skillSearches.push({ id: newId, value: skillItem.skill });
-              
-              createSearchBox(newId, skillItem.skill);
-              
-              const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
-              if (colorPicker) {
-                colorPicker.className = `color-picker ${skillItem.color}`;
-                colorPicker.dataset.color = skillItem.color;
-                localStorage.setItem(`color_${newId}`, skillItem.color);
-              }
+    navigator.clipboard.readText().then(text => {
+        try {
+            const allData = JSON.parse(text);
+            
+            if (!allData.deck || !allData.skills || !allData.version) {
+                throw new Error('Invalid format: Missing required fields');
             }
-          }
-        });
-        
-        searchCounter = skillSearches.length + 1;
-        SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
-        
-        saveSkillSearches();
-        saveSlotsToLocalStorage();
-        localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
-        
-        updateSelectedSkillsList();
-        highlightSkills();
-        highlightSelectedSkills();
-        renderSections();
-        updateEffectTotals();
-        
-        const pasteBtn = document.getElementById('pasteAllBtn');
-        const originalText = pasteBtn.textContent;
-        pasteBtn.textContent = 'Pasted!';
-        pasteBtn.style.background = '#14a1f7';
-        
-        setTimeout(() => {
-          pasteBtn.textContent = originalText;
-          pasteBtn.style.background = '';
-        }, 1500);
-        
-        console.log('All data pasted from clipboard:', allData);
-        
-        setTimeout(() => {
-          const finalDeckNameInput = document.getElementById('deckNameInput');
-          const finalDeckNameDisplay = document.getElementById('deckNameDisplay');
-          console.log('Final deck name check - Input:', finalDeckNameInput.value, 'Display:', finalDeckNameDisplay.textContent, 'LocalStorage:', localStorage.getItem('deckName'));
-        }, 200);
-        
-      }, 100);
-      
-    } catch (error) {
-      console.error('Failed to parse all data: ', error);
-      alert('Invalid format in clipboard! Use Copy All button first.');
-    }
-  }).catch(err => {
-    console.error('Failed to read clipboard: ', err);
-    alert('Failed to read from clipboard. Please check permissions.');
-  });
+            
+            // Handle different versions
+            if (allData.version === '1.0') {
+                // Old version - set default values
+                allData.potentialLevel = 1;
+                allData.character = null;
+            } else if (allData.version !== '1.1') {
+                throw new Error('Unsupported format version');
+            }
+            
+            console.log('Pasting data with potential level:', allData.potentialLevel);
+            
+            // Set potential level
+            if (allData.potentialLevel) {
+                updatePotentialLevel(allData.potentialLevel);
+            }
+            
+            clearAllBtn.click();
+            
+            setTimeout(() => {
+                const deckNameInput = document.getElementById('deckNameInput');
+                const deckNameDisplay = document.getElementById('deckNameDisplay');
+                
+                if (deckNameInput && deckNameDisplay) {
+                    if (allData.deckName && allData.deckName.trim() !== '') {
+                        deckNameInput.value = allData.deckName;
+                        deckNameDisplay.textContent = allData.deckName;
+                        localStorage.setItem('deckName', allData.deckName);
+                        console.log('Deck name successfully set to:', allData.deckName);
+                    } else {
+                        deckNameInput.value = '';
+                        deckNameDisplay.textContent = 'Unnamed Deck';
+                        localStorage.removeItem('deckName');
+                        console.log('No deck name in data, reset to default');
+                    }
+                } else {
+                    console.error('Deck name elements not found!');
+                }
+                
+                // Handle character data if present
+                if (allData.character) {
+                    const character = characters.find(char => 
+                        char.card_id === allData.character.card_id && 
+                        char.char_id === allData.character.char_id
+                    );
+                    if (character && isCharacterAvailableInRegion(character.originalData)) {
+                        selectedCharacter = character;
+                        updateCharacterDisplay();
+                    }
+                }
+                
+                // Rest of the paste logic remains the same...
+                allData.deck.forEach((slotData, index) => {
+                    if (slotData.supportId !== 'empty') {
+                        const card = cardsData.find(c => String(c.support_id) === String(slotData.supportId));
+                        if (card) {
+                            const slot = slots[index];
+                            addToSlot(card, slot, false);
+                            
+                            if (slotData.level && slotData.level !== '1') {
+                                const slotContainer = slot.closest('.slot-container');
+                                const levelInput = slotContainer ? slotContainer.querySelector('.slot-level-input') : null;
+                                if (levelInput) {
+                                    const validatedLevel = validateLevel(slotData.level, card);
+                                    levelInput.value = validatedLevel;
+                                    slotLevels[card.support_id] = validatedLevel;
+                                    
+                                    const levelBadge = slot.querySelector('.level-badge');
+                                    const diamondIcons = slot.querySelector('.diamond-icons');
+                                    
+                                    if (levelBadge) levelBadge.textContent = `Lv ${validatedLevel}`;
+                                    if (diamondIcons) diamondIcons.innerHTML = generateDiamondIcons(card, validatedLevel);
+                                }
+                            }
+                        }
+                    }
+                });
+
+                refreshAllSlotLevelDisplays();
+                
+                clearAllSkillSearches();
+                
+                allData.skills.forEach((skillItem, index) => {
+                    if (index < maxSearches) {
+                        if (index === 0) {
+                            const firstInput = document.getElementById('skillSearch1');
+                            const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
+                            
+                            if (firstInput) firstInput.value = skillItem.skill;
+                            if (firstColorPicker) {
+                                firstColorPicker.className = `color-picker ${skillItem.color}`;
+                                firstColorPicker.dataset.color = skillItem.color;
+                                localStorage.setItem('color_skillSearch1', skillItem.color);
+                            }
+                            
+                            const firstSearch = skillSearches.find(s => s.id === 'skillSearch1');
+                            if (firstSearch) {
+                                firstSearch.value = skillItem.skill;
+                            }
+                        } else {
+                            const newId = `skillSearch${index + 1}`;
+                            
+                            skillSearches.push({ id: newId, value: skillItem.skill });
+                            
+                            createSearchBox(newId, skillItem.skill);
+                            
+                            const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
+                            if (colorPicker) {
+                                colorPicker.className = `color-picker ${skillItem.color}`;
+                                colorPicker.dataset.color = skillItem.color;
+                                localStorage.setItem(`color_${newId}`, skillItem.color);
+                            }
+                        }
+                    }
+                });
+                
+                searchCounter = skillSearches.length + 1;
+                SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+                
+                saveSkillSearches();
+                saveSlotsToLocalStorage();
+                localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+                
+                updateSelectedSkillsList();
+                highlightSkills();
+                highlightSelectedSkills();
+                renderSections();
+                updateEffectTotals();
+                
+                const pasteBtn = document.getElementById('pasteAllBtn');
+                const originalText = pasteBtn.textContent;
+                pasteBtn.textContent = 'Pasted!';
+                pasteBtn.style.background = '#14a1f7';
+                
+                setTimeout(() => {
+                    pasteBtn.textContent = originalText;
+                    pasteBtn.style.background = '';
+                }, 1500);
+                
+                console.log('All data pasted from clipboard:', allData);
+                
+            }, 100);
+            
+        } catch (error) {
+            console.error('Failed to parse all data: ', error);
+            alert('Invalid format in clipboard! Use Copy All button first.');
+        }
+    }).catch(err => {
+        console.error('Failed to read clipboard: ', err);
+        alert('Failed to read from clipboard. Please check permissions.');
+    });
 }
+
+// Initialize potential level controls
+function initPotentialLevelControls() {
+    // Set initial potential level
+    updatePotentialLevel(potentialLevel);
+    
+    // Add event listeners for potential level buttons
+    potentialDecreaseBtn.addEventListener('click', () => {
+        updatePotentialLevel(potentialLevel - 1);
+    });
+    
+    potentialIncreaseBtn.addEventListener('click', () => {
+        updatePotentialLevel(potentialLevel + 1);
+    });
+}
+
 
 /* ------------- RESET LEVELS ------------- */
 function setupResetLevels() {
