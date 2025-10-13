@@ -2496,6 +2496,71 @@ body.dark-mode .character-potential-bar {
   color: #fff;
 }
 
+/* New deck buttons layout */
+.deck-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, var(--card-w));
+  gap: var(--gap);
+  width: 100%;
+  max-width: calc(var(--card-w) * 3 + var(--gap) * 2);
+  margin-bottom: 8px;
+}
+
+.deck-buttons:last-of-type {
+  margin-bottom: 12px;
+}
+
+/* Right sidebar collapsed mode adjustments */
+.right-sidebar.collapsed .deck-buttons {
+  grid-template-columns: 1fr;
+  margin-bottom: 4px;
+}
+
+.right-sidebar.collapsed .deck-buttons:last-of-type {
+  margin-bottom: 8px;
+}
+
+.right-sidebar.collapsed .deck-btn,
+.right-sidebar.collapsed .clear-all {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 10px;
+  min-height: 32px;
+}
+
+/* Disabled button styles */
+.deck-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #777 !important;
+}
+
+.deck-btn:disabled:hover {
+  background: #777 !important;
+  transform: none;
+}
+
+/* Copy/Paste buttons colors */
+#copySkillsBtn {
+    background: #57ad33 !important;
+}
+
+#copySkillsBtn:hover {
+    background: #4a8f2a !important;
+}
+
+#pasteSkillsBtn {
+    background: #14a1f7 !important;
+}
+
+#pasteSkillsBtn:hover {
+    background: #0d8bd6 !important;
+}
+
+.copy-paste-buttons {
+    margin-bottom: 12px;
+}
+
 </style>
 
 </head>
@@ -2731,6 +2796,12 @@ body.dark-mode .character-potential-bar {
         <button id="pasteSkillsBtn" class="copy-paste-btn">Paste Skills</button>
       </div>
 
+<!-- Skill Management -->
+<div class="copy-paste-buttons">
+  <button id="copySkillsBtn" class="copy-paste-btn" style="background: #57ad33 !important;">Copy Skills</button>
+  <button id="pasteSkillsBtn" class="copy-paste-btn" style="background: #14a1f7 !important;">Paste Skills</button>
+</div>
+
       <!-- Skill Search Section -->
       <div id="skillSearchGroup">
         <div class="skill-search-header">
@@ -2762,15 +2833,21 @@ body.dark-mode .character-potential-bar {
     <div class="right-sidebar" id="rightSidebar">
       <div class="right-sidebar-content">
         <!-- Deck Management -->
-        <div class="deck-name-section">
-          <input type="text" id="deckNameInput" class="deck-name-input" placeholder="Enter deck name" maxlength="30">
-          <div class="deck-buttons new-deck-buttons">
-            <button id="copyAllBtn" class="deck-btn">Copy All</button>
-            <button id="pasteAllBtn" class="deck-btn">Paste All</button>
-            <button id="resetLevelsBtn" class="clear-all">Reset All Levels</button>
-          </div>
-          <div id="deckNameDisplay" class="deck-name-display">Unnamed Deck</div>
-        </div>
+<!-- Deck Management -->
+<div class="deck-name-section">
+  <input type="text" id="deckNameInput" class="deck-name-input" placeholder="Enter deck name" maxlength="30">
+  <div class="deck-buttons new-deck-buttons">
+    <button id="copyAllBtn" class="deck-btn">Copy All</button>
+    <button id="pasteAllBtn" class="deck-btn">Paste All</button>
+    <button id="clearAllBtn" class="clear-all">Clear All</button>
+  </div>
+  <div class="deck-buttons">
+    <button id="saveDeckBtn" class="deck-btn" disabled>Save Deck</button>
+    <button id="screenshotBtn" class="deck-btn" disabled>Screenshot</button>
+    <button id="resetDataBtn" class="clear-all">Reset Data</button>
+  </div>
+  <div id="deckNameDisplay" class="deck-name-display">Unnamed Deck</div>
+</div>
 
         <div class="skill-search-divider"></div>
 
@@ -3529,6 +3606,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             initCharacterPicker();
             initPotentialLevelControls();
+            setupNewButtons(); // Add this line
 
             setTimeout(() => {
                 sectionPages.clear();
@@ -6055,113 +6133,118 @@ function setupCopyPasteButtons() {
 }
 
 function copySkillsToClipboard() {
-  const skillsData = skillSearches.map(search => {
-    const input = document.getElementById(search.id);
-    const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
+    const skillsData = skillSearches.map(search => {
+        const input = document.getElementById(search.id);
+        const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
+        
+        if (input && input.value.trim() && colorPicker) {
+            return {
+                skill: input.value.trim(),
+                color: colorPicker.dataset.color
+            };
+        }
+        return null;
+    }).filter(item => item !== null);
     
-    if (input && input.value.trim() && colorPicker) {
-      return {
-        skill: input.value.trim(),
-        color: colorPicker.dataset.color
-      };
+    if (skillsData.length === 0) {
+        alert('No skills to copy!');
+        return;
     }
-    return null;
-  }).filter(item => item !== null);
-  
-  if (skillsData.length === 0) {
-    alert('No skills to copy!');
-    return;
-  }
-  
-  const copyText = skillsData.map(item => `${item.skill}|${item.color}`).join(',');
-  
-  navigator.clipboard.writeText(copyText).then(() => {
-    const copyBtn = document.getElementById('copySkillsBtn');
-    const originalText = copyBtn.textContent;
-    copyBtn.textContent = 'Copied!';
-    copyBtn.style.background = '#57ad33';
     
-    setTimeout(() => {
-      copyBtn.textContent = originalText;
-      copyBtn.style.background = '';
-    }, 1500);
-  }).catch(err => {
-    alert('Failed to copy skills to clipboard');
-  });
+    const copyText = JSON.stringify(skillsData);
+    
+    navigator.clipboard.writeText(copyText).then(() => {
+        const copyBtn = document.getElementById('copySkillsBtn');
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        copyBtn.style.background = '#57ad33';
+        
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            copyBtn.style.background = '#57ad33';
+        }, 1500);
+    }).catch(err => {
+        alert('Failed to copy skills to clipboard');
+    });
 }
 
 function pasteSkillsFromClipboard() {
-  navigator.clipboard.readText().then(text => {
-    try {
-      const skillsData = parseSkillsFromClipboard(text);
-      
-      if (skillsData.length === 0) {
-        alert('No valid skills found in clipboard!');
-        return;
-      }
-      
-      clearAllSkillSearches();
-      
-      skillsData.forEach((skillItem, index) => {
-        if (index < maxSearches) {
-          if (index === 0) {
-            const firstInput = document.getElementById('skillSearch1');
-            const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
+    navigator.clipboard.readText().then(text => {
+        try {
+            const skillsData = JSON.parse(text);
             
-            if (firstInput) firstInput.value = skillItem.skill;
-            if (firstColorPicker) {
-              firstColorPicker.className = `color-picker ${skillItem.color}`;
-              firstColorPicker.dataset.color = skillItem.color;
-              localStorage.setItem('color_skillSearch1', skillItem.color);
+            if (!Array.isArray(skillsData) || skillsData.length === 0) {
+                alert('No valid skills found in clipboard!');
+                return;
             }
             
-            const firstSearch = skillSearches.find(s => s.id === 'skillSearch1');
-            if (firstSearch) {
-              firstSearch.value = skillItem.skill;
-            }
-          } else {
-            const newId = `skillSearch${index + 1}`;
+            // Clear existing searches first
+            clearAllSkillSearches();
             
-            skillSearches.push({ id: newId, value: skillItem.skill });
+            // Create new search boxes for each skill
+            skillsData.forEach((skillItem, index) => {
+                if (index < maxSearches) {
+                    if (index === 0) {
+                        // Use first existing box
+                        const firstInput = document.getElementById('skillSearch1');
+                        const firstColorPicker = document.querySelector('.color-picker[data-search-id="skillSearch1"]');
+                        
+                        if (firstInput) firstInput.value = skillItem.skill;
+                        if (firstColorPicker) {
+                            firstColorPicker.className = `color-picker ${skillItem.color}`;
+                            firstColorPicker.dataset.color = skillItem.color;
+                            localStorage.setItem('color_skillSearch1', skillItem.color);
+                        }
+                        
+                        const firstSearch = skillSearches.find(s => s.id === 'skillSearch1');
+                        if (firstSearch) {
+                            firstSearch.value = skillItem.skill;
+                        }
+                    } else {
+                        // Create new boxes for additional skills
+                        const newId = `skillSearch${index + 1}`;
+                        
+                        skillSearches.push({ id: newId, value: skillItem.skill });
+                        createSearchBox(newId, skillItem.skill);
+                        
+                        const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
+                        if (colorPicker) {
+                            colorPicker.className = `color-picker ${skillItem.color}`;
+                            colorPicker.dataset.color = skillItem.color;
+                            localStorage.setItem(`color_${newId}`, skillItem.color);
+                        }
+                    }
+                }
+            });
             
-            createSearchBox(newId, skillItem.skill);
+            // Update counters and save
+            searchCounter = skillSearches.length + 1;
+            SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
+            saveSkillSearches();
             
-            const colorPicker = document.querySelector(`.color-picker[data-search-id="${newId}"]`);
-            if (colorPicker) {
-              colorPicker.className = `color-picker ${skillItem.color}`;
-              colorPicker.dataset.color = skillItem.color;
-              localStorage.setItem(`color_${newId}`, skillItem.color);
-            }
-          }
+            // Refresh UI
+            sectionPages.clear();
+            renderSections();
+            highlightSkills();
+            highlightSelectedSkills();
+            
+            // Show success message
+            const pasteBtn = document.getElementById('pasteSkillsBtn');
+            const originalText = pasteBtn.textContent;
+            pasteBtn.textContent = `Pasted ${skillsData.length}`;
+            pasteBtn.style.background = '#14a1f7';
+            
+            setTimeout(() => {
+                pasteBtn.textContent = originalText;
+                pasteBtn.style.background = '#14a1f7';
+            }, 1500);
+            
+        } catch (error) {
+            alert('Invalid format in clipboard! Use Copy Skills button first.');
         }
-      });
-      
-      searchCounter = skillSearches.length + 1;
-      SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
-      
-      saveSkillSearches();
-      
-      sectionPages.clear();
-      renderSections();
-      highlightSkills();
-      highlightSelectedSkills();
-      
-      const pasteBtn = document.getElementById('pasteSkillsBtn');
-      const originalText = pasteBtn.textContent;
-      pasteBtn.textContent = `Pasted ${skillsData.length}`;
-      pasteBtn.style.background = '#14a1f7';
-      
-      setTimeout(() => {
-        pasteBtn.textContent = originalText;
-        pasteBtn.style.background = '';
-      }, 1500);
-      
-    } catch (error) {
-      alert('Invalid format in clipboard! Use Copy Skills button first.');
-    }
-  }).catch(err => {
-    alert('Failed to read from clipboard. Please check permissions.');
-  });
+    }).catch(err => {
+        alert('Failed to read from clipboard. Please check permissions.');
+    });
 }
 
 function parseSkillsFromClipboard(text) {
@@ -8261,6 +8344,95 @@ function loadSelectedCharacter() {
 }
 
 document.addEventListener('DOMContentLoaded', initCharacterPicker);
+
+// Clear All function (clears character and deck)
+function clearAll() {
+    // Clear the character
+    clearSelectedCharacter();
+    
+    // Clear the deck
+    if (window.programmaticClearDeck) {
+        window.programmaticClearDeck();
+    } else {
+        clearAllBtn.click();
+    }
+    
+    // Show confirmation
+    const clearBtn = document.getElementById('clearAllBtn');
+    const originalText = clearBtn.textContent;
+    clearBtn.textContent = 'Cleared!';
+    
+    setTimeout(() => {
+        clearBtn.textContent = originalText;
+    }, 1500);
+}
+
+// Reset Data function (clears all saved data except skills)
+function resetAllData() {
+    if (!confirm('Are you sure you want to reset ALL data? This will clear:\n• All card levels\n• All potential levels\n• All diamond progress\n• Current deck and character\n\nThis action cannot be undone!')) {
+        return;
+    }
+    
+    // Clear card levels
+    localStorage.removeItem('slotLevels');
+    Object.keys(slotLevels).forEach(key => {
+        delete slotLevels[key];
+    });
+    
+    // Clear potential levels
+    localStorage.removeItem('characterPotentialLevels');
+    characterPotentialLevels = {};
+    
+    // Clear current deck and character
+    clearAll();
+    
+    // Reset all slot levels to 1 visually
+    slotContainers.forEach(container => {
+        const levelInput = container.querySelector('.slot-level-input');
+        levelInput.value = '1';
+        levelInput.disabled = true;
+    });
+    
+    // Reset potential level display
+    updatePotentialLevel(1);
+    
+    // Refresh all displays
+    refreshAllSlotLevelDisplays();
+    refreshAllMainGridCardLevels();
+    
+    // Show confirmation
+    const resetBtn = document.getElementById('resetDataBtn');
+    const originalText = resetBtn.textContent;
+    resetBtn.textContent = 'Reset!';
+    
+    setTimeout(() => {
+        resetBtn.textContent = originalText;
+    }, 1500);
+}
+
+// Initialize the new buttons
+function setupNewButtons() {
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const resetDataBtn = document.getElementById('resetDataBtn');
+    const saveDeckBtn = document.getElementById('saveDeckBtn');
+    const screenshotBtn = document.getElementById('screenshotBtn');
+    
+    // Update the existing clearAllBtn to use our new function
+    const oldClearAll = clearAllBtn.cloneNode(true);
+    clearAllBtn.parentNode.replaceChild(oldClearAll, clearAllBtn);
+    oldClearAll.addEventListener('click', clearAll);
+    
+    // Setup reset data button
+    resetDataBtn.addEventListener('click', resetAllData);
+    
+    // Disable unimplemented buttons
+    saveDeckBtn.disabled = true;
+    screenshotBtn.disabled = true;
+    
+    // Add tooltips for disabled buttons
+    saveDeckBtn.title = 'Coming soon';
+    screenshotBtn.title = 'Coming soon';
+}
 
 </script>
 </body>
