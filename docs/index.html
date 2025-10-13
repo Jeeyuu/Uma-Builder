@@ -4003,8 +4003,6 @@ function renderCardSearchSection() {
   const currentPage = sectionPages.get(pageKey) || 0;
   sectionPages.set(pageKey, currentPage);
 
-  const CARDS_PER_PAGE = 6;
-
   renderSkillSearchPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
 
 leftBtn.addEventListener('click', () => {
@@ -5741,7 +5739,6 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
 
   const matches = baseCards.filter(card => {
-    // FIXED: Use helper function for dynamic region-based skills
     const eventSkillsToUse = getEventSkillsForCard(card);
     const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
     
@@ -5783,14 +5780,13 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   wrapper.appendChild(grid);
   section.appendChild(wrapper);
 
+  cardSections.appendChild(section);
+
   const pageKey = `${catId}-${rowIndex}`;
   const currentPage = sectionPages.get(pageKey) || 0;
-  sectionPages.set(pageKey, currentPage);
-
-  // FIX: Use the recalculated CARDS_PER_PAGE instead of hardcoded 6
-  renderFilterPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
   
-  cardSections.appendChild(section);
+  // FIX: Ensure we're using the dynamic renderFilterPage function
+  renderFilterPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
 }
 
 function properCaseSkill(s) {
@@ -5857,8 +5853,6 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
   const pageKey = `${key}-${rowIndex}`;
   const currentPage = sectionPages.get(pageKey) || 0;
   sectionPages.set(pageKey, currentPage);
-
-  const CARDS_PER_PAGE = 6;
 
   renderCardSearchPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
 
