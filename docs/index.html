@@ -5279,17 +5279,15 @@ function buildFilterTerms(filters){
   return terms;
 }
 
-
 function filterCardsWithRules(cards,filters){
   const terms=buildFilterTerms(filters).map(normalizeSkill);
   const strictDistanceKeys=['standard distance','non-standard distance'];
   const strictTerms=terms.filter(t=>strictDistanceKeys.includes(t));
   const looseTerms=terms.filter(t=>!strictDistanceKeys.includes(t));
   return cards.filter(card=>{
-    // Always use the appropriate event skills array based on region
-    const eventSkillsToUse = region === 'global' ? 
-      (card.event_skills_en || card.event_skills) : 
-      card.event_skills;
+    // Use region-appropriate skills for filtering
+    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
     
     const skills=[...card.hint_skills,...eventSkillsToUse].map(normalizeSkill);
     return strictTerms.every(t=>skills.includes(t)) && looseTerms.every(term=>skills.some(s=>s.includes(term)));
@@ -5402,34 +5400,33 @@ filterOrder.forEach(catId => {
     }
   });
 
-  /* ------------- SKILL SEARCH ------------- */
-  SKILL_SEARCH_KEYS.forEach((key, i) => {
-    const val = document.getElementById(key)?.value.trim();
-    if (!val) return;
+/* ------------- SKILL SEARCH ------------- */
+SKILL_SEARCH_KEYS.forEach((key, i) => {
+  const val = document.getElementById(key)?.value.trim();
+  if (!val) return;
 
-    const normalized = normalizeSkill(val);
+  const normalized = normalizeSkill(val);
+  
+  const uniqueMatches = new Set();
+  const matches = [];
+  
+  baseFilteredCards.forEach(card => {
+    // Use region-appropriate skills for skill search
+    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
     
-    const uniqueMatches = new Set();
-    const matches = [];
+    const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
+    const hasMatch = skills.some(s => s.includes(normalized));
     
-    baseFilteredCards.forEach(card => {
-      // Always use the appropriate event skills array based on region
-      const eventSkillsToUse = region === 'global' ? 
-        (card.event_skills_en || card.event_skills) : 
-        card.event_skills;
-      
-      const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
-      const hasMatch = skills.some(s => s.includes(normalized));
-      
-      if (hasMatch && !uniqueMatches.has(card.support_id)) {
-        uniqueMatches.add(card.support_id);
-        matches.push(card);
-      }
-    });
-
-    const header = `Skill Search ${i + 1}: "${val}"`;
-    renderSkillSearchRow(key, header, matches, i);
+    if (hasMatch && !uniqueMatches.has(card.support_id)) {
+      uniqueMatches.add(card.support_id);
+      matches.push(card);
+    }
   });
+
+  const header = `Skill Search ${i + 1}: "${val}"`;
+  renderSkillSearchRow(key, header, matches, i);
+});
 
   highlightSkills();
 }
@@ -5442,10 +5439,9 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   const looseTerms = termsNormalized.filter(t => !strictDistanceKeys.includes(t));
 
   const matches = baseCards.filter(card => {
-    // Always use the appropriate event skills array based on region
-    const eventSkillsToUse = region === 'global' ? 
-      (card.event_skills_en || card.event_skills) : 
-      card.event_skills;
+    // Use region-appropriate skills for filtering
+    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
     
     const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
     return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
@@ -5494,6 +5490,21 @@ function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
 
   renderFilterPage(currentPage, matches, grid, leftBtn, rightBtn, pageKey);
   cardSections.appendChild(section);
+}
+
+function properCaseSkill(s) {
+  return String(s || '')
+    .split(' ')
+    .map(word => {
+      if (word.includes('-')) {
+        return word
+          .split('-')
+          .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+          .join('-');
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
 }
 
 function renderSkillSearchRow(key, headerText, matches, rowIndex) {
