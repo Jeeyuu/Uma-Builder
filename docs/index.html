@@ -3607,6 +3607,29 @@ function getEventSkillsForCard(card) {
   return card.event_skills || [];
 }
 
+// Update slots when region changes
+function updateSlotsForRegion() {
+  slots.forEach(slot => {
+    if (slot.dataset.supportId) {
+      const supportId = slot.dataset.supportId;
+      const card = cardsData.find(c => String(c.support_id) === String(supportId));
+      
+      if (card) {
+        if (slotListeners.has(slot)) {
+          slot.removeEventListener('click', slotListeners.get(slot));
+          slotListeners.delete(slot);
+        }
+        
+        addToSlot(card, slot, false);
+      }
+    }
+  });
+  
+  saveSlotsToLocalStorage();
+  highlightSkills();
+  updateSkillVisibility();
+}
+
 async function loadDataFiles() {
     try {
         const discoveredFiles = await discoverDataFiles();
@@ -4493,52 +4516,51 @@ function setupSortingControls() {
     regionSelect.value = 'global';
   }
 
-sortBySelect.addEventListener('change', (e) => {
-  sortBy = e.target.value;
-  localStorage.setItem('sortBy', sortBy);
-  sectionPages.clear();
-  renderSections();
-  
-  setTimeout(() => {
-    updateAllSlotDisplays();
-  }, 50);
-});
-
-sortOrderBtn.addEventListener('click', () => {
-  sortOrder = sortOrder === 'ascending' ? 'descending' : 'ascending';
-  sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
-  sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
-  localStorage.setItem('sortOrder', sortOrder);
-  sectionPages.clear();
-  renderSections();
-  
-  setTimeout(() => {
-    updateAllSlotDisplays();
-  }, 50);
-});
-}
-
-function updateSlotsForRegion() {
-  slots.forEach(slot => {
-    if (slot.dataset.supportId) {
-      const supportId = slot.dataset.supportId;
-      const card = cardsData.find(c => String(c.support_id) === String(supportId));
-      
-      if (card) {
-        if (slotListeners.has(slot)) {
-          slot.removeEventListener('click', slotListeners.get(slot));
-          slotListeners.delete(slot);
-        }
-        
-        addToSlot(card, slot, false);
-      }
-    }
+  sortBySelect.addEventListener('change', (e) => {
+    sortBy = e.target.value;
+    localStorage.setItem('sortBy', sortBy);
+    sectionPages.clear();
+    renderSections();
+    
+    setTimeout(() => {
+      updateAllSlotDisplays();
+    }, 50);
   });
-  
-  saveSlotsToLocalStorage();
-  
-  highlightSkills();
-  updateSkillVisibility();
+
+  sortOrderBtn.addEventListener('click', () => {
+    sortOrder = sortOrder === 'ascending' ? 'descending' : 'ascending';
+    sortOrderBtn.textContent = sortOrder === 'ascending' ? '↑' : '↓';
+    sortOrderBtn.classList.toggle('ascending', sortOrder === 'ascending');
+    localStorage.setItem('sortOrder', sortOrder);
+    sectionPages.clear();
+    renderSections();
+    
+    setTimeout(() => {
+      updateAllSlotDisplays();
+    }, 50);
+  });
+
+  // REPLACE THE EXISTING REGION EVENT LISTENER WITH THIS:
+  regionSelect.addEventListener('change', (e) => {
+    region = e.target.value;
+    localStorage.setItem('region', region);
+    
+    // Clear section pages and re-render to refresh with new region skills
+    sectionPages.clear();
+    
+    // Update slots for the new region
+    updateSlotsForRegion();
+    
+    // Update selected skills list with new region skills
+    updateSelectedSkillsList();
+    
+    // Re-render everything
+    renderSections();
+    
+    // Refresh highlights
+    highlightSkills();
+    highlightSelectedSkills();
+  });
 }
 
 function setupHideUncoloredCheckbox() {
@@ -8547,29 +8569,6 @@ function refreshCardDataForRegion() {
   highlightSkills();
   highlightSelectedSkills();
 }
-
-// Update the region change event listener
-regionSelect.addEventListener('change', (e) => {
-  region = e.target.value;
-  localStorage.setItem('region', region);
-  
-  // Clear section pages and re-render to refresh with new region skills
-  sectionPages.clear();
-  
-  // Update slots for the new region
-  updateSlotsForRegion();
-  
-  // Update selected skills list with new region skills
-  updateSelectedSkillsList();
-  
-  // Re-render everything
-  renderSections();
-  
-  // Refresh highlights
-  highlightSkills();
-  highlightSelectedSkills();
-});
-
 </script>
 </body>
 </html>
