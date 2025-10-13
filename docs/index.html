@@ -8284,6 +8284,8 @@ function updateCharacterDisplay() {
             <div class="selected-character-info">
                 <div class="selected-character-name">${selectedCharacter.name}</div>
                 <div class="selected-character-title">${selectedCharacter.title}</div>
+                ${isUpcoming ? '<div class="upcoming-badge">Upcoming</div>' : ''}
+            </div>
             <div class="character-clear-btn" id="characterClearBtn">×</div>
         `;
         
