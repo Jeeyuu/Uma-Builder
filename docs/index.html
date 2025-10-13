@@ -2782,21 +2782,12 @@ body.dark-mode .character-skill.search-highlighted {
         <div class="character-skills-section">
           <div class="character-skills-column">
             <div class="character-skills-header">Awakening Skills</div>
-            <div class="character-skill">Awakening Skill 1</div>
-            <div class="character-skill">Awakening Skill 2</div>
-            <div class="character-skill">Awakening Skill 3</div>
           </div>
           <div class="character-skills-column">
             <div class="character-skills-header">Innate Skills</div>
-            <div class="character-skill">Innate Skill 1</div>
-            <div class="character-skill">Innate Skill 2</div>
-            <div class="character-skill">Innate Skill 3</div>
           </div>
           <div class="character-skills-column">
             <div class="character-skills-header">Event Skills</div>
-            <div class="character-skill">Event Skill 1</div>
-            <div class="character-skill">Event Skill 2</div>
-            <div class="character-skill">Event Skill 3</div>
           </div>
         </div>
 
@@ -7549,31 +7540,75 @@ function updateCharacterSkills(characterData) {
     
     showSkillsSection();
     
-    updateSkillColumn('.character-skills-column:nth-child(1)', 'Awakening Skills', characterData.skills_awakening);
+    // Update awakening skills based on current potential level
+    updateSkillColumn('.character-skills-column:nth-child(1)', 'Awakening Skills', 
+                     getAwakeningSkillIdsForLevel(characterData, potentialLevel));
     
     updateSkillColumn('.character-skills-column:nth-child(2)', 'Innate Skills', characterData.skills_innate);
     
     updateSkillColumn('.character-skills-column:nth-child(3)', 'Event Skills', eventSkillsToUse);
 }
 
+// Add this helper function to get awakening skill IDs for current level
+function getAwakeningSkillIdsForLevel(characterData, level) {
+    if (!characterData || !characterData.skills_awakening) return [];
+    
+    const skills = [];
+    const awakeningSkills = characterData.skills_awakening || [];
+    
+    // Skills only show from level 2 onwards
+    if (level >= 2 && awakeningSkills[0]) {
+        skills.push(awakeningSkills[0]);
+    }
+    if (level >= 3 && awakeningSkills[1]) {
+        skills.push(awakeningSkills[1]);
+    }
+    if (level >= 4 && awakeningSkills[2]) {
+        skills.push(awakeningSkills[2]);
+    }
+    if (level >= 5 && awakeningSkills[3]) {
+        skills.push(awakeningSkills[3]);
+    }
+    
+    return skills;
+}
+
 function updateSkillColumn(columnSelector, headerText, skillIds) {
     const column = document.querySelector(columnSelector);
     if (!column) return;
     
-    column.innerHTML = '';
+    // Clear existing skills but keep the header
+    const header = column.querySelector('.character-skills-header');
+    const existingSkills = column.querySelectorAll('.character-skill');
+    existingSkills.forEach(skill => skill.remove());
+    
+    if (!header) {
+        // Create header if it doesn't exist
+        const newHeader = document.createElement('div');
+        newHeader.className = 'character-skills-header';
+        newHeader.textContent = headerText;
+        column.appendChild(newHeader);
+    } else {
+        header.textContent = headerText;
+    }
     
     if (!skillIds || skillIds.length === 0) {
-        column.style.display = 'none';
+        // For awakening skills, always show 3 empty slots
+        if (columnSelector === '.character-skills-column:nth-child(1)') {
+            for (let i = 0; i < 3; i++) {
+                const emptySkill = document.createElement('div');
+                emptySkill.className = 'character-skill';
+                emptySkill.style.visibility = 'hidden';
+                emptySkill.textContent = 'Empty';
+                column.appendChild(emptySkill);
+            }
+        }
         return;
     }
     
     column.style.display = 'flex';
     
-    const header = document.createElement('div');
-    header.className = 'character-skills-header';
-    header.textContent = headerText;
-    column.appendChild(header);
-    
+    // Add actual skills
     skillIds.forEach((skillId, index) => {
         const skillElement = document.createElement('div');
         skillElement.className = 'character-skill character-skill-text';
@@ -7584,16 +7619,19 @@ function updateSkillColumn(columnSelector, headerText, skillIds) {
         column.appendChild(skillElement);
     });
     
+    // Fill remaining slots with empty placeholders (always show 3 slots for awakening)
     const currentSkillCount = skillIds.length;
-    if (currentSkillCount < 3) {
-        const emptySlotsNeeded = 3 - currentSkillCount;
-        for (let i = 0; i < emptySlotsNeeded; i++) {
-            const emptySkill = document.createElement('div');
-            emptySkill.className = 'character-skill';
-            emptySkill.style.visibility = 'hidden';
-            column.appendChild(emptySkill);
-        }
+    const totalSlots = 3;
+    const emptySlotsNeeded = totalSlots - currentSkillCount;
+    
+    for (let i = 0; i < emptySlotsNeeded; i++) {
+        const emptySkill = document.createElement('div');
+        emptySkill.className = 'character-skill';
+        emptySkill.style.visibility = 'hidden';
+        emptySkill.textContent = 'Empty';
+        column.appendChild(emptySkill);
     }
+    
     setTimeout(() => {
         highlightCharacterSkills();
     }, 100);
@@ -7621,7 +7659,8 @@ function initCharacterPicker() {
     characterSortOrder.classList.remove('ascending');
     isAscending = false;
     
-    hideSkillsSection();
+    // Initialize with empty skills for potential level 1
+    initializeEmptySkills();
     
     loadCharacterData();
     
@@ -7649,6 +7688,29 @@ function initCharacterPicker() {
     setTimeout(() => {
         loadSelectedCharacter();
     }, 1000);
+}
+
+// Add this new function to initialize empty skills
+function initializeEmptySkills() {
+    const columns = document.querySelectorAll('.character-skills-column');
+    
+    columns.forEach((column, index) => {
+        // Clear any existing skills except the header
+        const header = column.querySelector('.character-skills-header');
+        const existingSkills = column.querySelectorAll('.character-skill');
+        existingSkills.forEach(skill => skill.remove());
+        
+        // Add empty slots for awakening skills (3 slots)
+        if (index === 0) { // Awakening skills column
+            for (let i = 0; i < 3; i++) {
+                const emptySkill = document.createElement('div');
+                emptySkill.className = 'character-skill';
+                emptySkill.style.visibility = 'hidden';
+                emptySkill.textContent = 'Empty';
+                column.appendChild(emptySkill);
+            }
+        }
+    });
 }
 
 function openCharacterPicker() {
@@ -8013,13 +8075,24 @@ function loadSelectedCharacter() {
                     ...character,
                     originalData: savedCharacter.originalData || character.originalData
                 };
+                
+                // Get the saved potential level or default to 1
+                const characterPotential = characterPotentialLevels[selectedCharacter.card_id] || 1;
+                updatePotentialLevel(characterPotential, selectedCharacter.card_id);
+                
                 updateCharacterDisplay();
             } else {
                 localStorage.removeItem('selectedCharacter');
+                // Reset to empty state if character is not available
+                initializeEmptySkills();
             }
         } catch (error) {
             localStorage.removeItem('selectedCharacter');
+            initializeEmptySkills();
         }
+    } else {
+        // No saved character, ensure empty state
+        initializeEmptySkills();
     }
 }
 
