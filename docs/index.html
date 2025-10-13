@@ -7111,14 +7111,15 @@ function copyAllToClipboard() {
         const input = document.getElementById(search.id);
         const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
         
-        if (input && colorPicker) {
+        // FILTER OUT EMPTY SKILLS
+        if (input && colorPicker && input.value.trim() !== '') {
             return {
                 skill: input.value.trim(),
                 color: colorPicker.dataset.color
             };
         }
         return null;
-    }).filter(item => item !== null);
+    }).filter(item => item !== null); // Remove null entries
 
     const allData = {
         version: '1.2',
