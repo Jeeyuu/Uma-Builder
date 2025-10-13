@@ -2318,18 +2318,28 @@ body.dark-mode .character-display-info {
     color: #aaa;
 }
 
-/* Add these new styles for the potential level controls */
+/* Update character picker potential styles */
+.character-picker-potential {
+  background: #f0f8ff;
+  padding: 6px 4px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 40px;
+}
+
 .potential-level-controls {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 0;
+  width: 100%;
 }
 
 .potential-level-btn {
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   border: 1px solid #ccc;
   background: #f5f5f5;
   border-radius: 4px;
@@ -2337,19 +2347,26 @@ body.dark-mode .character-display-info {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .potential-level-btn:hover:not(:disabled) {
   background: #e5e5e5;
+  border-color: #999;
 }
 
 .potential-level-btn:disabled {
   background: #f0f0f0;
   color: #999;
   cursor: not-allowed;
+}
+
+/* Remove any text that might be in the potential section */
+.character-picker-potential > div:not(.potential-level-controls) {
+  display: none;
 }
 
 .potential-level-display {
@@ -2377,21 +2394,6 @@ body.dark-mode .character-display-info {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 0;
-}
-
-/* Update character picker potential styles */
-.character-picker-potential {
-  font-size: 11px;
-  text-align: center;
-  background: #f0f8ff;
-  padding: 6px 4px;
-  border-radius: 4px;
-  word-break: break-word;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
   min-height: 0;
 }
 
@@ -2715,15 +2717,15 @@ body.dark-mode .character-display-info {
             <div class="character-picker-empty-box" id="characterPickerBox">
               <div class="character-picker-empty-text">Empty</div>
             </div>
-            <div class="character-picker-info">
+<div class="character-picker-info">
   <div class="character-picker-name">Potential Lv 1</div>
   <div class="character-picker-potential">
     <div class="potential-level-controls">
       <button class="potential-level-btn" id="potentialDecreaseBtn" disabled>◀</button>
-      <span class="potential-level-display" id="potentialLevelDisplay">1</span>
       <button class="potential-level-btn" id="potentialIncreaseBtn">▶</button>
     </div>
   </div>
+</div>
 </div>
           </div>
           <div class="character-picker-rows">
@@ -3020,22 +3022,28 @@ let sortOrder = 'descending';
 let region = 'global';
 let selectedCharacter = null;
 let isAscending = true;
+// Add character potential levels storage
+let characterPotentialLevels = JSON.parse(localStorage.getItem('characterPotentialLevels')) || {};
 
 const slotLevels = JSON.parse(localStorage.getItem('slotLevels')) || {};
 const MAX_LEVELS = { 'R': 40, 'SR': 45, 'SSR': 50 };
 
-// Add potential level management functions
-function updatePotentialLevel(level) {
+// Update the updatePotentialLevel function to be character-specific
+function updatePotentialLevel(level, characterId = null) {
     potentialLevel = Math.max(1, Math.min(5, level));
-    potentialLevelDisplay.textContent = potentialLevel;
+    
+    // If a character is specified, save it for that character
+    if (characterId && selectedCharacter) {
+        characterPotentialLevels[characterId] = potentialLevel;
+        localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
+    }
+    
+    // Update display
     characterPickerName.textContent = `Potential Lv ${potentialLevel}`;
     
     // Update button states
     potentialDecreaseBtn.disabled = potentialLevel === 1;
     potentialIncreaseBtn.disabled = potentialLevel === 5;
-    
-    // Save to localStorage
-    localStorage.setItem('potentialLevel', potentialLevel.toString());
     
     // Update awakening skills display based on potential level
     updateAwakeningSkillsDisplay();
@@ -7142,16 +7150,17 @@ function copyAllToClipboard() {
     }).filter(item => item !== null);
 
     const allData = {
-        version: '1.1', // Bump version to include potential level
+        version: '1.2', // Bump version to include character potential level
         deckName: deckName,
         deck: deckData,
         skills: skillsData,
-        potentialLevel: potentialLevel, // Add potential level
+        potentialLevel: potentialLevel,
         character: selectedCharacter ? {
             id: selectedCharacter.id,
             char_id: selectedCharacter.char_id,
-            card_id: selectedCharacter.card_id
-        } : null, // Add character data
+            card_id: selectedCharacter.card_id,
+            potentialLevel: characterPotentialLevels[selectedCharacter.card_id] || 1
+        } : null,
         timestamp: new Date().toISOString()
     };
 
@@ -7240,6 +7249,17 @@ function pasteAllFromClipboard() {
                     }
                 }
                 
+// In the pasteAllFromClipboard function, add this after setting the character:
+if (allData.character && allData.character.potentialLevel) {
+    characterPotentialLevels[allData.character.card_id] = allData.character.potentialLevel;
+    localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
+    
+    // Update the display if this character is selected
+    if (selectedCharacter && selectedCharacter.card_id === allData.character.card_id) {
+        updatePotentialLevel(allData.character.potentialLevel, selectedCharacter.card_id);
+    }
+}
+
                 // Rest of the paste logic remains the same...
                 allData.deck.forEach((slotData, index) => {
                     if (slotData.supportId !== 'empty') {
@@ -7342,20 +7362,23 @@ function pasteAllFromClipboard() {
     });
 }
 
-// Initialize potential level controls
+// Update the initPotentialLevelControls function
 function initPotentialLevelControls() {
-    // Set initial potential level
-    updatePotentialLevel(potentialLevel);
+    // Set initial potential level to 1
+    updatePotentialLevel(1);
     
     // Add event listeners for potential level buttons
     potentialDecreaseBtn.addEventListener('click', () => {
-        updatePotentialLevel(potentialLevel - 1);
+        const characterId = selectedCharacter ? selectedCharacter.card_id : null;
+        updatePotentialLevel(potentialLevel - 1, characterId);
     });
     
     potentialIncreaseBtn.addEventListener('click', () => {
-        updatePotentialLevel(potentialLevel + 1);
+        const characterId = selectedCharacter ? selectedCharacter.card_id : null;
+        updatePotentialLevel(potentialLevel + 1, characterId);
     });
 }
+
 
 
 /* ------------- RESET LEVELS ------------- */
@@ -7942,7 +7965,7 @@ function getCharacterDisplayInfo(character) {
     }
 }
 
-// Update the selectCharacter function to allow deselection
+// Update the selectCharacter function to load character-specific potential level
 function selectCharacter(character) {
     // If clicking the same character, deselect it
     if (selectedCharacter && selectedCharacter.card_id === character.card_id) {
@@ -7953,6 +7976,11 @@ function selectCharacter(character) {
     }
     
     selectedCharacter = character;
+    
+    // Load character-specific potential level or default to 1
+    const characterPotential = characterPotentialLevels[character.card_id] || 1;
+    updatePotentialLevel(characterPotential, character.card_id);
+    
     updateCharacterDisplay();
     closeCharacterPicker();
 }
@@ -7998,10 +8026,11 @@ function updateCharacterDisplay() {
             </div>
         `;
         
-        // Update character info - only update the name, potential level is handled separately
-        characterPickerName.textContent = `Potential Lv ${potentialLevel}`;
+        // Load character-specific potential level
+        const characterPotential = characterPotentialLevels[selectedCharacter.card_id] || 1;
+        updatePotentialLevel(characterPotential, selectedCharacter.card_id);
         
-        // Update aptitude percentages (using stat_bonus from your JSON)
+        // Update aptitude percentages
         const percentages = document.querySelectorAll('.character-picker-percentage');
         if (selectedCharacter.stat_bonus && selectedCharacter.stat_bonus.length >= 5) {
             percentages.forEach((percentage, index) => {
@@ -8012,7 +8041,7 @@ function updateCharacterDisplay() {
             });
         }
         
-        // Update aptitude grades - show actual letter grades when character is selected
+        // Update aptitude grades
         const grades = document.querySelectorAll('.character-picker-grade');
         if (selectedCharacter.aptitude && selectedCharacter.aptitude.length >= 10) {
             grades.forEach((grade, index) => {
@@ -8023,11 +8052,8 @@ function updateCharacterDisplay() {
             });
         }
         
-        // Update character skills if you have that data
+        // Update character skills
         updateCharacterSkills(selectedCharacter.originalData);
-        
-        // Update awakening skills based on current potential level
-        updateAwakeningSkillsDisplay();
         
         // Save the selected character to localStorage
         saveSelectedCharacter();
@@ -8035,7 +8061,7 @@ function updateCharacterDisplay() {
         // Reset to empty state
         characterPickerBox.classList.remove('has-character');
         characterPickerBox.innerHTML = '<div class="character-picker-empty-text">Empty</div>';
-        characterPickerName.textContent = 'Potential Lv 1';
+        updatePotentialLevel(1); // Reset to default level 1 when no character
         
         // Reset percentages to "-" 
         document.querySelectorAll('.character-picker-percentage').forEach(p => p.textContent = '-');
