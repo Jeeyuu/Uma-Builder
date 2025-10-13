@@ -2896,21 +2896,16 @@ body.dark-mode .collapsible-header:hover {
 <!-- Deck Management -->
 <div class="deck-name-section">
   <input type="text" id="deckNameInput" class="deck-name-input" placeholder="Enter deck name" maxlength="30">
-  
-  <!-- First row of buttons -->
-  <div class="deck-buttons">
-    <button id="copyAllBtn" class="deck-btn">Copy All</button>
-    <button id="pasteAllBtn" class="deck-btn">Paste All</button>
-    <button id="clearAllBtn" class="clear-all">Clear All</button>
-  </div>
-  
-  <!-- Second row of buttons -->
-  <div class="deck-buttons">
-    <button id="saveDeckBtn" class="deck-btn" disabled>Save Deck</button>
-    <button id="screenshotBtn" class="deck-btn" disabled>Screenshot</button>
-    <button id="resetDataBtn" class="clear-all">Reset Data</button>
-  </div>
-  
+<div class="deck-buttons new-deck-buttons">
+  <button id="copyAllBtn" class="deck-btn">Copy All</button>
+  <button id="pasteAllBtn" class="deck-btn">Paste All</button>
+  <button id="clearAllBtn" class="clear-all">Clear All</button>
+</div>
+<div class="deck-buttons">
+  <button id="saveDeckBtn" class="deck-btn" disabled>Save Deck</button>
+  <button id="screenshotBtn" class="deck-btn" disabled>Screenshot</button>
+  <button id="resetDataBtn" class="clear-all">Reset Data</button>
+</div>
   <div id="deckNameDisplay" class="deck-name-display">Unnamed Deck</div>
 </div>
 
@@ -6189,40 +6184,8 @@ function setupCopyPasteButtons() {
   const copyBtn = document.getElementById('copySkillsBtn');
   const pasteBtn = document.getElementById('pasteSkillsBtn');
   
-  if (copyBtn) {
-    copyBtn.addEventListener('click', copySkillsToClipboard);
-  }
-  
-  if (pasteBtn) {
-    pasteBtn.addEventListener('click', pasteSkillsFromClipboard);
-  }
-}
-
-function setupNewButtons() {
-    const clearAllBtn = document.getElementById('clearAllBtn');
-    const resetDataBtn = document.getElementById('resetDataBtn');
-    const saveDeckBtn = document.getElementById('saveDeckBtn');
-    const screenshotBtn = document.getElementById('screenshotBtn');
-    
-    if (clearAllBtn) {
-        const oldClearAll = clearAllBtn.cloneNode(true);
-        clearAllBtn.parentNode.replaceChild(oldClearAll, clearAllBtn);
-        oldClearAll.addEventListener('click', clearAll);
-    }
-    
-    if (resetDataBtn) {
-        resetDataBtn.addEventListener('click', resetAllData);
-    }
-    
-    if (saveDeckBtn) {
-        saveDeckBtn.disabled = true;
-        saveDeckBtn.title = 'Coming soon';
-    }
-    
-    if (screenshotBtn) {
-        screenshotBtn.disabled = true;
-        screenshotBtn.title = 'Coming soon';
-    }
+  copyBtn.addEventListener('click', copySkillsToClipboard);
+  pasteBtn.addEventListener('click', pasteSkillsFromClipboard);
 }
 
 function copySkillsToClipboard() {
@@ -6419,18 +6382,8 @@ function setupDeckCopyPaste() {
   const copyDeckBtn = document.getElementById('copyDeckBtn');
   const pasteDeckBtn = document.getElementById('pasteDeckBtn');
   
-  // Check if buttons exist before adding event listeners
-  if (copyDeckBtn) {
-    copyDeckBtn.addEventListener('click', copyDeckToClipboard);
-  } else {
-    console.warn('copyDeckBtn not found');
-  }
-  
-  if (pasteDeckBtn) {
-    pasteDeckBtn.addEventListener('click', pasteDeckFromClipboard);
-  } else {
-    console.warn('pasteDeckBtn not found');
-  }
+  copyDeckBtn.addEventListener('click', copyDeckToClipboard);
+  pasteDeckBtn.addEventListener('click', pasteDeckFromClipboard);
 }
 
 function copyDeckToClipboard() {
@@ -8586,6 +8539,7 @@ function setupEffectsCollapsible() {
     });
 }
 
+// Update the updateEffectTotals function to handle collapsed state
 // Add this at the beginning of your existing updateEffectTotals function:
 function updateEffectTotals() {
     try {
