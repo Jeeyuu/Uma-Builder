@@ -1839,9 +1839,17 @@ body.dark-mode .character-picker-row-7 {
   background: #2d2d2d;
 }
 
-body.dark-mode .character-skills-header {
-  background: #444;
-  color: #e0e0e0;
+/* Replace your current dark mode character skill styles with: */
+body.dark-mode .character-skill {
+    background: #3a3a3a;
+    color: #e0e0e0;
+}
+
+/* Ensure highlighted skills override dark mode */
+body.dark-mode .character-skill.highlighted,
+body.dark-mode .character-skill.search-highlighted {
+    background: inherit !important;
+    color: inherit !important;
 }
 
 body.dark-mode .character-skill:not(.highlighted):not(.search-highlighted) {
@@ -3085,15 +3093,19 @@ function getAwakeningSkillsForLevel(character, level) {
 function highlightCharacterSkills() {
     const characterSkills = document.querySelectorAll('.character-skill');
     
-    // Reset all highlights
+    // Reset all highlights but preserve dark mode base styling
     characterSkills.forEach(skill => {
         skill.classList.remove('highlighted', 'search-highlighted');
-        skill.style.background = '#eef2ff';
-        skill.style.color = '#000';
         skill.removeAttribute('data-has-border');
+        
+        // Only reset background/color if not in dark mode, otherwise let dark mode handle base styling
+        if (!document.body.classList.contains('dark-mode')) {
+            skill.style.background = '#eef2ff';
+            skill.style.color = '#000';
+        }
     });
     
-    // Get search terms from skill searches - use the same logic as main highlighting
+    // Get search terms from skill searches
     const searchTerms = SKILL_SEARCH_KEYS
         .map(id => {
             const input = document.getElementById(id);
@@ -3106,7 +3118,7 @@ function highlightCharacterSkills() {
         })
         .filter(item => item.term);
 
-    // Apply search-based highlighting (same as main section)
+    // Apply search-based highlighting with !important to override dark mode
     characterSkills.forEach(skill => {
         const skillText = normalizeSkill(skill.textContent || '');
         
@@ -3116,6 +3128,7 @@ function highlightCharacterSkills() {
                 const textColor = getTextColor(color);
                 const hasBorder = color.includes('-border');
                 
+                // Use !important to override dark mode CSS
                 skill.style.setProperty('background', colorValue, 'important');
                 skill.style.setProperty('color', textColor, 'important');
                 skill.classList.add('search-highlighted');
@@ -3128,7 +3141,7 @@ function highlightCharacterSkills() {
         }
     });
     
-    // Apply filter-based highlighting with EXACT SAME logic as main section
+    // Apply filter-based highlighting with !important
     const filters = {
         racecourse: document.getElementById('racecourse').value || '',
         length: document.getElementById('length').value || '',
@@ -3139,7 +3152,7 @@ function highlightCharacterSkills() {
         strategy: document.getElementById('strategy').value || ''
     };
     
-    // Build filter terms with EXACT SAME logic as buildFilterTerms
+    // Build filter terms
     const filterTerms = [];
     if (filters.racecourse) filterTerms.push({ term: `${filters.racecourse} Racecourse`, color: '#bce934' });
     if (filters.direction) {
@@ -3177,7 +3190,7 @@ function highlightCharacterSkills() {
         );
     }
     
-    // Apply filter-based highlighting (same strict matching as main section)
+    // Apply filter-based highlighting with !important
     characterSkills.forEach(skill => {
         const skillText = normalizeSkill(skill.textContent || '');
         
@@ -3191,16 +3204,16 @@ function highlightCharacterSkills() {
             if (isStrictTerm) {
                 // For strict terms, require exact match
                 if (skillText === normalizedTerm) {
-                    skill.style.background = color;
-                    skill.style.color = '#000';
+                    skill.style.setProperty('background', color, 'important');
+                    skill.style.setProperty('color', '#000', 'important');
                     skill.classList.add('highlighted');
                     break;
                 }
             } else {
                 // For loose terms, check if skill contains the term
                 if (skillText.includes(normalizedTerm)) {
-                    skill.style.background = color;
-                    skill.style.color = '#000';
+                    skill.style.setProperty('background', color, 'important');
+                    skill.style.setProperty('color', '#000', 'important');
                     skill.classList.add('highlighted');
                     break;
                 }
@@ -7690,7 +7703,6 @@ function handleRegionChange() {
     }
 }
 
-// Update the updateCharacterSkills function to swap positions
 // Update the updateCharacterSkills to handle showing/hiding
 function updateCharacterSkills(characterData) {
     const currentRegion = getCurrentRegion();
@@ -7763,6 +7775,10 @@ function updateSkillColumn(columnSelector, headerText, skillIds) {
             column.appendChild(emptySkill);
         }
     }
+    // Add this at the end:
+    setTimeout(() => {
+        highlightCharacterSkills();
+    }, 100);
 }
 
 // Update the resetCharacterSkills to create completely empty columns
