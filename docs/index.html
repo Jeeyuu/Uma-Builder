@@ -450,7 +450,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: bold;
   flex-shrink: 0;
 }
@@ -509,16 +509,6 @@ body {
   height: auto;
   min-height: min-content;
   margin-bottom: 12px;
-}
-
-.right-sidebar.collapsed .slots {
-  grid-template-columns: 1fr;
-  max-width: 100%;
-  margin-top: 40px;
-  margin-bottom: 8px;
-  gap: 30px;
-  height: auto;
-  min-height: min-content;
 }
 
 .card, .slot {
@@ -2488,7 +2478,9 @@ body.dark-mode .character-potential-bar {
 .right-sidebar.collapsed .deck-name-section,
 .right-sidebar.collapsed .copy-paste-buttons,
 .right-sidebar.collapsed .character-skills-section,
-.right-sidebar.collapsed .slot-level-controls {
+.right-sidebar.collapsed .slot-level-controls,
+.right-sidebar.collapsed .character-picker-info
+{
   display: none !important;
 }
 
@@ -2536,7 +2528,8 @@ body.dark-mode .character-potential-bar {
 .right-sidebar.collapsed .slot.has-card .skills,
 .right-sidebar.collapsed .slot.has-card .skills-group,
 .right-sidebar.collapsed .slot.has-card .skills-header,
-.right-sidebar.collapsed .slot.has-card .skill {
+.right-sidebar.collapsed .slot.has-card .skill
+{
   display: none !important;
 }
 
