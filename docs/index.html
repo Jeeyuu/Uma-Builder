@@ -3734,19 +3734,21 @@ function calculateCardsPerPage() {
   const grid = document.querySelector('.cards');
   if (!grid) return 6;
   
+  // Get the actual grid container width
   const gridWidth = grid.clientWidth;
   const cardWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--card-w')) || 120;
   const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 8;
   
+  // Calculate how many cards fit in one row
   const cardsPerRow = Math.floor((gridWidth + gap) / (cardWidth + gap));
   const rowsPerPage = 1;
   
-  return cardsPerRow * rowsPerPage;
+  return Math.max(1, cardsPerRow * rowsPerPage); // Ensure at least 1 card per page
 }
 
 function renderFilterPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
   grid.innerHTML = '';
-  const CARDS_PER_PAGE = calculateCardsPerPage();
+  const CARDS_PER_PAGE = calculateCardsPerPage(); // Recalculate each time
   const startIdx = page * CARDS_PER_PAGE;
   const endIdx = startIdx + CARDS_PER_PAGE;
   const pageCards = matches.slice(startIdx, endIdx);
@@ -6204,10 +6206,64 @@ let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
+    // Recalculate and update all paginated sections
+    const currentSections = document.querySelectorAll('.card-section');
+    
+    currentSections.forEach(section => {
+      const grid = section.querySelector('.cards');
+      const leftBtn = section.querySelector('.page-controls button:first-child');
+      const rightBtn = section.querySelector('.page-controls button:last-child');
+      
+      if (grid && leftBtn && rightBtn) {
+        // Get the current page data
+        const currentCards = Array.from(grid.children).map(card => card.cloneNode(true));
+        const pageKey = findPageKeyForSection(section);
+        const currentPage = sectionPages.get(pageKey) || 0;
+        
+        // Clear and re-render with new pagination
+        grid.innerHTML = '';
+        
+        // Re-render the current page with new card layout
+        const CARDS_PER_PAGE = calculateCardsPerPage();
+        const startIdx = currentPage * CARDS_PER_PAGE;
+        
+        // Since we don't have the original matches array, we'll just re-render what's visible
+        currentCards.forEach(card => grid.appendChild(card));
+        
+        // Update button states based on new page count
+        const totalCards = currentCards.length; // This is an approximation
+        const totalPages = Math.ceil(totalCards / CARDS_PER_PAGE);
+        
+        leftBtn.disabled = currentPage === 0;
+        rightBtn.disabled = currentPage >= totalPages - 1;
+      }
+    });
+    
+    // Also re-render sections completely if needed
     sectionPages.clear();
     renderSections();
   }, 250);
 });
+
+// Helper function to find the page key for a section
+function findPageKeyForSection(section) {
+  const header = section.querySelector('.card-section-header h2');
+  if (!header) return 'unknown';
+  
+  const headerText = header.textContent.toLowerCase();
+  
+  if (headerText.includes('racecourse')) {
+    const racecourse = document.getElementById('racecourse').value;
+    return `racecourse-0`; // Assuming racecourse is always rowIndex 0
+  }
+  
+  if (headerText.includes('card search')) {
+    return `cardSearch-${cardSearchValue}`;
+  }
+  
+  // Add more cases for other filter types as needed
+  return 'unknown';
+}
 
 /* ------------- SKILL SEARCH COPY/PASTE ------------- */
 function setupCopyPasteButtons() {
