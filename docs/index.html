@@ -3360,30 +3360,31 @@ function getCharacterPortrait(charId, cardId) {
 }
 
 function processSupportCardData(supportCards, skills) {
-    skillsData = skills;
-    supportsDataWithEffects = supportCards;
+  skillsData = skills;
+  supportsDataWithEffects = supportCards;
+  
+  return supportCards.map(card => {
+    const hint_skills = (card.hints?.hint_skills || []).map(skillId => getSkillNameById(skillId));
+    const event_skills = (card.event_skills || []).map(skillId => getSkillNameById(skillId));
+    // CORRECTED: Use card.event_skills_en for the English event skills
+    const event_skills_en = (card.event_skills_en || []).map(skillId => getSkillNameById(skillId));
     
-    return supportCards.map(card => {
-        const hint_skills = (card.hints?.hint_skills || []).map(skillId => getSkillNameById(skillId));
-        const event_skills = (card.event_skills || []).map(skillId => getSkillNameById(skillId));
-        const event_skills_en = (card.event_skills || []).map(skillId => getSkillNameById(skillId));
-        
-        return {
-            ...card,
-            char_id: card.char_id || 0,
-            char_name: card.char_name || 'Unknown',
-            hint_skills: hint_skills,
-            event_skills: event_skills,
-            event_skills_en: event_skills_en,
-            rarity: card.rarity || 1,
-            release: card.release || '',
-            release_en: card.release_en || '',
-            support_id: card.support_id || 0,
-            type: (card.type || '').toLowerCase(),
-            url_name: card.url_name || '',
-            effects: card.effects || []
-        };
-    });
+    return {
+      ...card,
+      char_id: card.char_id || 0,
+      char_name: card.char_name || 'Unknown',
+      hint_skills: hint_skills,
+      event_skills: event_skills,
+      event_skills_en: event_skills_en, // Now this will contain only global skills
+      rarity: card.rarity || 1,
+      release: card.release || '',
+      release_en: card.release_en || '',
+      support_id: card.support_id || 0,
+      type: (card.type || '').toLowerCase(),
+      url_name: card.url_name || '',
+      effects: card.effects || []
+    };
+  });
 }
 
 async function loadDataFiles() {
