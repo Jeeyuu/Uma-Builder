@@ -2319,6 +2319,119 @@ body.dark-mode .character-display-info {
     color: #aaa;
 }
 
+/* Add these new styles for the potential level controls */
+.potential-level-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.potential-level-btn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.potential-level-btn:hover:not(:disabled) {
+  background: #e5e5e5;
+}
+
+.potential-level-btn:disabled {
+  background: #f0f0f0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.potential-level-display {
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Update character picker info styles */
+.character-picker-info {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 8px;
+}
+
+.character-picker-name {
+  font-weight: bold;
+  font-size: 12px;
+  text-align: center;
+  background: #eef2ff;
+  padding: 6px 4px;
+  border-radius: 4px;
+  word-break: break-word;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+}
+
+.character-picker-potential {
+  font-size: 11px;
+  text-align: center;
+  background: #f0f8ff;
+  padding: 6px 4px;
+  border-radius: 4px;
+  word-break: break-word;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 0;
+}
+
+/* Update button colors */
+#copySkillsBtn, #copyDeckBtn, #copyAllBtn {
+  background: #57ad33 !important;
+}
+
+#copySkillsBtn:hover, #copyDeckBtn:hover, #copyAllBtn:hover {
+  background: #4a8f2a !important;
+}
+
+#pasteSkillsBtn, #pasteDeckBtn, #pasteAllBtn {
+  background: #14a1f7 !important;
+}
+
+#pasteSkillsBtn:hover, #pasteDeckBtn:hover, #pasteAllBtn:hover {
+  background: #0d8bd6 !important;
+}
+
+/* Hide copy/paste/clear deck buttons */
+.copy-paste-buttons,
+.deck-buttons:has(#copyDeckBtn),
+.deck-buttons:has(#pasteDeckBtn),
+.deck-buttons:has(#clearAllBtn) {
+  display: none !important;
+}
+
+/* Highlight styles for character skills */
+.character-skill.highlighted {
+  background: #ffae77 !important;
+  color: #000 !important;
+}
+
+.character-skill.search-highlighted {
+  background: #ff4444 !important;
+  color: white !important;
+}
+
 </style>
 
 </head>
@@ -2598,81 +2711,88 @@ body.dark-mode .character-display-info {
         <div class="skill-search-divider"></div>
 
         <!-- Character Picker Section in Right Sidebar -->
-<div class="character-picker-section">
-  <div class="character-picker-left-column">
-    <div class="character-picker-empty-box" id="characterPickerBox">
-      <div class="character-picker-empty-text">Empty</div>
-    </div>
-    <div class="character-picker-info">
-      <div class="character-picker-name">Character Name</div>
-      <div class="character-picker-costume">Character Costume</div>
-    </div>
-  </div>
-  <div class="character-picker-rows">
-    <div class="character-picker-row character-picker-row-1">
-      <div class="character-picker-five-items">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_00.png" alt="Speed" class="character-picker-type-icon">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_01.png" alt="Stamina" class="character-picker-type-icon">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_02.png" alt="Power" class="character-picker-type-icon">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_03.png" alt="Guts" class="character-picker-type-icon">
-        <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_04.png" alt="Intelligence" class="character-picker-type-icon">
-      </div>
-    </div>
-    <div class="character-picker-row character-picker-row-2">
-      <div class="character-picker-five-items">
-        <div class="character-picker-percentage">-</div>
-        <div class="character-picker-percentage">-</div>
-        <div class="character-picker-percentage">-</div>
-        <div class="character-picker-percentage">-</div>
-        <div class="character-picker-percentage">-</div>
-      </div>
-    </div>
-    <div class="character-picker-row character-picker-row-3">
-      <div class="character-picker-two-items">
-        <div class="character-picker-title">Turf</div>
-        <div class="character-picker-title">Dirt</div>
-      </div>
-    </div>
-    <div class="character-picker-row character-picker-row-4">
-      <div class="character-picker-two-items">
-        <div class="character-picker-grade">-</div>
-        <div class="character-picker-grade">-</div>
-      </div>
-    </div>
-    <div class="character-picker-row character-picker-row-5">
-      <div class="character-picker-four-items">
-        <div class="character-picker-title">Short</div>
-        <div class="character-picker-title">Mile</div>
-        <div class="character-picker-title">Medium</div>
-        <div class="character-picker-title">Long</div>
-      </div>
-    </div>
-    <div class="character-picker-row character-picker-row-6">
-      <div class="character-picker-four-items">
-        <div class="character-picker-grade">-</div>
-        <div class="character-picker-grade">-</div>
-        <div class="character-picker-grade">-</div>
-        <div class="character-picker-grade">-</div>
-      </div>
-    </div>
-    <div class="character-picker-row character-picker-row-7">
-      <div class="character-picker-four-items">
-        <div class="character-picker-title">Front</div>
-        <div class="character-picker-title">Pace</div>
-        <div class="character-picker-title">Late</div>
-        <div class="character-picker-title">End</div>
-      </div>
-    </div>
-    <div class="character-picker-row character-picker-row-8">
-      <div class="character-picker-four-items">
-        <div class="character-picker-grade">-</div>
-        <div class="character-picker-grade">-</div>
-        <div class="character-picker-grade">-</div>
-        <div class="character-picker-grade">-</div>
-      </div>
-    </div>
-  </div>
-</div>
+        <div class="character-picker-section">
+          <div class="character-picker-left-column">
+            <div class="character-picker-empty-box" id="characterPickerBox">
+              <div class="character-picker-empty-text">Empty</div>
+            </div>
+            <div class="character-picker-info">
+              <div class="character-picker-name">Potential Lv 1</div>
+              <div class="character-picker-potential">
+                <div>Potential Levels</div>
+                <div class="potential-level-controls">
+                  <button class="potential-level-btn" id="potentialDecreaseBtn" disabled>◀</button>
+                  <span class="potential-level-display" id="potentialLevelDisplay">1</span>
+                  <button class="potential-level-btn" id="potentialIncreaseBtn">▶</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="character-picker-rows">
+            <div class="character-picker-row character-picker-row-1">
+              <div class="character-picker-five-items">
+                <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_00.png" alt="Speed" class="character-picker-type-icon">
+                <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_01.png" alt="Stamina" class="character-picker-type-icon">
+                <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_02.png" alt="Power" class="character-picker-type-icon">
+                <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_03.png" alt="Guts" class="character-picker-type-icon">
+                <img src="https://gametora.com/images/umamusume/icons/utx_ico_obtain_04.png" alt="Intelligence" class="character-picker-type-icon">
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-2">
+              <div class="character-picker-five-items">
+                <div class="character-picker-percentage">-</div>
+                <div class="character-picker-percentage">-</div>
+                <div class="character-picker-percentage">-</div>
+                <div class="character-picker-percentage">-</div>
+                <div class="character-picker-percentage">-</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-3">
+              <div class="character-picker-two-items">
+                <div class="character-picker-title">Turf</div>
+                <div class="character-picker-title">Dirt</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-4">
+              <div class="character-picker-two-items">
+                <div class="character-picker-grade">-</div>
+                <div class="character-picker-grade">-</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-5">
+              <div class="character-picker-four-items">
+                <div class="character-picker-title">Short</div>
+                <div class="character-picker-title">Mile</div>
+                <div class="character-picker-title">Medium</div>
+                <div class="character-picker-title">Long</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-6">
+              <div class="character-picker-four-items">
+                <div class="character-picker-grade">-</div>
+                <div class="character-picker-grade">-</div>
+                <div class="character-picker-grade">-</div>
+                <div class="character-picker-grade">-</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-7">
+              <div class="character-picker-four-items">
+                <div class="character-picker-title">Front</div>
+                <div class="character-picker-title">Pace</div>
+                <div class="character-picker-title">Late</div>
+                <div class="character-picker-title">End</div>
+              </div>
+            </div>
+            <div class="character-picker-row character-picker-row-8">
+              <div class="character-picker-four-items">
+                <div class="character-picker-grade">-</div>
+                <div class="character-picker-grade">-</div>
+                <div class="character-picker-grade">-</div>
+                <div class="character-picker-grade">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Character Skills -->
         <div class="character-skills-section">
@@ -2796,65 +2916,53 @@ body.dark-mode .character-display-info {
     </div>
   </div>
 
-      <!-- Character Picker Modal -->
-    <div class="character-picker-modal" id="characterPickerModal">
-      <div class="character-picker-container">
-        <div class="character-picker-header">
-          <div class="character-picker-title">Select Character</div>
-          <button class="character-picker-close" id="characterPickerClose">×</button>
+  <!-- Character Picker Modal -->
+  <div class="character-picker-modal" id="characterPickerModal">
+    <div class="character-picker-container">
+      <div class="character-picker-header">
+        <div class="character-picker-title">Select Character</div>
+        <button class="character-picker-close" id="characterPickerClose">×</button>
+      </div>
+      <div class="character-picker-controls">
+        <div class="character-search-container">
+          <input type="text" id="characterSearch" class="character-search" placeholder="Search by name or title">
         </div>
-        <div class="character-picker-controls">
-          <div class="character-search-container">
-            <input type="text" id="characterSearch" class="character-search" placeholder="Search by name or title">
-          </div>
-          <div class="sort-controls">
-            <select id="characterSort" class="sort-select">
-              <option value="name">Name</option>
-              <option value="rarity">Rarity</option>
-              <option value="implemented">Release date</option>
-              <option value="id">Game ID number</option>
-              <option disabled=""></option>
-              <option disabled="">— Aptitude —</option>
-              <option value="turf">Turf aptitude</option>
-              <option value="dirt">Dirt aptitude</option>
-<option value="sprint">Sprint Aptitude</option>
-              <option value="mile">Mile aptitude</option>
-              <option value="middle">Medium aptitude</option>
-              <option value="long">Long aptitude</option>
-              <option value="runner">Front aptitude</option>
-              <option value="leader">Pace aptitude</option>
-              <option value="betweener">Late aptitude</option>
-              <option value="chaser">End aptitude</option>
-              <option disabled=""></option>
-              <option disabled="">— Stat bonuses —</option>
-              <option value="bonus_speed">Speed bonus</option>
-              <option value="bonus_stamina">Stamina bonus</option>
-              <option value="bonus_power">Power bonus</option>
-              <option value="bonus_guts">Guts bonus</option>
-              <option value="bonus_int">Wit bonus</option>
-              <option disabled=""></option>
-              <!-- <option disabled="">— Stats —</option>
-              <option value="base_speed">Base speed</option>
-              <option value="base_stamina">Base stamina</option>
-              <option value="base_power">Base power</option>
-              <option value="base_guts">Base guts</option>
-              <option value="base_int">Base wit</option>
-              <option value="5_speed">5⭐ Speed</option>
-              <option value="5_stamina">5⭐ Stamina</option>
-              <option value="5_power">5⭐ Power</option>
-              <option value="5_guts">5⭐ Guts</option>
-              <option value="5_int">5⭐ Wit</option> -->
-            </select>
-            <button class="sort-order-btn ascending" id="characterSortOrder">↑</button>
-          </div>
+        <div class="sort-controls">
+          <select id="characterSort" class="sort-select">
+            <option value="name">Name</option>
+            <option value="rarity">Rarity</option>
+            <option value="implemented">Release date</option>
+            <option value="id">Game ID number</option>
+            <option disabled=""></option>
+            <option disabled="">— Aptitude —</option>
+            <option value="turf">Turf aptitude</option>
+            <option value="dirt">Dirt aptitude</option>
+            <option value="sprint">Sprint Aptitude</option>
+            <option value="mile">Mile aptitude</option>
+            <option value="middle">Medium aptitude</option>
+            <option value="long">Long aptitude</option>
+            <option value="runner">Front aptitude</option>
+            <option value="leader">Pace aptitude</option>
+            <option value="betweener">Late aptitude</option>
+            <option value="chaser">End aptitude</option>
+            <option disabled=""></option>
+            <option disabled="">— Stat bonuses —</option>
+            <option value="bonus_speed">Speed bonus</option>
+            <option value="bonus_stamina">Stamina bonus</option>
+            <option value="bonus_power">Power bonus</option>
+            <option value="bonus_guts">Guts bonus</option>
+            <option value="bonus_int">Wit bonus</option>
+          </select>
+          <button class="sort-order-btn ascending" id="characterSortOrder">↑</button>
         </div>
-        <div class="character-picker-content">
-          <div class="character-grid" id="characterGrid">
-            <!-- Character cards will be populated here -->
-          </div>
+      </div>
+      <div class="character-picker-content">
+        <div class="character-grid" id="characterGrid">
+          <!-- Character cards will be populated here -->
         </div>
       </div>
     </div>
+  </div>
   </div>
 </body>
 
