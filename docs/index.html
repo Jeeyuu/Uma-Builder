@@ -4788,8 +4788,6 @@ const handleLevelChange = (e) => {
   const newLevel = updateSlotLevel(slotContainer, card, e.target.value);
   e.target.value = newLevel;
   
-  updateUniqueEffectsDisplay(freeSlot, card, newLevel);
-  
   updateSlotNameWithEffectData(freeSlot, card, newLevel);
   refreshSlotDisplay(freeSlot, card, newLevel);
   
@@ -6844,26 +6842,6 @@ function calculateEffectContributions() {
   
   return contributions;
 }
-
-function updateUniqueEffectsDisplay(slot, card, level) {
-    const uniqueEffects = slot.querySelectorAll('.skills-group:last-child .skill');
-    if (uniqueEffects.length > 0 && card.unique && card.unique.effects) {
-        uniqueEffects.forEach((effectElement, index) => {
-            const uniqueEffect = card.unique.effects[index];
-            if (uniqueEffect) {
-                const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
-                const isActive = level >= threshold;
-                const activeStyle = isActive ? 'background: #f0fff0; border-left: 3px solid #44ff44;' : 'background: #fff0f0; border-left: 3px solid #ff4444;';
-                
-                effectElement.style.cssText = activeStyle;
-                const text = effectElement.textContent;
-                const newText = text.replace(/✅|🔒/g, isActive ? '✅' : '🔒');
-                effectElement.textContent = newText;
-            }
-        });
-    }
-}
-
 /* ------------- SORTING HELPERS ------------- */
 function formatDateForDisplay(dateString) {
   if (!dateString) return 'Unknown';
