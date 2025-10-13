@@ -3127,9 +3127,10 @@ function highlightCharacterSkills() {
         skill.classList.remove('highlighted', 'search-highlighted');
         skill.style.background = '#eef2ff';
         skill.style.color = '#000';
+        skill.removeAttribute('data-has-border');
     });
     
-    // Get search terms from skill searches
+    // Get search terms from skill searches - use the same logic as main highlighting
     const searchTerms = SKILL_SEARCH_KEYS
         .map(id => {
             const input = document.getElementById(id);
@@ -3142,7 +3143,7 @@ function highlightCharacterSkills() {
         })
         .filter(item => item.term);
 
-    // Apply search-based highlighting
+    // Apply search-based highlighting (same as main section)
     characterSkills.forEach(skill => {
         const skillText = normalizeSkill(skill.textContent || '');
         
@@ -3159,12 +3160,12 @@ function highlightCharacterSkills() {
                 if (hasBorder) {
                     skill.setAttribute('data-has-border', 'true');
                 }
-                break;
+                return; // Stop after first match
             }
         }
     });
     
-    // Apply filter-based highlighting with proper colors
+    // Apply filter-based highlighting with EXACT SAME logic as main section
     const filters = {
         racecourse: document.getElementById('racecourse').value || '',
         length: document.getElementById('length').value || '',
@@ -3175,35 +3176,30 @@ function highlightCharacterSkills() {
         strategy: document.getElementById('strategy').value || ''
     };
     
-    const colorMap = {
-        racecourse: '#bce934', // Green for racecourse
-        length: '#fdb832',     // Orange for length-based skills
-        direction: '#bce934',  // Green
-        track: '#bce934',      // Green  
-        season: '#bce934',     // Green
-        weather: '#bce934',    // Green
-        strategy: '#fdb832'    // Orange for strategy
-    };
-    
-    const dropdownTerms = [];
-    if (filters.racecourse) dropdownTerms.push({ term: `${filters.racecourse} Racecourse`, color: colorMap.racecourse });
+    // Build filter terms with EXACT SAME logic as buildFilterTerms
+    const filterTerms = [];
+    if (filters.racecourse) filterTerms.push({ term: `${filters.racecourse} Racecourse`, color: '#bce934' });
     if (filters.direction) {
         const dirTerm = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
-        dropdownTerms.push({ term: dirTerm, color: colorMap.direction });
+        filterTerms.push({ term: dirTerm, color: '#bce934' });
     }
     if (filters.track) {
         const trackTerm = filters.track === 'Firm' ? 'Firm Conditions' : 'Wet Conditions';
-        dropdownTerms.push({ term: trackTerm, color: colorMap.track });
+        filterTerms.push({ term: trackTerm, color: '#bce934' });
     }
-    if (filters.season) dropdownTerms.push({ term: `${filters.season} Runner`, color: colorMap.season });
-    if (filters.weather) dropdownTerms.push({ term: `${capitalize(filters.weather)} Days`, color: colorMap.weather });
+    if (filters.season) {
+        filterTerms.push({ term: `${filters.season} Runner`, color: '#bce934' });
+    }
+    if (filters.weather) {
+        filterTerms.push({ term: `${capitalize(filters.weather)} Days`, color: '#bce934' });
+    }
     
     if (filters.strategy) {
         const s = filters.strategy;
-        dropdownTerms.push(
-            { term: `${s} Corners`, color: colorMap.strategy },
-            { term: `${s} Straightaways`, color: colorMap.strategy },
-            { term: `${s} Savvy`, color: colorMap.racecourse }
+        filterTerms.push(
+            { term: `${s} Corners`, color: '#fdb832' },
+            { term: `${s} Straightaways`, color: '#fdb832' },
+            { term: `${s} Savvy`, color: '#bce934' }
         );
     }
     
@@ -3211,23 +3207,40 @@ function highlightCharacterSkills() {
         const dist = parseInt(filters.length, 10);
         const label = getLengthCategory(dist);
         const distType = isStandardDistance(dist) ? 'Standard Distance' : 'Non-Standard Distance';
-        dropdownTerms.push(
-            { term: `${label} Corners`, color: colorMap.length },
-            { term: `${label} Straightaways`, color: colorMap.length },
-            { term: distType, color: colorMap.racecourse }
+        filterTerms.push(
+            { term: `${label} Corners`, color: '#fdb832' },
+            { term: `${label} Straightaways`, color: '#fdb832' },
+            { term: distType, color: '#bce934' }
         );
     }
     
-    // Apply filter-based highlighting
+    // Apply filter-based highlighting (same strict matching as main section)
     characterSkills.forEach(skill => {
         const skillText = normalizeSkill(skill.textContent || '');
         
-        for (const { term, color } of dropdownTerms) {
-            if (skillText === normalizeSkill(term)) {
-                skill.style.background = color;
-                skill.style.color = '#000';
-                skill.classList.add('highlighted');
-                break;
+        for (const { term, color } of filterTerms) {
+            const normalizedTerm = normalizeSkill(term);
+            
+            // Use the same strict matching logic as the main section
+            const strictDistanceKeys = ['standard distance', 'non-standard distance'];
+            const isStrictTerm = strictDistanceKeys.includes(normalizedTerm);
+            
+            if (isStrictTerm) {
+                // For strict terms, require exact match
+                if (skillText === normalizedTerm) {
+                    skill.style.background = color;
+                    skill.style.color = '#000';
+                    skill.classList.add('highlighted');
+                    break;
+                }
+            } else {
+                // For loose terms, check if skill contains the term
+                if (skillText.includes(normalizedTerm)) {
+                    skill.style.background = color;
+                    skill.style.color = '#000';
+                    skill.classList.add('highlighted');
+                    break;
+                }
             }
         }
     });
