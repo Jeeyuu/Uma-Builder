@@ -6935,6 +6935,12 @@ function setupCollapsibleSidebar() {
   const rightSidebar = document.getElementById('rightSidebar');
   const collapseToggle = document.getElementById('collapseSidebar');
   
+  // Check if elements exist before proceeding
+  if (!rightSidebar || !collapseToggle) {
+    console.log('Collapsible sidebar elements not found - skipping setup');
+    return;
+  }
+
   const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
 
   if (isCollapsed) {
@@ -6971,7 +6977,7 @@ function setupCollapsibleSidebar() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  setupCollapsibleSidebar();
+  //setupCollapsibleSidebar();
 });
 
 /* ------------- UNIQUE EFFECTS ------------- */
