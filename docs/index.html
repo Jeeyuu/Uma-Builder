@@ -2464,6 +2464,39 @@ body.dark-mode .character-clear-btn:hover {
   background: #ff7777;
 }
 
+/* Character Potential Level Display */
+.character-potential-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 3px 4px;
+  font-size: 10px;
+  text-align: center;
+  font-weight: bold;
+  z-index: 2;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.character-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.character-portrait {
+  position: relative;
+  z-index: 1;
+}
+
+/* Dark mode support */
+body.dark-mode .character-potential-bar {
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+}
+
 </style>
 
 </head>
@@ -3057,11 +3090,25 @@ function updatePotentialLevel(level, characterId = null) {
     if (characterId && selectedCharacter) {
         characterPotentialLevels[characterId] = potentialLevel;
         localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
+        
+        // Refresh character grid to show updated potential levels
+        if (characterPickerModal.classList.contains('active')) {
+            const regionFilteredCharacters = getRegionFilteredCharacters();
+            const searchTerm = characterSearch ? characterSearch.value.toLowerCase() : '';
+            const searchedCharacters = searchTerm ? 
+                regionFilteredCharacters.filter(character => 
+                    character.name.toLowerCase().includes(searchTerm) || 
+                    character.title.toLowerCase().includes(searchTerm)
+                ) : 
+                regionFilteredCharacters;
+            
+            const sortedCharacters = sortCharacterList(searchedCharacters);
+            populateCharacterGrid(sortedCharacters);
+        }
     }
     
     characterPickerName.textContent = `Potential Lv ${potentialLevel}`;
     
-    // Disable decrease button at level 1, enable increase button until level 5
     potentialDecreaseBtn.disabled = potentialLevel === 1;
     potentialIncreaseBtn.disabled = potentialLevel === 5;
     
@@ -7787,6 +7834,20 @@ function initializeEmptySkills() {
 
 function openCharacterPicker() {
     characterPickerModal.classList.add('active');
+    
+    // Refresh the character grid to show current potential levels
+    const regionFilteredCharacters = getRegionFilteredCharacters();
+    const searchTerm = characterSearch ? characterSearch.value.toLowerCase() : '';
+    const searchedCharacters = searchTerm ? 
+        regionFilteredCharacters.filter(character => 
+            character.name.toLowerCase().includes(searchTerm) || 
+            character.title.toLowerCase().includes(searchTerm)
+        ) : 
+        regionFilteredCharacters;
+    
+    const sortedCharacters = sortCharacterList(searchedCharacters);
+    populateCharacterGrid(sortedCharacters);
+    
     setTimeout(() => {
         characterSearch.focus();
     }, 100);
@@ -7810,11 +7871,15 @@ function populateCharacterGrid(charactersToShow) {
         
         const displayInfo = getCharacterDisplayInfo(character);
         
+        // Get saved potential level for this character
+        const savedPotentialLevel = characterPotentialLevels[character.card_id] || 1;
+        
         characterCard.innerHTML = `
             <img src="${character.portrait}" alt="${character.name}" class="character-portrait" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
             <div class="character-name">${character.name}</div>
             <div class="character-rarity">${character.rarity}</div>
             <div class="character-title">${character.title}</div>
+            <div class="character-potential-bar">Potential Lv ${savedPotentialLevel}</div>
             ${displayInfo ? `<div class="character-display-info">${displayInfo}</div>` : ''}
         `;
         
@@ -7985,7 +8050,22 @@ function filterCharacters() {
     );
     
     const sortedCharacters = sortCharacterList(filteredCharacters);
-    populateCharacterGrid(sortedCharacters);
+    populateCharacterGrid(sortedCharacters); // This will include potential levels
+}
+
+function sortCharacters() {
+    const regionFilteredCharacters = getRegionFilteredCharacters();
+    
+    const searchTerm = characterSearch ? characterSearch.value.toLowerCase() : '';
+    const searchedCharacters = searchTerm ? 
+        regionFilteredCharacters.filter(character => 
+            character.name.toLowerCase().includes(searchTerm) || 
+            character.title.toLowerCase().includes(searchTerm)
+        ) : 
+        regionFilteredCharacters;
+    
+    const sortedCharacters = sortCharacterList(searchedCharacters);
+    populateCharacterGrid(sortedCharacters); // This will include potential levels
 }
 
 function sortCharacters() {
