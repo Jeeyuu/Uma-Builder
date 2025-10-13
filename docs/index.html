@@ -5400,6 +5400,7 @@ filterOrder.forEach(catId => {
     }
   });
 
+/* ------------- SKILL SEARCH ------------- */
 SKILL_SEARCH_KEYS.forEach((key, i) => {
   const val = document.getElementById(key)?.value.trim();
   if (!val) return;
@@ -5410,8 +5411,9 @@ SKILL_SEARCH_KEYS.forEach((key, i) => {
   const matches = [];
   
   baseFilteredCards.forEach(card => {
-const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
-const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
+    // Use region-appropriate skills for skill search
+    const useEnglishSkills = region === 'global' && card.event_skills_en && card.event_skills_en.length > 0;
+    const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_skills;
     
     const skills = [...card.hint_skills, ...eventSkillsToUse].map(normalizeSkill);
     const hasMatch = skills.some(s => s.includes(normalized));
@@ -5427,7 +5429,7 @@ const eventSkillsToUse = useEnglishSkills ? card.event_skills_en : card.event_sk
 });
 
   highlightSkills();
-};
+}
 
 /* ------------- RENDER SECTIONS ------------- */
 function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
@@ -5576,6 +5578,7 @@ function renderSkillSearchRow(key, headerText, matches, rowIndex) {
     }
   });
 }
+
 
 /* ------------- TOGGLE PRESET CARDS ------------- */
 function setupTogglePresetCards() {
