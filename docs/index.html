@@ -4444,22 +4444,7 @@ function createCardElement(card){
     skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
   }
   
-  if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
-    const uniqueEffectsHTML = card.unique.effects.map(effect => {
-      const effectName = EFFECT_TYPES[effect.type];
-      if (effectName) {
-        const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
-        return `<div class="skill" style="background: #fff0f0; border-left: 3px solid #ff4444;">
-          <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+)
-        </div>`;
-      }
-      return '';
-    }).filter(html => html !== '').join('');
-    
-    if (uniqueEffectsHTML) {
-      skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
-    }
-  }
+  // REMOVED: Unique effects section
   
   const combinedLevelHTML = generateCombinedLevelDisplay(card, currentLevel);
 
@@ -4513,39 +4498,40 @@ function createCardElement(card){
     <div class="skills">${skillsHTML}</div>
   `;
 
-el.addEventListener('click', ()=> {
-    if (selectedCardIds.has(card.char_id)) {
-        console.log(`Removing ${card.char_name} from slot`);
-        
-        const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
-        if (existingSlot) {
-            removeFromSlot(existingSlot);
-        }
-        return;
-    }
-    
-    if (selectedSlot) {
-        const slot = selectedSlot.querySelector('.slot');
-        if (slot && !slot.dataset.cardId) {
-            addToSlot(card, slot);
-        } else {
-            console.log('Selected slot has card, using normal placement');
-            clearSlotSelection();
-            
-            const availableSlot = slots.find(s => !s.dataset.cardId);
-            if (availableSlot) {
-                addToSlot(card, availableSlot);
-            }
-        }
-    } else {
-        const slot = slots.find(s => !s.dataset.cardId);
-        if (slot) {
-            addToSlot(card, slot);
-        } else {
-            console.log('No empty slots available');
-        }
-    }
-});
+  // ... rest of the function remains the same
+  el.addEventListener('click', ()=> {
+      if (selectedCardIds.has(card.char_id)) {
+          console.log(`Removing ${card.char_name} from slot`);
+          
+          const existingSlot = slots.find(s => Number(s.dataset.cardId) === card.char_id);
+          if (existingSlot) {
+              removeFromSlot(existingSlot);
+          }
+          return;
+      }
+      
+      if (selectedSlot) {
+          const slot = selectedSlot.querySelector('.slot');
+          if (slot && !slot.dataset.cardId) {
+              addToSlot(card, slot);
+          } else {
+              console.log('Selected slot has card, using normal placement');
+              clearSlotSelection();
+              
+              const availableSlot = slots.find(s => !s.dataset.cardId);
+              if (availableSlot) {
+                  addToSlot(card, availableSlot);
+              }
+          }
+      } else {
+          const slot = slots.find(s => !s.dataset.cardId);
+          if (slot) {
+              addToSlot(card, slot);
+          } else {
+              console.log('No empty slots available');
+          }
+      }
+  });
 
   if(selectedCardIds.has(card.char_id)) {
     el.classList.add('disabled');
@@ -4742,27 +4728,6 @@ function addToSlot(card, targetSlot = null, save = true) {
             return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
         }).join('');
         skillsHTML += `<div class="skills-group"><div class="skills-header">Event Skills</div>${eventSkillsHTML}</div>`;
-    }
-
-    if (card.unique && card.unique.effects && card.unique.effects.length > 0) {
-        const uniqueEffectsHTML = card.unique.effects.map(effect => {
-            const effectName = EFFECT_TYPES[effect.type];
-            if (effectName) {
-                const threshold = card.rarity === 1 ? 20 : card.rarity === 2 ? 25 : 30;
-                const currentLevel = getCardLevel(card.support_id);
-                const isActive = shouldApplyUniqueEffects(card, currentLevel);
-                const activeStyle = isActive ? 'background: #f0fff0; border-left: 3px solid #44ff44;' : 'background: #fff0f0; border-left: 3px solid #ff4444;';
-                
-                return `<div class="skill" style="${activeStyle}">
-                    <strong>Unique:</strong> ${effectName} +${effect.value} (Lv. ${threshold}+) ${isActive ? '✅' : '🔒'}
-                </div>`;
-            }
-            return '';
-        }).filter(html => html !== '').join('');
-
-        if (uniqueEffectsHTML) {
-            skillsHTML += `<div class="skills-group"><div class="skills-header">Unique Effects</div>${uniqueEffectsHTML}</div>`;
-        }
     }
 
     freeSlot.dataset.cardId = card.char_id;
