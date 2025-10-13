@@ -3577,9 +3577,10 @@ function processSupportCardData(supportCards, skills) {
   
   return supportCards.map(card => {
     const hint_skills = (card.hints?.hint_skills || []).map(skillId => getSkillNameById(skillId));
-    const event_skills = (card.event_skills || []).map(skillId => getSkillNameById(skillId));
-    // CORRECTED: Use card.event_skills_en for the English event skills
-    const event_skills_en = (card.event_skills_en || []).map(skillId => getSkillNameById(skillId));
+    
+    // SIMPLE LOGIC: Use event_skills_en if available, else use event_skills
+    const event_skills_to_use = card.event_skills_en || card.event_skills || [];
+    const event_skills = event_skills_to_use.map(skillId => getSkillNameById(skillId));
     
     return {
       ...card,
@@ -3587,7 +3588,6 @@ function processSupportCardData(supportCards, skills) {
       char_name: card.char_name || 'Unknown',
       hint_skills: hint_skills,
       event_skills: event_skills,
-      event_skills_en: event_skills_en, // Now this will contain only global skills
       rarity: card.rarity || 1,
       release: card.release || '',
       release_en: card.release_en || '',
@@ -3597,6 +3597,14 @@ function processSupportCardData(supportCards, skills) {
       effects: card.effects || []
     };
   });
+}
+
+// Helper function to get the correct event skills based on current region
+function getEventSkillsForCard(card) {
+  if (region === 'global' && card.event_skills_en) {
+    return card.event_skills_en.map(skillId => getSkillNameById(skillId));
+  }
+  return card.event_skills || [];
 }
 
 async function loadDataFiles() {
@@ -4508,20 +4516,6 @@ sortOrderBtn.addEventListener('click', () => {
     updateAllSlotDisplays();
   }, 50);
 });
-
-  regionSelect.addEventListener('change', (e) => {
-    region = e.target.value;
-    localStorage.setItem('region', region);
-    sectionPages.clear();
-    
-    updateSlotsForRegion();
-    
-    updateSelectedSkillsList();
-    highlightSkills();
-    highlightSelectedSkills();
-    
-    renderSections();
-  });
 }
 
 function updateSlotsForRegion() {
@@ -5521,19 +5515,20 @@ function buildFilterTerms(filters){
 }
 
 /* ------------- FILTER BUILDING & MATCHING ------------- */
-function filterCardsWithRules(cards,filters){
-  const terms=buildFilterTerms(filters).map(normalizeSkill);
-  const strictDistanceKeys=['standard distance','non-standard distance'];
-  const strictTerms=terms.filter(t=>strictDistanceKeys.includes(t));
-  const looseTerms=terms.filter(t=>!strictDistanceKeys.includes(t));
-
-  const matches = baseCards.filter(card => {
-    // FIXED: Use the already processed event_skills
-    const skills = [...card.hint_skills, ...card.event_skills].map(normalizeSkill);
-    return strictTerms.every(t => skills.includes(t)) && looseTerms.every(term => skills.some(s => s.includes(term)));
+function filterCardsWithRules(cards, filters){
+  const terms = buildFilterTerms(filters).map(normalizeSkill);
+  const strictDistanceKeys = ['standard distance','non-standard distance'];
+  const strictTerms = terms.filter(t => strictDistanceKeys.includes(t));
+  const looseTerms = terms.filter(t => !strictDistanceKeys.includes(t));
+  
+  return cards.filter(card => {
+    // Use helper function for dynamic region-based skills
+    const eventSkillsToUse = getEventSkillsForCard(card);
+    const skills = [...(card.hint_skills || []), ...eventSkillsToUse].map(normalizeSkill);
+    
+    return strictTerms.every(t => skills.includes(t)) && 
+           looseTerms.every(term => skills.some(s => s.includes(term)));
   });
-
-  return matches;
 }
 
 /* ------------- RENDER SECTIONS ------------- */
@@ -5910,7 +5905,9 @@ function getAllSkillsFromSelectedCards() {
             const card = cardsData.find(c => String(c.support_id) === String(supportId));
             
             if (card) {
-                // FIXED: Use the already processed event_skills
+                // Use helper function for dynamic region-based skills
+                const eventSkillsToUse = getEventSkillsForCard(card);
+                
                 if (card.hint_skills) {
                     card.hint_skills.forEach(skill => {
                         const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
@@ -5918,9 +5915,8 @@ function getAllSkillsFromSelectedCards() {
                     });
                 }
                 
-                // FIXED: Use the already processed event_skills
-                if (card.event_skills) {
-                    card.event_skills.forEach(skill => {
+                if (eventSkillsToUse && eventSkillsToUse.length) {
+                    eventSkillsToUse.forEach(skill => {
                         const cleanSkill = String(skill || '').replace(/○\s*/g, '').trim();
                         if (cleanSkill) allSkills.add(properCaseSkill(cleanSkill));
                     });
@@ -8557,11 +8553,21 @@ regionSelect.addEventListener('change', (e) => {
   region = e.target.value;
   localStorage.setItem('region', region);
   
-  // Refresh card data for the new region
-  refreshCardDataForRegion();
+  // Clear section pages and re-render to refresh with new region skills
+  sectionPages.clear();
   
-  // Update character picker
-  applyRegionFilter();
+  // Update slots for the new region
+  updateSlotsForRegion();
+  
+  // Update selected skills list with new region skills
+  updateSelectedSkillsList();
+  
+  // Re-render everything
+  renderSections();
+  
+  // Refresh highlights
+  highlightSkills();
+  highlightSelectedSkills();
 });
 
 </script>
