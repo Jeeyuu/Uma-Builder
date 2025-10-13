@@ -1288,28 +1288,6 @@ body {
   border-radius: 4px;
 }
 
-.character-picker-info {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 4px;
-}
-
-.character-picker-name {
-  font-weight: bold;
-  font-size: 12px;
-  text-align: center;
-  background: #eef2ff;
-  padding: 4px 4px;
-  border-radius: 4px;
-  word-break: break-word;
-  line-height: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-}
-
 .character-picker-costume {
   font-size: 11px;
   text-align: center;
@@ -2320,13 +2298,7 @@ body.dark-mode .character-display-info {
 
 /* Update character picker potential styles */
 .character-picker-potential {
-  background: #f0f8ff;
-  padding: 6px 4px;
-  border-radius: 4px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 40px;
+  padding: 0px 4px;
 }
 
 .potential-level-controls {
@@ -2364,11 +2336,6 @@ body.dark-mode .character-display-info {
   cursor: not-allowed;
 }
 
-/* Remove any text that might be in the potential section */
-.character-picker-potential > div:not(.potential-level-controls) {
-  display: none;
-}
-
 .potential-level-display {
   font-size: 12px;
   font-weight: bold;
@@ -2380,15 +2347,13 @@ body.dark-mode .character-display-info {
   display: flex;
   flex-direction: column;
   width: 100%;
-  gap: 8px;
 }
 
 .character-picker-name {
   font-weight: bold;
   font-size: 12px;
   text-align: center;
-  background: #eef2ff;
-  padding: 6px 4px;
+  padding: 4px 4px;
   border-radius: 4px;
   word-break: break-word;
   display: flex;
