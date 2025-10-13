@@ -2402,6 +2402,19 @@ body.dark-mode .character-display-info {
   color: white !important;
 }
 
+/* Add this to your CSS */
+.character-skill.highlighted,
+.character-skill.search-highlighted {
+    background: inherit !important;
+    color: inherit !important;
+}
+
+body.dark-mode .character-skill.highlighted,
+body.dark-mode .character-skill.search-highlighted {
+    background: inherit !important;
+    color: inherit !important;
+}
+
 </style>
 
 </head>
@@ -3100,10 +3113,25 @@ function highlightCharacterSkills() {
         
         // Only reset background/color if not in dark mode, otherwise let dark mode handle base styling
         if (!document.body.classList.contains('dark-mode')) {
-            skill.style.background = '#eef2ff';
-            skill.style.color = '#000';
+            skill.style.background = '';
+            skill.style.color = '';
+        } else {
+            // In dark mode, let CSS handle the base styling
+            skill.style.background = '';
+            skill.style.color = '';
         }
     });
+    
+    // Get current filter values
+    const filters = {
+        racecourse: document.getElementById('racecourse').value || '',
+        length: document.getElementById('length').value || '',
+        direction: document.getElementById('direction').value || '',
+        track: document.getElementById('track').value || '',
+        season: document.getElementById('season').value || '',
+        weather: document.getElementById('weather').value || '',
+        strategy: document.getElementById('strategy').value || ''
+    };
     
     // Get search terms from skill searches
     const searchTerms = SKILL_SEARCH_KEYS
@@ -3118,40 +3146,6 @@ function highlightCharacterSkills() {
         })
         .filter(item => item.term);
 
-    // Apply search-based highlighting with !important to override dark mode
-    characterSkills.forEach(skill => {
-        const skillText = normalizeSkill(skill.textContent || '');
-        
-        for (const { term, color } of searchTerms) {
-            if (skillText.includes(term)) {
-                const colorValue = getColorValue(color);
-                const textColor = getTextColor(color);
-                const hasBorder = color.includes('-border');
-                
-                // Use !important to override dark mode CSS
-                skill.style.setProperty('background', colorValue, 'important');
-                skill.style.setProperty('color', textColor, 'important');
-                skill.classList.add('search-highlighted');
-                
-                if (hasBorder) {
-                    skill.setAttribute('data-has-border', 'true');
-                }
-                return; // Stop after first match
-            }
-        }
-    });
-    
-    // Apply filter-based highlighting with !important
-    const filters = {
-        racecourse: document.getElementById('racecourse').value || '',
-        length: document.getElementById('length').value || '',
-        direction: document.getElementById('direction').value || '',
-        track: document.getElementById('track').value || '',
-        season: document.getElementById('season').value || '',
-        weather: document.getElementById('weather').value || '',
-        strategy: document.getElementById('strategy').value || ''
-    };
-    
     // Build filter terms
     const filterTerms = [];
     if (filters.racecourse) filterTerms.push({ term: `${filters.racecourse} Racecourse`, color: '#bce934' });
@@ -3189,9 +3183,39 @@ function highlightCharacterSkills() {
             { term: distType, color: '#bce934' }
         );
     }
-    
-    // Apply filter-based highlighting with !important
+
+    console.log('Character skills - Filter terms:', filterTerms);
+    console.log('Character skills - Search terms:', searchTerms);
+
+    // Apply search-based highlighting FIRST (with !important)
     characterSkills.forEach(skill => {
+        const skillText = normalizeSkill(skill.textContent || '');
+        
+        for (const { term, color } of searchTerms) {
+            if (skillText.includes(term)) {
+                const colorValue = getColorValue(color);
+                const textColor = getTextColor(color);
+                const hasBorder = color.includes('-border');
+                
+                skill.style.setProperty('background', colorValue, 'important');
+                skill.style.setProperty('color', textColor, 'important');
+                skill.classList.add('search-highlighted');
+                
+                if (hasBorder) {
+                    skill.setAttribute('data-has-border', 'true');
+                }
+                return; // Stop after first search match
+            }
+        }
+    });
+    
+    // Apply filter-based highlighting SECOND (won't override search highlights)
+    characterSkills.forEach(skill => {
+        // Skip if already highlighted by search
+        if (skill.classList.contains('search-highlighted')) {
+            return;
+        }
+        
         const skillText = normalizeSkill(skill.textContent || '');
         
         for (const { term, color } of filterTerms) {
@@ -3201,22 +3225,21 @@ function highlightCharacterSkills() {
             const strictDistanceKeys = ['standard distance', 'non-standard distance'];
             const isStrictTerm = strictDistanceKeys.includes(normalizedTerm);
             
+            let shouldHighlight = false;
+            
             if (isStrictTerm) {
                 // For strict terms, require exact match
-                if (skillText === normalizedTerm) {
-                    skill.style.setProperty('background', color, 'important');
-                    skill.style.setProperty('color', '#000', 'important');
-                    skill.classList.add('highlighted');
-                    break;
-                }
+                shouldHighlight = skillText === normalizedTerm;
             } else {
                 // For loose terms, check if skill contains the term
-                if (skillText.includes(normalizedTerm)) {
-                    skill.style.setProperty('background', color, 'important');
-                    skill.style.setProperty('color', '#000', 'important');
-                    skill.classList.add('highlighted');
-                    break;
-                }
+                shouldHighlight = skillText.includes(normalizedTerm);
+            }
+            
+            if (shouldHighlight) {
+                skill.style.setProperty('background', color, 'important');
+                skill.style.setProperty('color', '#000', 'important');
+                skill.classList.add('highlighted');
+                break; // Stop after first filter match
             }
         }
     });
@@ -5020,13 +5043,22 @@ function setupFilterPersistence(){
 
 /* ------------- SKILL HIGHLIGHTING ------------- */
 function highlightSkills() {
+  // First, reset ALL skills (both filter and search highlights)
   document.querySelectorAll('.skill').forEach(skill => {
     skill.classList.remove('highlighted', 'search-highlighted');
     skill.removeAttribute('data-has-border');
-    skill.style.background = '#eef2ff';
-    skill.style.color = '#000';
+    
+    // Reset to default styling
+    if (!document.body.classList.contains('dark-mode')) {
+      skill.style.background = '#eef2ff';
+      skill.style.color = '#000';
+    } else {
+      // In dark mode, let CSS handle the base styling
+      skill.style.background = '';
+      skill.style.color = '';
+    }
   });
-  
+
   const filters = {
     racecourse: document.getElementById('racecourse').value || '',
     length: document.getElementById('length').value || '',
@@ -5060,6 +5092,8 @@ function highlightSkills() {
   };
 
   const dropdownTerms = [];
+  
+  // Only add filter terms if they have values
   if (filters.racecourse) dropdownTerms.push({ term: `${filters.racecourse} Racecourse`, color: colorMap.racecourse });
   if (filters.direction) {
     const dirTerm = filters.direction === 'Clockwise' ? 'Right-Handed' : 'Left-Handed';
@@ -5092,10 +5126,13 @@ function highlightSkills() {
     );
   }
 
+  console.log('Current filters:', filters);
+  console.log('Dropdown terms to highlight:', dropdownTerms);
+
+  // Apply search-based highlighting FIRST (higher priority)
   document.querySelectorAll('.skill').forEach(skill => {
     const skillText = normalizeSkill(skill.textContent || '');
     
-    // Apply search highlighting first
     for (const { term, color } of searchTerms) {
       if (skillText.includes(term)) {
         const colorValue = getColorValue(color);
@@ -5109,24 +5146,48 @@ function highlightSkills() {
         if (hasBorder) {
           skill.setAttribute('data-has-border', 'true');
         }
-        return; // Stop after first match
-      }
-    }
-    
-    // Apply filter highlighting second
-    for (const { term, color } of dropdownTerms) {
-      if (skillText === normalizeSkill(term)) {
-        skill.style.background = color;
-        skill.style.color = '#000';
-        skill.classList.add('highlighted');
-        break;
+        return; // Stop after first search match
       }
     }
   });
 
-  // ADD THIS LINE to ensure character skills are also highlighted
-  highlightCharacterSkills();
+  // Apply filter-based highlighting SECOND (lower priority, won't override search highlights)
+  document.querySelectorAll('.skill').forEach(skill => {
+    // Skip if already highlighted by search
+    if (skill.classList.contains('search-highlighted')) {
+      return;
+    }
+    
+    const skillText = normalizeSkill(skill.textContent || '');
+    
+    for (const { term, color } of dropdownTerms) {
+      const normalizedTerm = normalizeSkill(term);
+      
+      // Use strict matching for filter terms
+      const strictDistanceKeys = ['standard distance', 'non-standard distance'];
+      const isStrictTerm = strictDistanceKeys.includes(normalizedTerm);
+      
+      let shouldHighlight = false;
+      
+      if (isStrictTerm) {
+        // For strict terms, require exact match
+        shouldHighlight = skillText === normalizedTerm;
+      } else {
+        // For loose terms, check if skill contains the term
+        shouldHighlight = skillText.includes(normalizedTerm);
+      }
+      
+      if (shouldHighlight) {
+        skill.style.background = color;
+        skill.style.color = '#000';
+        skill.classList.add('highlighted');
+        break; // Stop after first filter match
+      }
+    }
+  });
 
+  // Always update character skills highlighting
+  highlightCharacterSkills();
   updateSkillVisibility();
 }
 
