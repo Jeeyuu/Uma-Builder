@@ -3739,9 +3739,9 @@ function calculateCardsPerPage() {
   const gap = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--gap')) || 8;
   
   const cardsPerRow = Math.floor((gridWidth + gap) / (cardWidth + gap));
-  const rowsPerPage = 3; // Increased from 1 to 3 for better responsiveness
+  const rowsPerPage = 1;
   
-  return Math.max(6, cardsPerRow * rowsPerPage); // Ensure minimum of 6 cards per page
+  return cardsPerRow * rowsPerPage;
 }
 
 function renderFilterPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
@@ -3762,18 +3762,16 @@ function renderFilterPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
 
   leftBtn.onclick = () => { 
     if (page > 0) {
-      const newPage = page - 1;
-      renderFilterPage(newPage, matches, grid, leftBtn, rightBtn, pageKey); 
-      sectionPages.set(pageKey, newPage);
+      renderFilterPage(page-1, matches, grid, leftBtn, rightBtn, pageKey); 
+      sectionPages.set(pageKey, page-1);
       highlightSkills();
     }
   };
   
   rightBtn.onclick = () => { 
     if (page < totalPages - 1) {
-      const newPage = page + 1;
-      renderFilterPage(newPage, matches, grid, leftBtn, rightBtn, pageKey); 
-      sectionPages.set(pageKey, newPage);
+      renderFilterPage(page+1, matches, grid, leftBtn, rightBtn, pageKey); 
+      sectionPages.set(pageKey, page+1);
       highlightSkills();
     }
   };
@@ -3785,8 +3783,7 @@ function renderCardSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) {
   grid.innerHTML = '';
   const CARDS_PER_PAGE = calculateCardsPerPage();
   const startIdx = page * CARDS_PER_PAGE;
-  const endIdx = startIdx + CARDS_PER_PAGE;
-  const pageCards = matches.slice(startIdx, endIdx);
+  const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
   pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
   const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
@@ -3803,8 +3800,7 @@ function renderSkillSearchPage(page, matches, grid, leftBtn, rightBtn, pageKey) 
   grid.innerHTML = '';
   const CARDS_PER_PAGE = calculateCardsPerPage();
   const startIdx = page * CARDS_PER_PAGE;
-  const endIdx = startIdx + CARDS_PER_PAGE;
-  const pageCards = matches.slice(startIdx, endIdx);
+  const pageCards = matches.slice(startIdx, startIdx + CARDS_PER_PAGE);
   pageCards.forEach(card => grid.appendChild(createCardElement(card)));
 
   const totalPages = Math.ceil(matches.length / CARDS_PER_PAGE);
@@ -8273,19 +8269,21 @@ function showSkillsSection() {
     });
 }
 
-// Update the updateCharacterDisplay function to remove the upcoming badge
+// Update the updateCharacterDisplay function to handle upcoming characters
 function updateCharacterDisplay() {
     const characterClearBtn = document.getElementById('characterClearBtn');
     
     if (selectedCharacter) {
         characterPickerBox.classList.add('has-character');
         
+        // Check if this character is upcoming
+        const isUpcoming = isCharacterUpcoming(selectedCharacter);
+        
         characterPickerBox.innerHTML = `
             <img src="${selectedCharacter.portrait}" alt="${selectedCharacter.name}" class="selected-character-portrait" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
             <div class="selected-character-info">
                 <div class="selected-character-name">${selectedCharacter.name}</div>
                 <div class="selected-character-title">${selectedCharacter.title}</div>
-            </div>
             <div class="character-clear-btn" id="characterClearBtn">×</div>
         `;
         
