@@ -3659,7 +3659,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setupDeckName();
             setupCopyAll();
             setupPasteAll();
-            setupResetLevels();
+setupResetData();
             setupClearDeckWithNameReset();
 
             initCharacterPicker();
@@ -7502,64 +7502,62 @@ function initPotentialLevelControls() {
     });
 }
 
-/* ------------- RESET LEVELS ------------- */
-function setupResetLevels() {
-  const resetLevelsBtn = document.getElementById('resetLevelsBtn');
-  resetLevelsBtn.addEventListener('click', resetAllLevels);
+/* ------------- RESET DATA ------------- */
+function setupResetData() {
+  const resetDataBtn = document.getElementById('resetDataBtn');
+  
+  // Check if button exists before adding event listener
+  if (resetDataBtn) {
+    resetDataBtn.addEventListener('click', resetAllData);
+  } else {
+    console.warn('resetDataBtn not found - button may be hidden or missing from HTML');
+  }
 }
 
-function resetAllLevels() {
-  if (!confirm('Are you sure you want to reset ALL card levels to 1? This will refresh the display.')) {
+function resetAllData() {
+  if (!confirm('Are you sure you want to reset ALL data? This will clear:\n• All card levels\n• All potential levels\n• All diamond progress\n• Current deck and character\n\nThis action cannot be undone!')) {
     return;
   }
   
+  // Clear card levels
   localStorage.removeItem('slotLevels');
-  
   Object.keys(slotLevels).forEach(key => {
     delete slotLevels[key];
   });
   
+  // Clear potential levels
+  localStorage.removeItem('characterPotentialLevels');
+  characterPotentialLevels = {};
+  
+  // Clear current deck and character
+  clearAll();
+  
+  // Reset all slot levels to 1 visually
   slotContainers.forEach(container => {
     const levelInput = container.querySelector('.slot-level-input');
-    const slot = container.querySelector('.slot');
-    
-    if (slot.dataset.supportId) {
-      const supportId = slot.dataset.supportId;
-      const card = cardsData.find(c => String(c.support_id) === String(supportId));
-      
-      if (card) {
-        slotLevels[card.support_id] = 1;
-        
-        levelInput.value = '1';
-        
-        refreshCombinedLevelDisplay(slot, card, 1);
-                
-        updateSlotNameWithEffectData(slot, card, 1);
-      }
-    } else {
+    if (levelInput) {
       levelInput.value = '1';
       levelInput.disabled = true;
     }
   });
   
-  resetAllMainGridCards();
+  // Reset potential level display
+  updatePotentialLevel(1);
   
-  localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
+  // Refresh all displays
+  refreshAllSlotLevelDisplays();
+  refreshAllMainGridCardLevels();
   
-  setTimeout(updateEffectTotals, 100);
-  
-  setTimeout(() => {
-    sectionPages.clear();
-    renderSections();
-  }, 200);
-  
-  const resetBtn = document.getElementById('resetLevelsBtn');
-  const originalText = resetBtn.textContent;
-  resetBtn.textContent = 'Reset!';
-  
-  setTimeout(() => {
-    resetBtn.textContent = originalText;
-  }, 1500);
+  // Show confirmation
+  const resetBtn = document.getElementById('resetDataBtn');
+  if (resetBtn) {
+    const originalText = resetBtn.textContent;
+    resetBtn.textContent = 'Reset!';
+    
+    setTimeout(() => {
+      resetBtn.textContent = originalText;
+    }, 1500);
+  }
 }
 
 function resetAllMainGridCards() {
