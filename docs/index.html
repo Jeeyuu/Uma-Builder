@@ -3578,16 +3578,16 @@ function processSupportCardData(supportCards, skills) {
   return supportCards.map(card => {
     const hint_skills = (card.hints?.hint_skills || []).map(skillId => getSkillNameById(skillId));
     
-    // SIMPLE LOGIC: Use event_skills_en if available, else use event_skills
-    const event_skills_to_use = card.event_skills_en || card.event_skills || [];
-    const event_skills = event_skills_to_use.map(skillId => getSkillNameById(skillId));
-    
+    // DON'T process event skills here - let helper functions handle it dynamically
+    // Just store the raw data
     return {
       ...card,
       char_id: card.char_id || 0,
       char_name: card.char_name || 'Unknown',
       hint_skills: hint_skills,
-      event_skills: event_skills,
+      // Store both event skills arrays for dynamic selection
+      event_skills: card.event_skills || [],
+      event_skills_en: card.event_skills_en || [],
       rarity: card.rarity || 1,
       release: card.release || '',
       release_en: card.release_en || '',
@@ -3601,10 +3601,17 @@ function processSupportCardData(supportCards, skills) {
 
 // Helper function to get the correct event skills based on current region
 function getEventSkillsForCard(card) {
-  if (region === 'global' && card.event_skills_en) {
-    return card.event_skills_en.map(skillId => getSkillNameById(skillId));
+  if (region === 'global') {
+    // For Global: if event_skills_en exists and has content, use it, else use event_skills
+    if (card.event_skills_en && card.event_skills_en.length > 0) {
+      return card.event_skills_en.map(skillId => getSkillNameById(skillId));
+    } else {
+      return (card.event_skills || []).map(skillId => getSkillNameById(skillId));
+    }
+  } else {
+    // For Japan: always use event_skills
+    return (card.event_skills || []).map(skillId => getSkillNameById(skillId));
   }
-  return card.event_skills || [];
 }
 
 // Update slots when region changes
@@ -4540,27 +4547,27 @@ function setupSortingControls() {
     }, 50);
   });
 
-  // REPLACE THE EXISTING REGION EVENT LISTENER WITH THIS:
-  regionSelect.addEventListener('change', (e) => {
-    region = e.target.value;
-    localStorage.setItem('region', region);
-    
-    // Clear section pages and re-render to refresh with new region skills
-    sectionPages.clear();
-    
-    // Update slots for the new region
-    updateSlotsForRegion();
-    
-    // Update selected skills list with new region skills
-    updateSelectedSkillsList();
-    
-    // Re-render everything
-    renderSections();
-    
-    // Refresh highlights
-    highlightSkills();
-    highlightSelectedSkills();
-  });
+// Update the region change event listener
+regionSelect.addEventListener('change', (e) => {
+  region = e.target.value;
+  localStorage.setItem('region', region);
+  
+  // Clear section pages and re-render to refresh with new region skills
+  sectionPages.clear();
+  
+  // Update slots for the new region
+  updateSlotsForRegion();
+  
+  // Update selected skills list with new region skills
+  updateSelectedSkillsList();
+  
+  // Re-render everything
+  renderSections();
+  
+  // Refresh highlights
+  highlightSkills();
+  highlightSelectedSkills();
+});
 }
 
 function setupHideUncoloredCheckbox() {
@@ -4593,12 +4600,9 @@ function createCardElement(card){
 
   const currentLevel = getCardLevel(card.support_id);
   
-  // CORRECTED: For Global region, use event_skills_en if it exists, otherwise use event_skills
-  const eventSkillsToUse = region === 'global' ? 
-    (card.event_skills_en !== undefined ? card.event_skills_en : card.event_skills) : 
-    card.event_skills;
+    // Use helper function for dynamic region-based skills
+  const eventSkillsToUse = getEventSkillsForCard(card);
 
-    // FIXED: Use the already processed event_skills
   let skillsHTML = '';
   
   if(card.hint_skills && card.hint_skills.length) {
@@ -4609,9 +4613,9 @@ function createCardElement(card){
     skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
   }
 
-  // FIXED: Use the already processed event_skills
-  if(card.event_skills && card.event_skills.length) {
-    const eventSkillsHTML = card.event_skills.map(s => {
+  // Use the dynamically selected event skills
+  if(eventSkillsToUse && eventSkillsToUse.length) {
+    const eventSkillsHTML = eventSkillsToUse.map(s => {
       const skillText = String(s || '');
       return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
     }).join('');
@@ -4867,12 +4871,9 @@ function addToSlot(card, targetSlot = null, save = true) {
         slotListeners.delete(freeSlot);
     }
 
-  // CORRECTED: For Global region, use event_skills_en if it exists, otherwise use event_skills
-  const eventSkillsToUse = region === 'global' ? 
-    (card.event_skills_en !== undefined ? card.event_skills_en : card.event_skills) : 
-    card.event_skills;
+  // Use helper function for dynamic region-based skills
+  const eventSkillsToUse = getEventSkillsForCard(card);
 
-  // CORRECTED: Use the card.event_skills that was already processed correctly
   let skillsHTML = '';
 
   if (card.hint_skills && card.hint_skills.length) {
@@ -4883,9 +4884,9 @@ function addToSlot(card, targetSlot = null, save = true) {
       skillsHTML += `<div class="skills-group"><div class="skills-header">Support Hints</div>${hintSkillsHTML}</div>`;
   }
 
-  // FIXED: Use the already processed event_skills
-  if (card.event_skills && card.event_skills.length) {
-      const eventSkillsHTML = card.event_skills.map(s => {
+  // Use the dynamically selected event skills
+  if (eventSkillsToUse && eventSkillsToUse.length) {
+      const eventSkillsHTML = eventSkillsToUse.map(s => {
           const skillText = String(s || '');
           return `<div class="skill">${escapeHtml(properCaseSkill(skillText.replace(/○\s*/g, '')))}</div>`;
       }).join('');
