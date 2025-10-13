@@ -5711,6 +5711,28 @@ SKILL_SEARCH_KEYS.forEach((key, i) => {
   highlightSkills();
 }
 
+// Add this debug function
+function debugPagination() {
+  console.log('Current CARDS_PER_PAGE:', calculateCardsPerPage());
+  
+  const racecourseSections = document.querySelectorAll('.card-section');
+  racecourseSections.forEach((section, index) => {
+    const header = section.querySelector('h2');
+    if (header && header.textContent.includes('Racecourse')) {
+      const grid = section.querySelector('.cards');
+      console.log(`Racecourse section ${index}:`, {
+        header: header.textContent,
+        gridWidth: grid?.clientWidth,
+        cards: grid?.children.length,
+        expectedCards: calculateCardsPerPage()
+      });
+    }
+  });
+}
+
+// Call this after renderSections to see what's happening
+setTimeout(debugPagination, 1000);
+
 /* ------------- RENDER SECTIONS ------------- */
 function renderFilterRow(catId, headerText, termList, rowIndex, baseCards){
   const termsNormalized = termList.map(normalizeSkill);
