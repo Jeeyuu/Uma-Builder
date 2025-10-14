@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.4.4/lz-string.min.js"></script>
 <meta charset="utf-8" />
 <title>Uma Builder — Card Picker</title>
 <style>
@@ -7329,6 +7328,7 @@ function copyAllToClipboard() {
         const input = document.getElementById(search.id);
         const colorPicker = document.querySelector(`.color-picker[data-search-id="${search.id}"]`);
         
+        // FILTER OUT EMPTY SKILLS
         if (input && colorPicker && input.value.trim() !== '') {
             return {
                 skill: input.value.trim(),
@@ -7336,10 +7336,10 @@ function copyAllToClipboard() {
             };
         }
         return null;
-    }).filter(item => item !== null);
+    }).filter(item => item !== null); // Remove null entries
 
     const allData = {
-        version: '1.3', // Bump version for compression
+        version: '1.2',
         deckName: deckName,
         deck: deckData,
         skills: skillsData,
@@ -7353,11 +7353,7 @@ function copyAllToClipboard() {
         timestamp: new Date().toISOString()
     };
 
-    const jsonString = JSON.stringify(allData);
-    const compressed = LZString.compressToBase64(jsonString);
-    
-    // Add prefix to identify compressed data
-    const copyText = `UMABUILDERv2:${compressed}`;
+    const copyText = JSON.stringify(allData);
 
     navigator.clipboard.writeText(copyText).then(() => {
         const copyBtn = document.getElementById('copyAllBtn');
@@ -7374,40 +7370,53 @@ function copyAllToClipboard() {
     });
 }
 
+/* ------------- PASTE ALL ------------- */
+function setupPasteAll() {
+  const pasteAllBtn = document.getElementById('pasteAllBtn');
+  pasteAllBtn.addEventListener('click', pasteAllFromClipboard);
+}
+
+function ensureDataLoaded(callback) {
+    const checkData = setInterval(() => {
+        if (cardsData && cardsData.length > 0 && skillsData && skillsData.length > 0) {
+            clearInterval(checkData);
+            callback();
+        }
+    }, 100);
+    
+    // Timeout after 10 seconds
+    setTimeout(() => {
+        clearInterval(checkData);
+        alert('Data loading timeout. Please refresh the page and try again.');
+    }, 10000);
+}
+
 
 function pasteAllFromClipboard() {
     navigator.clipboard.readText().then(text => {
         try {
-            let allData;
+            const allData = JSON.parse(text);
             
-            // Check if it's compressed data (new format)
-            if (text.startsWith('UMABUILDERv2:')) {
-                const compressed = text.substring(13); // Remove prefix
-                const jsonString = LZString.decompressFromBase64(compressed);
-                if (!jsonString) {
-                    throw new Error('Failed to decompress data');
-                }
-                allData = JSON.parse(jsonString);
-            } else {
-                // Legacy format (uncompressed)
-                allData = JSON.parse(text);
-            }
-            
+            // Add better version checking
             if (!allData.deck || !allData.skills) {
                 throw new Error('Invalid format: Missing required fields');
             }
             
+            // Handle different versions
             if (!allData.version) {
+                // Assume version 1.0 format
                 allData.version = '1.0';
                 allData.potentialLevel = allData.potentialLevel || 1;
                 allData.character = allData.character || null;
             }
             
-            if (allData.version === '1.0' || allData.version === '1.1' || allData.version === '1.2' || allData.version === '1.3') {
+            if (allData.version === '1.0' || allData.version === '1.1' || allData.version === '1.2') {
+                // These versions are supported
                 if (allData.potentialLevel) {
                     updatePotentialLevel(allData.potentialLevel);
                 }
                 
+                // Clear existing data
                 if (window.programmaticClearDeck) {
                     window.programmaticClearDeck();
                 } else {
@@ -7415,6 +7424,7 @@ function pasteAllFromClipboard() {
                 }
                 
                 setTimeout(() => {
+                    // Process deck name
                     const deckNameInput = document.getElementById('deckNameInput');
                     const deckNameDisplay = document.getElementById('deckNameDisplay');
                     
@@ -7424,25 +7434,28 @@ function pasteAllFromClipboard() {
                         localStorage.setItem('deckName', allData.deckName);
                     }
                     
-                    if (allData.character && allData.character.card_id) {
-                        setTimeout(() => {
-                            const character = characters.find(char => 
-                                char.card_id === allData.character.card_id
-                            );
-                            if (character) {
-                                selectedCharacter = character;
-                                
-                                if (allData.character.potentialLevel) {
-                                    characterPotentialLevels[character.card_id] = allData.character.potentialLevel;
-                                    localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
-                                    updatePotentialLevel(allData.character.potentialLevel, character.card_id);
-                                }
-                                
-                                updateCharacterDisplay();
-                            }
-                        }, 500);
-                    }
+// In the character processing part of pasteAllFromClipboard:
+if (allData.character && allData.character.card_id) {
+    // Give it a moment for character data to load if needed
+    setTimeout(() => {
+        const character = characters.find(char => 
+            char.card_id === allData.character.card_id
+        );
+        if (character) {
+            selectedCharacter = character;
+            
+            if (allData.character.potentialLevel) {
+                characterPotentialLevels[character.card_id] = allData.character.potentialLevel;
+                localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
+                updatePotentialLevel(allData.character.potentialLevel, character.card_id);
+            }
+            
+            updateCharacterDisplay();
+        }
+    }, 500);
+}
                     
+                    // Process deck cards with better error handling
                     let processedCards = 0;
                     allData.deck.forEach((slotData, index) => {
                         if (slotData.supportId !== 'empty') {
@@ -7465,6 +7478,7 @@ function pasteAllFromClipboard() {
                         }
                     });
 
+                    // Process skills
                     clearAllSkillSearches();
                     
                     allData.skills.forEach((skillItem, index) => {
@@ -7500,6 +7514,7 @@ function pasteAllFromClipboard() {
                         }
                     });
                     
+                    // Update all the necessary states
                     searchCounter = skillSearches.length + 1;
                     SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
                     
@@ -7507,12 +7522,14 @@ function pasteAllFromClipboard() {
                     saveSlotsToLocalStorage();
                     localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
                     
+                    // Refresh displays
                     updateSelectedSkillsList();
                     highlightSkills();
                     highlightSelectedSkills();
                     renderSections();
                     updateEffectTotals();
                     
+                    // Show success message
                     const pasteBtn = document.getElementById('pasteAllBtn');
                     const originalText = pasteBtn.textContent;
                     pasteBtn.textContent = `Pasted ${processedCards} cards!`;
@@ -7522,10 +7539,6 @@ function pasteAllFromClipboard() {
                         pasteBtn.textContent = originalText;
                         pasteBtn.style.background = '';
                     }, 2000);
-                    
-                    if (!hasValidCards) {
-                        alert('No valid cards found in the deck data!');
-                    }
                     
                 }, 100);
                 
@@ -7541,27 +7554,6 @@ function pasteAllFromClipboard() {
         console.error('Clipboard error:', err);
         alert('Failed to read from clipboard. Please check permissions.');
     });
-}
-
-/* ------------- PASTE ALL ------------- */
-function setupPasteAll() {
-  const pasteAllBtn = document.getElementById('pasteAllBtn');
-  pasteAllBtn.addEventListener('click', pasteAllFromClipboard);
-}
-
-function ensureDataLoaded(callback) {
-    const checkData = setInterval(() => {
-        if (cardsData && cardsData.length > 0 && skillsData && skillsData.length > 0) {
-            clearInterval(checkData);
-            callback();
-        }
-    }, 100);
-    
-    // Timeout after 10 seconds
-    setTimeout(() => {
-        clearInterval(checkData);
-        alert('Data loading timeout. Please refresh the page and try again.');
-    }, 10000);
 }
 
 function initPotentialLevelControls() {
