@@ -7397,26 +7397,21 @@ function pasteAllFromClipboard() {
         try {
             const allData = JSON.parse(text);
             
-            // Add better version checking
             if (!allData.deck || !allData.skills) {
                 throw new Error('Invalid format: Missing required fields');
             }
             
-            // Handle different versions
             if (!allData.version) {
-                // Assume version 1.0 format
                 allData.version = '1.0';
                 allData.potentialLevel = allData.potentialLevel || 1;
                 allData.character = allData.character || null;
             }
             
             if (allData.version === '1.0' || allData.version === '1.1' || allData.version === '1.2') {
-                // These versions are supported
                 if (allData.potentialLevel) {
                     updatePotentialLevel(allData.potentialLevel);
                 }
                 
-                // Clear existing data
                 if (window.programmaticClearDeck) {
                     window.programmaticClearDeck();
                 } else {
@@ -7424,7 +7419,6 @@ function pasteAllFromClipboard() {
                 }
                 
                 setTimeout(() => {
-                    // Process deck name
                     const deckNameInput = document.getElementById('deckNameInput');
                     const deckNameDisplay = document.getElementById('deckNameDisplay');
                     
@@ -7434,28 +7428,25 @@ function pasteAllFromClipboard() {
                         localStorage.setItem('deckName', allData.deckName);
                     }
                     
-// In the character processing part of pasteAllFromClipboard:
-if (allData.character && allData.character.card_id) {
-    // Give it a moment for character data to load if needed
-    setTimeout(() => {
-        const character = characters.find(char => 
-            char.card_id === allData.character.card_id
-        );
-        if (character) {
-            selectedCharacter = character;
-            
-            if (allData.character.potentialLevel) {
-                characterPotentialLevels[character.card_id] = allData.character.potentialLevel;
-                localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
-                updatePotentialLevel(allData.character.potentialLevel, character.card_id);
-            }
-            
-            updateCharacterDisplay();
-        }
-    }, 500);
-}
+                    if (allData.character && allData.character.card_id) {
+                        setTimeout(() => {
+                            const character = characters.find(char => 
+                                char.card_id === allData.character.card_id
+                            );
+                            if (character) {
+                                selectedCharacter = character;
+                                
+                                if (allData.character.potentialLevel) {
+                                    characterPotentialLevels[character.card_id] = allData.character.potentialLevel;
+                                    localStorage.setItem('characterPotentialLevels', JSON.stringify(characterPotentialLevels));
+                                    updatePotentialLevel(allData.character.potentialLevel, character.card_id);
+                                }
+                                
+                                updateCharacterDisplay();
+                            }
+                        }, 500);
+                    }
                     
-                    // Process deck cards with better error handling
                     let processedCards = 0;
                     allData.deck.forEach((slotData, index) => {
                         if (slotData.supportId !== 'empty') {
@@ -7471,6 +7462,12 @@ if (allData.character && allData.character.card_id) {
                                         const validatedLevel = validateLevel(slotData.level, card);
                                         levelInput.value = validatedLevel;
                                         slotLevels[card.support_id] = validatedLevel;
+                                        
+                                        // FIX: Update the level-diamond-container after setting level
+                                        setTimeout(() => {
+                                            refreshCombinedLevelDisplay(slot, card, validatedLevel);
+                                            updateSlotNameWithEffectData(slot, card, validatedLevel);
+                                        }, 50);
                                     }
                                 }
                                 processedCards++;
@@ -7478,7 +7475,6 @@ if (allData.character && allData.character.card_id) {
                         }
                     });
 
-                    // Process skills
                     clearAllSkillSearches();
                     
                     allData.skills.forEach((skillItem, index) => {
@@ -7514,7 +7510,6 @@ if (allData.character && allData.character.card_id) {
                         }
                     });
                     
-                    // Update all the necessary states
                     searchCounter = skillSearches.length + 1;
                     SKILL_SEARCH_KEYS = skillSearches.map(search => search.id);
                     
@@ -7522,14 +7517,17 @@ if (allData.character && allData.character.card_id) {
                     saveSlotsToLocalStorage();
                     localStorage.setItem('slotLevels', JSON.stringify(slotLevels));
                     
-                    // Refresh displays
-                    updateSelectedSkillsList();
-                    highlightSkills();
-                    highlightSelectedSkills();
-                    renderSections();
-                    updateEffectTotals();
+                    // FIX: Refresh all level displays after all cards are processed
+                    setTimeout(() => {
+                        refreshAllSlotLevelDisplays();
+                        updateAllSlotDisplays();
+                        updateSelectedSkillsList();
+                        highlightSkills();
+                        highlightSelectedSkills();
+                        renderSections();
+                        updateEffectTotals();
+                    }, 200);
                     
-                    // Show success message
                     const pasteBtn = document.getElementById('pasteAllBtn');
                     const originalText = pasteBtn.textContent;
                     pasteBtn.textContent = `Pasted ${processedCards} cards!`;
