@@ -1,4 +1,4 @@
-name: Fetch and Transform Support Data
+name: Fetch JSON Data from Gametora
 
 on:
   schedule:
@@ -16,37 +16,82 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install Node.js
+      - name: Install Node.js and dependencies
         uses: actions/setup-node@v3
         with:
           node-version: '20'
 
-      - name: Fetch supports.json
+      - name: Fetch manifest and get latest codes
+        id: get-codes
         run: |
-          curl -s -o docs/supports.json https://gametora.com/data/umamusume/support-cards.5ac6ae00.json
-          if ! jq empty docs/supports.json; then
-            echo "❌ supports.json is not valid JSON. Aborting."
+          # Fetch the manifest
+          curl -s -o manifest.json https://gametora.com/data/manifests/umamusume.json
+          
+          # Extract the specific codes we need
+          CHARACTER_CARDS_CODE=$(jq -r '.["character-cards"]' manifest.json)
+          SUPPORT_CARDS_CODE=$(jq -r '.["support-cards"]' manifest.json)
+          SKILLS_CODE=$(jq -r '.["skills"]' manifest.json)
+          
+          echo "character_cards_code=$CHARACTER_CARDS_CODE" >> $GITHUB_OUTPUT
+          echo "support_cards_code=$SUPPORT_CARDS_CODE" >> $GITHUB_OUTPUT
+          echo "skills_code=$SKILLS_CODE" >> $GITHUB_OUTPUT
+          
+          echo "Latest codes:"
+          echo "Character Cards: $CHARACTER_CARDS_CODE"
+          echo "Support Cards: $SUPPORT_CARDS_CODE"
+          echo "Skills: $SKILLS_CODE"
+
+      - name: Create data directory
+        run: mkdir -p docs/data
+
+      - name: Download character-cards JSON
+        run: |
+          curl -s -o docs/data/character-cards.json https://gametora.com/data/umamusume/character-cards.${{ steps.get-codes.outputs.character_cards_code }}.json
+          if ! jq empty docs/data/character-cards.json; then
+            echo "❌ character-cards.json is not valid JSON. Aborting."
             exit 1
           fi
 
-      - name: Fetch skills.json
+      - name: Download support-cards JSON
         run: |
-          curl -s -o docs/skills.json https://gametora.com/data/umamusume/skills.7d8a2971.json
-          if ! jq empty docs/skills.json; then
+          curl -s -o docs/data/support-cards.json https://gametora.com/data/umamusume/support-cards.${{ steps.get-codes.outputs.support_cards_code }}.json
+          if ! jq empty docs/data/support-cards.json; then
+            echo "❌ support-cards.json is not valid JSON. Aborting."
+            exit 1
+          fi
+
+      - name: Download skills JSON
+        run: |
+          curl -s -o docs/data/skills.json https://gametora.com/data/umamusume/skills.${{ steps.get-codes.outputs.skills_code }}.json
+          if ! jq empty docs/data/skills.json; then
             echo "❌ skills.json is not valid JSON. Aborting."
             exit 1
           fi
 
-      - name: Transform and archive JSON
+      - name: Archive previous versions if changed
         run: |
-          node docs/scripts/transform.js
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          mkdir -p docs/data/archive
+          
+          # Check if files exist and have changed
+          for file in character-cards support-cards skills; do
+            if [ -f "docs/data/$file.json" ]; then
+              # Check if file has changed
+              if ! git diff --quiet docs/data/$file.json; then
+                cp docs/data/$file.json docs/data/archive/${file}_${TIMESTAMP}.json
+                echo "📁 Archived $file.json to archive/${file}_${TIMESTAMP}.json"
+              else
+                echo "✅ No changes detected for $file.json, skipping archive"
+              fi
+            fi
+          done
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Update supports and skills JSON with daily archive"
+          commit_message: "Update JSON data from Gametora API [$(date +%Y-%m-%d)]"
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
           branch: main
-          file_pattern: "docs/**"
+          file_pattern: "docs/data/**"
           add_options: ${{ github.event_name == 'workflow_dispatch' && '-A' || '' }}
