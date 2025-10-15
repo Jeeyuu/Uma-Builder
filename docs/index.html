@@ -3502,7 +3502,7 @@ async function discoverDataFiles() {
 /* ------------- DATA LOADING ------------- */
 async function loadCharacterData() {
     try {
-        const response = await fetch('data/characters.json');
+        const response = await fetch('data/character-cards.json');
         const data = await response.json();
         
         characters = Object.values(data).map(char => ({
