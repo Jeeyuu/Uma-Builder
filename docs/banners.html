@@ -19,8 +19,15 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 200px;
+            gap: 15px;
+        }
+
+        .main-content {
+            grid-column: 1;
         }
 
         h1 {
@@ -28,34 +35,31 @@
             margin-bottom: 15px;
             color: #333;
             font-size: 1.5em;
+            grid-column: 1 / -1;
         }
 
-        .columns {
+        .merged-banner {
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
         }
 
-        .column {
-            background: white;
-            border-radius: 6px;
-            padding: 10px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-        }
-
-        .column h2 {
-            text-align: center;
-            margin-bottom: 10px;
-            color: #444;
-            font-size: 1.2em;
-        }
-
-        .banner-container {
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
+        .banner-section {
+            border: 1px solid #e0e0e0;
             border-radius: 5px;
             padding: 8px;
-            background: #fafafa;
+        }
+
+        .banner-section h3 {
+            text-align: center;
+            margin-bottom: 8px;
+            color: #444;
+            font-size: 1.1em;
         }
 
         .banner-header {
@@ -82,8 +86,8 @@
 
         .pickup-items {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 5px;
+            grid-template-columns: 1fr;
+            gap: 4px;
             margin-bottom: 8px;
         }
 
@@ -91,17 +95,17 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            padding: 4px;
+            padding: 3px;
             background: white;
             border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            min-height: 40px;
+            border-radius: 3px;
+            min-height: 35px;
         }
 
         .pickup-image {
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
+            width: 25px;
+            height: 25px;
+            border-radius: 3px;
             object-fit: cover;
             flex-shrink: 0;
         }
@@ -127,8 +131,8 @@
         }
 
         .banner-checkbox, .pickup-checkbox {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             cursor: pointer;
         }
 
@@ -137,25 +141,9 @@
             color: #666;
             text-align: center;
             margin-top: 3px;
-        }
-
-        .banner-controls {
-            display: flex;
-            gap: 5px;
-            margin-top: 5px;
-        }
-
-        .control-btn {
-            padding: 2px 6px;
-            font-size: 10px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        .control-btn:hover {
-            background: #f0f0f0;
+            grid-column: 1 / -1;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
         }
 
         .loading {
@@ -164,13 +152,97 @@
             color: #666;
         }
 
+        /* Floating Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 10px;
+            height: fit-content;
+            max-height: 80vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar h3 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #444;
+            font-size: 1.1em;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .selected-banners {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .selected-banner {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+
+        .selected-banner-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 3px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .selected-banner-info {
+            flex-grow: 1;
+        }
+
+        .selected-banner-id {
+            font-weight: bold;
+            font-size: 11px;
+            color: #333;
+        }
+
+        .selected-banner-type {
+            font-size: 9px;
+            color: #666;
+        }
+
+        .remove-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .empty-sidebar {
+            text-align: center;
+            color: #999;
+            font-size: 11px;
+            padding: 10px;
+        }
+
         @media (max-width: 768px) {
-            .columns {
+            .container {
                 grid-template-columns: 1fr;
-                gap: 10px;
             }
             
-            .pickup-items {
+            .sidebar {
+                position: static;
+                max-height: none;
+            }
+            
+            .merged-banner {
                 grid-template-columns: 1fr;
             }
         }
@@ -179,14 +251,15 @@
 <body>
     <div class="container">
         <h1>Uma Musume Banners</h1>
-        <div class="columns">
-            <div class="column" id="characterBanners">
-                <h2>Character Banners</h2>
-                <div class="loading">Loading character banners...</div>
-            </div>
-            <div class="column" id="supportBanners">
-                <h2>Support Banners</h2>
-                <div class="loading">Loading support banners...</div>
+        
+        <div class="main-content" id="bannersContainer">
+            <div class="loading">Loading banners...</div>
+        </div>
+
+        <div class="sidebar">
+            <h3>Selected Banners</h3>
+            <div class="selected-banners" id="selectedBanners">
+                <div class="empty-sidebar">No banners selected</div>
             </div>
         </div>
     </div>
@@ -205,35 +278,62 @@
                 const firstFour = idStr.substring(0, 4);
                 return `https://gametora.com/images/umamusume/characters/thumb/chara_stand_${firstFour}_${pickupId}.png`;
             } else if (idStr.length === 5) {
-                return `https://gametora.com/images/umamusume/supports/support_card_s_${pickupId}.png`;
+                return `https://gametora.com/images/umamusume/supports/tex_support_card_${pickupId}.png`;
             }
             
             return '';
         }
 
-        // Function to create banner HTML
-        function createBannerHTML(bannerData, type) {
-            const bannerId = bannerData.id;
-            const bannerImageUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${bannerId}.png`;
-            const startDate = formatDate(bannerData.start);
-            const endDate = formatDate(bannerData.end);
+        // Function to get banner image with fallback
+        async function getBannerImageUrl(bannerId) {
+            const enUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${bannerId}.png`;
+            const jpUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
+            
+            // Test if English version exists
+            try {
+                const response = await fetch(enUrl, { method: 'HEAD' });
+                if (response.ok) {
+                    return enUrl;
+                }
+            } catch (e) {
+                // Fall through to Japanese version
+            }
+            
+            return jpUrl;
+        }
+
+        // Function to create merged banner HTML
+        async function createMergedBannerHTML(charBanner, supportBanner) {
+            const charBannerId = charBanner.id;
+            const supportBannerId = supportBanner.id;
+            
+            const [charBannerUrl, supportBannerUrl] = await Promise.all([
+                getBannerImageUrl(charBannerId),
+                getBannerImageUrl(supportBannerId)
+            ]);
+
+            const startDate = formatDate(charBanner.start);
+            const endDate = formatDate(charBanner.end);
 
             let bannerHTML = `
-                <div class="banner-container" data-banner-id="${bannerId}">
-                    <div class="banner-header">
-                        <strong>Banner ${bannerId}</strong>
-                        <div class="checkbox-container">
-                            <input type="checkbox" class="banner-checkbox" data-banner-id="${bannerId}" data-banner-type="${type}">
+                <div class="merged-banner" data-char-id="${charBannerId}" data-support-id="${supportBannerId}">
+                    <!-- Character Banner -->
+                    <div class="banner-section">
+                        <h3>Character Banner</h3>
+                        <div class="banner-header">
+                            <strong>${charBannerId}</strong>
+                            <div class="checkbox-container">
+                                <input type="checkbox" class="banner-checkbox" data-banner-id="${charBannerId}" data-banner-type="character">
+                            </div>
                         </div>
-                    </div>
-                    <div class="banner-image">
-                        <img src="${bannerImageUrl}" alt="Banner ${bannerId}" onerror="this.style.display='none'">
-                    </div>
-                    <div class="pickup-items">
+                        <div class="banner-image">
+                            <img src="${charBannerUrl}" alt="Banner ${charBannerId}" onerror="this.style.display='none'">
+                        </div>
+                        <div class="pickup-items">
             `;
 
-            // Add pickup items
-            bannerData.pickups.forEach(pickup => {
+            // Character pickup items
+            charBanner.pickups.forEach(pickup => {
                 const [pickupId, rate, isPickup] = pickup;
                 const imageUrl = getImageUrl(pickupId);
                 const ratePercent = (rate / 100000 * 100).toFixed(3);
@@ -246,20 +346,57 @@
                             <div class="pickup-rate">${ratePercent}%</div>
                         </div>
                         <div class="checkbox-container">
-                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${bannerId}">
+                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${charBannerId}">
                         </div>
                     </div>
                 `;
             });
 
             bannerHTML += `
+                        </div>
                     </div>
+
+                    <!-- Support Banner -->
+                    <div class="banner-section">
+                        <h3>Support Banner</h3>
+                        <div class="banner-header">
+                            <strong>${supportBannerId}</strong>
+                            <div class="checkbox-container">
+                                <input type="checkbox" class="banner-checkbox" data-banner-id="${supportBannerId}" data-banner-type="support">
+                            </div>
+                        </div>
+                        <div class="banner-image">
+                            <img src="${supportBannerUrl}" alt="Banner ${supportBannerId}" onerror="this.style.display='none'">
+                        </div>
+                        <div class="pickup-items">
+            `;
+
+            // Support pickup items
+            supportBanner.pickups.forEach(pickup => {
+                const [pickupId, rate, isPickup] = pickup;
+                const imageUrl = getImageUrl(pickupId);
+                const ratePercent = (rate / 100000 * 100).toFixed(3);
+
+                bannerHTML += `
+                    <div class="pickup-item">
+                        <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'">
+                        <div class="pickup-details">
+                            <div class="pickup-id">${pickupId}</div>
+                            <div class="pickup-rate">${ratePercent}%</div>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${supportBannerId}">
+                        </div>
+                    </div>
+                `;
+            });
+
+            bannerHTML += `
+                        </div>
+                    </div>
+
                     <div class="date-info">
                         ${startDate} - ${endDate}
-                    </div>
-                    <div class="banner-controls">
-                        <button class="control-btn select-all" data-banner-id="${bannerId}">Select All</button>
-                        <button class="control-btn deselect-all" data-banner-id="${bannerId}">Deselect All</button>
                     </div>
                 </div>
             `;
@@ -279,6 +416,57 @@
             }
         }
 
+        // Function to update sidebar with selected banners
+        function updateSidebar() {
+            const sidebar = document.getElementById('selectedBanners');
+            const selectedBanners = new Set();
+            
+            // Get all checked banner checkboxes
+            document.querySelectorAll('.banner-checkbox:checked').forEach(checkbox => {
+                selectedBanners.add(checkbox.dataset.bannerId);
+            });
+
+            if (selectedBanners.size === 0) {
+                sidebar.innerHTML = '<div class="empty-sidebar">No banners selected</div>';
+                return;
+            }
+
+            let sidebarHTML = '';
+            selectedBanners.forEach(bannerId => {
+                const bannerElement = document.querySelector(`[data-char-id="${bannerId}"], [data-support-id="${bannerId}"]`);
+                if (bannerElement) {
+                    const bannerImg = bannerElement.querySelector(`img[alt="Banner ${bannerId}"]`);
+                    const imgSrc = bannerImg ? bannerImg.src : '';
+                    const bannerType = bannerId.startsWith('3') ? 'Support' : 'Character';
+                    
+                    sidebarHTML += `
+                        <div class="selected-banner">
+                            <img src="${imgSrc}" alt="Banner ${bannerId}" class="selected-banner-thumb" onerror="this.style.display='none'">
+                            <div class="selected-banner-info">
+                                <div class="selected-banner-id">${bannerId}</div>
+                                <div class="selected-banner-type">${bannerType}</div>
+                            </div>
+                            <button class="remove-btn" data-banner-id="${bannerId}">×</button>
+                        </div>
+                    `;
+                }
+            });
+
+            sidebar.innerHTML = sidebarHTML;
+
+            // Add remove button event listeners
+            sidebar.querySelectorAll('.remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const bannerId = this.dataset.bannerId;
+                    const checkbox = document.querySelector(`.banner-checkbox[data-banner-id="${bannerId}"]`);
+                    if (checkbox) {
+                        checkbox.checked = false;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+        }
+
         // Function to initialize checkboxes and events
         function initializeCheckboxes() {
             // Banner checkbox controls all pickups in that banner
@@ -290,36 +478,28 @@
                         pickupCb.checked = this.checked;
                     });
                     saveSelections();
+                    updateSidebar();
                 });
             });
 
             // Individual pickup checkboxes
             document.querySelectorAll('.pickup-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', saveSelections);
-            });
-
-            // Control buttons
-            document.querySelectorAll('.select-all').forEach(btn => {
-                btn.addEventListener('click', function() {
+                checkbox.addEventListener('change', function() {
                     const bannerId = this.dataset.bannerId;
-                    const checkboxes = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]`);
-                    checkboxes.forEach(cb => cb.checked = true);
-                    document.querySelector(`.banner-checkbox[data-banner-id="${bannerId}"]`).checked = true;
+                    const bannerCheckbox = document.querySelector(`.banner-checkbox[data-banner-id="${bannerId}"]`);
+                    const allPickups = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]`);
+                    const checkedPickups = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]:checked`);
+                    
+                    bannerCheckbox.checked = allPickups.length === checkedPickups.length && allPickups.length > 0;
+                    bannerCheckbox.indeterminate = checkedPickups.length > 0 && checkedPickups.length < allPickups.length;
+                    
                     saveSelections();
-                });
-            });
-
-            document.querySelectorAll('.deselect-all').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const bannerId = this.dataset.bannerId;
-                    const checkboxes = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]`);
-                    checkboxes.forEach(cb => cb.checked = false);
-                    document.querySelector(`.banner-checkbox[data-banner-id="${bannerId}"]`).checked = false;
-                    saveSelections();
+                    updateSidebar();
                 });
             });
 
             loadSelections();
+            updateSidebar();
         }
 
         // Save selections to localStorage
@@ -351,6 +531,7 @@
                         const allPickups = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]`);
                         const checkedPickups = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]:checked`);
                         bannerCheckbox.checked = allPickups.length === checkedPickups.length && allPickups.length > 0;
+                        bannerCheckbox.indeterminate = checkedPickups.length > 0 && checkedPickups.length < allPickups.length;
                     }
                 });
             }
@@ -358,38 +539,37 @@
 
         // Main initialization function
         async function initializePage() {
-            const characterBanners = document.getElementById('characterBanners');
-            const supportBanners = document.getElementById('supportBanners');
+            const bannersContainer = document.getElementById('bannersContainer');
 
             try {
                 // Load both JSON files
                 const [charData, supportData] = await Promise.all([
-                    loadJSON('data/char-standard.30dbddac.json'),
-                    loadJSON('data/support-standard.8b227fc8.json')
+                    loadJSON('docs/data/char-standard.30dbddac.json'),
+                    loadJSON('docs/data/support-standard.8b227fc8.json')
                 ]);
 
-                // Clear loading messages
-                characterBanners.innerHTML = '<h2>Character Banners</h2>';
-                supportBanners.innerHTML = '<h2>Support Banners</h2>';
+                bannersContainer.innerHTML = '';
 
-                // Process character banners
-                if (charData && Array.isArray(charData)) {
-                    charData.forEach(banner => {
-                        characterBanners.innerHTML += createBannerHTML(banner, 'character');
-                    });
-                } else if (charData) {
-                    // Handle single banner object
-                    characterBanners.innerHTML += createBannerHTML(charData, 'character');
-                }
+                // Handle array or single object formats and pair banners by start date
+                const charBanners = Array.isArray(charData) ? charData : [charData];
+                const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
 
-                // Process support banners
-                if (supportData && Array.isArray(supportData)) {
-                    supportData.forEach(banner => {
-                        supportBanners.innerHTML += createBannerHTML(banner, 'support');
-                    });
-                } else if (supportData) {
-                    // Handle single banner object
-                    supportBanners.innerHTML += createBannerHTML(supportData, 'support');
+                // Create a map of support banners by start date for easy pairing
+                const supportByStartDate = {};
+                supportBanners.forEach(banner => {
+                    supportByStartDate[banner.start] = banner;
+                });
+
+                // Create merged banners
+                for (const charBanner of charBanners) {
+                    const supportBanner = supportByStartDate[charBanner.start];
+                    if (supportBanner) {
+                        const bannerHTML = await createMergedBannerHTML(charBanner, supportBanner);
+                        bannersContainer.innerHTML += bannerHTML;
+                    } else {
+                        // Fallback if no matching support banner
+                        console.warn(`No support banner found for character banner ${charBanner.id} starting ${charBanner.start}`);
+                    }
                 }
 
                 // Initialize checkbox functionality
@@ -397,8 +577,7 @@
 
             } catch (error) {
                 console.error('Error initializing page:', error);
-                characterBanners.innerHTML = '<h2>Character Banners</h2><div class="loading">Error loading data</div>';
-                supportBanners.innerHTML = '<h2>Support Banners</h2><div class="loading">Error loading data</div>';
+                bannersContainer.innerHTML = '<div class="loading">Error loading banner data</div>';
             }
         }
 
