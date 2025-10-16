@@ -54,6 +54,18 @@
             border-radius: 5px;
             padding: 8px;
             position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .banner-section:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        .banner-section.selected {
+            border-color: #007bff;
+            background-color: #e7f3ff;
         }
 
         .banner-section h3 {
@@ -61,15 +73,6 @@
             margin-bottom: 8px;
             color: #444;
             font-size: 1.1em;
-        }
-
-        .banner-header {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            margin-bottom: 8px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #eee;
         }
 
         .banner-image {
@@ -85,57 +88,28 @@
             border-radius: 4px;
         }
 
-        .pickup-items {
+        .pickup-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
             gap: 4px;
             margin-bottom: 8px;
         }
 
         .pickup-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 3px;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 3px;
-            min-height: 35px;
+            text-align: center;
         }
 
         .pickup-image {
-            width: 25px;
-            height: 25px;
+            width: 40px;
+            height: 40px;
             border-radius: 3px;
             object-fit: cover;
-            flex-shrink: 0;
-        }
-
-        .pickup-details {
-            flex-grow: 1;
-            min-width: 0;
-        }
-
-        .pickup-id {
-            font-weight: bold;
-            color: #333;
-            font-size: 10px;
-            display: none; /* Hide ID numbers */
         }
 
         .pickup-rate {
             color: #666;
             font-size: 9px;
-        }
-
-        .checkbox-container {
-            flex-shrink: 0;
-        }
-
-        .banner-checkbox, .pickup-checkbox {
-            width: 14px;
-            height: 14px;
-            cursor: pointer;
+            margin-top: 2px;
         }
 
         .date-info {
@@ -179,39 +153,27 @@
         .selected-banners {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         .selected-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px;
+            text-align: center;
+            padding: 8px;
             border: 1px solid #e0e0e0;
             border-radius: 4px;
             background: #fafafa;
         }
 
         .selected-item-thumb {
-            width: 40px;
-            height: 40px;
+            width: 100%;
+            height: 80px;
             border-radius: 3px;
             object-fit: contain;
-            flex-shrink: 0;
-        }
-
-        .selected-item-info {
-            flex-grow: 1;
-        }
-
-        .selected-item-id {
-            font-weight: bold;
-            font-size: 11px;
-            color: #333;
+            margin-bottom: 5px;
         }
 
         .selected-item-date {
-            font-size: 9px;
+            font-size: 10px;
             color: #666;
         }
 
@@ -220,11 +182,11 @@
             color: white;
             border: none;
             border-radius: 3px;
-            width: 18px;
-            height: 18px;
-            font-size: 10px;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
             cursor: pointer;
-            flex-shrink: 0;
+            margin-top: 5px;
         }
 
         .empty-sidebar {
@@ -246,6 +208,15 @@
             
             .merged-banner {
                 grid-template-columns: 1fr;
+            }
+            
+            .pickup-grid {
+                grid-template-columns: repeat(auto-fit, minmax(35px, 1fr));
+            }
+            
+            .pickup-image {
+                width: 35px;
+                height: 35px;
             }
         }
     </style>
@@ -271,6 +242,9 @@
         const bannerImageCache = new Map();
         let useEnglishBanners = true;
         let englishCheckDone = false;
+
+        // Track selected banners
+        const selectedBanners = new Set();
 
         // Function to convert Unix timestamp to readable date
         function formatDate(timestamp) {
@@ -350,15 +324,10 @@
                     <!-- Character Banner -->
                     <div class="banner-section" data-banner-id="${charBannerId}" data-banner-type="character">
                         <h3>Character Banner</h3>
-                        <div class="banner-header">
-                            <div class="checkbox-container">
-                                <input type="checkbox" class="banner-checkbox" data-banner-id="${charBannerId}" data-banner-type="character" data-start="${charBanner.start}" data-end="${charBanner.end}">
-                            </div>
-                        </div>
                         <div class="banner-image">
                             <img src="${charBannerUrl}" alt="Banner ${charBannerId}" class="banner-img" data-banner-id="${charBannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
                         </div>
-                        <div class="pickup-items">
+                        <div class="pickup-grid">
             `;
 
             // Character pickup items
@@ -370,13 +339,7 @@
                 bannerHTML += `
                     <div class="pickup-item">
                         <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        <div class="pickup-details">
-                            <div class="pickup-id">${pickupId}</div>
-                            <div class="pickup-rate">${ratePercent}%</div>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${charBannerId}" data-banner-type="character" data-start="${charBanner.start}" data-end="${charBanner.end}">
-                        </div>
+                        <div class="pickup-rate">${ratePercent}%</div>
                     </div>
                 `;
             });
@@ -388,15 +351,10 @@
                     <!-- Support Banner -->
                     <div class="banner-section" data-banner-id="${supportBannerId}" data-banner-type="support">
                         <h3>Support Banner</h3>
-                        <div class="banner-header">
-                            <div class="checkbox-container">
-                                <input type="checkbox" class="banner-checkbox" data-banner-id="${supportBannerId}" data-banner-type="support" data-start="${supportBanner.start}" data-end="${supportBanner.end}">
-                            </div>
-                        </div>
                         <div class="banner-image">
                             <img src="${supportBannerUrl}" alt="Banner ${supportBannerId}" class="banner-img" data-banner-id="${supportBannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
                         </div>
-                        <div class="pickup-items">
+                        <div class="pickup-grid">
             `;
 
             // Support pickup items
@@ -408,13 +366,7 @@
                 bannerHTML += `
                     <div class="pickup-item">
                         <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        <div class="pickup-details">
-                            <div class="pickup-id">${pickupId}</div>
-                            <div class="pickup-rate">${ratePercent}%</div>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${supportBannerId}" data-banner-type="support" data-start="${supportBanner.start}" data-end="${supportBanner.end}">
-                        </div>
+                        <div class="pickup-rate">${ratePercent}%</div>
                     </div>
                 `;
             });
@@ -446,15 +398,10 @@
                     <!-- ${bannerType} Only -->
                     <div class="banner-section" style="grid-column: 1 / -1; text-align: center;" data-banner-id="${bannerId}" data-banner-type="${type}">
                         <h3>${bannerType} (Only)</h3>
-                        <div class="banner-header" style="justify-content: center;">
-                            <div class="checkbox-container">
-                                <input type="checkbox" class="banner-checkbox" data-banner-id="${bannerId}" data-banner-type="${type}" data-start="${bannerData.start}" data-end="${bannerData.end}">
-                            </div>
-                        </div>
                         <div class="banner-image">
                             <img src="${bannerUrl}" alt="Banner ${bannerId}" class="banner-img" data-banner-id="${bannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
                         </div>
-                        <div class="pickup-items" style="max-width: 300px; margin: 0 auto;">
+                        <div class="pickup-grid" style="max-width: 400px; margin: 0 auto;">
             `;
 
             // Pickup items
@@ -466,13 +413,7 @@
                 bannerHTML += `
                     <div class="pickup-item">
                         <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        <div class="pickup-details">
-                            <div class="pickup-id">${pickupId}</div>
-                            <div class="pickup-rate">${ratePercent}%</div>
-                        </div>
-                        <div class="checkbox-container">
-                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${bannerId}" data-banner-type="${type}" data-start="${bannerData.start}" data-end="${bannerData.end}">
-                        </div>
+                        <div class="pickup-rate">${ratePercent}%</div>
                     </div>
                 `;
             });
@@ -504,23 +445,6 @@
         // Function to update sidebar with selected banners only
         function updateSidebar() {
             const sidebar = document.getElementById('selectedBanners');
-            const selectedBanners = new Map();
-            
-            // Get all checked items and track which banners are selected
-            document.querySelectorAll('.banner-checkbox:checked, .pickup-checkbox:checked').forEach(checkbox => {
-                const bannerId = checkbox.dataset.bannerId;
-                const bannerType = checkbox.dataset.bannerType;
-                const startDate = checkbox.dataset.start;
-                const endDate = checkbox.dataset.end;
-                
-                // Always add the banner if any item from it is selected
-                selectedBanners.set(bannerId, {
-                    id: bannerId,
-                    type: bannerType,
-                    start: startDate,
-                    end: endDate
-                });
-            });
 
             if (selectedBanners.size === 0) {
                 sidebar.innerHTML = '<div class="empty-sidebar">No banners selected</div>';
@@ -528,21 +452,16 @@
             }
 
             let sidebarHTML = '';
-            selectedBanners.forEach((banner) => {
-                // Find the banner image using the data attributes we added
-                const bannerImg = document.querySelector(`.banner-img[data-banner-id="${banner.id}"]`);
+            selectedBanners.forEach((bannerData) => {
+                const bannerImg = document.querySelector(`.banner-img[data-banner-id="${bannerData.id}"]`);
                 const imgSrc = bannerImg ? bannerImg.src : '';
-                const displayType = banner.type === 'character' ? 'Character' : 'Support';
-                const dateRange = `${formatDate(banner.start)} - ${formatDate(banner.end)}`;
+                const dateRange = `${formatDate(bannerData.start)} - ${formatDate(bannerData.end)}`;
                 
                 sidebarHTML += `
                     <div class="selected-item">
-                        <img src="${imgSrc}" alt="Banner ${banner.id}" class="selected-item-thumb" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        <div class="selected-item-info">
-                            <div class="selected-item-id">${displayType} ${banner.id}</div>
-                            <div class="selected-item-date">${dateRange}</div>
-                        </div>
-                        <button class="remove-btn" data-banner-id="${banner.id}">×</button>
+                        <img src="${imgSrc}" alt="Banner ${bannerData.id}" class="selected-item-thumb" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+                        <div class="selected-item-date">${dateRange}</div>
+                        <button class="remove-btn" data-banner-id="${bannerData.id}">×</button>
                     </div>
                 `;
             });
@@ -551,73 +470,62 @@
 
             // Add remove button event listeners
             sidebar.querySelectorAll('.remove-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
                     const bannerId = this.dataset.bannerId;
-                    // Uncheck all items from this banner
-                    const checkboxes = document.querySelectorAll(`[data-banner-id="${bannerId}"]`);
-                    checkboxes.forEach(checkbox => {
-                        checkbox.checked = false;
-                    });
-                    saveSelections();
-                    updateSidebar();
+                    toggleBannerSelection(bannerId, false);
                 });
             });
         }
 
-        // Function to initialize checkboxes and events
-        function initializeCheckboxes() {
-            // Banner checkbox controls all pickups in that banner
-            document.querySelectorAll('.banner-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const bannerId = this.dataset.bannerId;
-                    const pickupCheckboxes = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]`);
-                    pickupCheckboxes.forEach(pickupCb => {
-                        pickupCb.checked = this.checked;
-                    });
-                    saveSelections();
-                    updateSidebar();
-                });
-            });
+        // Function to toggle banner selection
+        function toggleBannerSelection(bannerId, state = null) {
+            const bannerSection = document.querySelector(`.banner-section[data-banner-id="${bannerId}"]`);
+            const bannerData = {
+                id: bannerId,
+                type: bannerSection.dataset.bannerType,
+                start: bannerSection.closest('.merged-banner').dataset.start,
+                end: bannerSection.closest('.merged-banner').dataset.end
+            };
 
-            // Individual pickup checkboxes
-            document.querySelectorAll('.pickup-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const bannerId = this.dataset.bannerId;
-                    const bannerCheckbox = document.querySelector(`.banner-checkbox[data-banner-id="${bannerId}"]`);
-                    const allPickups = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]`);
-                    const checkedPickups = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]:checked`);
-                    
-                    bannerCheckbox.checked = allPickups.length === checkedPickups.length && allPickups.length > 0;
-                    bannerCheckbox.indeterminate = checkedPickups.length > 0 && checkedPickups.length < allPickups.length;
-                    
-                    saveSelections();
-                    updateSidebar();
-                });
-            });
+            if (state === null) {
+                // Toggle state
+                if (selectedBanners.has(bannerId)) {
+                    selectedBanners.delete(bannerId);
+                    bannerSection.classList.remove('selected');
+                } else {
+                    selectedBanners.add(bannerId);
+                    bannerSection.classList.add('selected');
+                }
+            } else {
+                // Set specific state
+                if (state) {
+                    selectedBanners.add(bannerId);
+                    bannerSection.classList.add('selected');
+                } else {
+                    selectedBanners.delete(bannerId);
+                    bannerSection.classList.remove('selected');
+                }
+            }
 
-            loadSelections();
+            saveSelections();
             updateSidebar();
+        }
+
+        // Function to initialize click events
+        function initializeClickEvents() {
+            // Add click event to all banner sections
+            document.querySelectorAll('.banner-section').forEach(section => {
+                section.addEventListener('click', function() {
+                    const bannerId = this.dataset.bannerId;
+                    toggleBannerSelection(bannerId);
+                });
+            });
         }
 
         // Save selections to localStorage
         function saveSelections() {
-            const selections = {
-                pickups: {},
-                banners: {}
-            };
-            
-            document.querySelectorAll('.pickup-checkbox:checked').forEach(checkbox => {
-                const bannerId = checkbox.dataset.bannerId;
-                const pickupId = checkbox.dataset.pickupId;
-                if (!selections.pickups[bannerId]) selections.pickups[bannerId] = [];
-                selections.pickups[bannerId].push(pickupId);
-            });
-            
-            document.querySelectorAll('.banner-checkbox:checked').forEach(checkbox => {
-                const bannerId = checkbox.dataset.bannerId;
-                selections.banners[bannerId] = true;
-            });
-            
+            const selections = Array.from(selectedBanners);
             localStorage.setItem('bannerSelections', JSON.stringify(selections));
         }
 
@@ -626,29 +534,9 @@
             const saved = localStorage.getItem('bannerSelections');
             if (saved) {
                 const selections = JSON.parse(saved);
-                
-                // Load pickup selections
-                if (selections.pickups) {
-                    Object.keys(selections.pickups).forEach(bannerId => {
-                        selections.pickups[bannerId].forEach(pickupId => {
-                            const checkbox = document.querySelector(`.pickup-checkbox[data-banner-id="${bannerId}"][data-pickup-id="${pickupId}"]`);
-                            if (checkbox) checkbox.checked = true;
-                        });
-                    });
-                }
-                
-                // Load banner selections and update states
-                if (selections.banners) {
-                    Object.keys(selections.banners).forEach(bannerId => {
-                        const bannerCheckbox = document.querySelector(`.banner-checkbox[data-banner-id="${bannerId}"]`);
-                        if (bannerCheckbox) {
-                            const allPickups = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]`);
-                            const checkedPickups = document.querySelectorAll(`.pickup-checkbox[data-banner-id="${bannerId}"]:checked`);
-                            bannerCheckbox.checked = allPickups.length === checkedPickups.length && allPickups.length > 0;
-                            bannerCheckbox.indeterminate = checkedPickups.length > 0 && checkedPickups.length < allPickups.length;
-                        }
-                    });
-                }
+                selections.forEach(bannerId => {
+                    toggleBannerSelection(bannerId, true);
+                });
             }
         }
 
@@ -699,8 +587,9 @@
                     }
                 }
 
-                // Initialize checkbox functionality
-                initializeCheckboxes();
+                // Initialize click functionality
+                initializeClickEvents();
+                loadSelections();
 
             } catch (error) {
                 console.error('Error initializing page:', error);
