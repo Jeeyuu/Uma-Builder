@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uma Musume Banners</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .column {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .column h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #444;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .banner-container {
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fafafa;
+        }
+
+        .banner-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .banner-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .banner-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+        }
+
+        .pickup-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+        }
+
+        .pickup-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pickup-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .pickup-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pickup-id {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .pickup-rate {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .banner-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .date-info {
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .columns {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Uma Musume Banners</h1>
+        <div class="columns">
+            <!-- Character Banners Column -->
+            <div class="column" id="characterBanners">
+                <h2>Character Banners</h2>
+                <!-- Character banners will be populated by JavaScript -->
+            </div>
+
+            <!-- Support Banners Column -->
+            <div class="column" id="supportBanners">
+                <h2>Support Banners</h2>
+                <!-- Support banners will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Character banner data
+        const charBannerData = {
+            "end": 1624935599,
+            "id": 30024,
+            "lineup": {
+                "1071": [103001, 102601, 102301, 100302, 101302, 103801, 105001, 104601, 101601, 102402, 101802, 102001],
+                "1072": [100101, 100201, 100301, 100401, 100601, 101001, 101301, 101501, 101701],
+                "7500": [101201],
+                "22500": [100701, 100801, 100901, 101101, 101401, 101801, 102401, 104501],
+                "98750": [102701, 103201, 103501, 104101, 105201, 105601, 106001, 106101]
+            },
+            "pickups": [
+                [101201, 7500, true]
+            ],
+            "start": 1624244400
+        };
+
+        // Support banner data
+        const supportBannerData = {
+            "end": 1620269999,
+            "id": 30015,
+            "lineup": {
+                "865": [30011, 30012, 30013, 30014, 30015, 30016, 30017, 30018, 30020, 30021, 30024, 30026, 30027, 30028, 30029, 30031],
+                "866": [30001, 30002, 30003, 30004, 30005, 30006, 30007, 30008, 30009, 30010],
+                "6300": [20001, 20002, 20003, 20004, 20005, 20006, 20007, 20008, 20009, 20010, 20011, 20012, 20013, 20014, 20015, 20016, 20017, 20018, 20019, 20020, 20021, 20023, 20024, 20025, 20027],
+                "7500": [30032],
+                "12982": [10027, 10028, 10029, 10030, 10031, 10032, 10033, 10034, 10035, 10036, 10037, 10038, 10039, 10040, 10041, 10042, 10043, 10044, 10045, 10046, 10047, 10048, 10049, 10050, 10051, 10052, 10053, 10054, 10055, 10056, 10057],
+                "12983": [10001, 10002, 10003, 10004, 10005, 10006, 10007, 10008, 10009, 10010, 10011, 10012, 10013, 10014, 10015, 10016, 10017, 10018, 10019, 10020, 10021, 10022, 10023, 10024, 10025, 10026],
+                "22500": [20028],
+                "25000": [10058, 10059]
+            },
+            "pickups": [
+                [20028, 22500, true],
+                [30032, 7500, true]
+            ],
+            "start": 1619406000
+        };
+
+        // Function to convert Unix timestamp to readable date
+        function formatDate(timestamp) {
+            return new Date(timestamp * 1000).toLocaleDateString();
+        }
+
+        // Function to generate image URL based on pickup ID
+        function getImageUrl(pickupId) {
+            const idStr = pickupId.toString();
+            
+            if (idStr.length === 6) {
+                // Character image
+                const firstFour = idStr.substring(0, 4);
+                return `https://gametora.com/images/umamusume/characters/thumb/chara_stand_${firstFour}_${pickupId}.png`;
+            } else if (idStr.length === 5) {
+                // Support image
+                return `https://gametora.com/images/umamusume/supports/tex_support_card_${pickupId}.png`;
+            }
+            
+            return '';
+        }
+
+        // Function to create banner HTML
+        function createBannerHTML(bannerData, type) {
+            const bannerId = bannerData.id;
+            const bannerImageUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${bannerId}.png`;
+            const startDate = formatDate(bannerData.start);
+            const endDate = formatDate(bannerData.end);
+
+            let bannerHTML = `
+                <div class="banner-container">
+                    <div class="banner-header">
+                        <h3>Banner ${bannerId}</h3>
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="banner-checkbox" data-banner-id="${bannerId}" data-banner-type="${type}">
+                        </div>
+                    </div>
+                    <div class="banner-image">
+                        <img src="${bannerImageUrl}" alt="Banner ${bannerId}" onerror="this.style.display='none'">
+                    </div>
+                    <div class="date-info">
+                        ${startDate} - ${endDate}
+                    </div>
+            `;
+
+            // Add pickup items
+            bannerData.pickups.forEach(pickup => {
+                const [pickupId, rate, isPickup] = pickup;
+                const imageUrl = getImageUrl(pickupId);
+                const ratePercent = (rate / 100000 * 100).toFixed(3);
+
+                bannerHTML += `
+                    <div class="pickup-item">
+                        <div class="pickup-info">
+                            <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'">
+                            <div class="pickup-details">
+                                <span class="pickup-id">ID: ${pickupId}</span>
+                                <span class="pickup-rate">Rate: ${ratePercent}%</span>
+                            </div>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${bannerId}">
+                        </div>
+                    </div>
+                `;
+            });
+
+            bannerHTML += `</div>`;
+            return bannerHTML;
+        }
+
+        // Function to initialize the page
+        function initializePage() {
+            const characterBanners = document.getElementById('characterBanners');
+            const supportBanners = document.getElementById('supportBanners');
+
+            // Create character banner
+            characterBanners.innerHTML += createBannerHTML(charBannerData, 'character');
+
+            // Create support banner
+            supportBanners.innerHTML += createBannerHTML(supportBannerData, 'support');
+
+            // Add event listeners for checkboxes
+            document.querySelectorAll('.banner-checkbox, .pickup-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    console.log('Checkbox changed:', {
+                        type: this.classList.contains('banner-checkbox') ? 'banner' : 'pickup',
+                        id: this.dataset.bannerId || this.dataset.pickupId,
+                        checked: this.checked
+                    });
+                });
+            });
+        }
+
+        // Initialize the page when loaded
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>
