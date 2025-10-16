@@ -162,6 +162,13 @@
             border: 1px solid #e0e0e0;
             border-radius: 4px;
             background: #fafafa;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .selected-item:hover {
+            border-color: #ff4444;
+            background-color: #fff5f5;
         }
 
         .selected-item-thumb {
@@ -175,18 +182,6 @@
         .selected-item-date {
             font-size: 10px;
             color: #666;
-        }
-
-        .remove-btn {
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 5px;
         }
 
         .empty-sidebar {
@@ -241,7 +236,6 @@
         // Cache for banner image URLs to avoid repeated checks
         const bannerImageCache = new Map();
         let useEnglishBanners = true;
-        let englishCheckDone = false;
 
         // Track selected banners
         const selectedBanners = new Map();
@@ -270,35 +264,32 @@
             return (rate / 100000 * 100).toFixed(3).replace(/\.?0+$/, '');
         }
 
-        // Function to get banner image with fallback - NO CONSOLE ERRORS
+        // Function to get banner image with fallback - TEST EACH BANNER INDIVIDUALLY
         async function getBannerImageUrl(bannerId) {
             // Check cache first
             if (bannerImageCache.has(bannerId)) {
                 return bannerImageCache.get(bannerId);
             }
 
-            // If we've already determined English banners don't work, skip the check
-            if (!englishCheckDone) {
-                // Test with a known banner ID to check if English works
-                const testBannerId = '30024'; // Use a known working banner for testing
-                const testEnUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${testBannerId}.png`;
+            let bannerUrl;
+            
+            if (useEnglishBanners) {
+                const enUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${bannerId}.png`;
                 
                 try {
-                    const response = await fetch(testEnUrl, { method: 'HEAD' });
-                    if (!response.ok) {
-                        useEnglishBanners = false;
+                    const response = await fetch(enUrl, { method: 'HEAD' });
+                    if (response.ok) {
+                        bannerUrl = enUrl;
+                    } else {
+                        // English version doesn't exist, switch to Japanese for this banner
+                        bannerUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
                     }
                 } catch (e) {
-                    useEnglishBanners = false;
+                    // If fetch fails, use Japanese version
+                    bannerUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
                 }
-                englishCheckDone = true;
-            }
-
-            // Determine which URL to use
-            let bannerUrl;
-            if (useEnglishBanners) {
-                bannerUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${bannerId}.png`;
             } else {
+                // Already determined English doesn't work, use Japanese
                 bannerUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
             }
 
@@ -451,27 +442,29 @@
                 return;
             }
 
+            // Convert to array and sort by start date (newest first)
+            const sortedBanners = Array.from(selectedBanners.entries())
+                .sort(([,a], [,b]) => b.start - a.start);
+
             let sidebarHTML = '';
-            selectedBanners.forEach((bannerData, bannerId) => {
+            sortedBanners.forEach(([bannerId, bannerData]) => {
                 const bannerImg = document.querySelector(`.banner-img[data-banner-id="${bannerId}"]`);
                 const imgSrc = bannerImg ? bannerImg.src : '';
                 const dateRange = `${formatDate(bannerData.start)} - ${formatDate(bannerData.end)}`;
                 
                 sidebarHTML += `
-                    <div class="selected-item">
+                    <div class="selected-item" data-banner-id="${bannerId}">
                         <img src="${imgSrc}" alt="Banner ${bannerId}" class="selected-item-thumb" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
                         <div class="selected-item-date">${dateRange}</div>
-                        <button class="remove-btn" data-banner-id="${bannerId}">×</button>
                     </div>
                 `;
             });
 
             sidebar.innerHTML = sidebarHTML;
 
-            // Add remove button event listeners
-            sidebar.querySelectorAll('.remove-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
+            // Add click event to remove banners from sidebar
+            sidebar.querySelectorAll('.selected-item').forEach(item => {
+                item.addEventListener('click', function() {
                     const bannerId = this.dataset.bannerId;
                     toggleBannerSelection(bannerId, false);
                 });
@@ -486,8 +479,8 @@
             const bannerData = {
                 id: bannerId,
                 type: bannerSection.dataset.bannerType,
-                start: mergedBanner.dataset.start,
-                end: mergedBanner.dataset.end
+                start: parseInt(mergedBanner.dataset.start),
+                end: parseInt(mergedBanner.dataset.end)
             };
 
             if (state === null) {
@@ -531,7 +524,7 @@
             localStorage.setItem('bannerSelections', JSON.stringify(selections));
         }
 
-        // Load selections from localStorage - FIXED VERSION
+        // Load selections from localStorage
         function loadSelections() {
             const saved = localStorage.getItem('bannerSelections');
             if (saved) {
@@ -557,6 +550,11 @@
             }
         }
 
+        // Function to sort all banners by date
+        function sortBannersByDate(banners) {
+            return banners.sort((a, b) => b.start - a.start); // Newest first
+        }
+
         // Main initialization function
         async function initializePage() {
             const bannersContainer = document.getElementById('bannersContainer');
@@ -574,14 +572,18 @@
                 const charBanners = Array.isArray(charData) ? charData : [charData];
                 const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
 
+                // Sort banners by date (newest first)
+                const sortedCharBanners = sortBannersByDate(charBanners);
+                const sortedSupportBanners = sortBannersByDate(supportBanners);
+
                 // Create a map of support banners by start date for easy pairing
                 const supportByStartDate = {};
-                supportBanners.forEach(banner => {
+                sortedSupportBanners.forEach(banner => {
                     supportByStartDate[banner.start] = banner;
                 });
 
                 // Create merged banners
-                for (const charBanner of charBanners) {
+                for (const charBanner of sortedCharBanners) {
                     const supportBanner = supportByStartDate[charBanner.start];
                     if (supportBanner) {
                         const bannerHTML = await createMergedBannerHTML(charBanner, supportBanner);
@@ -595,8 +597,8 @@
                 }
 
                 // Also create any support banners that don't have character counterparts
-                for (const supportBanner of supportBanners) {
-                    const charBanner = charBanners.find(char => char.start === supportBanner.start);
+                for (const supportBanner of sortedSupportBanners) {
+                    const charBanner = sortedCharBanners.find(char => char.start === supportBanner.start);
                     if (!charBanner) {
                         console.log(`No character banner found for support banner ${supportBanner.id} starting ${supportBanner.start}`);
                         const bannerHTML = await createSingleBannerHTML(supportBanner, 'support');
