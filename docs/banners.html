@@ -49,6 +49,10 @@
             gap: 15px;
         }
 
+        .merged-banner.hidden {
+            display: none;
+        }
+
         .banner-section {
             border: 1px solid #e0e0e0;
             border-radius: 5px;
@@ -117,6 +121,25 @@
             color: #666;
             text-align: center;
             grid-column: 1 / -1;
+            margin-bottom: 5px;
+        }
+
+        .hide-checkbox-container {
+            grid-column: 1 / -1;
+            text-align: center;
+            border-top: 1px solid #eee;
+            padding-top: 8px;
+            margin-top: 5px;
+        }
+
+        .hide-checkbox {
+            margin-right: 5px;
+        }
+
+        .hide-label {
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
         }
 
         .loading {
@@ -274,7 +297,7 @@
         }
 
         // Function to create merged banner HTML
-        async function createMergedBannerHTML(charBanner, supportBanner) {
+        async function createMergedBannerHTML(charBanner, supportBanner, index) {
             const charBannerId = charBanner.id;
             const supportBannerId = supportBanner.id;
             
@@ -287,7 +310,7 @@
             const endDate = formatDate(charBanner.end);
 
             let bannerHTML = `
-                <div class="merged-banner" data-char-id="${charBannerId}" data-support-id="${supportBannerId}" data-start="${charBanner.start}" data-end="${charBanner.end}">
+                <div class="merged-banner" data-char-id="${charBannerId}" data-support-id="${supportBannerId}" data-start="${charBanner.start}" data-end="${charBanner.end}" data-index="${index}">
                     <!-- Character Banner -->
                     <div class="banner-section" data-banner-id="${charBannerId}" data-banner-type="character">
                         <h3>Character Banner</h3>
@@ -345,6 +368,10 @@
                     <div class="date-info">
                         ${startDate} - ${endDate}
                     </div>
+                    <div class="hide-checkbox-container">
+                        <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
+                        <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
+                    </div>
                 </div>
             `;
 
@@ -352,7 +379,7 @@
         }
 
         // Function to create single banner HTML (when no counterpart exists)
-        async function createSingleBannerHTML(bannerData, type) {
+        async function createSingleBannerHTML(bannerData, type, index) {
             const bannerId = bannerData.id;
             const bannerUrl = await getBannerImageUrl(bannerId);
             const startDate = formatDate(bannerData.start);
@@ -361,7 +388,7 @@
             const bannerType = type === 'character' ? 'Character Banner' : 'Support Banner';
 
             let bannerHTML = `
-                <div class="merged-banner" data-${type}-id="${bannerId}" data-start="${bannerData.start}" data-end="${bannerData.end}">
+                <div class="merged-banner" data-${type}-id="${bannerId}" data-start="${bannerData.start}" data-end="${bannerData.end}" data-index="${index}">
                     <!-- ${bannerType} Only -->
                     <div class="banner-section" style="grid-column: 1 / -1; text-align: center;" data-banner-id="${bannerId}" data-banner-type="${type}">
                         <h3>${bannerType} (Only)</h3>
@@ -389,6 +416,10 @@
                         </div>
                         <div class="date-info">
                             ${startDate} - ${endDate}
+                        </div>
+                        <div class="hide-checkbox-container">
+                            <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
+                            <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
                         </div>
                     </div>
                 </div>
@@ -492,6 +523,25 @@
                     toggleBannerSelection(bannerId);
                 });
             });
+
+            // Add change event to all hide checkboxes
+            document.querySelectorAll('.hide-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const currentIndex = parseInt(this.closest('.merged-banner').dataset.index);
+                    const allBanners = document.querySelectorAll('.merged-banner');
+                    
+                    allBanners.forEach(banner => {
+                        const bannerIndex = parseInt(banner.dataset.index);
+                        if (bannerIndex < currentIndex) {
+                            if (this.checked) {
+                                banner.classList.add('hidden');
+                            } else {
+                                banner.classList.remove('hidden');
+                            }
+                        }
+                    });
+                });
+            });
         }
 
         // Save selections to localStorage
@@ -558,17 +608,24 @@
                     supportByStartDate[banner.start] = banner;
                 });
 
+                let bannerIndex = 0;
+                const allBanners = [];
+
                 // Create merged banners
                 for (const charBanner of sortedCharBanners) {
                     const supportBanner = supportByStartDate[charBanner.start];
                     if (supportBanner) {
-                        const bannerHTML = await createMergedBannerHTML(charBanner, supportBanner);
+                        const bannerHTML = await createMergedBannerHTML(charBanner, supportBanner, bannerIndex);
                         bannersContainer.innerHTML += bannerHTML;
+                        allBanners.push({ element: bannerHTML, start: charBanner.start });
+                        bannerIndex++;
                     } else {
                         // Create character banner only with a note
                         console.log(`No support banner found for character banner ${charBanner.id} starting ${charBanner.start}`);
-                        const bannerHTML = await createSingleBannerHTML(charBanner, 'character');
+                        const bannerHTML = await createSingleBannerHTML(charBanner, 'character', bannerIndex);
                         bannersContainer.innerHTML += bannerHTML;
+                        allBanners.push({ element: bannerHTML, start: charBanner.start });
+                        bannerIndex++;
                     }
                 }
 
@@ -577,8 +634,10 @@
                     const charBanner = sortedCharBanners.find(char => char.start === supportBanner.start);
                     if (!charBanner) {
                         console.log(`No character banner found for support banner ${supportBanner.id} starting ${supportBanner.start}`);
-                        const bannerHTML = await createSingleBannerHTML(supportBanner, 'support');
+                        const bannerHTML = await createSingleBannerHTML(supportBanner, 'support', bannerIndex);
                         bannersContainer.innerHTML += bannerHTML;
+                        allBanners.push({ element: bannerHTML, start: supportBanner.start });
+                        bannerIndex++;
                     }
                 }
 
