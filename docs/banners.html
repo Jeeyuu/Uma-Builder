@@ -544,8 +544,8 @@
             try {
                 // Load both JSON files
                 const [charData, supportData] = await Promise.all([
-                    loadJSON('docs/data/char-standard.30dbddac.json'),
-                    loadJSON('docs/data/support-standard.8b227fc8.json')
+                    loadJSON('data/char-standard.30dbddac.json'),
+                    loadJSON('data/support-standard.8b227fc8.json')
                 ]);
 
                 bannersContainer.innerHTML = '';
