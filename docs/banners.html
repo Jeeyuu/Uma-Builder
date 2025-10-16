@@ -117,29 +117,33 @@
         }
 
         .date-info {
-            font-size: 9px;
-            color: #666;
-            text-align: center;
-            grid-column: 1 / -1;
-            margin-bottom: 5px;
+        font-size: 9px;
+        color: #666;
+        text-align: center;
+        grid-column: 1 / -1;
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #eee;
+        padding-top: 8px;
         }
 
-.hide-checkbox-container {
-    grid-column: 1 / -1;
-    text-align: left;  /* Changed from 'center' to 'left' */
-    border-top: 1px solid #eee;
-    padding-top: 8px;
-    margin-top: 5px;
-}
+        .hide-checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
         .hide-checkbox {
-            margin-right: 5px;
+            margin: 0;
         }
 
         .hide-label {
             font-size: 10px;
             color: #666;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         .loading {
@@ -361,16 +365,16 @@
                 `;
             });
 
-            bannerHTML += `
+                        bannerHTML += `
                         </div>
                     </div>
 
                     <div class="date-info">
-                        ${startDate} - ${endDate}
-                    </div>
-                    <div class="hide-checkbox-container">
-                        <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
-                        <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
+                        <span>${startDate} - ${endDate}</span>
+                        <div class="hide-checkbox-container">
+                            <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
+                            <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
+                        </div>
                     </div>
                 </div>
             `;
@@ -415,11 +419,11 @@
             bannerHTML += `
                         </div>
                         <div class="date-info">
-                            ${startDate} - ${endDate}
-                        </div>
-                        <div class="hide-checkbox-container">
-                            <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
-                            <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
+                            <span>${startDate} - ${endDate}</span>
+                            <div class="hide-checkbox-container">
+                                <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
+                                <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
+                            </div>
                         </div>
                     </div>
                 </div>
