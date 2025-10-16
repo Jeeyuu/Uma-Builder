@@ -235,7 +235,6 @@
     <script>
         // Cache for banner image URLs to avoid repeated checks
         const bannerImageCache = new Map();
-        let useEnglishBanners = true;
 
         // Track selected banners
         const selectedBanners = new Map();
@@ -264,34 +263,15 @@
             return (rate / 100000 * 100).toFixed(3).replace(/\.?0+$/, '');
         }
 
-        // Function to get banner image with fallback - TEST EACH BANNER INDIVIDUALLY
+        // Function to get banner image - ALWAYS USE JAPANESE VERSION
         async function getBannerImageUrl(bannerId) {
             // Check cache first
             if (bannerImageCache.has(bannerId)) {
                 return bannerImageCache.get(bannerId);
             }
 
-            let bannerUrl;
-            
-            if (useEnglishBanners) {
-                const enUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${bannerId}.png`;
-                
-                try {
-                    const response = await fetch(enUrl, { method: 'HEAD' });
-                    if (response.ok) {
-                        bannerUrl = enUrl;
-                    } else {
-                        // English version doesn't exist, switch to Japanese for this banner
-                        bannerUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
-                    }
-                } catch (e) {
-                    // If fetch fails, use Japanese version
-                    bannerUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
-                }
-            } else {
-                // Already determined English doesn't work, use Japanese
-                bannerUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
-            }
+            // Always use Japanese version
+            const bannerUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
 
             bannerImageCache.set(bannerId, bannerUrl);
             return bannerUrl;
@@ -442,9 +422,9 @@
                 return;
             }
 
-            // Convert to array and sort by start date (newest first)
+            // Convert to array and sort by start date (oldest first - past to present)
             const sortedBanners = Array.from(selectedBanners.entries())
-                .sort(([,a], [,b]) => b.start - a.start);
+                .sort(([,a], [,b]) => a.start - b.start);
 
             let sidebarHTML = '';
             sortedBanners.forEach(([bannerId, bannerData]) => {
@@ -550,9 +530,9 @@
             }
         }
 
-        // Function to sort all banners by date
+        // Function to sort all banners by date (past to present)
         function sortBannersByDate(banners) {
-            return banners.sort((a, b) => b.start - a.start); // Newest first
+            return banners.sort((a, b) => a.start - b.start); // Oldest first (past to present)
         }
 
         // Main initialization function
@@ -572,7 +552,7 @@
                 const charBanners = Array.isArray(charData) ? charData : [charData];
                 const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
 
-                // Sort banners by date (newest first)
+                // Sort banners by date (past to present)
                 const sortedCharBanners = sortBannersByDate(charBanners);
                 const sortedSupportBanners = sortBannersByDate(supportBanners);
 
