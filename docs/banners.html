@@ -315,7 +315,7 @@ function getCardName(cardId) {
         // Support card
         if (supportCards) {
             const card = supportCards.find(c => c.support_id === cardId);
-            return card ? card.name_en || card.name_jp || card.char_name : `Support ${cardId}`;
+            return card ? card.char_name : `Support ${cardId}`;
         }
         return `Support ${cardId}`;
     }
@@ -323,9 +323,9 @@ function getCardName(cardId) {
     return `Card ${cardId}`;
 }
 
-// Function to calculate correct rate percentage (0.75% for 7500)
+// Function to calculate correct rate percentage (0.75% for 7500, 2.25% for 22500)
 function calculateRate(rate) {
-    return (rate / 10000).toFixed(2); // Divide by 10000 instead of 100000
+    return (rate / 10000).toFixed(2); // 7500 / 10000 = 0.75, 22500 / 10000 = 2.25
 }
 
         // Function to convert Unix timestamp to readable date
@@ -347,10 +347,10 @@ function calculateRate(rate) {
             return '';
         }
 
-        // Function to calculate correct rate percentage
-        function calculateRate(rate) {
-            return (rate / 100000 * 100).toFixed(3).replace(/\.?0+$/, '');
-        }
+// Function to calculate correct rate percentage (0.75% for 7500, 2.25% for 22500)
+function calculateRate(rate) {
+    return (rate / 10000).toFixed(2); // 7500 / 10000 = 0.75, 22500 / 10000 = 2.25
+}
 
         // Function to get banner image - ALWAYS USE JAPANESE VERSION
         async function getBannerImageUrl(bannerId) {
