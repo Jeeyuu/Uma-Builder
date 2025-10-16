@@ -528,7 +528,7 @@
                 });
             });
 
-            // Add change event to all hide checkboxes
+                        // Add change event to all hide checkboxes
             document.querySelectorAll('.hide-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
                     const currentIndex = parseInt(this.closest('.merged-banner').dataset.index);
@@ -539,6 +539,11 @@
                         if (bannerIndex < currentIndex) {
                             if (this.checked) {
                                 banner.classList.add('hidden');
+                                // Uncheck all other hide checkboxes above
+                                const otherCheckboxes = banner.querySelectorAll('.hide-checkbox');
+                                otherCheckboxes.forEach(otherCheckbox => {
+                                    otherCheckbox.checked = false;
+                                });
                             } else {
                                 banner.classList.remove('hidden');
                             }
