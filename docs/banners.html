@@ -270,6 +270,7 @@
         // Cache for banner image URLs to avoid repeated checks
         const bannerImageCache = new Map();
         let useEnglishBanners = true;
+        let englishCheckDone = false;
 
         // Function to convert Unix timestamp to readable date
         function formatDate(timestamp) {
@@ -295,7 +296,7 @@
             return (rate / 100000 * 100).toFixed(3).replace(/\.?0+$/, '');
         }
 
-        // Function to get banner image with fallback
+        // Function to get banner image with fallback - NO CONSOLE ERRORS
         async function getBannerImageUrl(bannerId) {
             // Check cache first
             if (bannerImageCache.has(bannerId)) {
@@ -303,25 +304,32 @@
             }
 
             // If we've already determined English banners don't work, skip the check
-            if (useEnglishBanners) {
-                const enUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${bannerId}.png`;
+            if (!englishCheckDone) {
+                // Test with a known banner ID to check if English works
+                const testBannerId = '30024'; // Use a known working banner for testing
+                const testEnUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${testBannerId}.png`;
                 
                 try {
-                    const response = await fetch(enUrl, { method: 'HEAD' });
-                    if (response.ok) {
-                        bannerImageCache.set(bannerId, enUrl);
-                        return enUrl;
+                    const response = await fetch(testEnUrl, { method: 'HEAD' });
+                    if (!response.ok) {
+                        useEnglishBanners = false;
                     }
                 } catch (e) {
-                    // English failed, switch to Japanese for all future requests
                     useEnglishBanners = false;
                 }
+                englishCheckDone = true;
             }
 
-            // Use Japanese version
-            const jpUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
-            bannerImageCache.set(bannerId, jpUrl);
-            return jpUrl;
+            // Determine which URL to use
+            let bannerUrl;
+            if (useEnglishBanners) {
+                bannerUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${bannerId}.png`;
+            } else {
+                bannerUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
+            }
+
+            bannerImageCache.set(bannerId, bannerUrl);
+            return bannerUrl;
         }
 
         // Function to create merged banner HTML
@@ -340,7 +348,7 @@
             let bannerHTML = `
                 <div class="merged-banner" data-char-id="${charBannerId}" data-support-id="${supportBannerId}" data-start="${charBanner.start}" data-end="${charBanner.end}">
                     <!-- Character Banner -->
-                    <div class="banner-section">
+                    <div class="banner-section" data-banner-id="${charBannerId}" data-banner-type="character">
                         <h3>Character Banner</h3>
                         <div class="banner-header">
                             <div class="checkbox-container">
@@ -348,7 +356,7 @@
                             </div>
                         </div>
                         <div class="banner-image">
-                            <img src="${charBannerUrl}" alt="Banner ${charBannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+                            <img src="${charBannerUrl}" alt="Banner ${charBannerId}" class="banner-img" data-banner-id="${charBannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
                         </div>
                         <div class="pickup-items">
             `;
@@ -378,7 +386,7 @@
                     </div>
 
                     <!-- Support Banner -->
-                    <div class="banner-section">
+                    <div class="banner-section" data-banner-id="${supportBannerId}" data-banner-type="support">
                         <h3>Support Banner</h3>
                         <div class="banner-header">
                             <div class="checkbox-container">
@@ -386,7 +394,7 @@
                             </div>
                         </div>
                         <div class="banner-image">
-                            <img src="${supportBannerUrl}" alt="Banner ${supportBannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+                            <img src="${supportBannerUrl}" alt="Banner ${supportBannerId}" class="banner-img" data-banner-id="${supportBannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
                         </div>
                         <div class="pickup-items">
             `;
@@ -436,7 +444,7 @@
             let bannerHTML = `
                 <div class="merged-banner" data-${type}-id="${bannerId}" data-start="${bannerData.start}" data-end="${bannerData.end}">
                     <!-- ${bannerType} Only -->
-                    <div class="banner-section" style="grid-column: 1 / -1; text-align: center;">
+                    <div class="banner-section" style="grid-column: 1 / -1; text-align: center;" data-banner-id="${bannerId}" data-banner-type="${type}">
                         <h3>${bannerType} (Only)</h3>
                         <div class="banner-header" style="justify-content: center;">
                             <div class="checkbox-container">
@@ -444,7 +452,7 @@
                             </div>
                         </div>
                         <div class="banner-image">
-                            <img src="${bannerUrl}" alt="Banner ${bannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+                            <img src="${bannerUrl}" alt="Banner ${bannerId}" class="banner-img" data-banner-id="${bannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
                         </div>
                         <div class="pickup-items" style="max-width: 300px; margin: 0 auto;">
             `;
@@ -521,8 +529,8 @@
 
             let sidebarHTML = '';
             selectedBanners.forEach((banner) => {
-                const bannerElement = document.querySelector(`[data-${banner.type}-id="${banner.id}"]`);
-                const bannerImg = bannerElement ? bannerElement.querySelector(`img[alt="Banner ${banner.id}"]`) : null;
+                // Find the banner image using the data attributes we added
+                const bannerImg = document.querySelector(`.banner-img[data-banner-id="${banner.id}"]`);
                 const imgSrc = bannerImg ? bannerImg.src : '';
                 const displayType = banner.type === 'character' ? 'Character' : 'Support';
                 const dateRange = `${formatDate(banner.start)} - ${formatDate(banner.end)}`;
