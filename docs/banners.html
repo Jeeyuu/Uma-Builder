@@ -196,7 +196,7 @@
             width: 40px;
             height: 40px;
             border-radius: 3px;
-            object-fit: contain; /* Better banner image display */
+            object-fit: contain;
             flex-shrink: 0;
         }
 
@@ -210,7 +210,7 @@
             color: #333;
         }
 
-        .selected-item-type {
+        .selected-item-date {
             font-size: 9px;
             color: #666;
         }
@@ -259,14 +259,18 @@
         </div>
 
         <div class="sidebar">
-            <h3>Selected Items</h3>
+            <h3>Selected Banners</h3>
             <div class="selected-banners" id="selectedBanners">
-                <div class="empty-sidebar">No items selected</div>
+                <div class="empty-sidebar">No banners selected</div>
             </div>
         </div>
     </div>
 
     <script>
+        // Cache for banner image URLs to avoid repeated checks
+        const bannerImageCache = new Map();
+        let useEnglishBanners = true;
+
         // Function to convert Unix timestamp to readable date
         function formatDate(timestamp) {
             return new Date(timestamp * 1000).toLocaleDateString();
@@ -293,31 +297,31 @@
 
         // Function to get banner image with fallback
         async function getBannerImageUrl(bannerId) {
-            const enUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${bannerId}.png`;
+            // Check cache first
+            if (bannerImageCache.has(bannerId)) {
+                return bannerImageCache.get(bannerId);
+            }
+
+            // If we've already determined English banners don't work, skip the check
+            if (useEnglishBanners) {
+                const enUrl = `https://gametora.com/images/umamusume/en/gacha/img_bnr_gacha_${bannerId}.png`;
+                
+                try {
+                    const response = await fetch(enUrl, { method: 'HEAD' });
+                    if (response.ok) {
+                        bannerImageCache.set(bannerId, enUrl);
+                        return enUrl;
+                    }
+                } catch (e) {
+                    // English failed, switch to Japanese for all future requests
+                    useEnglishBanners = false;
+                }
+            }
+
+            // Use Japanese version
             const jpUrl = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
-            
-            // Test if English version exists
-            try {
-                const response = await fetch(enUrl, { method: 'HEAD' });
-                if (response.ok) {
-                    return enUrl;
-                }
-            } catch (e) {
-                // Fall through to Japanese version
-            }
-            
-            // If English fails, try Japanese version
-            try {
-                const response = await fetch(jpUrl, { method: 'HEAD' });
-                if (response.ok) {
-                    return jpUrl;
-                }
-            } catch (e) {
-                // If both fail, return empty string (image will be hidden)
-            }
-            
-            // Return empty string if both URLs fail
-            return '';
+            bannerImageCache.set(bannerId, jpUrl);
+            return jpUrl;
         }
 
         // Function to create merged banner HTML
@@ -334,13 +338,13 @@
             const endDate = formatDate(charBanner.end);
 
             let bannerHTML = `
-                <div class="merged-banner" data-char-id="${charBannerId}" data-support-id="${supportBannerId}">
+                <div class="merged-banner" data-char-id="${charBannerId}" data-support-id="${supportBannerId}" data-start="${charBanner.start}" data-end="${charBanner.end}">
                     <!-- Character Banner -->
                     <div class="banner-section">
                         <h3>Character Banner</h3>
                         <div class="banner-header">
                             <div class="checkbox-container">
-                                <input type="checkbox" class="banner-checkbox" data-banner-id="${charBannerId}" data-banner-type="character">
+                                <input type="checkbox" class="banner-checkbox" data-banner-id="${charBannerId}" data-banner-type="character" data-start="${charBanner.start}" data-end="${charBanner.end}">
                             </div>
                         </div>
                         <div class="banner-image">
@@ -363,7 +367,7 @@
                             <div class="pickup-rate">${ratePercent}%</div>
                         </div>
                         <div class="checkbox-container">
-                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${charBannerId}" data-image-url="${imageUrl}" data-item-type="character">
+                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${charBannerId}" data-banner-type="character" data-start="${charBanner.start}" data-end="${charBanner.end}">
                         </div>
                     </div>
                 `;
@@ -378,7 +382,7 @@
                         <h3>Support Banner</h3>
                         <div class="banner-header">
                             <div class="checkbox-container">
-                                <input type="checkbox" class="banner-checkbox" data-banner-id="${supportBannerId}" data-banner-type="support">
+                                <input type="checkbox" class="banner-checkbox" data-banner-id="${supportBannerId}" data-banner-type="support" data-start="${supportBanner.start}" data-end="${supportBanner.end}">
                             </div>
                         </div>
                         <div class="banner-image">
@@ -401,7 +405,7 @@
                             <div class="pickup-rate">${ratePercent}%</div>
                         </div>
                         <div class="checkbox-container">
-                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${supportBannerId}" data-image-url="${imageUrl}" data-item-type="support">
+                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${supportBannerId}" data-banner-type="support" data-start="${supportBanner.start}" data-end="${supportBanner.end}">
                         </div>
                     </div>
                 `;
@@ -430,13 +434,13 @@
             const bannerType = type === 'character' ? 'Character Banner' : 'Support Banner';
 
             let bannerHTML = `
-                <div class="merged-banner" data-${type}-id="${bannerId}">
+                <div class="merged-banner" data-${type}-id="${bannerId}" data-start="${bannerData.start}" data-end="${bannerData.end}">
                     <!-- ${bannerType} Only -->
                     <div class="banner-section" style="grid-column: 1 / -1; text-align: center;">
                         <h3>${bannerType} (Only)</h3>
                         <div class="banner-header" style="justify-content: center;">
                             <div class="checkbox-container">
-                                <input type="checkbox" class="banner-checkbox" data-banner-id="${bannerId}" data-banner-type="${type}">
+                                <input type="checkbox" class="banner-checkbox" data-banner-id="${bannerId}" data-banner-type="${type}" data-start="${bannerData.start}" data-end="${bannerData.end}">
                             </div>
                         </div>
                         <div class="banner-image">
@@ -459,7 +463,7 @@
                             <div class="pickup-rate">${ratePercent}%</div>
                         </div>
                         <div class="checkbox-container">
-                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${bannerId}" data-image-url="${imageUrl}" data-item-type="${type}">
+                            <input type="checkbox" class="pickup-checkbox" data-pickup-id="${pickupId}" data-banner-id="${bannerId}" data-banner-type="${type}" data-start="${bannerData.start}" data-end="${bannerData.end}">
                         </div>
                     </div>
                 `;
@@ -489,61 +493,48 @@
             }
         }
 
-        // Function to update sidebar with selected items
+        // Function to update sidebar with selected banners only
         function updateSidebar() {
             const sidebar = document.getElementById('selectedBanners');
-            const selectedItems = new Map();
+            const selectedBanners = new Map();
             
-            // Get all checked items (both banner and pickup checkboxes)
+            // Get all checked items and track which banners are selected
             document.querySelectorAll('.banner-checkbox:checked, .pickup-checkbox:checked').forEach(checkbox => {
-                if (checkbox.classList.contains('banner-checkbox')) {
-                    // Banner selection
-                    const bannerId = checkbox.dataset.bannerId;
-                    const bannerType = checkbox.dataset.bannerType;
-                    const bannerElement = document.querySelector(`[data-${bannerType}-id="${bannerId}"]`);
-                    if (bannerElement) {
-                        const bannerImg = bannerElement.querySelector(`img[alt="Banner ${bannerId}"]`);
-                        const imgSrc = bannerImg ? bannerImg.src : '';
-                        selectedItems.set(`banner-${bannerId}`, {
-                            id: bannerId,
-                            type: bannerType,
-                            imageUrl: imgSrc,
-                            isBanner: true
-                        });
-                    }
-                } else {
-                    // Pickup selection
-                    const pickupId = checkbox.dataset.pickupId;
-                    const bannerId = checkbox.dataset.bannerId;
-                    const itemType = checkbox.dataset.itemType;
-                    const imageUrl = checkbox.dataset.imageUrl;
-                    selectedItems.set(`pickup-${pickupId}`, {
-                        id: pickupId,
-                        type: itemType,
-                        imageUrl: imageUrl,
-                        isBanner: false,
-                        bannerId: bannerId
-                    });
-                }
+                const bannerId = checkbox.dataset.bannerId;
+                const bannerType = checkbox.dataset.bannerType;
+                const startDate = checkbox.dataset.start;
+                const endDate = checkbox.dataset.end;
+                
+                // Always add the banner if any item from it is selected
+                selectedBanners.set(bannerId, {
+                    id: bannerId,
+                    type: bannerType,
+                    start: startDate,
+                    end: endDate
+                });
             });
 
-            if (selectedItems.size === 0) {
-                sidebar.innerHTML = '<div class="empty-sidebar">No items selected</div>';
+            if (selectedBanners.size === 0) {
+                sidebar.innerHTML = '<div class="empty-sidebar">No banners selected</div>';
                 return;
             }
 
             let sidebarHTML = '';
-            selectedItems.forEach((item, key) => {
-                const displayType = item.type === 'character' ? 'Character' : 'Support';
+            selectedBanners.forEach((banner) => {
+                const bannerElement = document.querySelector(`[data-${banner.type}-id="${banner.id}"]`);
+                const bannerImg = bannerElement ? bannerElement.querySelector(`img[alt="Banner ${banner.id}"]`) : null;
+                const imgSrc = bannerImg ? bannerImg.src : '';
+                const displayType = banner.type === 'character' ? 'Character' : 'Support';
+                const dateRange = `${formatDate(banner.start)} - ${formatDate(banner.end)}`;
                 
                 sidebarHTML += `
                     <div class="selected-item">
-                        <img src="${item.imageUrl}" alt="${item.isBanner ? 'Banner' : 'Item'} ${item.id}" class="selected-item-thumb" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+                        <img src="${imgSrc}" alt="Banner ${banner.id}" class="selected-item-thumb" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
                         <div class="selected-item-info">
-                            <div class="selected-item-id">${item.isBanner ? `Banner ${item.id}` : `ID: ${item.id}`}</div>
-                            <div class="selected-item-type">${displayType} ${item.isBanner ? 'Banner' : 'Card'}</div>
+                            <div class="selected-item-id">${displayType} ${banner.id}</div>
+                            <div class="selected-item-date">${dateRange}</div>
                         </div>
-                        <button class="remove-btn" data-key="${key}">×</button>
+                        <button class="remove-btn" data-banner-id="${banner.id}">×</button>
                     </div>
                 `;
             });
@@ -553,22 +544,14 @@
             // Add remove button event listeners
             sidebar.querySelectorAll('.remove-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const key = this.dataset.key;
-                    if (key.startsWith('banner-')) {
-                        const bannerId = key.replace('banner-', '');
-                        const checkbox = document.querySelector(`.banner-checkbox[data-banner-id="${bannerId}"]`);
-                        if (checkbox) {
-                            checkbox.checked = false;
-                            checkbox.dispatchEvent(new Event('change'));
-                        }
-                    } else if (key.startsWith('pickup-')) {
-                        const pickupId = key.replace('pickup-', '');
-                        const checkbox = document.querySelector(`.pickup-checkbox[data-pickup-id="${pickupId}"]`);
-                        if (checkbox) {
-                            checkbox.checked = false;
-                            checkbox.dispatchEvent(new Event('change'));
-                        }
-                    }
+                    const bannerId = this.dataset.bannerId;
+                    // Uncheck all items from this banner
+                    const checkboxes = document.querySelectorAll(`[data-banner-id="${bannerId}"]`);
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    saveSelections();
+                    updateSidebar();
                 });
             });
         }
