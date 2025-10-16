@@ -548,6 +548,8 @@
                             }
                         }
                     });
+                    
+                    saveHideState(); // Save the state after any change
                 });
             });
         }
@@ -652,10 +654,42 @@
                 // Initialize click functionality
                 initializeClickEvents();
                 loadSelections();
+                loadHideState(); // Add this line
 
             } catch (error) {
                 console.error('Error initializing page:', error);
                 bannersContainer.innerHTML = '<div class="loading">Error loading banner data</div>';
+            }
+        }
+
+        // Save hide state to localStorage
+        function saveHideState() {
+            const hideStates = {};
+            document.querySelectorAll('.hide-checkbox').forEach(checkbox => {
+                const index = checkbox.closest('.merged-banner').dataset.index;
+                hideStates[index] = checkbox.checked;
+            });
+            localStorage.setItem('bannerHideStates', JSON.stringify(hideStates));
+        }
+
+        // Load hide state from localStorage
+        function loadHideState() {
+            const saved = localStorage.getItem('bannerHideStates');
+            if (saved) {
+                try {
+                    const hideStates = JSON.parse(saved);
+                    Object.keys(hideStates).forEach(index => {
+                        const checkbox = document.querySelector(`.hide-checkbox[id="hide-above-${index}"]`);
+                        if (checkbox && hideStates[index]) {
+                            checkbox.checked = true;
+                            // Trigger the change event to apply the hiding
+                            checkbox.dispatchEvent(new Event('change'));
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error loading hide states:', e);
+                    localStorage.removeItem('bannerHideStates');
+                }
             }
         }
 
