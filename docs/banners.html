@@ -249,11 +249,11 @@
             padding: 10px;
         }
 
-        /* Mobile Styles */
+                /* Mobile Styles */
         @media (max-width: 768px) {
             .container {
-                grid-template-columns: 80% 20%;
-                gap: 10px;
+                grid-template-columns: 75% 25%;
+                gap: 8px;
                 max-width: 100%;
             }
             
@@ -265,7 +265,7 @@
                 position: sticky;
                 top: 10px;
                 max-height: 85vh;
-                padding: 8px;
+                padding: 6px;
                 margin-left: 0;
             }
             
@@ -294,31 +294,37 @@
             }
 
             .selected-item {
-                padding: 5px;
+                padding: 4px;
             }
 
             .selected-item-thumb {
-                height: 40px;
+                height: 35px;
                 object-fit: cover;
             }
 
             .selected-item-date {
-                font-size: 8px;
+                font-size: 7px;
             }
 
             .sidebar-header {
-                margin-bottom: 8px;
+                margin-bottom: 6px;
             }
 
             .sidebar h3 {
-                font-size: 1em;
+                font-size: 0.9em;
+            }
+
+            .clear-all-btn {
+                width: 18px;
+                height: 18px;
+                font-size: 10px;
             }
         }
 
         @media (max-width: 480px) {
             .container {
                 grid-template-columns: 75% 25%;
-                gap: 8px;
+                gap: 6px;
             }
 
             body {
@@ -327,20 +333,20 @@
             }
 
             .merged-banner {
-                padding: 8px;
-            }
-
-            .banner-section {
                 padding: 6px;
             }
 
+            .banner-section {
+                padding: 5px;
+            }
+
             .banner-image img {
-                height: 50px;
+                height: 45px;
             }
 
             .pickup-grid {
                 grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
-                gap: 3px;
+                gap: 2px;
             }
 
             .pickup-image {
@@ -349,46 +355,46 @@
             }
 
             .pickup-name {
-                font-size: 9px;
-            }
-
-            .pickup-rate {
                 font-size: 8px;
             }
 
-            .sidebar {
-                padding: 6px;
+            .pickup-rate {
+                font-size: 7px;
             }
 
-            .selected-item {
+            .sidebar {
                 padding: 4px;
             }
 
+            .selected-item {
+                padding: 3px;
+            }
+
             .selected-item-thumb {
-                height: 35px;
+                height: 30px;
             }
 
             .selected-item-date {
-                font-size: 7px;
+                font-size: 6px;
             }
         }
 
         /* Very small screens */
         @media (max-width: 360px) {
             .container {
-                grid-template-columns: 70% 30%;
+                grid-template-columns: 75% 25%;
             }
             
             .sidebar {
-                padding: 4px;
+                padding: 3px;
             }
             
             .selected-item-thumb {
-                height: 30px;
+                height: 25px;
             }
             
             .selected-item-date {
-                font-size: 6px;
+                font-size: 5px;
             }
         }
     </style>
