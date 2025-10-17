@@ -110,22 +110,37 @@
             object-fit: cover;
         }
 
+        .pickup-details {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .pickup-name {
+            font-weight: bold;
+            color: #333;
+            font-size: 10px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .pickup-rate {
             color: #666;
             font-size: 9px;
-            margin-top: 2px;
         }
 
         .date-info {
-        margin: 0px 5px;
-        font-size: 9px;
-        color: #666;
-        text-align: center;
-        grid-column: 1 / -1;
-        margin-bottom: 5px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+            font-size: 9px;
+            color: #666;
+            text-align: center;
+            grid-column: 1 / -1;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 8px;
         }
 
         .hide-checkbox-container {
@@ -164,13 +179,34 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        .sidebar h3 {
-            text-align: center;
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
-            color: #444;
-            font-size: 1.1em;
             border-bottom: 1px solid #eee;
             padding-bottom: 5px;
+        }
+
+        .sidebar h3 {
+            text-align: center;
+            color: #444;
+            font-size: 1.1em;
+            margin: 0;
+        }
+
+        .clear-all-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .selected-banners {
@@ -213,38 +249,23 @@
             padding: 10px;
         }
 
-        .pickup-details {
-    flex-grow: 1;
-    min-width: 0;
-}
-
-.pickup-name {
-    font-weight: bold;
-    color: #333;
-    font-size: 10px;
-    margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.pickup-rate {
-    color: #666;
-    font-size: 9px;
-}
-
+        /* Mobile Styles */
         @media (max-width: 768px) {
             .container {
                 grid-template-columns: 1fr;
+                gap: 10px;
             }
             
             .sidebar {
                 position: static;
                 max-height: none;
+                order: -1; /* Move sidebar to top on mobile */
+                margin-bottom: 15px;
             }
             
             .merged-banner {
                 grid-template-columns: 1fr;
+                gap: 10px;
             }
             
             .pickup-grid {
@@ -254,6 +275,53 @@
             .pickup-image {
                 width: 35px;
                 height: 35px;
+            }
+
+            .date-info {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+
+            .hide-checkbox-container {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+                font-size: 11px;
+            }
+
+            .merged-banner {
+                padding: 8px;
+            }
+
+            .banner-section {
+                padding: 6px;
+            }
+
+            .banner-image img {
+                height: 50px;
+            }
+
+            .pickup-grid {
+                grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+                gap: 3px;
+            }
+
+            .pickup-image {
+                width: 30px;
+                height: 30px;
+            }
+
+            .pickup-name {
+                font-size: 9px;
+            }
+
+            .pickup-rate {
+                font-size: 8px;
             }
         }
     </style>
@@ -267,7 +335,10 @@
         </div>
 
         <div class="sidebar">
-            <h3>Selected Banners</h3>
+            <div class="sidebar-header">
+                <h3>Selected Banners</h3>
+                <button class="clear-all-btn" id="clearAllBtn" title="Clear All">×</button>
+            </div>
             <div class="selected-banners" id="selectedBanners">
                 <div class="empty-sidebar">No banners selected</div>
             </div>
@@ -281,52 +352,51 @@
         // Track selected banners
         const selectedBanners = new Map();
 
-
         // Cache for card data
-let characterCards = null;
-let supportCards = null;
+        let characterCards = null;
+        let supportCards = null;
 
-// Load card data
-async function loadCardData() {
-    try {
-        const [charData, supportData] = await Promise.all([
-            fetch('data/character-cards.json').then(r => r.json()),
-            fetch('data/support-cards.json').then(r => r.json())
-        ]);
-        characterCards = charData;
-        supportCards = supportData;
-    } catch (error) {
-        console.error('Error loading card data:', error);
-    }
-}
-
-// Function to get card name by ID
-function getCardName(cardId) {
-    const idStr = cardId.toString();
-    
-    if (idStr.length === 6) {
-        // Character card
-        if (characterCards) {
-            const card = characterCards.find(c => c.card_id === cardId);
-            return card ? card.name_en || card.name_jp : `Character ${cardId}`;
+        // Load card data
+        async function loadCardData() {
+            try {
+                const [charData, supportData] = await Promise.all([
+                    fetch('data/character-cards.json').then(r => r.json()),
+                    fetch('data/support-cards.json').then(r => r.json())
+                ]);
+                characterCards = charData;
+                supportCards = supportData;
+            } catch (error) {
+                console.error('Error loading card data:', error);
+            }
         }
-        return `Character ${cardId}`;
-    } else if (idStr.length === 5) {
-        // Support card
-        if (supportCards) {
-            const card = supportCards.find(c => c.support_id === cardId);
-            return card ? card.char_name : `Support ${cardId}`;
-        }
-        return `Support ${cardId}`;
-    }
-    
-    return `Card ${cardId}`;
-}
 
-// Function to calculate correct rate percentage (0.75% for 7500, 2.25% for 22500)
-function calculateRate(rate) {
-    return (rate / 10000).toFixed(2); // 7500 / 10000 = 0.75, 22500 / 10000 = 2.25
-}
+        // Function to get card name by ID
+        function getCardName(cardId) {
+            const idStr = cardId.toString();
+            
+            if (idStr.length === 6) {
+                // Character card
+                if (characterCards) {
+                    const card = characterCards.find(c => c.card_id === cardId);
+                    return card ? card.name_en || card.name_jp : `Character ${cardId}`;
+                }
+                return `Character ${cardId}`;
+            } else if (idStr.length === 5) {
+                // Support card
+                if (supportCards) {
+                    const card = supportCards.find(c => c.support_id === cardId);
+                    return card ? card.char_name : `Support ${cardId}`;
+                }
+                return `Support ${cardId}`;
+            }
+            
+            return `Card ${cardId}`;
+        }
+
+        // Function to calculate correct rate percentage
+        function calculateRate(rate) {
+            return (rate / 100000).toFixed(2);
+        }
 
         // Function to convert Unix timestamp to readable date
         function formatDate(timestamp) {
@@ -346,11 +416,6 @@ function calculateRate(rate) {
             
             return '';
         }
-
-// Function to calculate correct rate percentage (0.75% for 7500, 2.25% for 22500)
-function calculateRate(rate) {
-    return (rate / 10000).toFixed(2); // 7500 / 10000 = 0.75, 22500 / 10000 = 2.25
-}
 
         // Function to get banner image - ALWAYS USE JAPANESE VERSION
         async function getBannerImageUrl(bannerId) {
@@ -390,7 +455,7 @@ function calculateRate(rate) {
                         <div class="pickup-grid">
             `;
 
-                        // Character pickup items
+            // Character pickup items
             charBanner.pickups.forEach(pickup => {
                 const [pickupId, rate, isPickup] = pickup;
                 const imageUrl = getImageUrl(pickupId);
@@ -421,7 +486,7 @@ function calculateRate(rate) {
                         <div class="pickup-grid">
             `;
 
-                        // Support pickup items
+            // Support pickup items
             supportBanner.pickups.forEach(pickup => {
                 const [pickupId, rate, isPickup] = pickup;
                 const imageUrl = getImageUrl(pickupId);
@@ -439,7 +504,7 @@ function calculateRate(rate) {
                 `;
             });
 
-                        bannerHTML += `
+            bannerHTML += `
                         </div>
                     </div>
 
@@ -476,7 +541,7 @@ function calculateRate(rate) {
                         <div class="pickup-grid" style="max-width: 400px; margin: 0 auto;">
             `;
 
-                        // Pickup items
+            // Pickup items
             bannerData.pickups.forEach(pickup => {
                 const [pickupId, rate, isPickup] = pickup;
                 const imageUrl = getImageUrl(pickupId);
@@ -596,6 +661,16 @@ function calculateRate(rate) {
             updateSidebar();
         }
 
+        // Function to clear all selected banners
+        function clearAllSelections() {
+            selectedBanners.clear();
+            document.querySelectorAll('.banner-section.selected').forEach(section => {
+                section.classList.remove('selected');
+            });
+            saveSelections();
+            updateSidebar();
+        }
+
         // Function to initialize click events
         function initializeClickEvents() {
             // Add click event to all banner sections
@@ -606,7 +681,7 @@ function calculateRate(rate) {
                 });
             });
 
-                        // Add change event to all hide checkboxes
+            // Add change event to all hide checkboxes
             document.querySelectorAll('.hide-checkbox').forEach(checkbox => {
                 checkbox.addEventListener('change', function() {
                     const currentIndex = parseInt(this.closest('.merged-banner').dataset.index);
@@ -628,9 +703,12 @@ function calculateRate(rate) {
                         }
                     });
                     
-                    saveHideState(); // Save the state after any change
+                    saveHideState();
                 });
             });
+
+            // Add click event to clear all button
+            document.getElementById('clearAllBtn').addEventListener('click', clearAllSelections);
         }
 
         // Save selections to localStorage
@@ -661,6 +739,37 @@ function calculateRate(rate) {
                     console.error('Error loading saved selections:', e);
                     // Clear corrupted data
                     localStorage.removeItem('bannerSelections');
+                }
+            }
+        }
+
+        // Save hide state to localStorage
+        function saveHideState() {
+            const hideStates = {};
+            document.querySelectorAll('.hide-checkbox').forEach(checkbox => {
+                const index = checkbox.closest('.merged-banner').dataset.index;
+                hideStates[index] = checkbox.checked;
+            });
+            localStorage.setItem('bannerHideStates', JSON.stringify(hideStates));
+        }
+
+        // Load hide state from localStorage
+        function loadHideState() {
+            const saved = localStorage.getItem('bannerHideStates');
+            if (saved) {
+                try {
+                    const hideStates = JSON.parse(saved);
+                    Object.keys(hideStates).forEach(index => {
+                        const checkbox = document.querySelector(`.hide-checkbox[id="hide-above-${index}"]`);
+                        if (checkbox && hideStates[index]) {
+                            checkbox.checked = true;
+                            // Trigger the change event to apply the hiding
+                            checkbox.dispatchEvent(new Event('change'));
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error loading hide states:', e);
+                    localStorage.removeItem('bannerHideStates');
                 }
             }
         }
@@ -701,7 +810,6 @@ function calculateRate(rate) {
                 });
 
                 let bannerIndex = 0;
-                const allBanners = [];
 
                 // Create merged banners
                 for (const charBanner of sortedCharBanners) {
@@ -709,14 +817,12 @@ function calculateRate(rate) {
                     if (supportBanner) {
                         const bannerHTML = await createMergedBannerHTML(charBanner, supportBanner, bannerIndex);
                         bannersContainer.innerHTML += bannerHTML;
-                        allBanners.push({ element: bannerHTML, start: charBanner.start });
                         bannerIndex++;
                     } else {
                         // Create character banner only with a note
                         console.log(`No support banner found for character banner ${charBanner.id} starting ${charBanner.start}`);
                         const bannerHTML = await createSingleBannerHTML(charBanner, 'character', bannerIndex);
                         bannersContainer.innerHTML += bannerHTML;
-                        allBanners.push({ element: bannerHTML, start: charBanner.start });
                         bannerIndex++;
                     }
                 }
@@ -728,7 +834,6 @@ function calculateRate(rate) {
                         console.log(`No character banner found for support banner ${supportBanner.id} starting ${supportBanner.start}`);
                         const bannerHTML = await createSingleBannerHTML(supportBanner, 'support', bannerIndex);
                         bannersContainer.innerHTML += bannerHTML;
-                        allBanners.push({ element: bannerHTML, start: supportBanner.start });
                         bannerIndex++;
                     }
                 }
@@ -736,42 +841,11 @@ function calculateRate(rate) {
                 // Initialize click functionality
                 initializeClickEvents();
                 loadSelections();
-                loadHideState(); // Add this line
+                loadHideState();
 
             } catch (error) {
                 console.error('Error initializing page:', error);
                 bannersContainer.innerHTML = '<div class="loading">Error loading banner data</div>';
-            }
-        }
-
-        // Save hide state to localStorage
-        function saveHideState() {
-            const hideStates = {};
-            document.querySelectorAll('.hide-checkbox').forEach(checkbox => {
-                const index = checkbox.closest('.merged-banner').dataset.index;
-                hideStates[index] = checkbox.checked;
-            });
-            localStorage.setItem('bannerHideStates', JSON.stringify(hideStates));
-        }
-
-        // Load hide state from localStorage
-        function loadHideState() {
-            const saved = localStorage.getItem('bannerHideStates');
-            if (saved) {
-                try {
-                    const hideStates = JSON.parse(saved);
-                    Object.keys(hideStates).forEach(index => {
-                        const checkbox = document.querySelector(`.hide-checkbox[id="hide-above-${index}"]`);
-                        if (checkbox && hideStates[index]) {
-                            checkbox.checked = true;
-                            // Trigger the change event to apply the hiding
-                            checkbox.dispatchEvent(new Event('change'));
-                        }
-                    });
-                } catch (e) {
-                    console.error('Error loading hide states:', e);
-                    localStorage.removeItem('bannerHideStates');
-                }
             }
         }
 
