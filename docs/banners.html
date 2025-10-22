@@ -456,175 +456,6 @@
     </div>
 
     <script>
-        //CALCULATION FOR GLOBAL
-        // Global date calculation constants and functions
-const JP_LAUNCH_DATE = new Date(Date.UTC(2021, 1, 24));
-const GLOBAL_LAUNCH_DATE = new Date(Date.UTC(2025, 5, 26));
-const BASE_DELAY_DAYS = Math.floor((GLOBAL_LAUNCH_DATE.getTime() - JP_LAUNCH_DATE.getTime()) / (1000 * 60 * 60 * 24));
-const CATCHUP_RATE = 1.6;
-const ACCELERATION_FACTOR = 1;
-
-// Confirmed banner dates mapping
-const CONFIRMED_CHARACTER_BANNERS = new Map([
-    ["2021_30004.png", new Date(Date.UTC(2025, 5, 27, 22, 0, 0))],
-    ["2021_30006.png", new Date(Date.UTC(2025, 6, 2, 22, 0, 0))],
-    ["2021_30008.png", new Date(Date.UTC(2025, 6, 10, 22, 0, 0))],
-    ["2021_30010.png", new Date(Date.UTC(2025, 6, 16, 22, 0, 0))],
-    ["2021_30012.png", new Date(Date.UTC(2025, 6, 27, 22, 0, 0))],
-    ["2021_30014.png", new Date(Date.UTC(2025, 7, 3, 22, 0, 0))],
-    ["2021_30016.png", new Date(Date.UTC(2025, 7, 11, 22, 0, 0))],
-    ["2021_30018.png", new Date(Date.UTC(2025, 7, 20, 22, 0, 0))],
-    ["2021_30020.png", new Date(Date.UTC(2025, 7, 28, 22, 0, 0))],
-    ["2021_30022.png", new Date(Date.UTC(2025, 8, 7, 22, 0, 0))],
-    ["2021_30024.png", new Date(Date.UTC(2025, 8, 17, 22, 0, 0))],
-    ["2021_30026.png", new Date(Date.UTC(2025, 8, 21, 22, 0, 0))],
-    ["2021_30028.png", new Date(Date.UTC(2025, 9, 2, 22, 0, 0))],
-    ["2021_30030.png", new Date(Date.UTC(2025, 9, 7, 22, 0, 0))],
-    ["2021_30032.png", new Date(Date.UTC(2025, 9, 14, 22, 0, 0))],
-    ["2021_30034.png", new Date(Date.UTC(2025, 9, 21, 22, 0, 0))],
-    ["2021_30036.png", new Date(Date.UTC(2025, 9, 30, 22, 0, 0))],
-]);
-
-const CONFIRMED_SUPPORT_BANNERS = new Map([
-    ["2021_30005.png", new Date(Date.UTC(2025, 5, 27, 22, 0, 0))],
-    ["2021_30007.png", new Date(Date.UTC(2025, 6, 2, 22, 0, 0))],
-    ["2021_30009.png", new Date(Date.UTC(2025, 6, 10, 22, 0, 0))],
-    ["2021_30011.png", new Date(Date.UTC(2025, 6, 16, 22, 0, 0))],
-    ["2021_30013.png", new Date(Date.UTC(2025, 6, 27, 22, 0, 0))],
-    ["2021_30015.png", new Date(Date.UTC(2025, 7, 3, 22, 0, 0))],
-    ["2021_30017.png", new Date(Date.UTC(2025, 7, 11, 22, 0, 0))],
-    ["2021_30019.png", new Date(Date.UTC(2025, 7, 20, 22, 0, 0))],
-    ["2021_30021.png", new Date(Date.UTC(2025, 7, 28, 22, 0, 0))],
-    ["2021_30023.png", new Date(Date.UTC(2025, 8, 7, 22, 0, 0))],
-    ["2021_30025.png", new Date(Date.UTC(2025, 8, 17, 22, 0, 0))],
-    ["2021_30027.png", new Date(Date.UTC(2025, 8, 21, 22, 0, 0))],
-    ["2021_30029.png", new Date(Date.UTC(2025, 9, 2, 22, 0, 0))],
-    ["2021_30031.png", new Date(Date.UTC(2025, 9, 7, 22, 0, 0))],
-    ["2021_30033.png", new Date(Date.UTC(2025, 9, 14, 22, 0, 0))],
-    ["2021_30035.png", new Date(Date.UTC(2025, 9, 21, 22, 0, 0))],
-    ["2021_30037.png", new Date(Date.UTC(2025, 9, 30, 22, 0, 0))],
-]);
-
-// Parse date string to Date object
-function parseDate(dateStr) {
-    if (dateStr === "None") return JP_LAUNCH_DATE;
-    const parts = dateStr.split(/[-T:]/);
-    if (parts.length >= 3) {
-        const year = parseInt(parts[0]);
-        const month = parseInt(parts[1]) - 1;
-        const day = parseInt(parts[2]);
-        const hour = parts[3] ? parseInt(parts[3]) : 0;
-        const minute = parts[4] ? parseInt(parts[4]) : 0;
-        const second = parts[5] ? parseInt(parts[5].split(".")[0]) : 0;
-        return new Date(Date.UTC(year, month, day, hour, minute, second));
-    }
-    const date = new Date(dateStr);
-    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-}
-
-// Add days to a date
-function addDays(date, days) {
-    const result = new Date(date);
-    result.setUTCDate(result.getUTCDate() + days);
-    return result;
-}
-
-// Calculate days between two dates
-function daysBetween(date1, date2) {
-    return Math.floor((date2.getTime() - date1.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-// Calculate global date using the provided formula
-function calculateGlobalDate(jpDate, confirmedEvents = []) {
-    // Check if we have a confirmed date for this banner
-    if (confirmedEvents.length === 0) {
-        return calculateGlobalDateWithFallback(jpDate);
-    }
-
-    const sortedEvents = [...confirmedEvents].sort((a, b) => a.jp.getTime() - b.jp.getTime());
-    let previousEvent = null;
-    let nextEvent = null;
-
-    // Find the closest confirmed events
-    for (const event of sortedEvents) {
-        if (event.jp.getTime() <= jpDate.getTime()) {
-            previousEvent = event;
-        } else if (!nextEvent) {
-            nextEvent = event;
-            break;
-        }
-    }
-
-    let globalDate;
-    
-    if (previousEvent && nextEvent) {
-        // Interpolate between two confirmed events
-        const jpTimeDiff = nextEvent.jp.getTime() - previousEvent.jp.getTime();
-        const globalTimeDiff = nextEvent.global.getTime() - previousEvent.global.getTime();
-        const timeFromPrevious = jpDate.getTime() - previousEvent.jp.getTime();
-        const ratio = globalTimeDiff / jpTimeDiff;
-        const estimatedTime = timeFromPrevious * ratio;
-        globalDate = new Date(previousEvent.global.getTime() + estimatedTime);
-    } else if (previousEvent) {
-        // Extrapolate from the last confirmed event
-        const daysDiff = daysBetween(previousEvent.jp, jpDate);
-        const acceleratedDays = daysDiff / CATCHUP_RATE;
-        globalDate = addDays(previousEvent.global, acceleratedDays);
-    } else if (nextEvent) {
-        // Extrapolate backwards from the next confirmed event
-        const daysDiff = daysBetween(jpDate, nextEvent.jp);
-        const acceleratedDays = daysDiff / CATCHUP_RATE;
-        globalDate = addDays(nextEvent.global, -acceleratedDays);
-    } else {
-        globalDate = calculateGlobalDateWithFallback(jpDate);
-    }
-
-    // Set to 22:00 UTC (common banner reset time)
-    return new Date(
-        Date.UTC(
-            globalDate.getUTCFullYear(),
-            globalDate.getUTCMonth(),
-            globalDate.getUTCDate(),
-            22, 0, 0, 0
-        )
-    );
-}
-
-// Fallback calculation
-function calculateGlobalDateWithFallback(jpDate) {
-    const daysFromJpLaunch = daysBetween(JP_LAUNCH_DATE, jpDate);
-    const acceleratedDays = daysFromJpLaunch / (CATCHUP_RATE * ACCELERATION_FACTOR);
-    const estimatedDate = addDays(GLOBAL_LAUNCH_DATE, acceleratedDays);
-    
-    return new Date(
-        Date.UTC(
-            estimatedDate.getUTCFullYear(),
-            estimatedDate.getUTCMonth(),
-            estimatedDate.getUTCDate(),
-            22, 0, 0, 0
-        )
-    );
-}
-
-// Get confirmed events for banner type
-function getConfirmedEventsForBannerType(bannerType, bannerData) {
-    const confirmedEvents = [];
-    const confirmedMap = bannerType === 'character' ? CONFIRMED_CHARACTER_BANNERS : CONFIRMED_SUPPORT_BANNERS;
-
-    if (bannerData) {
-        const jpDate = parseDate(bannerData.start_date || bannerData.start_date_string);
-        const bannerId = bannerData.image || bannerData.id.toString();
-        const globalDate = confirmedMap.get(bannerId);
-        
-        if (globalDate && !isNaN(jpDate.getTime())) {
-            confirmedEvents.push({ jp: jpDate, global: globalDate });
-        }
-    }
-
-    return confirmedEvents;
-}
-        //END OF CALCULATION
-
         // Cache for banner image URLs to avoid repeated checks
         const bannerImageCache = new Map();
 
@@ -677,10 +508,10 @@ function calculateRate(rate) {
     return (rate / 10000).toFixed(2);
 }
 
-// Function to convert Unix timestamp to readable date
-function formatDate(timestamp) {
-    return new Date(timestamp * 1000).toLocaleDateString();
-}
+        // Function to convert Unix timestamp to readable date
+        function formatDate(timestamp) {
+            return new Date(timestamp * 1000).toLocaleDateString();
+        }
 
         // Function to generate image URL based on pickup ID
         function getImageUrl(pickupId) {
@@ -710,43 +541,29 @@ function formatDate(timestamp) {
             return bannerUrl;
         }
 
-// Function to create merged banner HTML
-async function createMergedBannerHTML(charBanner, supportBanner, index) {
-    const charBannerId = charBanner.id;
-    const supportBannerId = supportBanner.id;
-    
-    const [charBannerUrl, supportBannerUrl] = await Promise.all([
-        getBannerImageUrl(charBannerId),
-        getBannerImageUrl(supportBannerId)
-    ]);
+        // Function to create merged banner HTML
+        async function createMergedBannerHTML(charBanner, supportBanner, index) {
+            const charBannerId = charBanner.id;
+            const supportBannerId = supportBanner.id;
+            
+            const [charBannerUrl, supportBannerUrl] = await Promise.all([
+                getBannerImageUrl(charBannerId),
+                getBannerImageUrl(supportBannerId)
+            ]);
 
-    // Calculate global dates
-    const charConfirmedEvents = getConfirmedEventsForBannerType('character', charBanner);
-    const supportConfirmedEvents = getConfirmedEventsForBannerType('support', supportBanner);
-    
-    const charJpStartDate = parseDate(charBanner.start_date || charBanner.start_date_string);
-    const supportJpStartDate = parseDate(supportBanner.start_date || supportBanner.start_date_string);
-    
-    const charGlobalStartDate = calculateGlobalDate(charJpStartDate, charConfirmedEvents);
-    const supportGlobalStartDate = calculateGlobalDate(supportJpStartDate, supportConfirmedEvents);
-    
-    // Use the earlier date for the merged banner
-    const globalStartDate = charGlobalStartDate < supportGlobalStartDate ? charGlobalStartDate : supportGlobalStartDate;
-    const globalEndDate = addDays(globalStartDate, 3); // Assuming 3-day banners
+            const startDate = formatDate(charBanner.start);
+            const endDate = formatDate(charBanner.end);
 
-    const startDate = formatDate(globalStartDate.getTime() / 1000);
-    const endDate = formatDate(globalEndDate.getTime() / 1000);
-
-    let bannerHTML = `
-        <div class="merged-banner" data-char-id="${charBannerId}" data-support-id="${supportBannerId}" data-start="${Math.floor(globalStartDate.getTime() / 1000)}" data-end="${Math.floor(globalEndDate.getTime() / 1000)}" data-index="${index}">
-            <!-- Character Banner -->
-            <div class="banner-section" data-banner-id="${charBannerId}" data-banner-type="character">
-                <h3>Character Banner</h3>
-                <div class="banner-image">
-                    <img src="${charBannerUrl}" alt="Banner ${charBannerId}" class="banner-img" data-banner-id="${charBannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                </div>
-                <div class="pickup-grid">
-    `;
+            let bannerHTML = `
+                <div class="merged-banner" data-char-id="${charBannerId}" data-support-id="${supportBannerId}" data-start="${charBanner.start}" data-end="${charBanner.end}" data-index="${index}">
+                    <!-- Character Banner -->
+                    <div class="banner-section" data-banner-id="${charBannerId}" data-banner-type="character">
+                        <h3>Character Banner</h3>
+                        <div class="banner-image">
+                            <img src="${charBannerUrl}" alt="Banner ${charBannerId}" class="banner-img" data-banner-id="${charBannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+                        </div>
+                        <div class="pickup-grid">
+            `;
 
             // Character pickup items
             charBanner.pickups.forEach(pickup => {
@@ -797,49 +614,42 @@ async function createMergedBannerHTML(charBanner, supportBanner, index) {
                 `;
             });
 
-    bannerHTML += `
+            bannerHTML += `
+                        </div>
+                    </div>
+
+                    <div class="date-info">
+                        <span>${startDate} - ${endDate}</span>
+                        <div class="hide-checkbox-container">
+                            <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
+                            <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
+                        </div>
                     </div>
                 </div>
+            `;
 
-                <div class="date-info">
-                    <span>${startDate} - ${endDate} (Global Estimate)</span>
-                    <div class="hide-checkbox-container">
-                        <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
-                        <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
-                    </div>
-                </div>
-            </div>
-        `;
+            return bannerHTML;
+        }
 
-    return bannerHTML;
-}
+        // Function to create single banner HTML (when no counterpart exists)
+        async function createSingleBannerHTML(bannerData, type, index) {
+            const bannerId = bannerData.id;
+            const bannerUrl = await getBannerImageUrl(bannerId);
+            const startDate = formatDate(bannerData.start);
+            const endDate = formatDate(bannerData.end);
 
-// Function to create single banner HTML (when no counterpart exists)
-async function createSingleBannerHTML(bannerData, type, index) {
-    const bannerId = bannerData.id;
-    const bannerUrl = await getBannerImageUrl(bannerId);
-    
-    // Calculate global date
-    const confirmedEvents = getConfirmedEventsForBannerType(type, bannerData);
-    const jpStartDate = parseDate(bannerData.start_date || bannerData.start_date_string);
-    const globalStartDate = calculateGlobalDate(jpStartDate, confirmedEvents);
-    const globalEndDate = addDays(globalStartDate, 3); // Assuming 3-day banners
+            const bannerType = type === 'character' ? 'Character Banner' : 'Support Banner';
 
-    const startDate = formatDate(globalStartDate.getTime() / 1000);
-    const endDate = formatDate(globalEndDate.getTime() / 1000);
-
-    const bannerType = type === 'character' ? 'Character Banner' : 'Support Banner';
-
-    let bannerHTML = `
-        <div class="merged-banner" data-${type}-id="${bannerId}" data-start="${Math.floor(globalStartDate.getTime() / 1000)}" data-end="${Math.floor(globalEndDate.getTime() / 1000)}" data-index="${index}">
-            <!-- ${bannerType} Only -->
-            <div class="banner-section" style="grid-column: 1 / -1; text-align: center;" data-banner-id="${bannerId}" data-banner-type="${type}">
-                <h3>${bannerType} (Only)</h3>
-                <div class="banner-image">
-                    <img src="${bannerUrl}" alt="Banner ${bannerId}" class="banner-img" data-banner-id="${bannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                </div>
-                <div class="pickup-grid" style="max-width: 400px; margin: 0 auto;">
-    `;
+            let bannerHTML = `
+                <div class="merged-banner" data-${type}-id="${bannerId}" data-start="${bannerData.start}" data-end="${bannerData.end}" data-index="${index}">
+                    <!-- ${bannerType} Only -->
+                    <div class="banner-section" style="grid-column: 1 / -1; text-align: center;" data-banner-id="${bannerId}" data-banner-type="${type}">
+                        <h3>${bannerType} (Only)</h3>
+                        <div class="banner-image">
+                            <img src="${bannerUrl}" alt="Banner ${bannerId}" class="banner-img" data-banner-id="${bannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+                        </div>
+                        <div class="pickup-grid" style="max-width: 400px; margin: 0 auto;">
+            `;
 
             // Pickup items
             bannerData.pickups.forEach(pickup => {
@@ -859,21 +669,21 @@ async function createSingleBannerHTML(bannerData, type, index) {
                 `;
             });
 
-    bannerHTML += `
-                    </div>
-                    <div class="date-info">
-                        <span>${startDate} - ${endDate} (Global Estimate)</span>
-                        <div class="hide-checkbox-container">
-                            <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
-                            <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
+            bannerHTML += `
+                        </div>
+                        <div class="date-info">
+                            <span>${startDate} - ${endDate}</span>
+                            <div class="hide-checkbox-container">
+                                <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
+                                <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
 
-    return bannerHTML;
-}
+            return bannerHTML;
+        }
 
         // Function to load JSON files
         async function loadJSON(filePath) {
