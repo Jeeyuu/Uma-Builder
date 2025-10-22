@@ -527,47 +527,28 @@
         }
 
         // Function to parse date strings (handles various formats)
-        function parseDate(dateValue) {
-            if (!dateValue || dateValue === "None") return JP_LAUNCH_DATE;
+        function parseDate(dateString) {
+            if (dateString === "None") return JP_LAUNCH_DATE;
             
-            // If it's already a Date object, return it
-            if (dateValue instanceof Date) return dateValue;
-            
-            // If it's a number (Unix timestamp), convert it
-            if (typeof dateValue === 'number') {
-                return new Date(dateValue * 1000);
+            const parts = dateString.split(/[-T:]/);
+            if (parts.length >= 3) {
+                const year = parseInt(parts[0]);
+                const month = parseInt(parts[1]) - 1;
+                const day = parseInt(parts[2]);
+                const hour = parts[3] ? parseInt(parts[3]) : 0;
+                const minute = parts[4] ? parseInt(parts[4]) : 0;
+                const second = parts[5] ? parseInt(parts[5].split('.')[0]) : 0;
+                return new Date(Date.UTC(year, month, day, hour, minute, second));
             }
             
-            // If it's a string, try to parse it
-            if (typeof dateValue === 'string') {
-                // Try ISO format first
-                if (dateValue.includes('T') || dateValue.includes('-')) {
-                    const parts = dateValue.split(/[-T:]/);
-                    if (parts.length >= 3) {
-                        const year = parseInt(parts[0]);
-                        const month = parseInt(parts[1]) - 1;
-                        const day = parseInt(parts[2]);
-                        const hour = parts[3] ? parseInt(parts[3]) : 0;
-                        const minute = parts[4] ? parseInt(parts[4]) : 0;
-                        const second = parts[5] ? parseInt(parts[5].split('.')[0]) : 0;
-                        return new Date(Date.UTC(year, month, day, hour, minute, second));
-                    }
-                }
-                
-                // Try simple date parsing
-                const date = new Date(dateValue);
-                if (!isNaN(date.getTime())) {
-                    return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-                }
-            }
-            
-            console.warn('Could not parse date:', dateValue, 'using JP launch date as fallback');
-            return JP_LAUNCH_DATE;
+            const date = new Date(dateString);
+            return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
         }
 
         // Function to calculate global date based on JP date
-        function calculateGlobalDate(jpDate, bannerId = null) {
+        function calculateGlobalDate(jpDate, confirmedDates = []) {
             // Check if we have a confirmed date for this banner
+            const bannerId = jpDate.bannerId;
             if (bannerId) {
                 const charConfirmed = confirmedCharacterBanners.get(bannerId);
                 const supportConfirmed = confirmedSupportBanners.get(bannerId);
@@ -665,12 +646,16 @@
             const charBannerId = charBanner.id;
             const supportBannerId = supportBanner.id;
             
-            // Calculate global dates - use the start timestamp directly
-            const charJpDate = parseDate(charBanner.start);
-            const supportJpDate = parseDate(supportBanner.start);
+            // Calculate global dates
+            const charJpDate = parseDate(charBanner.start_date || charBanner.start_date_string);
+            const supportJpDate = parseDate(supportBanner.start_date || supportBanner.start_date_string);
             
-            const charGlobalDate = calculateGlobalDate(charJpDate, charBanner.image);
-            const supportGlobalDate = calculateGlobalDate(supportJpDate, supportBanner.image);
+            // Add banner IDs for confirmed date lookup
+            charJpDate.bannerId = charBanner.image;
+            supportJpDate.bannerId = supportBanner.image;
+            
+            const charGlobalDate = calculateGlobalDate(charJpDate);
+            const supportGlobalDate = calculateGlobalDate(supportJpDate);
             
             // Use the earlier date for the merged banner
             const bannerStartDate = charGlobalDate < supportGlobalDate ? charGlobalDate : supportGlobalDate;
@@ -764,9 +749,10 @@
         async function createSingleBannerHTML(bannerData, type, index) {
             const bannerId = bannerData.id;
             
-            // Calculate global date - use the start timestamp directly
-            const jpDate = parseDate(bannerData.start);
-            const globalDate = calculateGlobalDate(jpDate, bannerData.image);
+            // Calculate global date
+            const jpDate = parseDate(bannerData.start_date || bannerData.start_date_string);
+            jpDate.bannerId = bannerData.image;
+            const globalDate = calculateGlobalDate(jpDate);
             
             const bannerUrl = await getBannerImageUrl(bannerId);
             const startDate = formatGlobalDate(globalDate);
@@ -1033,8 +1019,8 @@
         // Function to sort all banners by date (past to present)
         function sortBannersByDate(banners) {
             return banners.sort((a, b) => {
-                const dateA = parseDate(a.start);
-                const dateB = parseDate(b.start);
+                const dateA = parseDate(a.start_date || a.start_date_string);
+                const dateB = parseDate(b.start_date || b.start_date_string);
                 return dateA - dateB;
             });
         }
@@ -1053,9 +1039,6 @@
                     loadJSON('data/support-standard.8b227fc8.json')
                 ]);
 
-                console.log('Loaded character data:', charData);
-                console.log('Loaded support data:', supportData);
-
                 bannersContainer.innerHTML = '';
 
                 // Handle array or single object formats and pair banners by start date
@@ -1066,31 +1049,26 @@
                 const sortedCharBanners = sortBannersByDate(charBanners);
                 const sortedSupportBanners = sortBannersByDate(supportBanners);
 
-                console.log('Sorted character banners:', sortedCharBanners);
-                console.log('Sorted support banners:', sortedSupportBanners);
-
-                // Create a map of support banners by start timestamp for easy pairing
-                const supportByStartTime = {};
+                // Create a map of support banners by start date for easy pairing
+                const supportByStartDate = {};
                 sortedSupportBanners.forEach(banner => {
-                    const startTime = parseDate(banner.start).getTime();
-                    supportByStartTime[startTime] = banner;
+                    const startDate = parseDate(banner.start_date || banner.start_date_string);
+                    supportByStartDate[startDate.getTime()] = banner;
                 });
 
                 let bannerIndex = 0;
 
                 // Create merged banners
                 for (const charBanner of sortedCharBanners) {
-                    const charStartTime = parseDate(charBanner.start).getTime();
-                    const supportBanner = supportByStartTime[charStartTime];
+                    const charStartDate = parseDate(charBanner.start_date || charBanner.start_date_string);
+                    const supportBanner = supportByStartDate[charStartDate.getTime()];
                     if (supportBanner) {
                         const bannerHTML = await createMergedBannerHTML(charBanner, supportBanner, bannerIndex);
                         bannersContainer.innerHTML += bannerHTML;
                         bannerIndex++;
-                        // Remove from map so we don't reuse it
-                        delete supportByStartTime[charStartTime];
                     } else {
-                        // Create character banner only
-                        console.log(`No support banner found for character banner ${charBanner.id}`);
+                        // Create character banner only with a note
+                        console.log(`No support banner found for character banner ${charBanner.id} starting ${charStartDate}`);
                         const bannerHTML = await createSingleBannerHTML(charBanner, 'character', bannerIndex);
                         bannersContainer.innerHTML += bannerHTML;
                         bannerIndex++;
@@ -1099,9 +1077,13 @@
 
                 // Also create any support banners that don't have character counterparts
                 for (const supportBanner of sortedSupportBanners) {
-                    const supportStartTime = parseDate(supportBanner.start).getTime();
-                    if (supportByStartTime[supportStartTime]) {
-                        console.log(`No character banner found for support banner ${supportBanner.id}`);
+                    const supportStartDate = parseDate(supportBanner.start_date || supportBanner.start_date_string);
+                    const charBanner = sortedCharBanners.find(char => {
+                        const charStartDate = parseDate(char.start_date || char.start_date_string);
+                        return charStartDate.getTime() === supportStartDate.getTime();
+                    });
+                    if (!charBanner) {
+                        console.log(`No character banner found for support banner ${supportBanner.id} starting ${supportStartDate}`);
                         const bannerHTML = await createSingleBannerHTML(supportBanner, 'support', bannerIndex);
                         bannersContainer.innerHTML += bannerHTML;
                         bannerIndex++;
