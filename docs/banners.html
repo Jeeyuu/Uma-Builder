@@ -466,6 +466,54 @@
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
+/* Banner column layout */
+.banner-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Single column layout when only one type exists */
+.merged-banner:has(.banner-column:only-child) {
+    grid-template-columns: 1fr !important;
+}
+
+/* Two column layout when both types exist */
+.merged-banner:has(.character-column):has(.support-column) {
+    grid-template-columns: 1fr 1fr !important;
+}
+
+/* Make banner sections fill available space in columns */
+.banner-column .banner-section {
+    flex: 1;
+    min-height: 0; /* Allow shrinking */
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .merged-banner {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+    }
+    
+    .banner-column {
+        gap: 10px;
+    }
+    
+    /* Stack columns vertically on mobile */
+    .merged-banner:has(.character-column):has(.support-column) {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .character-column {
+        order: 1;
+    }
+    
+    .support-column {
+        order: 2;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -959,7 +1007,7 @@ async function initializePage() {
         // Sort all banners by start date (past to present)
         const sortedBanners = allBanners.sort((a, b) => a.start - b.start);
 
-        // Group banners by start time - now supporting multiple banners per type
+        // Group banners by start time
         const bannersByStartTime = {};
         
         sortedBanners.forEach(banner => {
@@ -994,78 +1042,30 @@ async function initializePage() {
                 continue;
             }
 
+            // Calculate the grid layout
+            const maxBanners = Math.max(characterBanners.length, supportBanners.length);
+            const gridColumns = characterBanners.length > 0 && supportBanners.length > 0 ? '1fr 1fr' : '1fr';
+
             // Create the banner container
-            let bannerHTML = `<div class="merged-banner" data-start="${timeSlot.start}" data-end="${timeSlot.end}" data-index="${bannerIndex}">`;
+            let bannerHTML = `<div class="merged-banner" data-start="${timeSlot.start}" data-end="${timeSlot.end}" data-index="${bannerIndex}" style="grid-template-columns: ${gridColumns};">`;
 
-            // Add character banners
-            characterBanners.forEach(banner => {
-                bannerHTML += `
-                    <div class="banner-section" data-banner-id="${banner.id}" data-banner-type="character">
-                        <h3>Character Banner</h3>
-                        <div class="banner-image">
-                            <img src="" alt="Banner ${banner.id}" class="banner-img" data-banner-id="${banner.id}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        </div>
-                        <div class="pickup-grid">
-                `;
-                
-                // Character pickup items
-                banner.pickups.forEach(pickup => {
-                    const [pickupId, rate, isPickup] = pickup;
-                    const imageUrl = getImageUrl(pickupId);
-                    const ratePercent = calculateRate(rate);
-                    const cardName = getCardName(pickupId);
-
-                    bannerHTML += `
-                        <div class="pickup-item">
-                            <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                            <div class="pickup-details">
-                                <div class="pickup-name">${cardName}</div>
-                                <div class="pickup-rate">${ratePercent}%</div>
-                            </div>
-                        </div>
-                    `;
+            // Left column - Character banners (stacked vertically)
+            if (characterBanners.length > 0) {
+                bannerHTML += `<div class="banner-column character-column">`;
+                characterBanners.forEach(banner => {
+                    bannerHTML += createBannerSectionHTML(banner, 'character');
                 });
+                bannerHTML += `</div>`;
+            }
 
-                bannerHTML += `
-                        </div>
-                    </div>
-                `;
-            });
-
-            // Add support banners
-            supportBanners.forEach(banner => {
-                bannerHTML += `
-                    <div class="banner-section" data-banner-id="${banner.id}" data-banner-type="support">
-                        <h3>Support Banner</h3>
-                        <div class="banner-image">
-                            <img src="" alt="Banner ${banner.id}" class="banner-img" data-banner-id="${banner.id}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        </div>
-                        <div class="pickup-grid">
-                `;
-                
-                // Support pickup items
-                banner.pickups.forEach(pickup => {
-                    const [pickupId, rate, isPickup] = pickup;
-                    const imageUrl = getImageUrl(pickupId);
-                    const ratePercent = calculateRate(rate);
-                    const cardName = getCardName(pickupId);
-
-                    bannerHTML += `
-                        <div class="pickup-item">
-                            <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                            <div class="pickup-details">
-                                <div class="pickup-name">${cardName}</div>
-                                <div class="pickup-rate">${ratePercent}%</div>
-                            </div>
-                        </div>
-                    `;
+            // Right column - Support banners (stacked vertically)
+            if (supportBanners.length > 0) {
+                bannerHTML += `<div class="banner-column support-column">`;
+                supportBanners.forEach(banner => {
+                    bannerHTML += createBannerSectionHTML(banner, 'support');
                 });
-
-                bannerHTML += `
-                        </div>
-                    </div>
-                `;
-            });
+                bannerHTML += `</div>`;
+            }
 
             // Add date info and close the banner container
             const startDate = formatDate(timeSlot.start);
@@ -1115,6 +1115,45 @@ async function initializePage() {
         console.error('Error initializing page:', error);
         bannersContainer.innerHTML = '<div class="loading">Error loading banner data</div>';
     }
+}
+
+// Helper function to create banner section HTML
+function createBannerSectionHTML(banner, type) {
+    const bannerType = type === 'character' ? 'Character Banner' : 'Support Banner';
+    
+    let bannerHTML = `
+        <div class="banner-section" data-banner-id="${banner.id}" data-banner-type="${type}">
+            <h3>${bannerType}</h3>
+            <div class="banner-image">
+                <img src="" alt="Banner ${banner.id}" class="banner-img" data-banner-id="${banner.id}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+            </div>
+            <div class="pickup-grid">
+    `;
+    
+    // Pickup items
+    banner.pickups.forEach(pickup => {
+        const [pickupId, rate, isPickup] = pickup;
+        const imageUrl = getImageUrl(pickupId);
+        const ratePercent = calculateRate(rate);
+        const cardName = getCardName(pickupId);
+
+        bannerHTML += `
+            <div class="pickup-item">
+                <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+                <div class="pickup-details">
+                    <div class="pickup-name">${cardName}</div>
+                    <div class="pickup-rate">${ratePercent}%</div>
+                </div>
+            </div>
+        `;
+    });
+
+    bannerHTML += `
+            </div>
+        </div>
+    `;
+    
+    return bannerHTML;
 }
 
         // Initialize when page loads
