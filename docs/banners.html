@@ -890,78 +890,93 @@
         }
 
         // Main initialization function
-        async function initializePage() {
-            const bannersContainer = document.getElementById('bannersContainer');
+        // Main initialization function
+async function initializePage() {
+    const bannersContainer = document.getElementById('bannersContainer');
 
-            try {
-                // Load card data first
-                await loadCardData();
-                
-                // Load both JSON files - UPDATED PATHS
-                const [charData, supportData] = await Promise.all([
-                    loadJSON('data/gacha-char-standard.json'),
-                    loadJSON('data/gacha-support-standard.json')
-                ]);
+    try {
+        // Load card data first
+        await loadCardData();
+        
+        // Load both JSON files - UPDATED PATHS
+        const [charData, supportData] = await Promise.all([
+            loadJSON('data/gacha-char-standard.json'),
+            loadJSON('data/gacha-support-standard.json')
+        ]);
 
-                if (!charData || !supportData) {
-                    throw new Error('Failed to load banner data');
-                }
+        if (!charData || !supportData) {
+            throw new Error('Failed to load banner data');
+        }
 
-                bannersContainer.innerHTML = '';
+        bannersContainer.innerHTML = '';
 
-                // Handle array or single object formats and pair banners by start date
-                const charBanners = Array.isArray(charData) ? charData : [charData];
-                const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
+        // Handle array or single object formats
+        const charBanners = Array.isArray(charData) ? charData : [charData];
+        const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
 
-                // Sort banners by date (past to present)
-                const sortedCharBanners = sortBannersByDate(charBanners);
-                const sortedSupportBanners = sortBannersByDate(supportBanners);
+        // Combine all banners and sort them by start date
+        const allBanners = [];
+        
+        // Add character banners with type
+        charBanners.forEach(banner => {
+            allBanners.push({...banner, type: 'character', hasCounterpart: false});
+        });
+        
+        // Add support banners with type
+        supportBanners.forEach(banner => {
+            allBanners.push({...banner, type: 'support', hasCounterpart: false});
+        });
 
-                // Create a map of support banners by start date for easy pairing
-                const supportByStartDate = {};
-                sortedSupportBanners.forEach(banner => {
-                    supportByStartDate[banner.start] = banner;
-                });
+        // Sort all banners by start date (past to present)
+        const sortedAllBanners = allBanners.sort((a, b) => a.start - b.start);
 
-                let bannerIndex = 0;
+        // Create a map to find counterparts
+        const bannersByStartDate = {};
+        sortedAllBanners.forEach(banner => {
+            if (!bannersByStartDate[banner.start]) {
+                bannersByStartDate[banner.start] = { character: null, support: null };
+            }
+            bannersByStartDate[banner.start][banner.type] = banner;
+        });
 
-                // Create merged banners
-                for (const charBanner of sortedCharBanners) {
-                    const supportBanner = supportByStartDate[charBanner.start];
-                    if (supportBanner) {
-                        const bannerHTML = await createMergedBannerHTML(charBanner, supportBanner, bannerIndex);
-                        bannersContainer.innerHTML += bannerHTML;
-                        bannerIndex++;
-                    } else {
-                        // Create character banner only with a note
-                        console.log(`No support banner found for character banner ${charBanner.id} starting ${charBanner.start}`);
-                        const bannerHTML = await createSingleBannerHTML(charBanner, 'character', bannerIndex);
-                        bannersContainer.innerHTML += bannerHTML;
-                        bannerIndex++;
-                    }
-                }
+        let bannerIndex = 0;
 
-                // Also create any support banners that don't have character counterparts
-                for (const supportBanner of sortedSupportBanners) {
-                    const charBanner = sortedCharBanners.find(char => char.start === supportBanner.start);
-                    if (!charBanner) {
-                        console.log(`No character banner found for support banner ${supportBanner.id} starting ${supportBanner.start}`);
-                        const bannerHTML = await createSingleBannerHTML(supportBanner, 'support', bannerIndex);
-                        bannersContainer.innerHTML += bannerHTML;
-                        bannerIndex++;
-                    }
-                }
+        // Process banners in chronological order
+        for (const startTime of Object.keys(bannersByStartDate).sort((a, b) => a - b)) {
+            const banners = bannersByStartDate[startTime];
+            const charBanner = banners.character;
+            const supportBanner = banners.support;
 
-                // Initialize click functionality
-                initializeClickEvents();
-                loadSelections();
-                loadHideState();
-
-            } catch (error) {
-                console.error('Error initializing page:', error);
-                bannersContainer.innerHTML = '<div class="loading">Error loading banner data</div>';
+            if (charBanner && supportBanner) {
+                // Both banners exist - create merged banner
+                const bannerHTML = await createMergedBannerHTML(charBanner, supportBanner, bannerIndex);
+                bannersContainer.innerHTML += bannerHTML;
+                bannerIndex++;
+            } else if (charBanner) {
+                // Character banner only
+                console.log(`No support banner found for character banner ${charBanner.id} starting ${charBanner.start}`);
+                const bannerHTML = await createSingleBannerHTML(charBanner, 'character', bannerIndex);
+                bannersContainer.innerHTML += bannerHTML;
+                bannerIndex++;
+            } else if (supportBanner) {
+                // Support banner only
+                console.log(`No character banner found for support banner ${supportBanner.id} starting ${supportBanner.start}`);
+                const bannerHTML = await createSingleBannerHTML(supportBanner, 'support', bannerIndex);
+                bannersContainer.innerHTML += bannerHTML;
+                bannerIndex++;
             }
         }
+
+        // Initialize click functionality
+        initializeClickEvents();
+        loadSelections();
+        loadHideState();
+
+    } catch (error) {
+        console.error('Error initializing page:', error);
+        bannersContainer.innerHTML = '<div class="loading">Error loading banner data</div>';
+    }
+}
 
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', initializePage);
