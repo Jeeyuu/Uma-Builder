@@ -772,63 +772,100 @@
         }
 
         // Function to jump to global banners
-        async function jumpToGlobal() {
-            if (!enLayoutData) {
-                alert('Global data not loaded yet');
-                return;
-            }
+// Function to jump to global banners
+async function jumpToGlobal() {
+    if (!enLayoutData) {
+        alert('Global data not loaded yet');
+        return;
+    }
 
-            const charBanners = await loadJSON('data/gacha-char-standard.json');
-            const supportBanners = await loadJSON('data/gacha-support-standard.json');
+    const charBanners = await loadJSON('data/gacha-char-standard.json');
+    const supportBanners = await loadJSON('data/gacha-support-standard.json');
 
-            if (!charBanners || !supportBanners) {
-                alert('Failed to load banner data');
-                return;
-            }
+    if (!charBanners || !supportBanners) {
+        alert('Failed to load banner data');
+        return;
+    }
 
-            const globalChars = enLayoutData.right_nav_newest.chars.list;
-            const globalSupports = enLayoutData.right_nav_newest.supports.list;
+    const globalChars = enLayoutData.right_nav_newest.chars.list;
+    const globalSupports = enLayoutData.right_nav_newest.supports.list;
 
-            // Find character banner with exact pickup match
-            const charBannerArray = Array.isArray(charBanners) ? charBanners : [charBanners];
-            const foundCharBanner = charBannerArray.find(banner => {
-                return banner.pickups.some(pickup => {
-                    const [pickupId] = pickup;
-                    return globalChars.some(globalChar => globalChar.id === pickupId);
-                });
-            });
+    console.log('Looking for global characters:', globalChars);
+    console.log('Looking for global supports:', globalSupports);
 
-            // Find support banner with exact pickup match (all global supports must be present)
-            const supportBannerArray = Array.isArray(supportBanners) ? supportBanners : [supportBanners];
-            const foundSupportBanner = supportBannerArray.find(banner => {
-                const bannerPickupIds = banner.pickups.map(pickup => pickup[0]);
-                return globalSupports.every(globalSupport => 
-                    bannerPickupIds.includes(globalSupport.id)
-                );
-            });
+    // Find character banner with exact pickup match
+    const charBannerArray = Array.isArray(charBanners) ? charBanners : [charBanners];
+    const foundCharBanner = charBannerArray.find(banner => {
+        return banner.pickups && banner.pickups.some(pickup => {
+            const [pickupId] = pickup;
+            return globalChars.some(globalChar => globalChar.id === pickupId);
+        });
+    });
 
-            let targetBanner = null;
+    // Find support banner with exact pickup match (all global supports must be present)
+    const supportBannerArray = Array.isArray(supportBanners) ? supportBanners : [supportBanners];
+    const foundSupportBanner = supportBannerArray.find(banner => {
+        if (!banner.pickups) return false;
+        const bannerPickupIds = banner.pickups.map(pickup => pickup[0]);
+        return globalSupports.every(globalSupport => 
+            bannerPickupIds.includes(globalSupport.id)
+        );
+    });
 
-            if (foundCharBanner && foundSupportBanner && foundCharBanner.start === foundSupportBanner.start) {
-                // Both banners at same time - find the merged banner
-                targetBanner = document.querySelector(`.merged-banner[data-start="${foundCharBanner.start}"]`);
-            } else if (foundCharBanner) {
-                targetBanner = document.querySelector(`.merged-banner[data-char-id="${foundCharBanner.id}"]`);
-            } else if (foundSupportBanner) {
-                targetBanner = document.querySelector(`.merged-banner[data-support-id="${foundSupportBanner.id}"]`);
-            }
+    console.log('Found character banner:', foundCharBanner);
+    console.log('Found support banner:', foundSupportBanner);
 
-            if (targetBanner) {
-                targetBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // Add highlight effect
-                targetBanner.style.boxShadow = '0 0 0 3px #28a745';
-                setTimeout(() => {
-                    targetBanner.style.boxShadow = '';
-                }, 2000);
-            } else {
-                alert('Global banner not found in current data');
+    let targetBanner = null;
+
+    // First try to find merged banner with both character and support
+    if (foundCharBanner && foundSupportBanner) {
+        targetBanner = document.querySelector(`.merged-banner[data-char-id="${foundCharBanner.id}"][data-support-id="${foundSupportBanner.id}"]`);
+        if (!targetBanner) {
+            // Try by start time
+            targetBanner = document.querySelector(`.merged-banner[data-start="${foundCharBanner.start}"]`);
+        }
+    }
+    
+    // If no merged banner found, try character only
+    if (!targetBanner && foundCharBanner) {
+        targetBanner = document.querySelector(`.merged-banner[data-char-id="${foundCharBanner.id}"]`);
+    }
+    
+    // If still no banner found, try support only
+    if (!targetBanner && foundSupportBanner) {
+        targetBanner = document.querySelector(`.merged-banner[data-support-id="${foundSupportBanner.id}"]`);
+    }
+
+    // Last resort: search by pickup content
+    if (!targetBanner) {
+        const allBanners = document.querySelectorAll('.merged-banner');
+        for (const banner of allBanners) {
+            const bannerText = banner.textContent;
+            const hasGlobalChar = globalChars.some(char => 
+                bannerText.includes(char.name_en) || bannerText.includes(char.id.toString())
+            );
+            const hasGlobalSupport = globalSupports.every(support => 
+                bannerText.includes(support.name_en) || bannerText.includes(support.id.toString())
+            );
+            
+            if (hasGlobalChar || hasGlobalSupport) {
+                targetBanner = banner;
+                break;
             }
         }
+    }
+
+    if (targetBanner) {
+        targetBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Add highlight effect
+        targetBanner.style.boxShadow = '0 0 0 3px #28a745';
+        setTimeout(() => {
+            targetBanner.style.boxShadow = '';
+        }, 2000);
+    } else {
+        alert('Global banner not found in current data. Check console for details.');
+    }
+}
 
         // Function to initialize click events
         function initializeClickEvents() {
@@ -1022,20 +1059,25 @@
                     // Calculate the grid layout
                     const gridColumns = characterBanners.length > 0 && supportBanners.length > 0 ? '1fr 1fr' : '1fr';
 
-                    // Create the banner container
-                    let bannerHTML = `<div class="merged-banner" data-start="${timeSlot.start}" data-end="${timeSlot.end}" data-index="${bannerIndex}" style="grid-template-columns: ${gridColumns};">`;
+// In the initializePage() function, replace the banner HTML creation part:
+// Create the banner container
+let bannerHTML = `<div class="merged-banner" data-start="${timeSlot.start}" data-end="${timeSlot.end}" data-index="${bannerIndex}" style="grid-template-columns: ${gridColumns};"`;
 
-                    // Add character banners data attributes
-                    characterBanners.forEach(banner => {
-                        bannerHTML += ` data-char-id="${banner.id}"`;
-                    });
+// Add character banners data attributes
+if (characterBanners.length > 0) {
+    characterBanners.forEach(banner => {
+        bannerHTML += ` data-char-id="${banner.id}"`;
+    });
+}
 
-                    // Add support banners data attributes
-                    supportBanners.forEach(banner => {
-                        bannerHTML += ` data-support-id="${banner.id}"`;
-                    });
+// Add support banners data attributes
+if (supportBanners.length > 0) {
+    supportBanners.forEach(banner => {
+        bannerHTML += ` data-support-id="${banner.id}"`;
+    });
+}
 
-                    bannerHTML += `>`;
+bannerHTML += `>`;
 
                     // Left column - Character banners (stacked vertically)
                     if (characterBanners.length > 0) {
