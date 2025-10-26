@@ -6,457 +6,512 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uma Musume Banners</title>
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-        padding: 10px;
-        font-size: 12px;
-        height: 100vh;
-        overflow: hidden;
-    }
-
-    .container {
-        max-width: 1000px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: 1fr 200px;
-        gap: 15px;
-        height: calc(100dvh - 20px);
-        align-items: stretch;
-    }
-
-    .main-content {
-        grid-column: 1;
-        height: 100%;
-        overflow-y: auto;
-    }
-
-    h1 {
-        text-align: center;
-        margin-top: 15px;
-        color: #333;
-        font-size: 1.5em;
-        grid-column: 1 / -1;
-    }
-
-    /* Banner Styles */
-    .merged-banner {
-        background: white;
-        border-radius: 6px;
-        padding: 10px;
-        box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-        margin-bottom: 15px;
-        display: grid;
-        gap: 15px;
-    }
-
-    .merged-banner.hidden {
-        display: none;
-    }
-
-    /* Banner column layout */
-    .banner-column {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    /* Single column layout when only one type exists */
-    .merged-banner:has(.banner-column:only-child) {
-        grid-template-columns: 1fr;
-    }
-
-    /* Two column layout when both types exist */
-    .merged-banner:has(.character-column):has(.support-column) {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .banner-section {
-        border: 1px solid #e0e0e0;
-        border-radius: 5px;
-        padding: 8px;
-        position: relative;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        flex: 1;
-    }
-
-    .banner-section:hover {
-        border-color: #007bff;
-        background-color: #f8f9fa;
-    }
-
-    .banner-section.selected {
-        border-color: #007bff;
-        background-color: #e7f3ff;
-    }
-
-    .banner-section h3 {
-        text-align: center;
-        margin-bottom: 8px;
-        color: #444;
-        font-size: 1.1em;
-    }
-
-    .banner-image {
-        max-width: 100%;
-        margin-bottom: 8px;
-        text-align: center;
-    }
-
-    .banner-image img {
-        max-width: 100%;
-        height: 60px;
-        object-fit: contain;
-        border-radius: 4px;
-    }
-
-    .pickup-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-        gap: 4px;
-        margin-bottom: 8px;
-    }
-
-    .pickup-item {
-        text-align: center;
-    }
-
-    .pickup-image {
-        width: 40px;
-        height: 40px;
-        border-radius: 3px;
-        object-fit: cover;
-    }
-
-    .pickup-details {
-        flex-grow: 1;
-        min-width: 0;
-    }
-
-    .pickup-name {
-        font-weight: bold;
-        color: #333;
-        font-size: 10px;
-        margin-bottom: 2px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .pickup-rate {
-        color: #666;
-        font-size: 9px;
-    }
-
-    .date-info {
-        font-size: 9px;
-        color: #666;
-        text-align: center;
-        grid-column: 1 / -1;
-        margin-bottom: 5px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-top: 1px solid #eee;
-        padding-top: 8px;
-    }
-
-    .hide-checkbox-container {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .hide-checkbox {
-        margin: 0;
-    }
-
-    .hide-label {
-        font-size: 10px;
-        color: #666;
-        cursor: pointer;
-        white-space: nowrap;
-    }
-
-    .loading {
-        text-align: center;
-        padding: 20px;
-        color: #666;
-    }
-
-    /* Sidebar Styles */
-    .sidebar {
-        position: sticky;
-        top: 10px;
-        height: calc(100dvh - 20px);
-        max-height: calc(100dvh - 20px);
-        overflow-y: auto;
-        background: white;
-        border-radius: 6px;
-        padding: 10px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .sidebar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 5px;
-    }
-
-    .sidebar h3 {
-        text-align: center;
-        color: #444;
-        font-size: 1.1em;
-        margin: 0;
-    }
-
-    .clear-all-btn {
-        background: #ff4444;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        width: 20px;
-        height: 20px;
-        font-size: 12px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .selected-banners {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .selected-item {
-        text-align: center;
-        padding: 8px;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-        background: #fafafa;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .selected-item:hover {
-        border-color: #ff4444;
-        background-color: #fff5f5;
-    }
-
-    .selected-item-thumb {
-        width: 100%;
-        height: fit-content;
-        border-radius: 3px;
-        object-fit: contain;
-    }
-
-    .selected-item-date {
-        font-size: 10px;
-        color: #666;
-    }
-
-    .empty-sidebar {
-        text-align: center;
-        color: #999;
-        font-size: 11px;
-        padding: 10px;
-    }
-
-    /* Mobile Styles */
-    @media (max-width: 768px) {
-        .container {
-            grid-template-columns: 65% 35%;
-            gap: 8px;
-            max-width: 100%;
-        }
-        
-        .sidebar {
-            position: relative;
+        * {
+            margin: 0;
             padding: 0;
-            margin-left: 0;
-            display: flex;
-            flex-direction: column;
-            top: 0;
-        }
-        
-        .sidebar-header {
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 10;
-            margin-bottom: 0;
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-            flex-shrink: 0;
-        }
-        
-        .selected-banners {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px;
-            gap: 8px;
-        }
-        
-        .merged-banner {
-            grid-template-columns: 1fr !important;
-            gap: 10px;
-        }
-        
-        .banner-column {
-            gap: 10px;
-        }
-        
-        /* Stack columns vertically on mobile */
-        .character-column {
-            order: 1;
-        }
-        
-        .support-column {
-            order: 2;
-        }
-
-        .date-info {
-            flex-direction: column;
-            gap: 5px;
-            text-align: center;
-        }
-
-        .hide-checkbox-container {
-            justify-content: center;
-        }
-
-        .selected-item {
-            padding: 6px;
-        }
-
-        .selected-item-thumb {
-            height: 40px;
-            object-fit: cover;
-        }
-
-        .selected-item-date {
-            font-size: 8px;
-        }
-
-        .sidebar h3 {
-            font-size: 1em;
-        }
-
-        .clear-all-btn {
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .container {
-            grid-template-columns: 65% 35%;
-            gap: 6px;
+            box-sizing: border-box;
         }
 
         body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
             padding: 10px;
-            font-size: 11px;
+            font-size: 12px;
+            height: 100vh;
+            overflow: hidden;
         }
 
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 200px;
+            gap: 15px;
+            height: calc(100dvh - 20px);
+            align-items: stretch;
+        }
+
+        .main-content {
+            grid-column: 1;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 15px;
+            color: #333;
+            font-size: 1.5em;
+            grid-column: 1 / -1;
+        }
+
+        /* Search Bar */
+        .search-container {
+            grid-column: 1 / -1;
+            margin-bottom: 15px;
+            position: sticky;
+            top: 0;
+            background: #f5f5f5;
+            padding: 10px 0;
+            z-index: 100;
+        }
+
+        .search-bar {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+
+        /* Banner Styles */
         .merged-banner {
-            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            display: grid;
+            gap: 15px;
+        }
+
+        .merged-banner.hidden {
+            display: none;
+        }
+
+        .merged-banner.search-hidden {
+            display: none;
+        }
+
+        /* Banner column layout */
+        .banner-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Single column layout when only one type exists */
+        .merged-banner:has(.banner-column:only-child) {
+            grid-template-columns: 1fr;
+        }
+
+        /* Two column layout when both types exist */
+        .merged-banner:has(.character-column):has(.support-column) {
+            grid-template-columns: 1fr 1fr;
         }
 
         .banner-section {
-            padding: 6px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            padding: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+        }
+
+        .banner-section:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+
+        .banner-section.selected {
+            border-color: #007bff;
+            background-color: #e7f3ff;
+        }
+
+        .banner-section h3 {
+            text-align: center;
+            margin-bottom: 8px;
+            color: #444;
+            font-size: 1.1em;
+        }
+
+        .banner-image {
+            max-width: 100%;
+            margin-bottom: 8px;
+            text-align: center;
         }
 
         .banner-image img {
-            height: 50px;
+            max-width: 100%;
+            height: 60px;
+            object-fit: contain;
+            border-radius: 4px;
         }
 
         .pickup-grid {
-            grid-template-columns: repeat(auto-fit, minmax(35px, 1fr));
-            gap: 3px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .pickup-item {
+            text-align: center;
         }
 
         .pickup-image {
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
+            border-radius: 3px;
+            object-fit: cover;
+        }
+
+        .pickup-details {
+            flex-grow: 1;
+            min-width: 0;
         }
 
         .pickup-name {
-            font-size: 9px;
+            font-weight: bold;
+            color: #333;
+            font-size: 10px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .pickup-rate {
-            font-size: 8px;
+            color: #666;
+            font-size: 9px;
+        }
+
+        .date-info {
+            font-size: 9px;
+            color: #666;
+            text-align: center;
+            grid-column: 1 / -1;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 8px;
+        }
+
+        .hide-checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hide-checkbox {
+            margin: 0;
+        }
+
+        .hide-label {
+            font-size: 10px;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: sticky;
+            top: 10px;
+            height: calc(100dvh - 20px);
+            max-height: calc(100dvh - 20px);
+            overflow-y: auto;
+            background: white;
+            border-radius: 6px;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
         .sidebar-header {
-            padding: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .sidebar h3 {
+            text-align: center;
+            color: #444;
+            font-size: 1.1em;
+            margin: 0;
+        }
+
+        .jump-to-global-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 6px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .jump-to-global-btn:hover {
+            background: #218838;
+        }
+
+        .clear-all-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .selected-banners {
-            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .selected-item {
-            padding: 5px;
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .selected-item:hover {
+            border-color: #ff4444;
+            background-color: #fff5f5;
         }
 
         .selected-item-thumb {
-            height: 35px;
+            width: 100%;
+            height: fit-content;
+            border-radius: 3px;
+            object-fit: contain;
         }
 
         .selected-item-date {
-            font-size: 7px;
+            font-size: 10px;
+            color: #666;
         }
-    }
 
-    /* Very small screens */
-    @media (max-width: 360px) {
-        .sidebar-header {
-            padding: 4px;
+        .empty-sidebar {
+            text-align: center;
+            color: #999;
+            font-size: 11px;
+            padding: 10px;
         }
-        
-        .selected-banners {
-            padding: 4px;
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 65% 35%;
+                gap: 8px;
+                max-width: 100%;
+            }
+            
+            .sidebar {
+                position: relative;
+                padding: 0;
+                margin-left: 0;
+                display: flex;
+                flex-direction: column;
+                top: 0;
+            }
+            
+            .sidebar-header {
+                position: sticky;
+                top: 0;
+                background: white;
+                z-index: 10;
+                margin-bottom: 0;
+                padding: 8px;
+                border-bottom: 1px solid #eee;
+                flex-shrink: 0;
+            }
+            
+            .selected-banners {
+                flex: 1;
+                overflow-y: auto;
+                padding: 8px;
+                gap: 8px;
+            }
+            
+            .merged-banner {
+                grid-template-columns: 1fr !important;
+                gap: 10px;
+            }
+            
+            .banner-column {
+                gap: 10px;
+            }
+            
+            /* Stack columns vertically on mobile */
+            .character-column {
+                order: 1;
+            }
+            
+            .support-column {
+                order: 2;
+            }
+
+            .date-info {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+
+            .hide-checkbox-container {
+                justify-content: center;
+            }
+
+            .selected-item {
+                padding: 6px;
+            }
+
+            .selected-item-thumb {
+                height: 40px;
+                object-fit: cover;
+            }
+
+            .selected-item-date {
+                font-size: 8px;
+            }
+
+            .sidebar h3 {
+                font-size: 1em;
+            }
+
+            .clear-all-btn {
+                width: 20px;
+                height: 20px;
+                font-size: 12px;
+            }
+
+            .jump-to-global-btn {
+                font-size: 10px;
+                padding: 5px 8px;
+            }
         }
-        
-        .selected-item-thumb {
-            height: 30px;
+
+        @media (max-width: 480px) {
+            .container {
+                grid-template-columns: 65% 35%;
+                gap: 6px;
+            }
+
+            body {
+                padding: 10px;
+                font-size: 11px;
+            }
+
+            .merged-banner {
+                padding: 8px;
+            }
+
+            .banner-section {
+                padding: 6px;
+            }
+
+            .banner-image img {
+                height: 50px;
+            }
+
+            .pickup-grid {
+                grid-template-columns: repeat(auto-fit, minmax(35px, 1fr));
+                gap: 3px;
+            }
+
+            .pickup-image {
+                width: 35px;
+                height: 35px;
+            }
+
+            .pickup-name {
+                font-size: 9px;
+            }
+
+            .pickup-rate {
+                font-size: 8px;
+            }
+
+            .sidebar-header {
+                padding: 6px;
+            }
+
+            .selected-banners {
+                padding: 6px;
+            }
+
+            .selected-item {
+                padding: 5px;
+            }
+
+            .selected-item-thumb {
+                height: 35px;
+            }
+
+            .selected-item-date {
+                font-size: 7px;
+            }
         }
-        
-        .selected-item-date {
-            font-size: 6px;
+
+        /* Very small screens */
+        @media (max-width: 360px) {
+            .sidebar-header {
+                padding: 4px;
+            }
+            
+            .selected-banners {
+                padding: 4px;
+            }
+            
+            .selected-item-thumb {
+                height: 30px;
+            }
+            
+            .selected-item-date {
+                font-size: 6px;
+            }
+            
+            .pickup-image {
+                width: 30px;
+                height: 30px;
+            }
         }
-        
-        .pickup-image {
-            width: 30px;
-            height: 30px;
-        }
-    }
-</style>
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Uma Musume Banners</h1>
+        
+        <div class="search-container">
+            <input type="text" class="search-bar" id="searchBar" placeholder="Search banners by character name, card ID, or date...">
+        </div>
         
         <div class="main-content" id="bannersContainer">
             <div class="loading">Loading banners...</div>
         </div>
 
         <div class="sidebar">
+            <button class="jump-to-global-btn" id="jumpToGlobalBtn">Jump to Global</button>
             <div class="sidebar-header">
                 <h3>Selected</h3>
                 <button class="clear-all-btn" id="clearAllBtn" title="Clear All">×</button>
@@ -477,16 +532,19 @@
         // Cache for card data
         let characterCards = null;
         let supportCards = null;
+        let enLayoutData = null;
 
         // Load card data
         async function loadCardData() {
             try {
-                const [charData, supportData] = await Promise.all([
+                const [charData, supportData, layoutData] = await Promise.all([
                     fetch('data/character-cards.json').then(r => r.json()),
-                    fetch('data/support-cards.json').then(r => r.json())
+                    fetch('data/support-cards.json').then(r => r.json()),
+                    fetch('data/en-layout-data.json').then(r => r.json())
                 ]);
                 characterCards = charData;
                 supportCards = supportData;
+                enLayoutData = layoutData;
             } catch (error) {
                 console.error('Error loading card data:', error);
             }
@@ -553,118 +611,21 @@
             return bannerUrl;
         }
 
-        // Function to create merged banner HTML
-        async function createMergedBannerHTML(charBanner, supportBanner, index) {
-            const charBannerId = charBanner.id;
-            const supportBannerId = supportBanner.id;
-            
-            const [charBannerUrl, supportBannerUrl] = await Promise.all([
-                getBannerImageUrl(charBannerId),
-                getBannerImageUrl(supportBannerId)
-            ]);
-
-            const startDate = formatDate(charBanner.start);
-            const endDate = formatDate(charBanner.end);
-
-            let bannerHTML = `
-                <div class="merged-banner" data-char-id="${charBannerId}" data-support-id="${supportBannerId}" data-start="${charBanner.start}" data-end="${charBanner.end}" data-index="${index}">
-                    <!-- Character Banner -->
-                    <div class="banner-section" data-banner-id="${charBannerId}" data-banner-type="character">
-                        <h3>Character Banner</h3>
-                        <div class="banner-image">
-                            <img src="${charBannerUrl}" alt="Banner ${charBannerId}" class="banner-img" data-banner-id="${charBannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        </div>
-                        <div class="pickup-grid">
-            `;
-
-            // Character pickup items
-            charBanner.pickups.forEach(pickup => {
-                const [pickupId, rate, isPickup] = pickup;
-                const imageUrl = getImageUrl(pickupId);
-                const ratePercent = calculateRate(rate);
-                const cardName = getCardName(pickupId);
-
-                bannerHTML += `
-                    <div class="pickup-item">
-                        <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        <div class="pickup-details">
-                            <div class="pickup-name">${cardName}</div>
-                            <div class="pickup-rate">${ratePercent}%</div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            bannerHTML += `
-                        </div>
-                    </div>
-
-                    <!-- Support Banner -->
-                    <div class="banner-section" data-banner-id="${supportBannerId}" data-banner-type="support">
-                        <h3>Support Banner</h3>
-                        <div class="banner-image">
-                            <img src="${supportBannerUrl}" alt="Banner ${supportBannerId}" class="banner-img" data-banner-id="${supportBannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        </div>
-                        <div class="pickup-grid">
-            `;
-
-            // Support pickup items
-            supportBanner.pickups.forEach(pickup => {
-                const [pickupId, rate, isPickup] = pickup;
-                const imageUrl = getImageUrl(pickupId);
-                const ratePercent = calculateRate(rate);
-                const cardName = getCardName(pickupId);
-
-                bannerHTML += `
-                    <div class="pickup-item">
-                        <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        <div class="pickup-details">
-                            <div class="pickup-name">${cardName}</div>
-                            <div class="pickup-rate">${ratePercent}%</div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            bannerHTML += `
-                        </div>
-                    </div>
-
-                    <div class="date-info">
-                        <span>${startDate} - ${endDate}</span>
-                        <div class="hide-checkbox-container">
-                            <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
-                            <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            return bannerHTML;
-        }
-
-        // Function to create single banner HTML (when no counterpart exists)
-        async function createSingleBannerHTML(bannerData, type, index) {
-            const bannerId = bannerData.id;
-            const bannerUrl = await getBannerImageUrl(bannerId);
-            const startDate = formatDate(bannerData.start);
-            const endDate = formatDate(bannerData.end);
-
+        // Function to create banner section HTML
+        function createBannerSectionHTML(banner, type) {
             const bannerType = type === 'character' ? 'Character Banner' : 'Support Banner';
-
+            
             let bannerHTML = `
-                <div class="merged-banner" data-${type}-id="${bannerId}" data-start="${bannerData.start}" data-end="${bannerData.end}" data-index="${index}">
-                    <!-- ${bannerType} Only -->
-                    <div class="banner-section" style="grid-column: 1 / -1; text-align: center;" data-banner-id="${bannerId}" data-banner-type="${type}">
-                        <h3>${bannerType} (Only)</h3>
-                        <div class="banner-image">
-                            <img src="${bannerUrl}" alt="Banner ${bannerId}" class="banner-img" data-banner-id="${bannerId}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        </div>
-                        <div class="pickup-grid" style="max-width: 400px; margin: 0 auto;">
+                <div class="banner-section" data-banner-id="${banner.id}" data-banner-type="${type}">
+                    <h3>${bannerType}</h3>
+                    <div class="banner-image">
+                        <img src="" alt="Banner ${banner.id}" class="banner-img" data-banner-id="${banner.id}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+                    </div>
+                    <div class="pickup-grid">
             `;
-
+            
             // Pickup items
-            bannerData.pickups.forEach(pickup => {
+            banner.pickups.forEach(pickup => {
                 const [pickupId, rate, isPickup] = pickup;
                 const imageUrl = getImageUrl(pickupId);
                 const ratePercent = calculateRate(rate);
@@ -682,18 +643,10 @@
             });
 
             bannerHTML += `
-                        </div>
-                        <div class="date-info">
-                            <span>${startDate} - ${endDate}</span>
-                            <div class="hide-checkbox-container">
-                                <input type="checkbox" class="hide-checkbox" id="hide-above-${index}">
-                                <label class="hide-label" for="hide-above-${index}">Hide All Above</label>
-                            </div>
-                        </div>
                     </div>
                 </div>
             `;
-
+            
             return bannerHTML;
         }
 
@@ -793,6 +746,90 @@
             updateSidebar();
         }
 
+        // Search function
+        function performSearch(searchTerm) {
+            const banners = document.querySelectorAll('.merged-banner');
+            const lowerSearchTerm = searchTerm.toLowerCase().trim();
+
+            if (!lowerSearchTerm) {
+                // Show all banners if search is empty
+                banners.forEach(banner => {
+                    banner.classList.remove('search-hidden');
+                });
+                return;
+            }
+
+            banners.forEach(banner => {
+                const bannerText = banner.textContent.toLowerCase();
+                const shouldShow = bannerText.includes(lowerSearchTerm);
+                
+                if (shouldShow) {
+                    banner.classList.remove('search-hidden');
+                } else {
+                    banner.classList.add('search-hidden');
+                }
+            });
+        }
+
+        // Function to jump to global banners
+        async function jumpToGlobal() {
+            if (!enLayoutData) {
+                alert('Global data not loaded yet');
+                return;
+            }
+
+            const charBanners = await loadJSON('data/gacha-char-standard.json');
+            const supportBanners = await loadJSON('data/gacha-support-standard.json');
+
+            if (!charBanners || !supportBanners) {
+                alert('Failed to load banner data');
+                return;
+            }
+
+            const globalChars = enLayoutData.right_nav_newest.chars.list;
+            const globalSupports = enLayoutData.right_nav_newest.supports.list;
+
+            // Find character banner with exact pickup match
+            const charBannerArray = Array.isArray(charBanners) ? charBanners : [charBanners];
+            const foundCharBanner = charBannerArray.find(banner => {
+                return banner.pickups.some(pickup => {
+                    const [pickupId] = pickup;
+                    return globalChars.some(globalChar => globalChar.id === pickupId);
+                });
+            });
+
+            // Find support banner with exact pickup match (all global supports must be present)
+            const supportBannerArray = Array.isArray(supportBanners) ? supportBanners : [supportBanners];
+            const foundSupportBanner = supportBannerArray.find(banner => {
+                const bannerPickupIds = banner.pickups.map(pickup => pickup[0]);
+                return globalSupports.every(globalSupport => 
+                    bannerPickupIds.includes(globalSupport.id)
+                );
+            });
+
+            let targetBanner = null;
+
+            if (foundCharBanner && foundSupportBanner && foundCharBanner.start === foundSupportBanner.start) {
+                // Both banners at same time - find the merged banner
+                targetBanner = document.querySelector(`.merged-banner[data-start="${foundCharBanner.start}"]`);
+            } else if (foundCharBanner) {
+                targetBanner = document.querySelector(`.merged-banner[data-char-id="${foundCharBanner.id}"]`);
+            } else if (foundSupportBanner) {
+                targetBanner = document.querySelector(`.merged-banner[data-support-id="${foundSupportBanner.id}"]`);
+            }
+
+            if (targetBanner) {
+                targetBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Add highlight effect
+                targetBanner.style.boxShadow = '0 0 0 3px #28a745';
+                setTimeout(() => {
+                    targetBanner.style.boxShadow = '';
+                }, 2000);
+            } else {
+                alert('Global banner not found in current data');
+            }
+        }
+
         // Function to initialize click events
         function initializeClickEvents() {
             // Add click event to all banner sections
@@ -831,6 +868,14 @@
 
             // Add click event to clear all button
             document.getElementById('clearAllBtn').addEventListener('click', clearAllSelections);
+
+            // Add input event to search bar
+            document.getElementById('searchBar').addEventListener('input', function() {
+                performSearch(this.value);
+            });
+
+            // Add click event to jump to global button
+            document.getElementById('jumpToGlobalBtn').addEventListener('click', jumpToGlobal);
         }
 
         // Save selections to localStorage
@@ -901,192 +946,164 @@
             return banners.sort((a, b) => a.start - b.start); // Oldest first (past to present)
         }
 
-// Main initialization function
-async function initializePage() {
-    const bannersContainer = document.getElementById('bannersContainer');
+        // Main initialization function
+        async function initializePage() {
+            const bannersContainer = document.getElementById('bannersContainer');
 
-    try {
-        // Load card data first
-        await loadCardData();
-        
-        // Load both JSON files
-        const [charData, supportData] = await Promise.all([
-            loadJSON('data/gacha-char-standard.json'),
-            loadJSON('data/gacha-support-standard.json')
-        ]);
+            try {
+                // Load card data first
+                await loadCardData();
+                
+                // Load both JSON files
+                const [charData, supportData] = await Promise.all([
+                    loadJSON('data/gacha-char-standard.json'),
+                    loadJSON('data/gacha-support-standard.json')
+                ]);
 
-        if (!charData || !supportData) {
-            throw new Error('Failed to load banner data');
-        }
+                if (!charData || !supportData) {
+                    throw new Error('Failed to load banner data');
+                }
 
-        bannersContainer.innerHTML = '';
+                bannersContainer.innerHTML = '';
 
-        // Handle array or single object formats
-        const charBanners = Array.isArray(charData) ? charData : [charData];
-        const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
+                // Handle array or single object formats
+                const charBanners = Array.isArray(charData) ? charData : [charData];
+                const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
 
-        // Create a combined array of all banners with their types
-        const allBanners = [];
-        
-        charBanners.forEach(banner => {
-            allBanners.push({...banner, type: 'character'});
-        });
-        
-        supportBanners.forEach(banner => {
-            allBanners.push({...banner, type: 'support'});
-        });
-
-        // Sort all banners by start date (past to present)
-        const sortedBanners = allBanners.sort((a, b) => a.start - b.start);
-
-        // Group banners by start time
-        const bannersByStartTime = {};
-        
-        sortedBanners.forEach(banner => {
-            if (!bannersByStartTime[banner.start]) {
-                bannersByStartTime[banner.start] = {
-                    characters: [],
-                    supports: [],
-                    start: banner.start,
-                    end: banner.end
-                };
-            }
-            if (banner.type === 'character') {
-                bannersByStartTime[banner.start].characters.push(banner);
-            } else {
-                bannersByStartTime[banner.start].supports.push(banner);
-            }
-        });
-
-        let bannerIndex = 0;
-
-        // Process each start time in chronological order
-        const sortedStartTimes = Object.keys(bannersByStartTime).sort((a, b) => a - b);
-        
-        for (const startTime of sortedStartTimes) {
-            const timeSlot = bannersByStartTime[startTime];
-            const characterBanners = timeSlot.characters;
-            const supportBanners = timeSlot.supports;
-
-            const totalBanners = characterBanners.length + supportBanners.length;
-            
-            if (totalBanners === 0) {
-                continue;
-            }
-
-            // Calculate the grid layout
-            const maxBanners = Math.max(characterBanners.length, supportBanners.length);
-            const gridColumns = characterBanners.length > 0 && supportBanners.length > 0 ? '1fr 1fr' : '1fr';
-
-            // Create the banner container
-            let bannerHTML = `<div class="merged-banner" data-start="${timeSlot.start}" data-end="${timeSlot.end}" data-index="${bannerIndex}" style="grid-template-columns: ${gridColumns};">`;
-
-            // Left column - Character banners (stacked vertically)
-            if (characterBanners.length > 0) {
-                bannerHTML += `<div class="banner-column character-column">`;
-                characterBanners.forEach(banner => {
-                    bannerHTML += createBannerSectionHTML(banner, 'character');
+                // Create a combined array of all banners with their types
+                const allBanners = [];
+                
+                charBanners.forEach(banner => {
+                    allBanners.push({...banner, type: 'character'});
                 });
-                bannerHTML += `</div>`;
-            }
-
-            // Right column - Support banners (stacked vertically)
-            if (supportBanners.length > 0) {
-                bannerHTML += `<div class="banner-column support-column">`;
+                
                 supportBanners.forEach(banner => {
-                    bannerHTML += createBannerSectionHTML(banner, 'support');
+                    allBanners.push({...banner, type: 'support'});
                 });
-                bannerHTML += `</div>`;
-            }
 
-            // Add date info and close the banner container
-            const startDate = formatDate(timeSlot.start);
-            const endDate = formatDate(timeSlot.end);
-            
-            bannerHTML += `
-                <div class="date-info">
-                    <span>${startDate} - ${endDate}</span>
-                    <div class="hide-checkbox-container">
-                        <input type="checkbox" class="hide-checkbox" id="hide-above-${bannerIndex}">
-                        <label class="hide-label" for="hide-above-${bannerIndex}">Hide All Above</label>
+                // Sort all banners by start date (past to present)
+                const sortedBanners = allBanners.sort((a, b) => a.start - b.start);
+
+                // Group banners by start time
+                const bannersByStartTime = {};
+                
+                sortedBanners.forEach(banner => {
+                    if (!bannersByStartTime[banner.start]) {
+                        bannersByStartTime[banner.start] = {
+                            characters: [],
+                            supports: [],
+                            start: banner.start,
+                            end: banner.end
+                        };
+                    }
+                    if (banner.type === 'character') {
+                        bannersByStartTime[banner.start].characters.push(banner);
+                    } else {
+                        bannersByStartTime[banner.start].supports.push(banner);
+                    }
+                });
+
+                let bannerIndex = 0;
+
+                // Process each start time in chronological order
+                const sortedStartTimes = Object.keys(bannersByStartTime).sort((a, b) => a - b);
+                
+                for (const startTime of sortedStartTimes) {
+                    const timeSlot = bannersByStartTime[startTime];
+                    const characterBanners = timeSlot.characters;
+                    const supportBanners = timeSlot.supports;
+
+                    const totalBanners = characterBanners.length + supportBanners.length;
+                    
+                    if (totalBanners === 0) {
+                        continue;
+                    }
+
+                    // Calculate the grid layout
+                    const gridColumns = characterBanners.length > 0 && supportBanners.length > 0 ? '1fr 1fr' : '1fr';
+
+                    // Create the banner container
+                    let bannerHTML = `<div class="merged-banner" data-start="${timeSlot.start}" data-end="${timeSlot.end}" data-index="${bannerIndex}" style="grid-template-columns: ${gridColumns};">`;
+
+                    // Add character banners data attributes
+                    characterBanners.forEach(banner => {
+                        bannerHTML += ` data-char-id="${banner.id}"`;
+                    });
+
+                    // Add support banners data attributes
+                    supportBanners.forEach(banner => {
+                        bannerHTML += ` data-support-id="${banner.id}"`;
+                    });
+
+                    bannerHTML += `>`;
+
+                    // Left column - Character banners (stacked vertically)
+                    if (characterBanners.length > 0) {
+                        bannerHTML += `<div class="banner-column character-column">`;
+                        characterBanners.forEach(banner => {
+                            bannerHTML += createBannerSectionHTML(banner, 'character');
+                        });
+                        bannerHTML += `</div>`;
+                    }
+
+                    // Right column - Support banners (stacked vertically)
+                    if (supportBanners.length > 0) {
+                        bannerHTML += `<div class="banner-column support-column">`;
+                        supportBanners.forEach(banner => {
+                            bannerHTML += createBannerSectionHTML(banner, 'support');
+                        });
+                        bannerHTML += `</div>`;
+                    }
+
+                    // Add date info and close the banner container
+                    const startDate = formatDate(timeSlot.start);
+                    const endDate = formatDate(timeSlot.end);
+                    
+                    bannerHTML += `
+                        <div class="date-info">
+                            <span>${startDate} - ${endDate}</span>
+                            <div class="hide-checkbox-container">
+                                <input type="checkbox" class="hide-checkbox" id="hide-above-${bannerIndex}">
+                                <label class="hide-label" for="hide-above-${bannerIndex}">Hide All Above</label>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            `;
+                    `;
 
-            bannersContainer.innerHTML += bannerHTML;
-            bannerIndex++;
+                    bannersContainer.innerHTML += bannerHTML;
+                    bannerIndex++;
 
-            // Load banner images after the HTML is added
-            setTimeout(async () => {
-                // Load character banner images
-                for (const banner of characterBanners) {
-                    const bannerUrl = await getBannerImageUrl(banner.id);
-                    const img = document.querySelector(`.banner-img[data-banner-id="${banner.id}"]`);
-                    if (img) {
-                        img.src = bannerUrl;
-                    }
+                    // Load banner images after the HTML is added
+                    setTimeout(async () => {
+                        // Load character banner images
+                        for (const banner of characterBanners) {
+                            const bannerUrl = await getBannerImageUrl(banner.id);
+                            const img = document.querySelector(`.banner-img[data-banner-id="${banner.id}"]`);
+                            if (img) {
+                                img.src = bannerUrl;
+                            }
+                        }
+                        // Load support banner images
+                        for (const banner of supportBanners) {
+                            const bannerUrl = await getBannerImageUrl(banner.id);
+                            const img = document.querySelector(`.banner-img[data-banner-id="${banner.id}"]`);
+                            if (img) {
+                                img.src = bannerUrl;
+                            }
+                        }
+                    }, 0);
                 }
-                // Load support banner images
-                for (const banner of supportBanners) {
-                    const bannerUrl = await getBannerImageUrl(banner.id);
-                    const img = document.querySelector(`.banner-img[data-banner-id="${banner.id}"]`);
-                    if (img) {
-                        img.src = bannerUrl;
-                    }
-                }
-            }, 0);
+
+                // Initialize click functionality
+                initializeClickEvents();
+                loadSelections();
+                loadHideState();
+
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                bannersContainer.innerHTML = '<div class="loading">Error loading banner data</div>';
+            }
         }
-
-        // Initialize click functionality
-        initializeClickEvents();
-        loadSelections();
-        loadHideState();
-
-    } catch (error) {
-        console.error('Error initializing page:', error);
-        bannersContainer.innerHTML = '<div class="loading">Error loading banner data</div>';
-    }
-}
-
-// Helper function to create banner section HTML
-function createBannerSectionHTML(banner, type) {
-    const bannerType = type === 'character' ? 'Character Banner' : 'Support Banner';
-    
-    let bannerHTML = `
-        <div class="banner-section" data-banner-id="${banner.id}" data-banner-type="${type}">
-            <h3>${bannerType}</h3>
-            <div class="banner-image">
-                <img src="" alt="Banner ${banner.id}" class="banner-img" data-banner-id="${banner.id}" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-            </div>
-            <div class="pickup-grid">
-    `;
-    
-    // Pickup items
-    banner.pickups.forEach(pickup => {
-        const [pickupId, rate, isPickup] = pickup;
-        const imageUrl = getImageUrl(pickupId);
-        const ratePercent = calculateRate(rate);
-        const cardName = getCardName(pickupId);
-
-        bannerHTML += `
-            <div class="pickup-item">
-                <img src="${imageUrl}" alt="Pickup ${pickupId}" class="pickup-image" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                <div class="pickup-details">
-                    <div class="pickup-name">${cardName}</div>
-                    <div class="pickup-rate">${ratePercent}%</div>
-                </div>
-            </div>
-        `;
-    });
-
-    bannerHTML += `
-            </div>
-        </div>
-    `;
-    
-    return bannerHTML;
-}
 
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', initializePage);
