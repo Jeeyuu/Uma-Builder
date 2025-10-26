@@ -1092,7 +1092,7 @@ async function initializePage() {
     }
 }
 
-// Updated jumpToGlobal function with fixed scroll positioning
+// Alternative simpler approach
 async function jumpToGlobal() {
     if (!enLayoutData) {
         alert('Global data not loaded yet');
@@ -1171,30 +1171,21 @@ async function jumpToGlobal() {
     }
 
     if (targetBanner) {
-        // Simple and reliable scroll approach
-        const bannerRect = targetBanner.getBoundingClientRect();
+        // Simple approach using scrollIntoView with manual offset
         const sidebar = document.querySelector('.sidebar');
-        const sidebarRect = sidebar.getBoundingClientRect();
+        const sidebarTop = sidebar.getBoundingClientRect().top;
         
-        // Calculate the scroll position to align banner top with sidebar top
-        const currentScrollY = window.pageYOffset;
-        const bannerTop = bannerRect.top + currentScrollY;
-        const sidebarTop = sidebarRect.top + currentScrollY;
+        // Calculate how much we need to offset to align with sidebar top
+        const offset = sidebarTop;
         
-        // We want the banner's top to be at the same position as sidebar's top
-        const targetScrollY = bannerTop - sidebarTop + currentScrollY;
-
-        console.log('Scroll details:', {
-            currentScrollY,
-            bannerTop,
-            sidebarTop,
-            targetScrollY,
-            bannerRect,
-            sidebarRect
-        });
-
+        // Get the element's position
+        const elementTop = targetBanner.getBoundingClientRect().top + window.pageYOffset;
+        
+        // Calculate target scroll position
+        const targetScroll = elementTop - offset;
+        
         window.scrollTo({
-            top: targetScrollY,
+            top: targetScroll,
             behavior: 'smooth'
         });
 
