@@ -44,19 +44,11 @@
         color: #333;
         font-size: 1.5em;
         grid-column: 1 / -1;
-        position: relative;
-        z-index: 90;
     }
 
-    /* Search Bar */
+    /* Search Bar - moved to main content */
     .search-container {
-        grid-column: 1 / -1;
         margin-bottom: 15px;
-        position: sticky;
-        top: 0;
-        background: #f5f5f5;
-        padding: 10px 0;
-        z-index: 100;
     }
 
     .search-bar {
@@ -522,11 +514,10 @@
 <div class="container">
     <h1>Uma Musume Banners</h1>
     
-    <div class="search-container">
-        <input type="text" class="search-bar" id="searchBar" placeholder="Search banners by character name, card ID, or date...">
-    </div>
-    
     <div class="main-content" id="bannersContainer">
+        <div class="search-container">
+            <input type="text" class="search-bar" id="searchBar" placeholder="Search banners by character name, card ID, or date...">
+        </div>
         <div class="loading">Loading banners...</div>
     </div>
 
@@ -870,24 +861,17 @@ async function jumpToGlobal() {
     }
 
     if (targetBanner) {
-        // Calculate proper scroll position accounting for header and search bar
-        const header = document.querySelector('h1');
-        const searchContainer = document.querySelector('.search-container');
-        const headerHeight = header ? header.offsetHeight : 60;
-        const searchHeight = searchContainer ? searchContainer.offsetHeight : 50;
-        const totalOffset = headerHeight + searchHeight + 20; // Add some padding
-
-        const bannerRect = targetBanner.getBoundingClientRect();
-        const absoluteTop = window.pageYOffset + bannerRect.top;
-        
-        window.scrollTo({
-            top: absoluteTop - totalOffset,
-            behavior: 'smooth'
+        // Simple scroll to element - no complex offset calculations needed
+        targetBanner.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center' 
         });
 
         // Add highlight effect
         targetBanner.style.boxShadow = '0 0 0 3px #28a745';
         targetBanner.style.transition = 'box-shadow 0.3s ease';
+        
+        // Remove highlight after 3 seconds
         setTimeout(() => {
             targetBanner.style.boxShadow = '';
         }, 3000);
