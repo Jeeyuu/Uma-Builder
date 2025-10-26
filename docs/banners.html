@@ -40,10 +40,12 @@
 
     h1 {
         text-align: center;
-        margin-top: 15px;
+        margin: 15px 0;
         color: #333;
         font-size: 1.5em;
         grid-column: 1 / -1;
+        position: relative;
+        z-index: 90;
     }
 
     /* Search Bar */
@@ -803,7 +805,7 @@ async function jumpToGlobal() {
     console.log('Looking for global supports:', globalSupports);
 
     // Search through all banners for the global content
-    const allBanners = document.querySelectorAll('.merged-banner');
+    const allBanners = document.querySelectorAll('.merged-banner:not(.hidden):not(.search-hidden)');
     let targetBanner = null;
 
     for (const banner of allBanners) {
@@ -830,15 +832,18 @@ async function jumpToGlobal() {
     }
 
     if (targetBanner) {
-        // Calculate offset to account for search bar
-        const searchBar = document.querySelector('.search-container');
-        const searchBarHeight = searchBar ? searchBar.offsetHeight + 20 : 60;
-        
-        const elementPosition = targetBanner.getBoundingClientRect().top + window.pageYOffset;
-        const offsetPosition = elementPosition - searchBarHeight;
+        // Calculate proper scroll position accounting for header and search bar
+        const header = document.querySelector('h1');
+        const searchContainer = document.querySelector('.search-container');
+        const headerHeight = header ? header.offsetHeight : 60;
+        const searchHeight = searchContainer ? searchContainer.offsetHeight : 50;
+        const totalOffset = headerHeight + searchHeight + 20; // Add some padding
 
+        const bannerRect = targetBanner.getBoundingClientRect();
+        const absoluteTop = window.pageYOffset + bannerRect.top;
+        
         window.scrollTo({
-            top: offsetPosition,
+            top: absoluteTop - totalOffset,
             behavior: 'smooth'
         });
 
@@ -847,7 +852,7 @@ async function jumpToGlobal() {
         targetBanner.style.transition = 'box-shadow 0.3s ease';
         setTimeout(() => {
             targetBanner.style.boxShadow = '';
-        }, 2000);
+        }, 3000);
     } else {
         alert('Global banner not found. The current global banners may not be in the loaded data range.');
     }
