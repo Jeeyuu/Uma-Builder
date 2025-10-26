@@ -31,62 +31,117 @@ jobs:
           CHARACTER_CARDS_CODE=$(jq -r '.["character-cards"]' manifest.json)
           SUPPORT_CARDS_CODE=$(jq -r '.["support-cards"]' manifest.json)
           SKILLS_CODE=$(jq -r '.["skills"]' manifest.json)
+          GACHA_CHAR_STANDARD_CODE=$(jq -r '.["gacha/char-standard"]' manifest.json)
+          GACHA_SPECIAL_CODE=$(jq -r '.["gacha/special"]' manifest.json)
+          GACHA_SUPPORT_STANDARD_CODE=$(jq -r '.["gacha/support-standard"]' manifest.json)
+          GACHA_YEARS_BY_SERVER_CODE=$(jq -r '.["gacha/years-by-server"]' manifest.json)
+          EN_GACHA_CHAR_STANDARD_CODE=$(jq -r '.["en/gacha/char-standard"]' manifest.json)
+          EN_GACHA_SPECIAL_CODE=$(jq -r '.["en/gacha/special"]' manifest.json)
+          EN_GACHA_SUPPORT_STANDARD_CODE=$(jq -r '.["en/gacha/support-standard"]' manifest.json)
+          EN_LAYOUT_DATA_CODE=$(jq -r '.["en/layout_data"]' manifest.json)
+          EVENTS_CHAMPIONS_MEETING_CODE=$(jq -r '.["events/champions-meeting"]' manifest.json)
           
           echo "character_cards_code=$CHARACTER_CARDS_CODE" >> $GITHUB_OUTPUT
           echo "support_cards_code=$SUPPORT_CARDS_CODE" >> $GITHUB_OUTPUT
           echo "skills_code=$SKILLS_CODE" >> $GITHUB_OUTPUT
+          echo "gacha_char_standard_code=$GACHA_CHAR_STANDARD_CODE" >> $GITHUB_OUTPUT
+          echo "gacha_special_code=$GACHA_SPECIAL_CODE" >> $GITHUB_OUTPUT
+          echo "gacha_support_standard_code=$GACHA_SUPPORT_STANDARD_CODE" >> $GITHUB_OUTPUT
+          echo "gacha_years_by_server_code=$GACHA_YEARS_BY_SERVER_CODE" >> $GITHUB_OUTPUT
+          echo "en_gacha_char_standard_code=$EN_GACHA_CHAR_STANDARD_CODE" >> $GITHUB_OUTPUT
+          echo "en_gacha_special_code=$EN_GACHA_SPECIAL_CODE" >> $GITHUB_OUTPUT
+          echo "en_gacha_support_standard_code=$EN_GACHA_SUPPORT_STANDARD_CODE" >> $GITHUB_OUTPUT
+          echo "en_layout_data_code=$EN_LAYOUT_DATA_CODE" >> $GITHUB_OUTPUT
+          echo "events_champions_meeting_code=$EVENTS_CHAMPIONS_MEETING_CODE" >> $GITHUB_OUTPUT
           
           echo "Latest codes:"
           echo "Character Cards: $CHARACTER_CARDS_CODE"
           echo "Support Cards: $SUPPORT_CARDS_CODE"
           echo "Skills: $SKILLS_CODE"
+          echo "Gacha Char Standard: $GACHA_CHAR_STANDARD_CODE"
+          echo "Gacha Special: $GACHA_SPECIAL_CODE"
+          echo "Gacha Support Standard: $GACHA_SUPPORT_STANDARD_CODE"
+          echo "Gacha Years by Server: $GACHA_YEARS_BY_SERVER_CODE"
+          echo "EN Gacha Char Standard: $EN_GACHA_CHAR_STANDARD_CODE"
+          echo "EN Gacha Special: $EN_GACHA_SPECIAL_CODE"
+          echo "EN Gacha Support Standard: $EN_GACHA_SUPPORT_STANDARD_CODE"
+          echo "EN Layout Data: $EN_LAYOUT_DATA_CODE"
+          echo "Events Champions Meeting: $EVENTS_CHAMPIONS_MEETING_CODE"
 
       - name: Create data directory
         run: mkdir -p docs/data
 
-      - name: Download character-cards JSON
-        run: |
-          curl -s -o docs/data/character-cards.json https://gametora.com/data/umamusume/character-cards.${{ steps.get-codes.outputs.character_cards_code }}.json
-          if ! jq empty docs/data/character-cards.json; then
-            echo "❌ character-cards.json is not valid JSON. Aborting."
-            exit 1
-          fi
-
-      - name: Download support-cards JSON
-        run: |
-          curl -s -o docs/data/support-cards.json https://gametora.com/data/umamusume/support-cards.${{ steps.get-codes.outputs.support_cards_code }}.json
-          if ! jq empty docs/data/support-cards.json; then
-            echo "❌ support-cards.json is not valid JSON. Aborting."
-            exit 1
-          fi
-
-      - name: Download skills JSON
-        run: |
-          curl -s -o docs/data/skills.json https://gametora.com/data/umamusume/skills.${{ steps.get-codes.outputs.skills_code }}.json
-          if ! jq empty docs/data/skills.json; then
-            echo "❌ skills.json is not valid JSON. Aborting."
-            exit 1
-          fi
-
-      - name: Archive previous versions if changed
+      - name: Download JSON files with change detection
         run: |
           TIMESTAMP=$(date +%Y%m%d_%H%M%S)
           mkdir -p docs/data/archive
           
-          # Check if files exist and have changed
-          for file in character-cards support-cards skills; do
-            if [ -f "docs/data/$file.json" ]; then
-              # Check if file has changed
-              if ! git diff --quiet docs/data/$file.json; then
-                cp docs/data/$file.json docs/data/archive/${file}_${TIMESTAMP}.json
-                echo "📁 Archived $file.json to archive/${file}_${TIMESTAMP}.json"
+          # Function to download and check file
+          download_and_check() {
+            local name=$1
+            local url=$2
+            local filename="docs/data/${name}.json"
+            local temp_file="${filename}.tmp"
+            
+            echo "📥 Downloading $name..."
+            
+            # Download to temporary file
+            if curl -s -o "$temp_file" "$url"; then
+              # Check if file is valid JSON
+              if jq empty "$temp_file" 2>/dev/null; then
+                # Check if file exists and is different
+                if [ -f "$filename" ] && cmp -s "$filename" "$temp_file"; then
+                  echo "✅ No changes detected for $name.json, skipping update"
+                  rm "$temp_file"
+                else
+                  # Archive old file if it exists and has content
+                  if [ -f "$filename" ] && [ -s "$filename" ]; then
+                    cp "$filename" "docs/data/archive/${name}_${TIMESTAMP}.json"
+                    echo "📁 Archived $name.json to archive/${name}_${TIMESTAMP}.json"
+                  fi
+                  # Move temp file to final location
+                  mv "$temp_file" "$filename"
+                  echo "🔄 Updated $name.json"
+                fi
               else
-                echo "✅ No changes detected for $file.json, skipping archive"
+                echo "❌ $name.json is not valid JSON. Aborting."
+                rm "$temp_file"
+                exit 1
               fi
+            else
+              echo "❌ Failed to download $name from $url"
+              exit 1
             fi
-          done
+          }
+          
+          # Download all files with change detection
+          download_and_check "character-cards" "https://gametora.com/data/umamusume/character-cards.${{ steps.get-codes.outputs.character_cards_code }}.json"
+          download_and_check "support-cards" "https://gametora.com/data/umamusume/support-cards.${{ steps.get-codes.outputs.support_cards_code }}.json"
+          download_and_check "skills" "https://gametora.com/data/umamusume/skills.${{ steps.get-codes.outputs.skills_code }}.json"
+          download_and_check "gacha-char-standard" "https://gametora.com/data/umamusume/gacha/char-standard.${{ steps.get-codes.outputs.gacha_char_standard_code }}.json"
+          download_and_check "gacha-special" "https://gametora.com/data/umamusume/gacha/special.${{ steps.get-codes.outputs.gacha_special_code }}.json"
+          download_and_check "gacha-support-standard" "https://gametora.com/data/umamusume/gacha/support-standard.${{ steps.get-codes.outputs.gacha_support_standard_code }}.json"
+          download_and_check "gacha-years-by-server" "https://gametora.com/data/umamusume/gacha/years-by-server.${{ steps.get-codes.outputs.gacha_years_by_server_code }}.json"
+          download_and_check "en-gacha-char-standard" "https://gametora.com/data/umamusume/en/gacha/char-standard.${{ steps.get-codes.outputs.en_gacha_char_standard_code }}.json"
+          download_and_check "en-gacha-special" "https://gametora.com/data/umamusume/en/gacha/special.${{ steps.get-codes.outputs.en_gacha_special_code }}.json"
+          download_and_check "en-gacha-support-standard" "https://gametora.com/data/umamusume/en/gacha/support-standard.${{ steps.get-codes.outputs.en_gacha_support_standard_code }}.json"
+          download_and_check "en-layout-data" "https://gametora.com/data/umamusume/en/layout_data.${{ steps.get-codes.outputs.en_layout_data_code }}.json"
+          download_and_check "events-champions-meeting" "https://gametora.com/data/umamusume/events/champions-meeting.${{ steps.get-codes.outputs.events_champions_meeting_code }}.json"
+
+      - name: Check if any files were updated
+        id: check-updates
+        run: |
+          # Check if there are any changes in docs/data directory
+          if git diff --quiet docs/data/; then
+            echo "No changes detected in any JSON files."
+            echo "files_updated=false" >> $GITHUB_OUTPUT
+          else
+            echo "JSON files have been updated."
+            echo "files_updated=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Commit and push changes
+        if: steps.check-updates.outputs.files_updated == 'true'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update JSON data from Gametora API [$(date +%Y-%m-%d)]"
