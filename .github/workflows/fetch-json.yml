@@ -72,9 +72,13 @@ jobs:
         run: mkdir -p docs/data
 
       - name: Download JSON files with change detection
+        id: download-files
         run: |
           TIMESTAMP=$(date +%Y%m%d_%H%M%S)
           mkdir -p docs/data/archive
+          
+          # Track if any files were added or updated
+          FILES_CHANGED=false
           
           # Function to download and check file
           download_and_check() {
@@ -96,14 +100,13 @@ jobs:
                   # Move temp file to final location
                   mv "$temp_file" "$filename"
                   echo "✅ Downloaded new $name.json"
+                  FILES_CHANGED=true
                 else
-                  echo "❌ $name.json is not valid JSON. Aborting."
+                  echo "❌ $name.json is not valid JSON. Skipping."
                   rm "$temp_file"
-                  exit 1
                 fi
               else
                 echo "❌ Failed to download $name from $url"
-                exit 1
               fi
             else
               echo "📁 File $name.json exists, checking for updates..."
@@ -124,15 +127,14 @@ jobs:
                     # Move temp file to final location
                     mv "$temp_file" "$filename"
                     echo "🔄 Updated $name.json"
+                    FILES_CHANGED=true
                   fi
                 else
-                  echo "❌ $name.json is not valid JSON. Aborting."
+                  echo "❌ $name.json is not valid JSON. Skipping update."
                   rm "$temp_file"
-                  exit 1
                 fi
               else
                 echo "❌ Failed to download $name from $url"
-                exit 1
               fi
             fi
           }
@@ -150,21 +152,19 @@ jobs:
           download_and_check "en-gacha-support-standard" "https://gametora.com/data/umamusume/en/gacha/support-standard.${{ steps.get-codes.outputs.en_gacha_support_standard_code }}.json"
           download_and_check "en-layout-data" "https://gametora.com/data/umamusume/en/layout_data.${{ steps.get-codes.outputs.en_layout_data_code }}.json"
           download_and_check "events-champions-meeting" "https://gametora.com/data/umamusume/events/champions-meeting.${{ steps.get-codes.outputs.events_champions_meeting_code }}.json"
+          
+          echo "files_changed=$FILES_CHANGED" >> $GITHUB_OUTPUT
 
-      - name: Check if any files were updated
-        id: check-updates
+      - name: List downloaded files
         run: |
-          # Check if there are any changes in docs/data directory
-          if git diff --quiet docs/data/; then
-            echo "No changes detected in any JSON files."
-            echo "files_updated=false" >> $GITHUB_OUTPUT
-          else
-            echo "JSON files have been updated."
-            echo "files_updated=true" >> $GITHUB_OUTPUT
-          fi
+          echo "📂 Current files in docs/data/:"
+          ls -la docs/data/
+          echo ""
+          echo "📁 Files in archive directory:"
+          ls -la docs/data/archive/ || echo "No archive directory"
 
       - name: Commit and push changes
-        if: steps.check-updates.outputs.files_updated == 'true'
+        if: steps.download-files.outputs.files_changed == 'true'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update JSON data from Gametora API [$(date +%Y-%m-%d)]"
@@ -172,4 +172,4 @@ jobs:
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
           branch: main
           file_pattern: "docs/data/**"
-          add_options: ${{ github.event_name == 'workflow_dispatch' && '-A' || '' }}
+          add_options: "-A"
