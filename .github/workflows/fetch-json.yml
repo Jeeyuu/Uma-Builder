@@ -83,38 +83,61 @@ jobs:
             local filename="docs/data/${name}.json"
             local temp_file="${filename}.tmp"
             
-            echo "📥 Downloading $name..."
+            echo "📥 Processing $name..."
             
-            # Download to temporary file
-            if curl -s -o "$temp_file" "$url"; then
-              # Check if file is valid JSON
-              if jq empty "$temp_file" 2>/dev/null; then
-                # Check if file exists and is different
-                if [ -f "$filename" ] && cmp -s "$filename" "$temp_file"; then
-                  echo "✅ No changes detected for $name.json, skipping update"
-                  rm "$temp_file"
-                else
-                  # Archive old file if it exists and has content
-                  if [ -f "$filename" ] && [ -s "$filename" ]; then
-                    cp "$filename" "docs/data/archive/${name}_${TIMESTAMP}.json"
-                    echo "📁 Archived $name.json to archive/${name}_${TIMESTAMP}.json"
-                  fi
+            # Check if file doesn't exist or is empty
+            if [ ! -f "$filename" ] || [ ! -s "$filename" ]; then
+              echo "📭 File $name.json doesn't exist or is empty, downloading..."
+              
+              # Download to temporary file
+              if curl -s -o "$temp_file" "$url"; then
+                # Check if file is valid JSON
+                if jq empty "$temp_file" 2>/dev/null; then
                   # Move temp file to final location
                   mv "$temp_file" "$filename"
-                  echo "🔄 Updated $name.json"
+                  echo "✅ Downloaded new $name.json"
+                else
+                  echo "❌ $name.json is not valid JSON. Aborting."
+                  rm "$temp_file"
+                  exit 1
                 fi
               else
-                echo "❌ $name.json is not valid JSON. Aborting."
-                rm "$temp_file"
+                echo "❌ Failed to download $name from $url"
                 exit 1
               fi
             else
-              echo "❌ Failed to download $name from $url"
-              exit 1
+              echo "📁 File $name.json exists, checking for updates..."
+              
+              # Download to temporary file for comparison
+              if curl -s -o "$temp_file" "$url"; then
+                # Check if file is valid JSON
+                if jq empty "$temp_file" 2>/dev/null; then
+                  # Check if file has changed
+                  if cmp -s "$filename" "$temp_file"; then
+                    echo "✅ No changes detected for $name.json, skipping update"
+                    rm "$temp_file"
+                  else
+                    # Archive old file
+                    cp "$filename" "docs/data/archive/${name}_${TIMESTAMP}.json"
+                    echo "📁 Archived $name.json to archive/${name}_${TIMESTAMP}.json"
+                    
+                    # Move temp file to final location
+                    mv "$temp_file" "$filename"
+                    echo "🔄 Updated $name.json"
+                  fi
+                else
+                  echo "❌ $name.json is not valid JSON. Aborting."
+                  rm "$temp_file"
+                  exit 1
+                fi
+              else
+                echo "❌ Failed to download $name from $url"
+                exit 1
+              fi
             fi
           }
           
-          # Download all files with change detection
+          # Download all files with existence checks and change detection
           download_and_check "character-cards" "https://gametora.com/data/umamusume/character-cards.${{ steps.get-codes.outputs.character_cards_code }}.json"
           download_and_check "support-cards" "https://gametora.com/data/umamusume/support-cards.${{ steps.get-codes.outputs.support_cards_code }}.json"
           download_and_check "skills" "https://gametora.com/data/umamusume/skills.${{ steps.get-codes.outputs.skills_code }}.json"
