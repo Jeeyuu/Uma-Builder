@@ -1092,7 +1092,7 @@ async function initializePage() {
     }
 }
 
-// Alternative simpler approach
+// Absolute simplest approach that should work
 async function jumpToGlobal() {
     if (!enLayoutData) {
         alert('Global data not loaded yet');
@@ -1171,22 +1171,11 @@ async function jumpToGlobal() {
     }
 
     if (targetBanner) {
-        // Simple approach using scrollIntoView with manual offset
-        const sidebar = document.querySelector('.sidebar');
-        const sidebarTop = sidebar.getBoundingClientRect().top;
-        
-        // Calculate how much we need to offset to align with sidebar top
-        const offset = sidebarTop;
-        
-        // Get the element's position
-        const elementTop = targetBanner.getBoundingClientRect().top + window.pageYOffset;
-        
-        // Calculate target scroll position
-        const targetScroll = elementTop - offset;
-        
-        window.scrollTo({
-            top: targetScroll,
-            behavior: 'smooth'
+        // Absolute simplest approach - just scroll to the element
+        // Let the browser handle the positioning
+        targetBanner.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
         });
 
         // Add highlight effect
