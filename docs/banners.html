@@ -5,522 +5,540 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uma Musume Banners</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            padding: 10px;
-            font-size: 12px;
-            height: 100vh;
-            overflow: hidden;
-        }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        padding: 10px;
+        font-size: 12px;
+        height: 100vh;
+        overflow: hidden;
+    }
 
+    .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 200px;
+        gap: 15px;
+        height: calc(100dvh - 20px);
+        align-items: stretch;
+    }
+
+    .main-content {
+        grid-column: 1;
+        height: 100%;
+        overflow-y: auto;
+        margin-top: 0;
+    }
+
+    h1 {
+        text-align: center;
+        margin-top: 15px;
+        color: #333;
+        font-size: 1.5em;
+        grid-column: 1 / -1;
+    }
+
+    /* Search Bar */
+    .search-container {
+        grid-column: 1 / -1;
+        margin-bottom: 15px;
+        position: sticky;
+        top: 0;
+        background: #f5f5f5;
+        padding: 10px 0;
+        z-index: 100;
+    }
+
+    .search-bar {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .search-bar:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+    }
+
+    /* Banner Styles */
+    .merged-banner {
+        background: white;
+        border-radius: 6px;
+        padding: 10px;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
+        display: grid;
+        gap: 15px;
+    }
+
+    .merged-banner.hidden,
+    .merged-banner.search-hidden {
+        display: none;
+    }
+
+    /* Banner column layout */
+    .banner-column {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    /* Grid layouts */
+    .merged-banner:has(.banner-column:only-child) {
+        grid-template-columns: 1fr;
+    }
+
+    .merged-banner:has(.character-column):has(.support-column) {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .banner-section {
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        padding: 8px;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex: 1;
+    }
+
+    .banner-section:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
+
+    .banner-section.selected {
+        border-color: #007bff;
+        background-color: #e7f3ff;
+    }
+
+    .banner-section h3 {
+        text-align: center;
+        margin-bottom: 8px;
+        color: #444;
+        font-size: 1.1em;
+    }
+
+    .banner-image {
+        max-width: 100%;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+
+    .banner-image img {
+        max-width: 100%;
+        height: 60px;
+        object-fit: contain;
+        border-radius: 4px;
+    }
+
+    .pickup-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+        gap: 4px;
+        margin-bottom: 8px;
+    }
+
+    .pickup-item {
+        text-align: center;
+    }
+
+    .pickup-image {
+        width: 40px;
+        height: 40px;
+        border-radius: 3px;
+        object-fit: cover;
+    }
+
+    .pickup-details {
+        flex-grow: 1;
+        min-width: 0;
+    }
+
+    .pickup-name {
+        font-weight: bold;
+        color: #333;
+        font-size: 10px;
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pickup-rate {
+        color: #666;
+        font-size: 9px;
+    }
+
+    .date-info {
+        font-size: 9px;
+        color: #666;
+        text-align: center;
+        grid-column: 1 / -1;
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #eee;
+        padding-top: 8px;
+    }
+
+    .hide-checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .hide-checkbox {
+        margin: 0;
+    }
+
+    .hide-label {
+        font-size: 10px;
+        color: #666;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+        position: sticky;
+        top: 10px;
+        height: calc(100dvh - 20px);
+        max-height: calc(100dvh - 20px);
+        overflow-y: auto;
+        background: white;
+        border-radius: 6px;
+        padding: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+        flex-shrink: 0;
+    }
+
+    .sidebar h3 {
+        text-align: center;
+        color: #444;
+        font-size: 1.1em;
+        margin: 0;
+    }
+
+    .jump-to-global-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        padding: 6px 10px;
+        font-size: 11px;
+        cursor: pointer;
+        margin-bottom: 10px;
+        width: 100%;
+        flex-shrink: 0;
+    }
+
+    .jump-to-global-btn:hover {
+        background: #218838;
+    }
+
+    .clear-all-btn {
+        background: #ff4444;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .selected-banners {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .selected-item {
+        text-align: center;
+        padding: 8px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        background: #fafafa;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .selected-item:hover {
+        border-color: #ff4444;
+        background-color: #fff5f5;
+    }
+
+    .selected-item-thumb {
+        width: 100%;
+        height: fit-content;
+        border-radius: 3px;
+        object-fit: contain;
+    }
+
+    .selected-item-date {
+        font-size: 10px;
+        color: #666;
+    }
+
+    .empty-sidebar {
+        text-align: center;
+        color: #999;
+        font-size: 11px;
+        padding: 10px;
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 768px) {
         .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 200px;
-            gap: 15px;
-            height: calc(100dvh - 20px);
-            align-items: stretch;
+            grid-template-columns: 65% 35%;
+            gap: 8px;
+            max-width: 100%;
         }
-
+        
         .main-content {
-            grid-column: 1;
             height: 100%;
             overflow-y: auto;
         }
-
-        h1 {
-            text-align: center;
-            margin-top: 15px;
-            color: #333;
-            font-size: 1.5em;
-            grid-column: 1 / -1;
-        }
-
-        /* Search Bar */
-        .search-container {
-            grid-column: 1 / -1;
-            margin-bottom: 15px;
-            position: sticky;
-            top: 0;
-            background: #f5f5f5;
-            padding: 10px 0;
-            z-index: 100;
-        }
-
-        .search-bar {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .search-bar:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-        }
-
-        /* Banner Styles */
-        .merged-banner {
-            background: white;
-            border-radius: 6px;
-            padding: 10px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-            display: grid;
-            gap: 15px;
-        }
-
-        .merged-banner.hidden {
-            display: none;
-        }
-
-        .merged-banner.search-hidden {
-            display: none;
-        }
-
-        /* Banner column layout */
-        .banner-column {
+        
+        .sidebar {
+            position: relative;
+            height: calc(100dvh - 20px);
+            max-height: calc(100dvh - 20px);
+            padding: 0;
+            margin-left: 0;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            top: 0;
         }
-
-        /* Single column layout when only one type exists */
-        .merged-banner:has(.banner-column:only-child) {
-            grid-template-columns: 1fr;
-        }
-
-        /* Two column layout when both types exist */
-        .merged-banner:has(.character-column):has(.support-column) {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .banner-section {
-            border: 1px solid #e0e0e0;
-            border-radius: 5px;
+        
+        .sidebar-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+            margin-bottom: 0;
             padding: 8px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            border-bottom: 1px solid #eee;
+            flex-shrink: 0;
+        }
+        
+        .selected-banners {
             flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            gap: 8px;
         }
-
-        .banner-section:hover {
-            border-color: #007bff;
-            background-color: #f8f9fa;
+        
+        .merged-banner {
+            grid-template-columns: 1fr !important;
+            gap: 10px;
         }
-
-        .banner-section.selected {
-            border-color: #007bff;
-            background-color: #e7f3ff;
+        
+        .banner-column {
+            gap: 10px;
         }
-
-        .banner-section h3 {
-            text-align: center;
-            margin-bottom: 8px;
-            color: #444;
-            font-size: 1.1em;
+        
+        /* Stack columns vertically on mobile */
+        .character-column {
+            order: 1;
         }
-
-        .banner-image {
-            max-width: 100%;
-            margin-bottom: 8px;
-            text-align: center;
-        }
-
-        .banner-image img {
-            max-width: 100%;
-            height: 60px;
-            object-fit: contain;
-            border-radius: 4px;
-        }
-
-        .pickup-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
-            gap: 4px;
-            margin-bottom: 8px;
-        }
-
-        .pickup-item {
-            text-align: center;
-        }
-
-        .pickup-image {
-            width: 40px;
-            height: 40px;
-            border-radius: 3px;
-            object-fit: cover;
-        }
-
-        .pickup-details {
-            flex-grow: 1;
-            min-width: 0;
-        }
-
-        .pickup-name {
-            font-weight: bold;
-            color: #333;
-            font-size: 10px;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .pickup-rate {
-            color: #666;
-            font-size: 9px;
+        
+        .support-column {
+            order: 2;
         }
 
         .date-info {
-            font-size: 9px;
-            color: #666;
+            flex-direction: column;
+            gap: 5px;
             text-align: center;
-            grid-column: 1 / -1;
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #eee;
-            padding-top: 8px;
         }
 
         .hide-checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .hide-checkbox {
-            margin: 0;
-        }
-
-        .hide-label {
-            font-size: 10px;
-            color: #666;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            position: sticky;
-            top: 10px;
-            height: calc(100dvh - 20px);
-            max-height: calc(100dvh - 20px);
-            overflow-y: auto;
-            background: white;
-            border-radius: 6px;
-            padding: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-        }
-
-        .sidebar h3 {
-            text-align: center;
-            color: #444;
-            font-size: 1.1em;
-            margin: 0;
-        }
-
-        .jump-to-global-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            padding: 6px 10px;
-            font-size: 11px;
-            cursor: pointer;
-            margin-bottom: 10px;
-            width: 100%;
-        }
-
-        .jump-to-global-btn:hover {
-            background: #218838;
-        }
-
-        .clear-all-btn {
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            width: 20px;
-            height: 20px;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
             justify-content: center;
         }
 
-        .selected-banners {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
         .selected-item {
-            text-align: center;
-            padding: 8px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            background: #fafafa;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .selected-item:hover {
-            border-color: #ff4444;
-            background-color: #fff5f5;
+            padding: 6px;
         }
 
         .selected-item-thumb {
-            width: 100%;
-            height: fit-content;
-            border-radius: 3px;
-            object-fit: contain;
+            height: 40px;
+            object-fit: cover;
         }
 
         .selected-item-date {
+            font-size: 8px;
+        }
+
+        .sidebar h3 {
+            font-size: 1em;
+        }
+
+        .clear-all-btn {
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+        }
+
+        .jump-to-global-btn {
             font-size: 10px;
-            color: #666;
+            padding: 5px 8px;
         }
 
-        .empty-sidebar {
-            text-align: center;
-            color: #999;
-            font-size: 11px;
+        .banner-image img {
+            height: 50px;
+        }
+
+        .pickup-grid {
+            grid-template-columns: repeat(auto-fit, minmax(35px, 1fr));
+        }
+
+        .pickup-image {
+            width: 35px;
+            height: 35px;
+        }
+
+        .pickup-name {
+            font-size: 9px;
+        }
+
+        .pickup-rate {
+            font-size: 8px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            grid-template-columns: 65% 35%;
+            gap: 6px;
+        }
+
+        body {
             padding: 10px;
+            font-size: 11px;
         }
 
-        /* Mobile Styles */
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 65% 35%;
-                gap: 8px;
-                max-width: 100%;
-            }
-            
-            .sidebar {
-                position: relative;
-                padding: 0;
-                margin-left: 0;
-                display: flex;
-                flex-direction: column;
-                top: 0;
-            }
-            
-            .sidebar-header {
-                position: sticky;
-                top: 0;
-                background: white;
-                z-index: 10;
-                margin-bottom: 0;
-                padding: 8px;
-                border-bottom: 1px solid #eee;
-                flex-shrink: 0;
-            }
-            
-            .selected-banners {
-                flex: 1;
-                overflow-y: auto;
-                padding: 8px;
-                gap: 8px;
-            }
-            
-            .merged-banner {
-                grid-template-columns: 1fr !important;
-                gap: 10px;
-            }
-            
-            .banner-column {
-                gap: 10px;
-            }
-            
-            /* Stack columns vertically on mobile */
-            .character-column {
-                order: 1;
-            }
-            
-            .support-column {
-                order: 2;
-            }
-
-            .date-info {
-                flex-direction: column;
-                gap: 5px;
-                text-align: center;
-            }
-
-            .hide-checkbox-container {
-                justify-content: center;
-            }
-
-            .selected-item {
-                padding: 6px;
-            }
-
-            .selected-item-thumb {
-                height: 40px;
-                object-fit: cover;
-            }
-
-            .selected-item-date {
-                font-size: 8px;
-            }
-
-            .sidebar h3 {
-                font-size: 1em;
-            }
-
-            .clear-all-btn {
-                width: 20px;
-                height: 20px;
-                font-size: 12px;
-            }
-
-            .jump-to-global-btn {
-                font-size: 10px;
-                padding: 5px 8px;
-            }
+        .merged-banner {
+            padding: 8px;
         }
 
-        @media (max-width: 480px) {
-            .container {
-                grid-template-columns: 65% 35%;
-                gap: 6px;
-            }
-
-            body {
-                padding: 10px;
-                font-size: 11px;
-            }
-
-            .merged-banner {
-                padding: 8px;
-            }
-
-            .banner-section {
-                padding: 6px;
-            }
-
-            .banner-image img {
-                height: 50px;
-            }
-
-            .pickup-grid {
-                grid-template-columns: repeat(auto-fit, minmax(35px, 1fr));
-                gap: 3px;
-            }
-
-            .pickup-image {
-                width: 35px;
-                height: 35px;
-            }
-
-            .pickup-name {
-                font-size: 9px;
-            }
-
-            .pickup-rate {
-                font-size: 8px;
-            }
-
-            .sidebar-header {
-                padding: 6px;
-            }
-
-            .selected-banners {
-                padding: 6px;
-            }
-
-            .selected-item {
-                padding: 5px;
-            }
-
-            .selected-item-thumb {
-                height: 35px;
-            }
-
-            .selected-item-date {
-                font-size: 7px;
-            }
+        .banner-section {
+            padding: 6px;
         }
 
-        /* Very small screens */
-        @media (max-width: 360px) {
-            .sidebar-header {
-                padding: 4px;
-            }
-            
-            .selected-banners {
-                padding: 4px;
-            }
-            
-            .selected-item-thumb {
-                height: 30px;
-            }
-            
-            .selected-item-date {
-                font-size: 6px;
-            }
-            
-            .pickup-image {
-                width: 30px;
-                height: 30px;
-            }
+        .sidebar-header {
+            padding: 6px;
         }
-    </style>
+
+        .selected-banners {
+            padding: 6px;
+        }
+
+        .selected-item {
+            padding: 5px;
+        }
+
+        .selected-item-thumb {
+            height: 35px;
+        }
+
+        .selected-item-date {
+            font-size: 7px;
+        }
+    }
+
+    /* Very small screens */
+    @media (max-width: 360px) {
+        .sidebar-header {
+            padding: 4px;
+        }
+        
+        .selected-banners {
+            padding: 4px;
+        }
+        
+        .selected-item-thumb {
+            height: 30px;
+        }
+        
+        .selected-item-date {
+            font-size: 6px;
+        }
+        
+        .pickup-image {
+            width: 30px;
+            height: 30px;
+        }
+
+        .banner-image img {
+            height: 45px;
+        }
+
+        .pickup-grid {
+            grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+            gap: 2px;
+        }
+    }
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Uma Musume Banners</h1>
-        
-        <div class="search-container">
-            <input type="text" class="search-bar" id="searchBar" placeholder="Search banners by character name, card ID, or date...">
-        </div>
-        
-        <div class="main-content" id="bannersContainer">
-            <div class="loading">Loading banners...</div>
-        </div>
+<div class="container">
+    <h1>Uma Musume Banners</h1>
+    
+    <div class="search-container">
+        <input type="text" class="search-bar" id="searchBar" placeholder="Search banners by character name, card ID, or date...">
+    </div>
+    
+    <div class="main-content" id="bannersContainer">
+        <div class="loading">Loading banners...</div>
+    </div>
 
-        <div class="sidebar">
-            <button class="jump-to-global-btn" id="jumpToGlobalBtn">Jump to Global</button>
-            <div class="sidebar-header">
-                <h3>Selected</h3>
-                <button class="clear-all-btn" id="clearAllBtn" title="Clear All">×</button>
-            </div>
-            <div class="selected-banners" id="selectedBanners">
-                <div class="empty-sidebar">None</div>
-            </div>
+    <div class="sidebar">
+        <button class="jump-to-global-btn" id="jumpToGlobalBtn">Jump to Global</button>
+        <div class="sidebar-header">
+            <h3>Selected</h3>
+            <button class="clear-all-btn" id="clearAllBtn" title="Clear All">×</button>
+        </div>
+        <div class="selected-banners" id="selectedBanners">
+            <div class="empty-sidebar">None</div>
         </div>
     </div>
+</div>
 
     <script>
         // Cache for banner image URLs to avoid repeated checks
@@ -771,19 +789,10 @@
             });
         }
 
-        // Function to jump to global banners
 // Function to jump to global banners
 async function jumpToGlobal() {
     if (!enLayoutData) {
         alert('Global data not loaded yet');
-        return;
-    }
-
-    const charBanners = await loadJSON('data/gacha-char-standard.json');
-    const supportBanners = await loadJSON('data/gacha-support-standard.json');
-
-    if (!charBanners || !supportBanners) {
-        alert('Failed to load banner data');
         return;
     }
 
@@ -793,77 +802,54 @@ async function jumpToGlobal() {
     console.log('Looking for global characters:', globalChars);
     console.log('Looking for global supports:', globalSupports);
 
-    // Find character banner with exact pickup match
-    const charBannerArray = Array.isArray(charBanners) ? charBanners : [charBanners];
-    const foundCharBanner = charBannerArray.find(banner => {
-        return banner.pickups && banner.pickups.some(pickup => {
-            const [pickupId] = pickup;
-            return globalChars.some(globalChar => globalChar.id === pickupId);
-        });
-    });
-
-    // Find support banner with exact pickup match (all global supports must be present)
-    const supportBannerArray = Array.isArray(supportBanners) ? supportBanners : [supportBanners];
-    const foundSupportBanner = supportBannerArray.find(banner => {
-        if (!banner.pickups) return false;
-        const bannerPickupIds = banner.pickups.map(pickup => pickup[0]);
-        return globalSupports.every(globalSupport => 
-            bannerPickupIds.includes(globalSupport.id)
-        );
-    });
-
-    console.log('Found character banner:', foundCharBanner);
-    console.log('Found support banner:', foundSupportBanner);
-
+    // Search through all banners for the global content
+    const allBanners = document.querySelectorAll('.merged-banner');
     let targetBanner = null;
 
-    // First try to find merged banner with both character and support
-    if (foundCharBanner && foundSupportBanner) {
-        targetBanner = document.querySelector(`.merged-banner[data-char-id="${foundCharBanner.id}"][data-support-id="${foundSupportBanner.id}"]`);
-        if (!targetBanner) {
-            // Try by start time
-            targetBanner = document.querySelector(`.merged-banner[data-start="${foundCharBanner.start}"]`);
-        }
-    }
-    
-    // If no merged banner found, try character only
-    if (!targetBanner && foundCharBanner) {
-        targetBanner = document.querySelector(`.merged-banner[data-char-id="${foundCharBanner.id}"]`);
-    }
-    
-    // If still no banner found, try support only
-    if (!targetBanner && foundSupportBanner) {
-        targetBanner = document.querySelector(`.merged-banner[data-support-id="${foundSupportBanner.id}"]`);
-    }
+    for (const banner of allBanners) {
+        const bannerText = banner.textContent;
+        
+        // Check if this banner contains the global character
+        const hasGlobalChar = globalChars.some(char => {
+            const charName = getCardName(char.id).toLowerCase();
+            return bannerText.toLowerCase().includes(charName) || 
+                   bannerText.includes(char.id.toString());
+        });
 
-    // Last resort: search by pickup content
-    if (!targetBanner) {
-        const allBanners = document.querySelectorAll('.merged-banner');
-        for (const banner of allBanners) {
-            const bannerText = banner.textContent;
-            const hasGlobalChar = globalChars.some(char => 
-                bannerText.includes(char.name_en) || bannerText.includes(char.id.toString())
-            );
-            const hasGlobalSupport = globalSupports.every(support => 
-                bannerText.includes(support.name_en) || bannerText.includes(support.id.toString())
-            );
-            
-            if (hasGlobalChar || hasGlobalSupport) {
-                targetBanner = banner;
-                break;
-            }
+        // Check if this banner contains all global supports
+        const hasGlobalSupport = globalSupports.every(support => {
+            const supportName = getCardName(support.id).toLowerCase();
+            return bannerText.toLowerCase().includes(supportName) || 
+                   bannerText.includes(support.id.toString());
+        });
+
+        if (hasGlobalChar || hasGlobalSupport) {
+            targetBanner = banner;
+            break;
         }
     }
 
     if (targetBanner) {
-        targetBanner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Calculate offset to account for search bar
+        const searchBar = document.querySelector('.search-container');
+        const searchBarHeight = searchBar ? searchBar.offsetHeight + 20 : 60;
+        
+        const elementPosition = targetBanner.getBoundingClientRect().top + window.pageYOffset;
+        const offsetPosition = elementPosition - searchBarHeight;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+
         // Add highlight effect
         targetBanner.style.boxShadow = '0 0 0 3px #28a745';
+        targetBanner.style.transition = 'box-shadow 0.3s ease';
         setTimeout(() => {
             targetBanner.style.boxShadow = '';
         }, 2000);
     } else {
-        alert('Global banner not found in current data. Check console for details.');
+        alert('Global banner not found. The current global banners may not be in the loaded data range.');
     }
 }
 
