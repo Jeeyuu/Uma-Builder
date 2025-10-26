@@ -883,53 +883,72 @@ async function jumpToGlobal() {
     }
 }
 
-        // Function to initialize click events
-        function initializeClickEvents() {
-            // Add click event to all banner sections
-            document.querySelectorAll('.banner-section').forEach(section => {
-                section.addEventListener('click', function() {
-                    const bannerId = this.dataset.bannerId;
-                    toggleBannerSelection(bannerId);
-                });
+// Function to initialize click events - with null checks
+function initializeClickEvents() {
+    // Add click event to all banner sections
+    const bannerSections = document.querySelectorAll('.banner-section');
+    if (bannerSections.length === 0) {
+        console.log('No banner sections found yet, will retry...');
+        return false;
+    }
+
+    bannerSections.forEach(section => {
+        section.addEventListener('click', function() {
+            const bannerId = this.dataset.bannerId;
+            toggleBannerSelection(bannerId);
+        });
+    });
+
+    // Add change event to all hide checkboxes
+    const hideCheckboxes = document.querySelectorAll('.hide-checkbox');
+    hideCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const currentIndex = parseInt(this.closest('.merged-banner').dataset.index);
+            const allBanners = document.querySelectorAll('.merged-banner');
+            
+            allBanners.forEach(banner => {
+                const bannerIndex = parseInt(banner.dataset.index);
+                if (bannerIndex < currentIndex) {
+                    if (this.checked) {
+                        banner.classList.add('hidden');
+                        // Uncheck all other hide checkboxes above
+                        const otherCheckboxes = banner.querySelectorAll('.hide-checkbox');
+                        otherCheckboxes.forEach(otherCheckbox => {
+                            otherCheckbox.checked = false;
+                        });
+                    } else {
+                        banner.classList.remove('hidden');
+                    }
+                }
             });
+            
+            saveHideState();
+        });
+    });
 
-            // Add change event to all hide checkboxes
-            document.querySelectorAll('.hide-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    const currentIndex = parseInt(this.closest('.merged-banner').dataset.index);
-                    const allBanners = document.querySelectorAll('.merged-banner');
-                    
-                    allBanners.forEach(banner => {
-                        const bannerIndex = parseInt(banner.dataset.index);
-                        if (bannerIndex < currentIndex) {
-                            if (this.checked) {
-                                banner.classList.add('hidden');
-                                // Uncheck all other hide checkboxes above
-                                const otherCheckboxes = banner.querySelectorAll('.hide-checkbox');
-                                otherCheckboxes.forEach(otherCheckbox => {
-                                    otherCheckbox.checked = false;
-                                });
-                            } else {
-                                banner.classList.remove('hidden');
-                            }
-                        }
-                    });
-                    
-                    saveHideState();
-                });
-            });
+    // Add click event to clear all button
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', clearAllSelections);
+    }
 
-            // Add click event to clear all button
-            document.getElementById('clearAllBtn').addEventListener('click', clearAllSelections);
+    // Add input event to search bar
+    const searchBar = document.getElementById('searchBar');
+    if (searchBar) {
+        searchBar.addEventListener('input', function() {
+            performSearch(this.value);
+        });
+    }
 
-            // Add input event to search bar
-            document.getElementById('searchBar').addEventListener('input', function() {
-                performSearch(this.value);
-            });
+    // Add click event to jump to global button
+    const jumpToGlobalBtn = document.getElementById('jumpToGlobalBtn');
+    if (jumpToGlobalBtn) {
+        jumpToGlobalBtn.addEventListener('click', jumpToGlobal);
+    }
 
-            // Add click event to jump to global button
-            document.getElementById('jumpToGlobalBtn').addEventListener('click', jumpToGlobal);
-        }
+    return true;
+}
+
 
         // Save selections to localStorage
         function saveSelections() {
@@ -999,172 +1018,172 @@ async function jumpToGlobal() {
             return banners.sort((a, b) => a.start - b.start); // Oldest first (past to present)
         }
 
-        // Main initialization function
-        async function initializePage() {
-            const bannersContainer = document.getElementById('bannersContainer');
+// Main initialization function
+async function initializePage() {
+    const bannersContainer = document.getElementById('bannersContainer');
 
-            try {
-                // Load card data first
-                await loadCardData();
-                
-                // Load both JSON files
-                const [charData, supportData] = await Promise.all([
-                    loadJSON('data/gacha-char-standard.json'),
-                    loadJSON('data/gacha-support-standard.json')
-                ]);
+    try {
+        // Load card data first
+        await loadCardData();
+        
+        // Load both JSON files
+        const [charData, supportData] = await Promise.all([
+            loadJSON('data/gacha-char-standard.json'),
+            loadJSON('data/gacha-support-standard.json')
+        ]);
 
-                if (!charData || !supportData) {
-                    throw new Error('Failed to load banner data');
-                }
+        if (!charData || !supportData) {
+            throw new Error('Failed to load banner data');
+        }
 
-                bannersContainer.innerHTML = '';
+        bannersContainer.innerHTML = '';
 
-                // Handle array or single object formats
-                const charBanners = Array.isArray(charData) ? charData : [charData];
-                const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
+        // Handle array or single object formats
+        const charBanners = Array.isArray(charData) ? charData : [charData];
+        const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
 
-                // Create a combined array of all banners with their types
-                const allBanners = [];
-                
-                charBanners.forEach(banner => {
-                    allBanners.push({...banner, type: 'character'});
+        // Create a combined array of all banners with their types
+        const allBanners = [];
+        
+        charBanners.forEach(banner => {
+            allBanners.push({...banner, type: 'character'});
+        });
+        
+        supportBanners.forEach(banner => {
+            allBanners.push({...banner, type: 'support'});
+        });
+
+        // Sort all banners by start date (past to present)
+        const sortedBanners = allBanners.sort((a, b) => a.start - b.start);
+
+        // Group banners by start time
+        const bannersByStartTime = {};
+        
+        sortedBanners.forEach(banner => {
+            if (!bannersByStartTime[banner.start]) {
+                bannersByStartTime[banner.start] = {
+                    characters: [],
+                    supports: [],
+                    start: banner.start,
+                    end: banner.end
+                };
+            }
+            if (banner.type === 'character') {
+                bannersByStartTime[banner.start].characters.push(banner);
+            } else {
+                bannersByStartTime[banner.start].supports.push(banner);
+            }
+        });
+
+        let bannerIndex = 0;
+
+        // Process each start time in chronological order
+        const sortedStartTimes = Object.keys(bannersByStartTime).sort((a, b) => a - b);
+        
+        for (const startTime of sortedStartTimes) {
+            const timeSlot = bannersByStartTime[startTime];
+            const characterBanners = timeSlot.characters;
+            const supportBanners = timeSlot.supports;
+
+            const totalBanners = characterBanners.length + supportBanners.length;
+            
+            if (totalBanners === 0) {
+                continue;
+            }
+
+            // Calculate the grid layout
+            const gridColumns = characterBanners.length > 0 && supportBanners.length > 0 ? '1fr 1fr' : '1fr';
+
+            // Create the banner container
+            let bannerHTML = `<div class="merged-banner" data-start="${timeSlot.start}" data-end="${timeSlot.end}" data-index="${bannerIndex}" style="grid-template-columns: ${gridColumns};">`;
+
+            // Left column - Character banners (stacked vertically)
+            if (characterBanners.length > 0) {
+                bannerHTML += `<div class="banner-column character-column">`;
+                characterBanners.forEach(banner => {
+                    bannerHTML += createBannerSectionHTML(banner, 'character');
                 });
-                
+                bannerHTML += `</div>`;
+            }
+
+            // Right column - Support banners (stacked vertically)
+            if (supportBanners.length > 0) {
+                bannerHTML += `<div class="banner-column support-column">`;
                 supportBanners.forEach(banner => {
-                    allBanners.push({...banner, type: 'support'});
+                    bannerHTML += createBannerSectionHTML(banner, 'support');
                 });
+                bannerHTML += `</div>`;
+            }
 
-                // Sort all banners by start date (past to present)
-                const sortedBanners = allBanners.sort((a, b) => a.start - b.start);
-
-                // Group banners by start time
-                const bannersByStartTime = {};
-                
-                sortedBanners.forEach(banner => {
-                    if (!bannersByStartTime[banner.start]) {
-                        bannersByStartTime[banner.start] = {
-                            characters: [],
-                            supports: [],
-                            start: banner.start,
-                            end: banner.end
-                        };
-                    }
-                    if (banner.type === 'character') {
-                        bannersByStartTime[banner.start].characters.push(banner);
-                    } else {
-                        bannersByStartTime[banner.start].supports.push(banner);
-                    }
-                });
-
-                let bannerIndex = 0;
-
-                // Process each start time in chronological order
-                const sortedStartTimes = Object.keys(bannersByStartTime).sort((a, b) => a - b);
-                
-                for (const startTime of sortedStartTimes) {
-                    const timeSlot = bannersByStartTime[startTime];
-                    const characterBanners = timeSlot.characters;
-                    const supportBanners = timeSlot.supports;
-
-                    const totalBanners = characterBanners.length + supportBanners.length;
-                    
-                    if (totalBanners === 0) {
-                        continue;
-                    }
-
-                    // Calculate the grid layout
-                    const gridColumns = characterBanners.length > 0 && supportBanners.length > 0 ? '1fr 1fr' : '1fr';
-
-// In the initializePage() function, replace the banner HTML creation part:
-// Create the banner container
-let bannerHTML = `<div class="merged-banner" data-start="${timeSlot.start}" data-end="${timeSlot.end}" data-index="${bannerIndex}" style="grid-template-columns: ${gridColumns};"`;
-
-// Add character banners data attributes
-if (characterBanners.length > 0) {
-    characterBanners.forEach(banner => {
-        bannerHTML += ` data-char-id="${banner.id}"`;
-    });
-}
-
-// Add support banners data attributes
-if (supportBanners.length > 0) {
-    supportBanners.forEach(banner => {
-        bannerHTML += ` data-support-id="${banner.id}"`;
-    });
-}
-
-bannerHTML += `>`;
-
-                    // Left column - Character banners (stacked vertically)
-                    if (characterBanners.length > 0) {
-                        bannerHTML += `<div class="banner-column character-column">`;
-                        characterBanners.forEach(banner => {
-                            bannerHTML += createBannerSectionHTML(banner, 'character');
-                        });
-                        bannerHTML += `</div>`;
-                    }
-
-                    // Right column - Support banners (stacked vertically)
-                    if (supportBanners.length > 0) {
-                        bannerHTML += `<div class="banner-column support-column">`;
-                        supportBanners.forEach(banner => {
-                            bannerHTML += createBannerSectionHTML(banner, 'support');
-                        });
-                        bannerHTML += `</div>`;
-                    }
-
-                    // Add date info and close the banner container
-                    const startDate = formatDate(timeSlot.start);
-                    const endDate = formatDate(timeSlot.end);
-                    
-                    bannerHTML += `
-                        <div class="date-info">
-                            <span>${startDate} - ${endDate}</span>
-                            <div class="hide-checkbox-container">
-                                <input type="checkbox" class="hide-checkbox" id="hide-above-${bannerIndex}">
-                                <label class="hide-label" for="hide-above-${bannerIndex}">Hide All Above</label>
-                            </div>
-                        </div>
+            // Add date info and close the banner container
+            const startDate = formatDate(timeSlot.start);
+            const endDate = formatDate(timeSlot.end);
+            
+            bannerHTML += `
+                <div class="date-info">
+                    <span>${startDate} - ${endDate}</span>
+                    <div class="hide-checkbox-container">
+                        <input type="checkbox" class="hide-checkbox" id="hide-above-${bannerIndex}">
+                        <label class="hide-label" for="hide-above-${bannerIndex}">Hide All Above</label>
                     </div>
-                    `;
+                </div>
+            </div>
+            `;
 
-                    bannersContainer.innerHTML += bannerHTML;
-                    bannerIndex++;
+            bannersContainer.innerHTML += bannerHTML;
+            bannerIndex++;
 
-                    // Load banner images after the HTML is added
-                    setTimeout(async () => {
-                        // Load character banner images
-                        for (const banner of characterBanners) {
-                            const bannerUrl = await getBannerImageUrl(banner.id);
-                            const img = document.querySelector(`.banner-img[data-banner-id="${banner.id}"]`);
-                            if (img) {
-                                img.src = bannerUrl;
-                            }
-                        }
-                        // Load support banner images
-                        for (const banner of supportBanners) {
-                            const bannerUrl = await getBannerImageUrl(banner.id);
-                            const img = document.querySelector(`.banner-img[data-banner-id="${banner.id}"]`);
-                            if (img) {
-                                img.src = bannerUrl;
-                            }
-                        }
-                    }, 0);
+            // Load banner images after the HTML is added
+            setTimeout(async () => {
+                // Load character banner images
+                for (const banner of characterBanners) {
+                    const bannerUrl = await getBannerImageUrl(banner.id);
+                    const img = document.querySelector(`.banner-img[data-banner-id="${banner.id}"]`);
+                    if (img) {
+                        img.src = bannerUrl;
+                    }
                 }
+                // Load support banner images
+                for (const banner of supportBanners) {
+                    const bannerUrl = await getBannerImageUrl(banner.id);
+                    const img = document.querySelector(`.banner-img[data-banner-id="${banner.id}"]`);
+                    if (img) {
+                        img.src = bannerUrl;
+                    }
+                }
+            }, 0);
+        }
 
-                // Initialize click functionality
-                initializeClickEvents();
-                loadSelections();
-                loadHideState();
+        // Initialize click functionality - with retry if elements aren't ready
+        let clickEventsInitialized = false;
+        let retryCount = 0;
+        const maxRetries = 5;
 
-            } catch (error) {
-                console.error('Error initializing page:', error);
-                bannersContainer.innerHTML = '<div class="loading">Error loading banner data</div>';
+        function tryInitializeClickEvents() {
+            clickEventsInitialized = initializeClickEvents();
+            if (!clickEventsInitialized && retryCount < maxRetries) {
+                retryCount++;
+                setTimeout(tryInitializeClickEvents, 100);
             }
         }
 
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', initializePage);
+        tryInitializeClickEvents();
+
+        // Load saved states
+        loadSelections();
+        loadHideState();
+
+    } catch (error) {
+        console.error('Error initializing page:', error);
+        bannersContainer.innerHTML = '<div class="loading">Error loading banner data</div>';
+    }
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Set a timeout to ensure DOM is fully ready
+    setTimeout(initializePage, 100);
+});
     </script>
 </body>
 </html>
