@@ -890,6 +890,7 @@
         }
 
 // Main initialization function
+// Main initialization function
 async function initializePage() {
     const bannersContainer = document.getElementById('bannersContainer');
 
@@ -913,42 +914,59 @@ async function initializePage() {
         const charBanners = Array.isArray(charData) ? charData : [charData];
         const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
 
-        // Sort banners by date (past to present)
-        const sortedCharBanners = sortBannersByDate(charBanners);
-        const sortedSupportBanners = sortBannersByDate(supportBanners);
-
-        // Create a map of support banners by start date for easy pairing
-        const supportByStartDate = {};
-        const processedSupportBanners = new Set(); // Track processed support banners
+        // Create a combined array of all banners with their types
+        const allBanners = [];
         
-        sortedSupportBanners.forEach(banner => {
-            supportByStartDate[banner.start] = banner;
+        charBanners.forEach(banner => {
+            allBanners.push({...banner, type: 'character'});
+        });
+        
+        supportBanners.forEach(banner => {
+            allBanners.push({...banner, type: 'support'});
+        });
+
+        // Sort all banners by start date (past to present)
+        const sortedBanners = allBanners.sort((a, b) => a.start - b.start);
+
+        // Group banners by start time to find pairs
+        const bannersByStartTime = {};
+        
+        sortedBanners.forEach(banner => {
+            if (!bannersByStartTime[banner.start]) {
+                bannersByStartTime[banner.start] = {
+                    character: null,
+                    support: null,
+                    start: banner.start,
+                    end: banner.end
+                };
+            }
+            bannersByStartTime[banner.start][banner.type] = banner;
         });
 
         let bannerIndex = 0;
 
-        // Create merged banners - process character banners first
-        for (const charBanner of sortedCharBanners) {
-            const supportBanner = supportByStartDate[charBanner.start];
-            if (supportBanner) {
+        // Process each start time in chronological order
+        const sortedStartTimes = Object.keys(bannersByStartTime).sort((a, b) => a - b);
+        
+        for (const startTime of sortedStartTimes) {
+            const banners = bannersByStartTime[startTime];
+            const charBanner = banners.character;
+            const supportBanner = banners.support;
+
+            if (charBanner && supportBanner) {
+                // Both banners exist - create merged banner
                 const bannerHTML = await createMergedBannerHTML(charBanner, supportBanner, bannerIndex);
                 bannersContainer.innerHTML += bannerHTML;
                 bannerIndex++;
-                // Mark this support banner as processed
-                processedSupportBanners.add(supportBanner.id);
-            } else {
-                // Create character banner only
-                console.log(`No support banner found for character banner ${charBanner.id} starting ${charBanner.start}`);
+            } else if (charBanner) {
+                // Character banner only
+                console.log(`Character-only banner: ${charBanner.id} starting ${new Date(charBanner.start * 1000).toLocaleDateString()}`);
                 const bannerHTML = await createSingleBannerHTML(charBanner, 'character', bannerIndex);
                 bannersContainer.innerHTML += bannerHTML;
                 bannerIndex++;
-            }
-        }
-
-        // Create support-only banners that weren't processed
-        for (const supportBanner of sortedSupportBanners) {
-            if (!processedSupportBanners.has(supportBanner.id)) {
-                console.log(`Creating support-only banner ${supportBanner.id} starting ${supportBanner.start}`);
+            } else if (supportBanner) {
+                // Support banner only
+                console.log(`Support-only banner: ${supportBanner.id} starting ${new Date(supportBanner.start * 1000).toLocaleDateString()}`);
                 const bannerHTML = await createSingleBannerHTML(supportBanner, 'support', bannerIndex);
                 bannersContainer.innerHTML += bannerHTML;
                 bannerIndex++;
