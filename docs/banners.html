@@ -31,12 +31,15 @@
         align-items: stretch;
     }
 
-    .main-content {
-        grid-column: 1;
-        height: 100%;
-        overflow-y: auto;
-        margin-top: 0;
-    }
+/* Main content area */
+.main-content {
+    grid-column: 1;
+    height: 100%;
+    overflow-y: auto;
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+}
 
     h1 {
         text-align: center;
@@ -46,24 +49,25 @@
         grid-column: 1 / -1;
     }
 
-    /* Search Bar - moved to main content */
-    .search-container {
-        margin-bottom: 15px;
-    }
+/* Search bar stays at top of main content */
+.search-container {
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
 
-    .search-bar {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-    }
+.search-bar {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
 
-    .search-bar:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
-    }
+.search-bar:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
 
     /* Banner Styles */
     .merged-banner {
@@ -96,6 +100,12 @@
     .merged-banner:has(.character-column):has(.support-column) {
         grid-template-columns: 1fr 1fr;
     }
+
+/* Banners container scrolls independently */
+.banners-container {
+    flex: 1;
+    overflow-y: auto;
+}
 
     .banner-section {
         border: 1px solid #e0e0e0;
@@ -514,11 +524,14 @@
 <div class="container">
     <h1>Uma Musume Banners</h1>
     
-    <div class="main-content" id="bannersContainer">
+    <div class="main-content" id="mainContent">
+        <!-- Search bar stays separate from banners container -->
         <div class="search-container">
             <input type="text" class="search-bar" id="searchBar" placeholder="Search banners by character name, card ID, or date...">
         </div>
-        <div class="loading">Loading banners...</div>
+        <div class="banners-container" id="bannersContainer">
+            <div class="loading">Loading banners...</div>
+        </div>
     </div>
 
     <div class="sidebar">
@@ -782,106 +795,6 @@
             });
         }
 
-// Function to jump to global banners
-async function jumpToGlobal() {
-    if (!enLayoutData) {
-        alert('Global data not loaded yet');
-        return;
-    }
-
-    const globalChars = enLayoutData.right_nav_newest.chars.list;
-    const globalSupports = enLayoutData.right_nav_newest.supports.list;
-
-    console.log('Looking for global characters:', globalChars);
-    console.log('Looking for global supports:', globalSupports);
-
-    // Search through all banners for the global content
-    const allBanners = document.querySelectorAll('.merged-banner:not(.hidden):not(.search-hidden)');
-    let targetBanner = null;
-
-    for (const banner of allBanners) {
-        const bannerText = banner.textContent;
-        
-        // Check if this banner contains the global character
-        const hasGlobalChar = globalChars.some(char => {
-            const charName = getCardName(char.id).toLowerCase();
-            return bannerText.toLowerCase().includes(charName) || 
-                   bannerText.includes(char.id.toString());
-        });
-
-        // Check if this banner contains ALL global supports
-        const hasAllGlobalSupports = globalSupports.every(support => {
-            const supportName = getCardName(support.id).toLowerCase();
-            return bannerText.toLowerCase().includes(supportName) || 
-                   bannerText.includes(support.id.toString());
-        });
-
-        // Priority 1: Banner has both the character AND all supports
-        if (hasGlobalChar && hasAllGlobalSupports) {
-            targetBanner = banner;
-            console.log('Found exact match - both character and all supports');
-            break;
-        }
-    }
-
-    // Priority 2: If no exact match, look for character banner only
-    if (!targetBanner) {
-        for (const banner of allBanners) {
-            const bannerText = banner.textContent;
-            const hasGlobalChar = globalChars.some(char => {
-                const charName = getCardName(char.id).toLowerCase();
-                return bannerText.toLowerCase().includes(charName) || 
-                       bannerText.includes(char.id.toString());
-            });
-
-            if (hasGlobalChar) {
-                targetBanner = banner;
-                console.log('Found character banner only');
-                break;
-            }
-        }
-    }
-
-    // Priority 3: If still no match, look for support banner with all supports
-    if (!targetBanner) {
-        for (const banner of allBanners) {
-            const bannerText = banner.textContent;
-            const hasAllGlobalSupports = globalSupports.every(support => {
-                const supportName = getCardName(support.id).toLowerCase();
-                return bannerText.toLowerCase().includes(supportName) || 
-                       bannerText.includes(support.id.toString());
-            });
-
-            if (hasAllGlobalSupports) {
-                targetBanner = banner;
-                console.log('Found support banner with all supports');
-                break;
-            }
-        }
-    }
-
-    if (targetBanner) {
-        // Simple scroll to element - no complex offset calculations needed
-        targetBanner.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'center' 
-        });
-
-        // Add highlight effect
-        targetBanner.style.boxShadow = '0 0 0 3px #28a745';
-        targetBanner.style.transition = 'box-shadow 0.3s ease';
-        
-        // Remove highlight after 3 seconds
-        setTimeout(() => {
-            targetBanner.style.boxShadow = '';
-        }, 3000);
-        
-        console.log('Scrolled to target banner:', targetBanner);
-    } else {
-        alert('Global banner not found. The current global banners may not be in the loaded data range.');
-        console.log('No banner found matching global criteria');
-    }
-}
 
 // Function to initialize click events - with null checks
 function initializeClickEvents() {
@@ -1018,7 +931,7 @@ function initializeClickEvents() {
             return banners.sort((a, b) => a.start - b.start); // Oldest first (past to present)
         }
 
-// Main initialization function
+// Update the initializePage function to use the correct container
 async function initializePage() {
     const bannersContainer = document.getElementById('bannersContainer');
 
@@ -1179,6 +1092,118 @@ async function initializePage() {
     }
 }
 
+// Updated jumpToGlobal function with better scroll positioning
+async function jumpToGlobal() {
+    if (!enLayoutData) {
+        alert('Global data not loaded yet');
+        return;
+    }
+
+    const globalChars = enLayoutData.right_nav_newest.chars.list;
+    const globalSupports = enLayoutData.right_nav_newest.supports.list;
+
+    console.log('Looking for global characters:', globalChars);
+    console.log('Looking for global supports:', globalSupports);
+
+    // Search through all banners for the global content
+    const allBanners = document.querySelectorAll('.merged-banner:not(.hidden):not(.search-hidden)');
+    let targetBanner = null;
+
+    for (const banner of allBanners) {
+        const bannerText = banner.textContent;
+        
+        // Check if this banner contains the global character
+        const hasGlobalChar = globalChars.some(char => {
+            const charName = getCardName(char.id).toLowerCase();
+            return bannerText.toLowerCase().includes(charName) || 
+                   bannerText.includes(char.id.toString());
+        });
+
+        // Check if this banner contains ALL global supports
+        const hasAllGlobalSupports = globalSupports.every(support => {
+            const supportName = getCardName(support.id).toLowerCase();
+            return bannerText.toLowerCase().includes(supportName) || 
+                   bannerText.includes(support.id.toString());
+        });
+
+        // Priority 1: Banner has both the character AND all supports
+        if (hasGlobalChar && hasAllGlobalSupports) {
+            targetBanner = banner;
+            console.log('Found exact match - both character and all supports');
+            break;
+        }
+    }
+
+    // Priority 2: If no exact match, look for character banner only
+    if (!targetBanner) {
+        for (const banner of allBanners) {
+            const bannerText = banner.textContent;
+            const hasGlobalChar = globalChars.some(char => {
+                const charName = getCardName(char.id).toLowerCase();
+                return bannerText.toLowerCase().includes(charName) || 
+                       bannerText.includes(char.id.toString());
+            });
+
+            if (hasGlobalChar) {
+                targetBanner = banner;
+                console.log('Found character banner only');
+                break;
+            }
+        }
+    }
+
+    // Priority 3: If still no match, look for support banner with all supports
+    if (!targetBanner) {
+        for (const banner of allBanners) {
+            const bannerText = banner.textContent;
+            const hasAllGlobalSupports = globalSupports.every(support => {
+                const supportName = getCardName(support.id).toLowerCase();
+                return bannerText.toLowerCase().includes(supportName) || 
+                       bannerText.includes(support.id.toString());
+            });
+
+            if (hasAllGlobalSupports) {
+                targetBanner = banner;
+                console.log('Found support banner with all supports');
+                break;
+            }
+        }
+    }
+
+    if (targetBanner) {
+        // Calculate scroll position to align banner top with sidebar top
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const bannerRect = targetBanner.getBoundingClientRect();
+        
+        // Calculate the offset needed to align banner top with sidebar top
+        const currentScroll = window.pageYOffset;
+        const bannerTopRelative = bannerRect.top + currentScroll;
+        const sidebarTopRelative = sidebarRect.top + currentScroll;
+        
+        // Scroll so banner top aligns with sidebar top
+        const targetScroll = bannerTopRelative - sidebarTopRelative + currentScroll;
+
+        window.scrollTo({
+            top: targetScroll,
+            behavior: 'smooth'
+        });
+
+        // Add highlight effect
+        targetBanner.style.boxShadow = '0 0 0 3px #28a745';
+        targetBanner.style.transition = 'box-shadow 0.3s ease';
+        
+        // Remove highlight after 3 seconds
+        setTimeout(() => {
+            targetBanner.style.boxShadow = '';
+        }, 3000);
+        
+        console.log('Scrolled to target banner:', targetBanner);
+    } else {
+        alert('Global banner not found. The current global banners may not be in the loaded data range.');
+        console.log('No banner found matching global criteria');
+    }
+}
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', function() {
     // Set a timeout to ensure DOM is fully ready
