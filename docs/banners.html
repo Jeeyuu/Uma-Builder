@@ -503,10 +503,10 @@
             return `Card ${cardId}`;
         }
 
-// Function to calculate correct rate percentage
-function calculateRate(rate) {
-    return (rate / 10000).toFixed(2);
-}
+        // Function to calculate correct rate percentage
+        function calculateRate(rate) {
+            return (rate / 10000).toFixed(2);
+        }
 
         // Function to convert Unix timestamp to readable date
         function formatDate(timestamp) {
@@ -897,11 +897,15 @@ function calculateRate(rate) {
                 // Load card data first
                 await loadCardData();
                 
-                // Load both JSON files
+                // Load both JSON files - UPDATED PATHS
                 const [charData, supportData] = await Promise.all([
-                    loadJSON('data/char-standard.30dbddac.json'),
-                    loadJSON('data/support-standard.8b227fc8.json')
+                    loadJSON('data/gacha-char-standard.json'),
+                    loadJSON('data/gacha-support-standard.json')
                 ]);
+
+                if (!charData || !supportData) {
+                    throw new Error('Failed to load banner data');
+                }
 
                 bannersContainer.innerHTML = '';
 
