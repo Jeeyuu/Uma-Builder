@@ -818,16 +818,54 @@ async function jumpToGlobal() {
                    bannerText.includes(char.id.toString());
         });
 
-        // Check if this banner contains all global supports
-        const hasGlobalSupport = globalSupports.every(support => {
+        // Check if this banner contains ALL global supports
+        const hasAllGlobalSupports = globalSupports.every(support => {
             const supportName = getCardName(support.id).toLowerCase();
             return bannerText.toLowerCase().includes(supportName) || 
                    bannerText.includes(support.id.toString());
         });
 
-        if (hasGlobalChar || hasGlobalSupport) {
+        // Priority 1: Banner has both the character AND all supports
+        if (hasGlobalChar && hasAllGlobalSupports) {
             targetBanner = banner;
+            console.log('Found exact match - both character and all supports');
             break;
+        }
+    }
+
+    // Priority 2: If no exact match, look for character banner only
+    if (!targetBanner) {
+        for (const banner of allBanners) {
+            const bannerText = banner.textContent;
+            const hasGlobalChar = globalChars.some(char => {
+                const charName = getCardName(char.id).toLowerCase();
+                return bannerText.toLowerCase().includes(charName) || 
+                       bannerText.includes(char.id.toString());
+            });
+
+            if (hasGlobalChar) {
+                targetBanner = banner;
+                console.log('Found character banner only');
+                break;
+            }
+        }
+    }
+
+    // Priority 3: If still no match, look for support banner with all supports
+    if (!targetBanner) {
+        for (const banner of allBanners) {
+            const bannerText = banner.textContent;
+            const hasAllGlobalSupports = globalSupports.every(support => {
+                const supportName = getCardName(support.id).toLowerCase();
+                return bannerText.toLowerCase().includes(supportName) || 
+                       bannerText.includes(support.id.toString());
+            });
+
+            if (hasAllGlobalSupports) {
+                targetBanner = banner;
+                console.log('Found support banner with all supports');
+                break;
+            }
         }
     }
 
@@ -853,8 +891,11 @@ async function jumpToGlobal() {
         setTimeout(() => {
             targetBanner.style.boxShadow = '';
         }, 3000);
+        
+        console.log('Scrolled to target banner:', targetBanner);
     } else {
         alert('Global banner not found. The current global banners may not be in the loaded data range.');
+        console.log('No banner found matching global criteria');
     }
 }
 
