@@ -686,79 +686,96 @@
             }
         }
 
-        // Function to update sidebar with selected banners only
-        function updateSidebar() {
-            const sidebar = document.getElementById('selectedBanners');
+// Function to update sidebar with selected banners only
+function updateSidebar() {
+    const sidebar = document.getElementById('selectedBanners');
 
-            if (selectedBanners.size === 0) {
-                sidebar.innerHTML = '<div class="empty-sidebar">None</div>';
-                return;
-            }
+    if (selectedBanners.size === 0) {
+        sidebar.innerHTML = '<div class="empty-sidebar">None</div>';
+        return;
+    }
 
-            // Convert to array and sort by start date (oldest first - past to present)
-            const sortedBanners = Array.from(selectedBanners.entries())
-                .sort(([,a], [,b]) => a.start - b.start);
+    // Convert to array and sort by start date (oldest first - past to present)
+    const sortedBanners = Array.from(selectedBanners.entries())
+        .sort(([,a], [,b]) => a.start - b.start);
 
-            let sidebarHTML = '';
-            sortedBanners.forEach(([bannerId, bannerData]) => {
-                const bannerImg = document.querySelector(`.banner-img[data-banner-id="${bannerId}"]`);
-                const imgSrc = bannerImg ? bannerImg.src : '';
-                const dateRange = `${formatDate(bannerData.start)} - ${formatDate(bannerData.end)}`;
-                
-                sidebarHTML += `
-                    <div class="selected-item" data-banner-id="${bannerId}">
-                        <img src="${imgSrc}" alt="Banner ${bannerId}" class="selected-item-thumb" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
-                        <div class="selected-item-date">${dateRange}</div>
-                    </div>
-                `;
-            });
-
-            sidebar.innerHTML = sidebarHTML;
-
-            // Add click event to remove banners from sidebar
-            sidebar.querySelectorAll('.selected-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const bannerId = this.dataset.bannerId;
-                    toggleBannerSelection(bannerId, false);
-                });
-            });
+    let sidebarHTML = '';
+    sortedBanners.forEach(([bannerId, bannerData]) => {
+        // Try to find the banner image from the DOM first
+        let imgSrc = '';
+        const bannerImg = document.querySelector(`.banner-img[data-banner-id="${bannerId}"]`);
+        if (bannerImg && bannerImg.src) {
+            imgSrc = bannerImg.src;
+        } else {
+            // If image not found in DOM, generate the URL
+            imgSrc = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
         }
+        
+        const dateRange = `${formatDate(bannerData.start)} - ${formatDate(bannerData.end)}`;
+        
+        sidebarHTML += `
+            <div class="selected-item" data-banner-id="${bannerId}">
+                <img src="${imgSrc}" alt="Banner ${bannerId}" class="selected-item-thumb" onerror="this.style.display='none'" onload="this.style.opacity='1'" style="opacity:0; transition: opacity 0.3s;">
+                <div class="selected-item-date">${dateRange}</div>
+            </div>
+        `;
+    });
 
-        // Function to toggle banner selection
-        function toggleBannerSelection(bannerId, state = null) {
-            const bannerSection = document.querySelector(`.banner-section[data-banner-id="${bannerId}"]`);
-            const mergedBanner = bannerSection.closest('.merged-banner');
-            
-            const bannerData = {
-                id: bannerId,
-                type: bannerSection.dataset.bannerType,
-                start: parseInt(mergedBanner.dataset.start),
-                end: parseInt(mergedBanner.dataset.end)
-            };
+    sidebar.innerHTML = sidebarHTML;
 
-            if (state === null) {
-                // Toggle state
-                if (selectedBanners.has(bannerId)) {
-                    selectedBanners.delete(bannerId);
-                    bannerSection.classList.remove('selected');
-                } else {
-                    selectedBanners.set(bannerId, bannerData);
-                    bannerSection.classList.add('selected');
-                }
-            } else {
-                // Set specific state
-                if (state) {
-                    selectedBanners.set(bannerId, bannerData);
-                    bannerSection.classList.add('selected');
-                } else {
-                    selectedBanners.delete(bannerId);
-                    bannerSection.classList.remove('selected');
-                }
-            }
+    // Add click event to remove banners from sidebar
+    sidebar.querySelectorAll('.selected-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const bannerId = this.dataset.bannerId;
+            toggleBannerSelection(bannerId, false);
+        });
+    });
+}
 
-            saveSelections();
-            updateSidebar();
+// Function to toggle banner selection
+function toggleBannerSelection(bannerId, state = null) {
+    const bannerSection = document.querySelector(`.banner-section[data-banner-id="${bannerId}"]`);
+    if (!bannerSection) {
+        console.log('Banner section not found for ID:', bannerId);
+        return;
+    }
+    
+    const mergedBanner = bannerSection.closest('.merged-banner');
+    if (!mergedBanner) {
+        console.log('Merged banner not found for banner section:', bannerSection);
+        return;
+    }
+    
+    const bannerData = {
+        id: bannerId,
+        type: bannerSection.dataset.bannerType,
+        start: parseInt(mergedBanner.dataset.start),
+        end: parseInt(mergedBanner.dataset.end)
+    };
+
+    if (state === null) {
+        // Toggle state
+        if (selectedBanners.has(bannerId)) {
+            selectedBanners.delete(bannerId);
+            bannerSection.classList.remove('selected');
+        } else {
+            selectedBanners.set(bannerId, bannerData);
+            bannerSection.classList.add('selected');
         }
+    } else {
+        // Set specific state
+        if (state) {
+            selectedBanners.set(bannerId, bannerData);
+            bannerSection.classList.add('selected');
+        } else {
+            selectedBanners.delete(bannerId);
+            bannerSection.classList.remove('selected');
+        }
+    }
+
+    saveSelections();
+    updateSidebar();
+}
 
         // Function to clear all selected banners
         function clearAllSelections() {
@@ -869,31 +886,59 @@ function initializeClickEvents() {
             localStorage.setItem('bannerSelections', JSON.stringify(selections));
         }
 
-        // Load selections from localStorage
-        function loadSelections() {
-            const saved = localStorage.getItem('bannerSelections');
-            if (saved) {
-                try {
-                    const selections = JSON.parse(saved);
-                    // Handle both old and new format
-                    if (Array.isArray(selections)) {
-                        // Old format - array of banner IDs
-                        selections.forEach(bannerId => {
-                            toggleBannerSelection(bannerId, true);
-                        });
+// Load selections from localStorage - updated to handle missing elements
+function loadSelections() {
+    const saved = localStorage.getItem('bannerSelections');
+    if (saved) {
+        try {
+            const selections = JSON.parse(saved);
+            
+            // Wait a bit for the DOM to be fully populated before trying to select banners
+            setTimeout(() => {
+                Object.keys(selections).forEach(bannerId => {
+                    // Only try to select if the banner exists in the DOM
+                    const bannerSection = document.querySelector(`.banner-section[data-banner-id="${bannerId}"]`);
+                    if (bannerSection) {
+                        toggleBannerSelection(bannerId, true);
                     } else {
-                        // New format - object with banner data
-                        Object.keys(selections).forEach(bannerId => {
-                            toggleBannerSelection(bannerId, true);
-                        });
+                        console.log('Banner not found in DOM, skipping selection:', bannerId);
+                        // Remove from selections if banner doesn't exist
+                        delete selections[bannerId];
                     }
-                } catch (e) {
-                    console.error('Error loading saved selections:', e);
-                    // Clear corrupted data
+                });
+                
+                // Update localStorage with cleaned selections
+                if (Object.keys(selections).length === 0) {
                     localStorage.removeItem('bannerSelections');
+                } else {
+                    localStorage.setItem('bannerSelections', JSON.stringify(selections));
                 }
-            }
+                
+                // Update sidebar after a short delay to ensure images are loaded
+                setTimeout(updateSidebar, 100);
+            }, 500); // Wait 500ms for DOM to be ready
+            
+        } catch (e) {
+            console.error('Error loading saved selections:', e);
+            // Clear corrupted data
+            localStorage.removeItem('bannerSelections');
         }
+    }
+}
+
+// Add a function to refresh sidebar images after page load
+function refreshSidebarImages() {
+    const selectedItems = document.querySelectorAll('.selected-item');
+    selectedItems.forEach(item => {
+        const bannerId = item.dataset.bannerId;
+        const img = item.querySelector('.selected-item-thumb');
+        if (img && (!img.src || img.src.includes('undefined'))) {
+            // Regenerate the image URL
+            img.src = `https://gametora.com/images/umamusume/gacha/img_bnr_gacha_${bannerId}.png`;
+        }
+    });
+}
+
 
         // Save hide state to localStorage
         function saveHideState() {
@@ -931,7 +976,7 @@ function initializeClickEvents() {
             return banners.sort((a, b) => a.start - b.start); // Oldest first (past to present)
         }
 
-// Update the initializePage function to use the correct container
+// Update the main initialization function to call refreshSidebarImages
 async function initializePage() {
     const bannersContainer = document.getElementById('bannersContainer');
 
@@ -953,7 +998,7 @@ async function initializePage() {
 
         // Handle array or single object formats
         const charBanners = Array.isArray(charData) ? charData : [charData];
-        const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
+        const supportBanners = Array.isArray(supportData) ? supportData : [supportBanners];
 
         // Create a combined array of all banners with their types
         const allBanners = [];
@@ -1064,6 +1109,9 @@ async function initializePage() {
                         img.src = bannerUrl;
                     }
                 }
+                
+                // Refresh sidebar images after all banner images are loaded
+                setTimeout(refreshSidebarImages, 100);
             }, 0);
         }
 
@@ -1082,9 +1130,11 @@ async function initializePage() {
 
         tryInitializeClickEvents();
 
-        // Load saved states
-        loadSelections();
-        loadHideState();
+        // Load saved states with a delay to ensure DOM is ready
+        setTimeout(() => {
+            loadSelections();
+            loadHideState();
+        }, 300);
 
     } catch (error) {
         console.error('Error initializing page:', error);
@@ -1198,6 +1248,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set a timeout to ensure DOM is fully ready
     setTimeout(initializePage, 100);
 });
+
     </script>
 </body>
 </html>
