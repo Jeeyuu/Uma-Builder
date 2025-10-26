@@ -889,8 +889,7 @@
             return banners.sort((a, b) => a.start - b.start); // Oldest first (past to present)
         }
 
-        // Main initialization function
-        // Main initialization function
+// Main initialization function
 async function initializePage() {
     const bannersContainer = document.getElementById('bannersContainer');
 
@@ -898,7 +897,7 @@ async function initializePage() {
         // Load card data first
         await loadCardData();
         
-        // Load both JSON files - UPDATED PATHS
+        // Load both JSON files
         const [charData, supportData] = await Promise.all([
             loadJSON('data/gacha-char-standard.json'),
             loadJSON('data/gacha-support-standard.json')
@@ -914,53 +913,42 @@ async function initializePage() {
         const charBanners = Array.isArray(charData) ? charData : [charData];
         const supportBanners = Array.isArray(supportData) ? supportData : [supportData];
 
-        // Combine all banners and sort them by start date
-        const allBanners = [];
-        
-        // Add character banners with type
-        charBanners.forEach(banner => {
-            allBanners.push({...banner, type: 'character', hasCounterpart: false});
-        });
-        
-        // Add support banners with type
-        supportBanners.forEach(banner => {
-            allBanners.push({...banner, type: 'support', hasCounterpart: false});
-        });
+        // Sort banners by date (past to present)
+        const sortedCharBanners = sortBannersByDate(charBanners);
+        const sortedSupportBanners = sortBannersByDate(supportBanners);
 
-        // Sort all banners by start date (past to present)
-        const sortedAllBanners = allBanners.sort((a, b) => a.start - b.start);
-
-        // Create a map to find counterparts
-        const bannersByStartDate = {};
-        sortedAllBanners.forEach(banner => {
-            if (!bannersByStartDate[banner.start]) {
-                bannersByStartDate[banner.start] = { character: null, support: null };
-            }
-            bannersByStartDate[banner.start][banner.type] = banner;
+        // Create a map of support banners by start date for easy pairing
+        const supportByStartDate = {};
+        const processedSupportBanners = new Set(); // Track processed support banners
+        
+        sortedSupportBanners.forEach(banner => {
+            supportByStartDate[banner.start] = banner;
         });
 
         let bannerIndex = 0;
 
-        // Process banners in chronological order
-        for (const startTime of Object.keys(bannersByStartDate).sort((a, b) => a - b)) {
-            const banners = bannersByStartDate[startTime];
-            const charBanner = banners.character;
-            const supportBanner = banners.support;
-
-            if (charBanner && supportBanner) {
-                // Both banners exist - create merged banner
+        // Create merged banners - process character banners first
+        for (const charBanner of sortedCharBanners) {
+            const supportBanner = supportByStartDate[charBanner.start];
+            if (supportBanner) {
                 const bannerHTML = await createMergedBannerHTML(charBanner, supportBanner, bannerIndex);
                 bannersContainer.innerHTML += bannerHTML;
                 bannerIndex++;
-            } else if (charBanner) {
-                // Character banner only
+                // Mark this support banner as processed
+                processedSupportBanners.add(supportBanner.id);
+            } else {
+                // Create character banner only
                 console.log(`No support banner found for character banner ${charBanner.id} starting ${charBanner.start}`);
                 const bannerHTML = await createSingleBannerHTML(charBanner, 'character', bannerIndex);
                 bannersContainer.innerHTML += bannerHTML;
                 bannerIndex++;
-            } else if (supportBanner) {
-                // Support banner only
-                console.log(`No character banner found for support banner ${supportBanner.id} starting ${supportBanner.start}`);
+            }
+        }
+
+        // Create support-only banners that weren't processed
+        for (const supportBanner of sortedSupportBanners) {
+            if (!processedSupportBanners.has(supportBanner.id)) {
+                console.log(`Creating support-only banner ${supportBanner.id} starting ${supportBanner.start}`);
                 const bannerHTML = await createSingleBannerHTML(supportBanner, 'support', bannerIndex);
                 bannersContainer.innerHTML += bannerHTML;
                 bannerIndex++;
