@@ -252,6 +252,39 @@
         margin: 0;
     }
 
+    .sidebar-header-buttons {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .undo-btn, .redo-btn {
+        background: #ff9800;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+    }
+
+    .undo-btn:hover:not(:disabled),
+    .redo-btn:hover:not(:disabled) {
+        background: #f57c00;
+    }
+
+    .undo-btn:disabled,
+    .redo-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
     .jump-to-global-btn {
         background: #28a745;
         color: white;
@@ -267,37 +300,6 @@
 
     .jump-to-global-btn:hover {
         background: #218838;
-    }
-
-    .sidebar-header-buttons {
-        display: flex;
-        gap: 5px;
-        align-items: center;
-    }
-
-    .undo-btn {
-        background: #ff9800;
-        color: white;
-        border: none;
-        border-radius: 3px;
-        width: 20px;
-        height: 20px;
-        font-size: 12px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background-color 0.2s;
-    }
-
-    .undo-btn:hover:not(:disabled) {
-        background: #f57c00;
-    }
-
-    .undo-btn:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-        opacity: 0.6;
     }
 
     .clear-all-btn {
@@ -351,6 +353,19 @@
         margin-bottom: 5px;
     }
 
+    .memo-container {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed #eee;
+    }
+
+    .memo-label {
+        font-size: 9px;
+        color: #666;
+        margin-bottom: 3px;
+        text-align: left;
+    }
+
     .memo-input {
         width: 100%;
         padding: 4px 6px;
@@ -358,6 +373,7 @@
         border-radius: 3px;
         font-size: 10px;
         resize: vertical;
+        min-height: 40px;
         font-family: Arial, sans-serif;
     }
 
@@ -466,8 +482,7 @@
             font-size: 12px;
         }
 
-        .jump-to-global-btn,
-        .undo-btn {
+        .jump-to-global-btn {
             font-size: 10px;
             padding: 5px 8px;
         }
@@ -597,19 +612,20 @@
         </div>
     </div>
 
-        <div class="sidebar">
-            <button class="jump-to-global-btn" id="jumpToGlobalBtn">Jump to Global</button>
-            <div class="sidebar-header">
-                <h3>Selected</h3>
-                <div class="sidebar-header-buttons">
-                    <button class="undo-btn" id="undoBtn" disabled title="Undo Delete">↶</button>
-                    <button class="clear-all-btn" id="clearAllBtn" title="Clear All">×</button>
-                </div>
-            </div>
-            <div class="selected-banners" id="selectedBanners">
-                <div class="empty-sidebar">None</div>
+    <div class="sidebar">
+        <button class="jump-to-global-btn" id="jumpToGlobalBtn">Jump to Global</button>
+        <div class="sidebar-header">
+            <h3>Selected</h3>
+            <div class="sidebar-header-buttons">
+                <button class="undo-btn" id="undoBtn" disabled title="Undo">↶</button>
+                <button class="redo-btn" id="redoBtn" disabled title="Redo">↷</button>
+                <button class="clear-all-btn" id="clearAllBtn" title="Clear All">×</button>
             </div>
         </div>
+        <div class="selected-banners" id="selectedBanners">
+            <div class="empty-sidebar">None</div>
+        </div>
+    </div>
 </div>
 
     <script>
@@ -619,11 +635,13 @@
         // Track selected banners
         const selectedBanners = new Map();
 
-        // Track deleted banners for undo functionality
-        let deletedBannersStack = [];
-
         // Track memos for each banner
         const bannerMemos = new Map();
+
+        // Track history for undo/redo functionality
+        let historyStack = [];
+        let currentHistoryIndex = -1;
+        const MAX_HISTORY = 50;
 
         // Cache for card data
         let characterCards = null;
@@ -758,17 +776,101 @@
             }
         }
 
+        // Function to save current state to history
+        function saveToHistory(action) {
+            // Remove any future states if we're not at the end
+            if (currentHistoryIndex < historyStack.length - 1) {
+                historyStack = historyStack.slice(0, currentHistoryIndex + 1);
+            }
+            
+            // Create snapshot of current state
+            const snapshot = {
+                action: action,
+                selections: new Map(selectedBanners),
+                memos: new Map(bannerMemos),
+                timestamp: Date.now()
+            };
+            
+            historyStack.push(snapshot);
+            currentHistoryIndex = historyStack.length - 1;
+            
+            // Limit history size
+            if (historyStack.length > MAX_HISTORY) {
+                historyStack.shift();
+                currentHistoryIndex--;
+            }
+            
+            updateUndoRedoButtons();
+        }
+
+        // Function to restore state from history
+        function restoreFromHistory(index) {
+            if (index < 0 || index >= historyStack.length) return;
+            
+            const snapshot = historyStack[index];
+            
+            // Restore selections
+            selectedBanners.clear();
+            snapshot.selections.forEach((value, key) => {
+                selectedBanners.set(key, value);
+            });
+            
+            // Restore memos
+            bannerMemos.clear();
+            snapshot.memos.forEach((value, key) => {
+                bannerMemos.set(key, value);
+            });
+            
+            // Update UI
+            updateAllBannerSelections();
+            saveSelections();
+            saveMemos();
+            updateSidebar();
+        }
+
+        // Function to update all banner selections based on current state
+        function updateAllBannerSelections() {
+            document.querySelectorAll('.banner-section').forEach(section => {
+                const bannerId = section.dataset.bannerId;
+                if (selectedBanners.has(bannerId)) {
+                    section.classList.add('selected');
+                } else {
+                    section.classList.remove('selected');
+                }
+            });
+        }
+
+        // Function to update undo/redo button states
+        function updateUndoRedoButtons() {
+            const undoBtn = document.getElementById('undoBtn');
+            const redoBtn = document.getElementById('redoBtn');
+            
+            undoBtn.disabled = currentHistoryIndex <= 0;
+            redoBtn.disabled = currentHistoryIndex >= historyStack.length - 1;
+        }
+
+        // Function to undo
+        function undo() {
+            if (currentHistoryIndex > 0) {
+                currentHistoryIndex--;
+                restoreFromHistory(currentHistoryIndex);
+            }
+        }
+
+        // Function to redo
+        function redo() {
+            if (currentHistoryIndex < historyStack.length - 1) {
+                currentHistoryIndex++;
+                restoreFromHistory(currentHistoryIndex);
+            }
+        }
+
 // Function to update sidebar with selected banners only
 function updateSidebar() {
     const sidebar = document.getElementById('selectedBanners');
-    const undoBtn = document.getElementById('undoBtn');
 
     if (selectedBanners.size === 0) {
         sidebar.innerHTML = '<div class="empty-sidebar">None</div>';
-        // Disable undo button if there are no deleted banners to restore
-        if (deletedBannersStack.length === 0) {
-            undoBtn.disabled = true;
-        }
         return;
     }
 
@@ -811,7 +913,7 @@ function updateSidebar() {
             // Only remove if the click is not on the memo textarea
             if (!e.target.classList.contains('memo-input')) {
                 const bannerId = this.dataset.bannerId;
-                deleteBanner(bannerId);
+                toggleBannerSelection(bannerId);
             }
         });
     });
@@ -820,8 +922,16 @@ function updateSidebar() {
     sidebar.querySelectorAll('.memo-input').forEach(textarea => {
         textarea.addEventListener('input', function() {
             const bannerId = this.dataset.bannerId;
-            bannerMemos.set(bannerId, this.value);
+            const oldValue = bannerMemos.get(bannerId) || '';
+            const newValue = this.value;
+            
+            bannerMemos.set(bannerId, newValue);
             saveMemos();
+            
+            // Save to history if value actually changed
+            if (oldValue !== newValue) {
+                saveToHistory('memo_edit');
+            }
         });
         
         // Stop propagation to prevent the click event from triggering banner removal
@@ -830,62 +940,7 @@ function updateSidebar() {
         });
     });
 
-    // Enable undo button if there are deleted banners
-    undoBtn.disabled = deletedBannersStack.length === 0;
-}
-
-// Function to delete a banner (with undo capability)
-function deleteBanner(bannerId) {
-    const bannerData = selectedBanners.get(bannerId);
-    const memo = bannerMemos.get(bannerId) || '';
-    
-    if (bannerData) {
-        // Add to undo stack with both banner data and memo
-        deletedBannersStack.push({
-            bannerId: bannerId,
-            bannerData: bannerData,
-            memo: memo
-        });
-        
-        // Remove from selections
-        selectedBanners.delete(bannerId);
-        bannerMemos.delete(bannerId);
-        
-        // Update UI
-        const bannerSection = document.querySelector(`.banner-section[data-banner-id="${bannerId}"]`);
-        if (bannerSection) {
-            bannerSection.classList.remove('selected');
-        }
-        
-        saveSelections();
-        saveMemos();
-        updateSidebar();
-    }
-}
-
-// Function to undo the last deletion
-function undoDelete() {
-    if (deletedBannersStack.length > 0) {
-        const lastDeleted = deletedBannersStack.pop();
-        
-        // Restore the banner
-        selectedBanners.set(lastDeleted.bannerId, lastDeleted.bannerData);
-        
-        // Restore the memo if it existed
-        if (lastDeleted.memo) {
-            bannerMemos.set(lastDeleted.bannerId, lastDeleted.memo);
-        }
-        
-        // Update UI
-        const bannerSection = document.querySelector(`.banner-section[data-banner-id="${lastDeleted.bannerId}"]`);
-        if (bannerSection) {
-            bannerSection.classList.add('selected');
-        }
-        
-        saveSelections();
-        saveMemos();
-        updateSidebar();
-    }
+    updateUndoRedoButtons();
 }
 
 // Function to toggle banner selection
@@ -909,48 +964,54 @@ function toggleBannerSelection(bannerId, state = null) {
         end: parseInt(mergedBanner.dataset.end)
     };
 
+    const wasSelected = selectedBanners.has(bannerId);
+    
     if (state === null) {
         // Toggle state
-        if (selectedBanners.has(bannerId)) {
-            deleteBanner(bannerId);
+        if (wasSelected) {
+            selectedBanners.delete(bannerId);
+            bannerMemos.delete(bannerId);
+            bannerSection.classList.remove('selected');
         } else {
             selectedBanners.set(bannerId, bannerData);
             bannerSection.classList.add('selected');
         }
     } else {
         // Set specific state
-        if (state) {
+        if (state && !wasSelected) {
             selectedBanners.set(bannerId, bannerData);
             bannerSection.classList.add('selected');
-        } else {
-            deleteBanner(bannerId);
+        } else if (!state && wasSelected) {
+            selectedBanners.delete(bannerId);
+            bannerMemos.delete(bannerId);
+            bannerSection.classList.remove('selected');
         }
     }
 
+    // Save to history if this was a user action (not from history restoration)
+    if (state === null) {
+        saveToHistory(wasSelected ? 'deselect' : 'select');
+    }
+    
     saveSelections();
+    saveMemos();
     updateSidebar();
 }
 
         // Function to clear all selected banners
         function clearAllSelections() {
-            // Add all current selections to undo stack before clearing
-            selectedBanners.forEach((bannerData, bannerId) => {
-                const memo = bannerMemos.get(bannerId) || '';
-                deletedBannersStack.push({
-                    bannerId: bannerId,
-                    bannerData: bannerData,
-                    memo: memo
+            if (selectedBanners.size > 0) {
+                selectedBanners.clear();
+                bannerMemos.clear();
+                document.querySelectorAll('.banner-section.selected').forEach(section => {
+                    section.classList.remove('selected');
                 });
-            });
-            
-            selectedBanners.clear();
-            bannerMemos.clear();
-            document.querySelectorAll('.banner-section.selected').forEach(section => {
-                section.classList.remove('selected');
-            });
-            saveSelections();
-            saveMemos();
-            updateSidebar();
+                
+                saveToHistory('clear_all');
+                saveSelections();
+                saveMemos();
+                updateSidebar();
+            }
         }
 
         // Search function
@@ -1031,7 +1092,13 @@ function initializeClickEvents() {
     // Add click event to undo button
     const undoBtn = document.getElementById('undoBtn');
     if (undoBtn) {
-        undoBtn.addEventListener('click', undoDelete);
+        undoBtn.addEventListener('click', undo);
+    }
+
+    // Add click event to redo button
+    const redoBtn = document.getElementById('redoBtn');
+    if (redoBtn) {
+        redoBtn.addEventListener('click', redo);
     }
 
     // Add input event to search bar
@@ -1093,7 +1160,8 @@ function loadSelections() {
                     // Only try to select if the banner exists in the DOM
                     const bannerSection = document.querySelector(`.banner-section[data-banner-id="${bannerId}"]`);
                     if (bannerSection) {
-                        toggleBannerSelection(bannerId, true);
+                        selectedBanners.set(bannerId, selections[bannerId]);
+                        bannerSection.classList.add('selected');
                     } else {
                         console.log('Banner not found in DOM, skipping selection:', bannerId);
                         // Remove from selections if banner doesn't exist
@@ -1329,6 +1397,9 @@ async function initializePage() {
             loadSelections();
             loadMemos();
             loadHideState();
+            
+            // Save initial state to history
+            saveToHistory('initial');
         }, 300);
 
     } catch (error) {
